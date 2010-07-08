@@ -12,55 +12,41 @@
  */
 package org.activiti.test.pvm.activities;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.activiti.impl.execution.ConcurrencyController;
 import org.activiti.pvm.Activity;
 import org.activiti.pvm.ActivityBehavior;
 import org.activiti.pvm.ActivityExecution;
-import org.activiti.pvm.ExecutionController;
+import org.activiti.pvm.Transition;
 
 /**
  * @author Tom Baeyens
  */
-public class Join implements ActivityBehavior {
+public class ParallelGateway implements ActivityBehavior {
   
-  private static Logger log = Logger.getLogger(Join.class.getName());
+  private static Logger log = Logger.getLogger(ParallelGateway.class.getName());
 
   public void execute(ActivityExecution execution) {
-    execution.getExecutionController().setActive(false);
-    
     Activity joinActivity = execution.getActivity();
-    List<ActivityExecution> joinedExecutions = new ArrayList<ActivityExecution>();
+    List<Transition> outgoingTransitions = execution.getOutgoingTransitions();
     
-    ExecutionController executionController = execution.getExecutionController();
-    List<? extends ActivityExecution> concurrentExecutions = executionController.getExecutions();
-    for (ActivityExecution concurrentExecution: concurrentExecutions) {
-      if (concurrentExecution.getActivity()==joinActivity) {
-        joinedExecutions.add(concurrentExecution);
-      }
-    }
+    ConcurrencyController concurrencyController = new ConcurrencyController(execution);
+    concurrencyController.inactivate();
+    
+    List<ActivityExecution> joinedExecutions = concurrencyController.findInactiveConcurrentExecutions(joinActivity);
     
     int nbrOfExecutionsToJoin = execution.getIncomingTransitions().size();
     int nbrOfExecutionsJoined = joinedExecutions.size();
     
     if (nbrOfExecutionsJoined==nbrOfExecutionsToJoin) {
       log.fine("join '"+joinActivity.getId()+"' activates: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
-      activate(executionController, joinActivity, joinedExecutions);
+      concurrencyController.takeAll(outgoingTransitions, joinedExecutions);
+      
     } else if (log.isLoggable(Level.FINE)){
       log.fine("join '"+joinActivity.getId()+"' does not activate: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
     }
-  }
-
-  protected void activate(ExecutionController executionController, Activity joinActivity, List<ActivityExecution> joinedExecutions) {
-    for (ActivityExecution joinedExecution: joinedExecutions) {
-      joinedExecution.getExecutionController().end();
-    }
-    
-    ActivityExecution outgoingExecution = executionController.createExecution();
-    outgoingExecution.getExecutionController().setActivity(joinActivity);
-    outgoingExecution.takeDefaultOutgoingTransition();
   }
 }

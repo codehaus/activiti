@@ -12,7 +12,8 @@
  */
 package org.activiti.test.pvm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +24,7 @@ import org.activiti.pvm.ObjectProcessInstance;
 import org.activiti.pvm.ProcessDefinitionBuilder;
 import org.activiti.test.LogInitializer;
 import org.activiti.test.pvm.activities.Automatic;
-import org.activiti.test.pvm.activities.Fork;
-import org.activiti.test.pvm.activities.Join;
+import org.activiti.test.pvm.activities.ParallelGateway;
 import org.activiti.test.pvm.activities.WaitState;
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class PvmConcurrencyTest extends LogInitializer {
         .transition("fork")
       .endActivity()
       .createActivity("fork")
-        .behavior(new Fork())
+        .behavior(new ParallelGateway())
         .transition("c1")
         .transition("c2")
       .endActivity()
@@ -58,7 +58,7 @@ public class PvmConcurrencyTest extends LogInitializer {
         .transition("join")
       .endActivity()
       .createActivity("join")
-        .behavior(new Join())
+        .behavior(new ParallelGateway())
         .transition("end")
       .endActivity()
       .createActivity("end")
@@ -82,7 +82,7 @@ public class PvmConcurrencyTest extends LogInitializer {
         .transition("fork")
       .endActivity()
       .createActivity("fork")
-        .behavior(new Fork())
+        .behavior(new ParallelGateway())
         .transition("c1")
         .transition("c2")
       .endActivity()
@@ -95,7 +95,7 @@ public class PvmConcurrencyTest extends LogInitializer {
         .transition("join")
       .endActivity()
       .createActivity("join")
-        .behavior(new Join())
+        .behavior(new ParallelGateway())
         .transition("end")
       .endActivity()
       .createActivity("end")
