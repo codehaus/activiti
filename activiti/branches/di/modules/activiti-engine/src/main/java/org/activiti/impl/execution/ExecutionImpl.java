@@ -26,6 +26,7 @@ import org.activiti.impl.definition.ProcessDefinitionImpl;
 import org.activiti.impl.definition.TransitionImpl;
 import org.activiti.impl.definition.VariableDeclarationImpl;
 import org.activiti.impl.interceptor.CommandContext;
+import org.activiti.impl.interceptor.CommandContextHolder;
 import org.activiti.impl.job.TimerImpl;
 import org.activiti.impl.timer.TimerDeclarationImpl;
 import org.activiti.impl.variable.VariableTypes;
@@ -329,7 +330,7 @@ public class ExecutionImpl implements
   }
 
   public void destroyScope() {
-    CommandContext commandContext = CommandContext.getCurrent();
+    CommandContext commandContext = CommandContextHolder.getCurrentCommandContext();
     if (commandContext!=null) {
       commandContext
         .getTimerSession()
@@ -361,8 +362,8 @@ public class ExecutionImpl implements
     timer.setRepeat(timerDeclaration.getRepeat());
     timer.setRetries(timerDeclaration.getRetries());
     
-    CommandContext
-      .getCurrent()
+    CommandContextHolder
+      .getCurrentCommandContext()
       .getTimerSession()
       .schedule(timer);
   }

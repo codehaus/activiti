@@ -37,7 +37,7 @@ public class CommandContextFactory {
   private final Map<Class<?>, SessionFactory> sessionFactories = new HashMap<Class<?>, SessionFactory>();
 
   public CommandContext createCommandContext(Command<?> cmd) {
-    return new CommandContext(cmd, sessionFactories, transactionContextFactory, persistenceSessionFactory, messageSessionFactory, timerSessionFactory);
+    return new DefaultCommandContext(cmd, sessionFactories, transactionContextFactory, persistenceSessionFactory, messageSessionFactory, timerSessionFactory);
   }
   
   public void addSessionFactory(Class<?> sessionClass, SessionFactory sessionFactory) {
