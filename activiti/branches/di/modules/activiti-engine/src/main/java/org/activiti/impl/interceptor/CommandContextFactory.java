@@ -12,10 +12,10 @@
  */
 package org.activiti.impl.interceptor;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.activiti.impl.cfg.ProcessEngineConfiguration;
 import org.activiti.impl.msg.MessageSessionFactory;
 import org.activiti.impl.persistence.PersistenceSessionFactory;
 import org.activiti.impl.timer.TimerSessionFactory;
@@ -26,23 +26,18 @@ import org.activiti.impl.tx.TransactionContextFactory;
  * @author Tom Baeyens
  */
 public class CommandContextFactory {
-  
-  protected final ProcessEngineConfiguration processEngineConfiguration;
-  protected PersistenceSessionFactory persistenceSessionFactory;
-  protected MessageSessionFactory messageSessionFactory;
-  protected TimerSessionFactory timerSessionFactory;
-  protected TransactionContextFactory transactionContextFactory;
+
+  private PersistenceSessionFactory persistenceSessionFactory;
+  private MessageSessionFactory messageSessionFactory;
+  private TimerSessionFactory timerSessionFactory;
+  private TransactionContextFactory transactionContextFactory;
 
   /** is this open ended set of session factories useful?
    * intended purpose is to allow for user defined session factories and sessions. */  
-  protected Map<Class<?>, SessionFactory> sessionFactories = new HashMap<Class<?>, SessionFactory>();
-
-  public CommandContextFactory(ProcessEngineConfiguration processEngineConfiguration) {
-    this.processEngineConfiguration = processEngineConfiguration;
-  }
+  private final Map<Class<?>, SessionFactory> sessionFactories = new HashMap<Class<?>, SessionFactory>();
 
   public CommandContext createCommandContext(Command<?> cmd) {
-    return new CommandContext(cmd, this);
+    return new CommandContext(cmd, sessionFactories, transactionContextFactory, persistenceSessionFactory, messageSessionFactory, timerSessionFactory);
   }
   
   public void addSessionFactory(Class<?> sessionClass, SessionFactory sessionFactory) {
@@ -58,38 +53,20 @@ public class CommandContextFactory {
   }
 
   // getters and setters //////////////////////////////////////////////////////
-  
-  public ProcessEngineConfiguration getProcessEngineConfiguration() {
-    return processEngineConfiguration;
-  }
   public Map<Class< ? >, SessionFactory> getSessionFactories() {
-    return sessionFactories;
+    return Collections.unmodifiableMap(sessionFactories);
   }
-  public void setSessionFactories(Map<Class< ? >, SessionFactory> sessionFactories) {
-    this.sessionFactories = sessionFactories;  }
 
-  public TransactionContextFactory getTransactionContextFactory() {
-    return transactionContextFactory;
-  }
-  public void setTransactionContextFactory(TransactionContextFactory transactionContextFactory) {
-    this.transactionContextFactory = transactionContextFactory;
-  }
-  public PersistenceSessionFactory getPersistenceSessionFactory() {
-    return persistenceSessionFactory;
-  }
   public void setPersistenceSessionFactory(PersistenceSessionFactory persistenceSessionFactory) {
     this.persistenceSessionFactory = persistenceSessionFactory;
-  }
-  public MessageSessionFactory getMessageSessionFactory() {
-    return messageSessionFactory;
   }
   public void setMessageSessionFactory(MessageSessionFactory messageSessionFactory) {
     this.messageSessionFactory = messageSessionFactory;
   }
-  public TimerSessionFactory getTimerSessionFactory() {
-    return timerSessionFactory;
-  }
   public void setTimerSessionFactory(TimerSessionFactory timerSessionFactory) {
     this.timerSessionFactory = timerSessionFactory;
+  }
+  public void setTransactionContextFactory(TransactionContextFactory transactionContextFactory) {
+    this.transactionContextFactory = transactionContextFactory;
   }
 }

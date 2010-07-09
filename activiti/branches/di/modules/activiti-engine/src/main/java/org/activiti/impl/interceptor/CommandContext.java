@@ -20,10 +20,14 @@ import java.util.logging.Logger;
 
 import org.activiti.ActivitiException;
 import org.activiti.impl.msg.MessageSession;
+import org.activiti.impl.msg.MessageSessionFactory;
 import org.activiti.impl.persistence.PersistenceSession;
+import org.activiti.impl.persistence.PersistenceSessionFactory;
 import org.activiti.impl.timer.TimerSession;
+import org.activiti.impl.timer.TimerSessionFactory;
 import org.activiti.impl.tx.Session;
 import org.activiti.impl.tx.TransactionContext;
+import org.activiti.impl.tx.TransactionContextFactory;
 
 /**
  * @author Tom Baeyens
@@ -34,28 +38,27 @@ public class CommandContext {
 
   private static ThreadLocal<Stack<CommandContext>> txContextStacks = new ThreadLocal<Stack<CommandContext>>();
 
-  private CommandContextFactory commandContextFactory;
-  private Command< ? > command;
+  private final Command< ? > command;
+
+  private final PersistenceSession persistenceSession;
+  private final MessageSession messageSession;
+  private final TimerSession timerSession;
+  private final TransactionContext transactionContext;
+
+  private final Map<Class< ? >, SessionFactory> sessionFactories;
+  private final Map<Class< ? >, Session> sessions = new HashMap<Class< ? >, Session>();
   private Throwable exception = null;
 
-  private PersistenceSession persistenceSession;
-  private MessageSession messageSession;
-  private TimerSession timerSession;
-  private TransactionContext transactionContext;
-
-  private Map<Class< ? >, SessionFactory> sessionFactories;
-  private Map<Class< ? >, Session> sessions = new HashMap<Class< ? >, Session>();
-
-  public CommandContext(Command< ? > command, CommandContextFactory commandContextFactory) {
+  
+  public CommandContext(Command<?> command, Map<Class<?>, SessionFactory> sessionFactories, TransactionContextFactory transactionContextFactory, PersistenceSessionFactory persistenceSessionFactory, MessageSessionFactory messageSessionFactory, TimerSessionFactory timerSessionFactory) {
     this.command = command;
-    this.commandContextFactory = commandContextFactory;
-    this.sessionFactories = commandContextFactory.getSessionFactories();
 
-    this.transactionContext = commandContextFactory.getProcessEngineConfiguration().getTransactionContextFactory().openTransactionContext(this);
-    this.persistenceSession = commandContextFactory.getProcessEngineConfiguration().getPersistenceSessionFactory().openPersistenceSession(this);
-    this.messageSession = commandContextFactory.getProcessEngineConfiguration().getMessageSessionFactory().openMessageSession(this);
-    this.timerSession = commandContextFactory.getProcessEngineConfiguration().getTimerSessionFactory().openTimerSession(this);
+    this.persistenceSession = persistenceSessionFactory.openPersistenceSession(this);
+    this.messageSession = messageSessionFactory.openMessageSession(this);
+    this.timerSession = timerSessionFactory.openTimerSession(this);
+    this.transactionContext = transactionContextFactory.openTransactionContext(this);
 
+    this.sessionFactories = sessionFactories;
     getContextStack(true).push(this);
 
   }
