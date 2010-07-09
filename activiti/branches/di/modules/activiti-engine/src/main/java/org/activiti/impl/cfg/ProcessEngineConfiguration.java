@@ -31,6 +31,7 @@ import org.activiti.impl.el.ExpressionManager;
 import org.activiti.impl.identity.IdentitySession;
 import org.activiti.impl.interceptor.CommandContextFactory;
 import org.activiti.impl.interceptor.CommandExecutor;
+import org.activiti.impl.interceptor.DefaultCommandContextFactory;
 import org.activiti.impl.interceptor.DefaultCommandExecutor;
 import org.activiti.impl.job.JobHandlers;
 import org.activiti.impl.job.TimerExecuteNestedActivityJobHandler;
@@ -72,7 +73,7 @@ public class ProcessEngineConfiguration {
   private boolean jobExecutorAutoActivate;
   private DbSchemaStrategy dbSchemaStrategy;
 
-  private CommandContextFactory commandContextFactory;
+  private DefaultCommandContextFactory commandContextFactory;
   private PersistenceSessionFactory persistenceSessionFactory;
 
   public ProcessEngineConfiguration() {
@@ -134,8 +135,8 @@ public class ProcessEngineConfiguration {
     return true;
   }
 
-  protected CommandContextFactory createDefaultCommandContextFactory() {
-    CommandContextFactory commandContextFactory = new CommandContextFactory();
+  protected DefaultCommandContextFactory createDefaultCommandContextFactory() {
+    DefaultCommandContextFactory commandContextFactory = new DefaultCommandContextFactory();
     commandContextFactory.addSessionFactory(IdentitySession.class, new IbatisIdentitySessionFactory());
     return commandContextFactory;
   }
