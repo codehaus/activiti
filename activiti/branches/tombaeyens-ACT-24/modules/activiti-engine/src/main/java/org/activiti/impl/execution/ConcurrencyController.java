@@ -15,7 +15,10 @@ package org.activiti.impl.execution;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.activiti.ActivitiException;
 import org.activiti.pvm.Activity;
 import org.activiti.pvm.ActivityExecution;
 import org.activiti.pvm.Transition;
@@ -26,10 +29,14 @@ import org.activiti.pvm.Transition;
  */
 public class ConcurrencyController {
 
+  private static Logger log = Logger.getLogger(ConcurrencyController.class.getName());
+  
   ActivityExecution execution;
+  Activity activity;
 
   public ConcurrencyController(ActivityExecution execution) {
-    this.execution = (ExecutionImpl) execution;
+    this.execution = execution;
+    this.activity = execution.getActivity();
   }
 
   public void inactivate() {
@@ -37,62 +44,110 @@ public class ConcurrencyController {
   }
 
   public List<ActivityExecution> findInactiveConcurrentExecutions(Activity activity) {
-    List<ActivityExecution> inactiveConcurrentExecutions = new ArrayList<ActivityExecution>();
+    List<ActivityExecution> inactiveConcurrentExecutionsInActivity = new ArrayList<ActivityExecution>();
+    List<ActivityExecution> otherConcurrentExecutions = new ArrayList<ActivityExecution>();
     if (execution.isConcurrent()) {
-      for (ActivityExecution concurrentExecution: execution.getParent().getExecutions()) {
-        if (!concurrentExecution.isActive()) {
-          inactiveConcurrentExecutions.add(concurrentExecution);
+      List< ? extends ActivityExecution> concurrentExecutions = execution.getParent().getExecutions();
+      for (ActivityExecution concurrentExecution: concurrentExecutions) {
+        if (concurrentExecution.getActivity()==activity) {
+          if (concurrentExecution.isActive()) {
+            throw new ActivitiException("didn't expect active execution in "+activity+". bug?");
+          }
+          inactiveConcurrentExecutionsInActivity.add(concurrentExecution);
+        } else {
+          otherConcurrentExecutions.add(concurrentExecution);
         }
       }
     } else {
       if (!execution.isActive()) {
-        inactiveConcurrentExecutions.add(execution);
+        inactiveConcurrentExecutionsInActivity.add(execution);
+      } else {
+        otherConcurrentExecutions.add(execution);
       }
     }
-    return inactiveConcurrentExecutions;
+    if (log.isLoggable(Level.FINE)) {
+      log.fine("inactive concurrent executions in '"+activity+"': "+inactiveConcurrentExecutionsInActivity);
+      log.fine("other concurrent executions: "+otherConcurrentExecutions);
+    }
+    return inactiveConcurrentExecutionsInActivity;
   }
 
   public void takeAll(List<Transition> transitions, List<ActivityExecution> joinedExecutions) {
     transitions = new ArrayList<Transition>(transitions);
     joinedExecutions = new ArrayList<ActivityExecution>(joinedExecutions);
     
-    Activity activity = execution.getActivity();
     ActivityExecution concurrentRoot = (execution.isConcurrent() ? execution.getParent() : execution);
-    
+    List< ? extends ActivityExecution> concurrentExecutions = concurrentRoot.getExecutions();
+
+    if (log.isLoggable(Level.FINE)) {
+      log.fine("transitions to take concurrent: " + transitions);
+      log.fine("existing concurrent executions: " + concurrentExecutions);
+    }
+
     if ( (transitions.size()==1)
-         && (joinedExecutions.size()==concurrentRoot.getExecutions().size())
+         && (joinedExecutions.size()==concurrentExecutions.size())
        ) {
 
       for (ActivityExecution prunedExecution: joinedExecutions) {
+        log.info("pruning execution "+prunedExecution);
         prunedExecution.end();
       }
 
+      log.info("activating the concurrent root execution as the single path of execution going forward");
       concurrentRoot.setActive(true);
       concurrentRoot.setActivity(activity);
       concurrentRoot.setConcurrent(false);
       concurrentRoot.take(transitions.get(0));
 
     } else {
+      
+      List<OutgoingExecution> outgoingExecutions = new ArrayList<OutgoingExecution>();
+      
       joinedExecutions.remove(concurrentRoot);
+      log.fine("joined executions to be reused: " + joinedExecutions);
+      
+      // first create the concurrent executions
       while (!transitions.isEmpty()) {
         Transition outgoingTransition = transitions.remove(0);
-        ActivityExecution outgoingExecution = null;
-        
+
         if (joinedExecutions.isEmpty()) {
-          outgoingExecution = concurrentRoot.createExecution();
+          ActivityExecution outgoingExecution = concurrentRoot.createExecution();
+          outgoingExecutions.add(new OutgoingExecution(outgoingExecution, outgoingTransition, true));
         } else {
-          outgoingExecution = joinedExecutions.remove(0);
+          ActivityExecution outgoingExecution = joinedExecutions.remove(0);
+          outgoingExecutions.add(new OutgoingExecution(outgoingExecution, outgoingTransition, true));
         }
-        
-        outgoingExecution.setActive(true);
-        outgoingExecution.setActivity(activity);
-        outgoingExecution.setConcurrent(true);
-        outgoingExecution.take(outgoingTransition);
       }
 
+      // prune the executions that are not recycled 
       for (ActivityExecution prunedExecution: joinedExecutions) {
+        log.info("pruning execution "+prunedExecution);
         prunedExecution.end();
       }
+
+      // then launch all the concurrent executions
+      for (OutgoingExecution outgoingExecution: outgoingExecutions) {
+        outgoingExecution.take();
+      }
+    }
+  }
+  
+  private class OutgoingExecution {
+    ActivityExecution outgoingExecution;
+    Transition outgoingTransition;
+    boolean isNew;
+
+    public OutgoingExecution(ActivityExecution outgoingExecution, Transition outgoingTransition, boolean isNew) {
+      this.outgoingExecution = outgoingExecution;
+      this.outgoingTransition = outgoingTransition;
+      this.isNew = isNew;
+    }
+    
+    public void take() {
+      log.fine((isNew?"new":"recycled")+" execution launched on transition "+outgoingTransition);
+      outgoingExecution.setActive(true);
+      outgoingExecution.setConcurrent(true);
+      outgoingExecution.take(outgoingTransition);
     }
   }
 }

@@ -30,23 +30,24 @@ public class ParallelGateway implements ActivityBehavior {
   private static Logger log = Logger.getLogger(ParallelGateway.class.getName());
 
   public void execute(ActivityExecution execution) {
-    Activity joinActivity = execution.getActivity();
+    Activity activity = execution.getActivity();
+
     List<Transition> outgoingTransitions = execution.getOutgoingTransitions();
     
     ConcurrencyController concurrencyController = new ConcurrencyController(execution);
     concurrencyController.inactivate();
     
-    List<ActivityExecution> joinedExecutions = concurrencyController.findInactiveConcurrentExecutions(joinActivity);
+    List<ActivityExecution> joinedExecutions = concurrencyController.findInactiveConcurrentExecutions(activity);
     
     int nbrOfExecutionsToJoin = execution.getIncomingTransitions().size();
     int nbrOfExecutionsJoined = joinedExecutions.size();
     
     if (nbrOfExecutionsJoined==nbrOfExecutionsToJoin) {
-      log.fine("join '"+joinActivity.getId()+"' activates: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
+      log.fine("parallel gateway '"+activity.getId()+"' activates: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
       concurrencyController.takeAll(outgoingTransitions, joinedExecutions);
       
     } else if (log.isLoggable(Level.FINE)){
-      log.fine("join '"+joinActivity.getId()+"' does not activate: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
+      log.fine("parallel gateway '"+activity.getId()+"' does not activate: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
     }
   }
 }

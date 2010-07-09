@@ -246,6 +246,13 @@ public class DbExecutionImpl extends ExecutionImpl implements PersistentObject {
     return persistentState;
   }
 
+  // toString customization ///////////////////////////////////////////////////
+  
+  @Override
+  protected String getIdForToString() {
+    return id;
+  }
+
   // getters and setters //////////////////////////////////////////////////////
 
   public String getProcessInstanceId() {

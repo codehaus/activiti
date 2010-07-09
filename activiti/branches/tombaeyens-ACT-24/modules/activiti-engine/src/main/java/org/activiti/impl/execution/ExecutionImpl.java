@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.ActivitiException;
@@ -435,7 +436,9 @@ public class ExecutionImpl implements
       while (nextOperation!=null) {
         ExeOp currentOperation = this.nextOperation;
         this.nextOperation = null;
-        log.fine("ExeOp: "+currentOperation+" on "+this);
+        if (log.isLoggable(Level.FINEST)) {
+          log.finest("ExeOp: " + currentOperation + " on " + this);
+        }
         currentOperation.execute(this);
       }
       isOperating = false;
@@ -530,19 +533,19 @@ public class ExecutionImpl implements
   
   public String toString(StringBuilder text) {
     if (isProcessInstance()) {
-      text.append("ProcInst");
+      text.append("ProcessInstance");
     } else {
-      text.append("Exe");
+      text.append("Execution");
     }
-    ensureActivityInitialized();
-    if (activity!=null) {
-      text.append("(");
-      text.append(activity.getId());
-      text.append(")");
-    }
+    text.append("-");
+    text.append(getIdForToString());
     return text.toString();
   }
 
+  protected String getIdForToString() {
+    return Integer.toString(System.identityHashCode(this));
+  }
+  
   // customized getters and setters ///////////////////////////////////////////
 
   protected boolean isProcessInstance() {
