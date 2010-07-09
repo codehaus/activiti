@@ -184,6 +184,8 @@ public class ExecutionImpl implements
     if (parent!=null) {
       // then remove the bidirectional relation
       parent.removeExecution(this);
+    } else {
+      isEnded = true;
     }
   }
   

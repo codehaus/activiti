@@ -113,9 +113,11 @@ public class ConcurrencyController {
         if (joinedExecutions.isEmpty()) {
           ActivityExecution outgoingExecution = concurrentRoot.createExecution();
           outgoingExecutions.add(new OutgoingExecution(outgoingExecution, outgoingTransition, true));
+          log.fine("new "+outgoingExecution+" created to take transition "+outgoingTransition);
         } else {
           ActivityExecution outgoingExecution = joinedExecutions.remove(0);
           outgoingExecutions.add(new OutgoingExecution(outgoingExecution, outgoingTransition, true));
+          log.fine("recycled "+outgoingExecution+" to take transition "+outgoingTransition);
         }
       }
 
@@ -144,7 +146,6 @@ public class ConcurrencyController {
     }
     
     public void take() {
-      log.fine((isNew?"new":"recycled")+" execution launched on transition "+outgoingTransition);
       outgoingExecution.setActive(true);
       outgoingExecution.setConcurrent(true);
       outgoingExecution.take(outgoingTransition);

@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.activiti.impl.interceptor.CommandContext;
+import org.activiti.impl.execution.ConcurrencyController;
 import org.activiti.pvm.Activity;
 import org.activiti.pvm.ActivityExecution;
-import org.activiti.pvm.ExecutionController;
+import org.activiti.pvm.Transition;
 
 /**
  * Implementation of the Parallel Gateway/AND gateway as definined in the BPMN
@@ -49,66 +49,24 @@ public class ParallelGatewayActivity extends GatewayActivity {
   private static Logger log = Logger.getLogger(ParallelGatewayActivity.class.getName());
 
   public void execute(ActivityExecution execution) throws Exception { 
+    Activity activity = execution.getActivity();
+
+    List<Transition> outgoingTransitions = execution.getOutgoingTransitions();
     
-    // If there is only one incoming sequence flow, we can directly execute the fork behavior
+    ConcurrencyController concurrencyController = new ConcurrencyController(execution);
+    concurrencyController.inactivate();
+    
+    List<ActivityExecution> joinedExecutions = concurrencyController.findInactiveConcurrentExecutions(activity);
+    
     int nbrOfExecutionsToJoin = execution.getIncomingTransitions().size();
-    if (nbrOfExecutionsToJoin == 1) {
-      if (log.isLoggable(Level.FINE)) {
-        log.fine("Only one incoming sequence flow found for parallel gateway " 
-                + execution.getActivity().getId());
-      }
-      fork(execution);
-    } else {
+    int nbrOfExecutionsJoined = joinedExecutions.size();
     
-      Activity joinActivity = execution.getActivity();
-      List<ActivityExecution> joinedExecutions = new ArrayList<ActivityExecution>();
+    if (nbrOfExecutionsJoined==nbrOfExecutionsToJoin) {
+      log.fine("parallel gateway '"+activity.getId()+"' activates: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
+      concurrencyController.takeAll(outgoingTransitions, joinedExecutions);
       
-      List<? extends ActivityExecution> concurrentExecutions = execution.getExecutionController().getExecutions();
-      for (ActivityExecution concurrentExecution: concurrentExecutions) {
-        if (concurrentExecution.getActivity().equals(joinActivity)) {
-          joinedExecutions.add(concurrentExecution);
-        }
-      }
-      
-      int nbrOfExecutionsJoined = joinedExecutions.size();
-      if (log.isLoggable(Level.FINE)) {
-        log.fine(nbrOfExecutionsJoined + " of " + nbrOfExecutionsToJoin 
-                + " joined in " + execution.getActivity().getId());
-      }
-          
-      if (nbrOfExecutionsJoined == nbrOfExecutionsToJoin) {
-        ActivityExecution outgoingExecution = join(execution, joinedExecutions);
-        // After all incoming executions are joined, potentially there can be multiple
-        // outgoing sequence flow, requiring fork behavior.
-        fork(outgoingExecution);
-      } else {
-        if (log.isLoggable(Level.FINE)) {
-          log.fine("Not all executions arrived in parallel gateway '" + execution.getActivity().getId() + "'");
-        }
-      }
-      
+    } else if (log.isLoggable(Level.FINE)){
+      log.fine("parallel gateway '"+activity.getId()+"' does not activate: "+nbrOfExecutionsJoined+" of "+nbrOfExecutionsToJoin+" joined");
     }
   }
-  
-  protected void fork(ActivityExecution execution) {
-    leaveIgnoreConditions(execution); // a parallel gateway does NOT evaluate conditions 
-  }
-  
-  protected ActivityExecution join(ActivityExecution execution, List<ActivityExecution> joinedExecutions) {
-
-    ExecutionController executionController = execution.getExecutionController();
-
-    // Child executions must be ended before selecting the outgoing sequence flow
-    // since the children endings have an influence on the reuse of the parent execution
-    for (ActivityExecution joinedExecution: joinedExecutions) {
-      ExecutionController joinedExecutionController = joinedExecution.getExecutionController();
-      joinedExecutionController.end();
-    }
-
-    ActivityExecution outgoingExecution = executionController.createExecution();
-    outgoingExecution.getExecutionController().setActivity(execution.getActivity());
-    
-    return outgoingExecution;
-  }
-
 }
