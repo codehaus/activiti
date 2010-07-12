@@ -56,10 +56,8 @@ public class CachingPersistenceSessionFactory implements PersistenceSessionFacto
   }
 
   public PersistenceSession openPersistenceSession(CommandContext commandContext) {
-    return (PersistenceSession) Proxy.newProxyInstance(classLoader, new Class< ? >[] { PersistenceSession.class }, new CacheHandler(delegate
-            .openPersistenceSession(commandContext)));
+    return createCachingPersistenceSession(delegate.openPersistenceSession(commandContext));
   }
-
   public synchronized void reset() {
     processDefinitionsById = new HashMap<String, ProcessDefinitionImpl>();
     processDefinitionsByKey = new HashMap<String, ProcessDefinitionImpl>();
@@ -93,10 +91,13 @@ public class CachingPersistenceSessionFactory implements PersistenceSessionFacto
 
     ProcessDefinitionImpl processDefinition = processDefinitionsById.get(processDefinitionId);
     if (processDefinition == null) {
-      addProcessDefinition(persistenceSession, persistenceSession.findProcessDefinitionById(processDefinitionId));
+      processDefinition = persistenceSession.findProcessDefinitionById(processDefinitionId);
+      addProcessDefinition(persistenceSession, processDefinition);
       DeploymentImpl deployment = persistenceSession.findDeploymentByProcessDefinitionId(processDefinitionId);
       if (deployment != null) {
-        deployerManager.deploy(deployment, persistenceSession);
+        // Need to deploy with a caching session, so that the cache is poulated
+        // when the resources are parsed:
+        deployerManager.deploy(deployment, createCachingPersistenceSession(persistenceSession));
       }
     }
 
@@ -114,6 +115,10 @@ public class CachingPersistenceSessionFactory implements PersistenceSessionFacto
       return null;
     }
     return findProcessDefinitionById(persistenceSession, processDefinition.getId());
+  }
+
+  private PersistenceSession createCachingPersistenceSession(PersistenceSession target) {
+    return (PersistenceSession) Proxy.newProxyInstance(classLoader, new Class< ? >[] { PersistenceSession.class }, new CacheHandler(target));
   }
 
   private class CacheHandler implements InvocationHandler {
