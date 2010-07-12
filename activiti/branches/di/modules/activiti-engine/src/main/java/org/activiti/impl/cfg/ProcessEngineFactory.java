@@ -18,6 +18,7 @@ import org.activiti.DbSchemaStrategy;
 import org.activiti.IdentityService;
 import org.activiti.impl.IdentityServiceImpl;
 import org.activiti.impl.ManagementServiceImpl;
+import org.activiti.impl.ProcessEngineConfiguration;
 import org.activiti.impl.ProcessEngineImpl;
 import org.activiti.impl.ProcessServiceImpl;
 import org.activiti.impl.TaskServiceImpl;
