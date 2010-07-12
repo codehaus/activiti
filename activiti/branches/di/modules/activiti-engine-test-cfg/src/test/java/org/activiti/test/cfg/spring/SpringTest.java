@@ -88,11 +88,16 @@ public class SpringTest {
   @DirtiesContext
   public void testSaveDeployment() {
 
+    int before = processEngine.getProcessService().findDeployments().size();
+
     String resource = ClassUtils.addResourcePathToPackagePath(getClass(), "testProcess.bpmn20.xml");
     ProcessService processService = processEngine.getProcessService();
     Deployment deployment = processService.createDeployment().name(resource).addClasspathResource(resource).deploy();
 
+    assertEquals(before+1, processEngine.getProcessService().findDeployments().size());
     deployment = processService.createDeployment().name(resource).addClasspathResource(resource).deploy();
+    assertEquals(before+1, processEngine.getProcessService().findDeployments().size());
+
     if (deployment != null) {
       processService.deleteDeploymentCascade(deployment.getId());
     }

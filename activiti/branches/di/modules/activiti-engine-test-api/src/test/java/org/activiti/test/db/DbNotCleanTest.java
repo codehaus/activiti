@@ -40,7 +40,7 @@ public class DbNotCleanTest {
             "<definitions xmlns='http://www.omg.org/spec/BPMN/20100524/MODEL' " + "targetNamespace='http://www.activiti.org/bpmn2.0' />").deploy();
     assertNotNull(deployment);
 
-    exception.expect(ActivitiException.class);
+    exception.expect(AssertionError.class);
     exception.expectMessage("Database not clean");
 
     try {
