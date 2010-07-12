@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -94,9 +96,9 @@ public class SpringTest {
     ProcessService processService = processEngine.getProcessService();
     Deployment deployment = processService.createDeployment().name(resource).addClasspathResource(resource).deploy();
 
-    assertEquals(before+1, processEngine.getProcessService().findDeployments().size());
+    assertEquals(before + 1, processEngine.getProcessService().findDeployments().size());
     deployment = processService.createDeployment().name(resource).addClasspathResource(resource).deploy();
-    assertEquals(before+1, processEngine.getProcessService().findDeployments().size());
+    assertEquals(before + 1, processEngine.getProcessService().findDeployments().size());
 
     if (deployment != null) {
       processService.deleteDeploymentCascade(deployment.getId());
@@ -104,4 +106,25 @@ public class SpringTest {
 
   }
 
+  @Test
+  @DirtiesContext
+  public void testConfigureDeploymentCheck() throws Exception {
+
+    int before = processEngine.getProcessService().findDeployments().size();
+
+    ProcessService processService = processEngine.getProcessService();
+
+    // (N.B. Spring 3 resolves Resource[] from a pattern to FileSystemResource instances)
+    FileSystemResource resource = new FileSystemResource(new ClassPathResource("staticProcess.bpmn20.xml", getClass()).getFile());
+    String path = resource.getFile().getAbsolutePath();
+
+    Deployment deployment = processService.createDeployment().name(path).addInputStream(path, resource.getInputStream()).deploy();
+    // Should be identical to resource configured in factory bean so no new deployment
+    assertEquals(before, processEngine.getProcessService().findDeployments().size());
+
+    if (deployment != null) {
+      processService.deleteDeploymentCascade(deployment.getId());
+    }
+
+  }
 }

@@ -35,7 +35,6 @@ import org.activiti.impl.variable.VariableTypes;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ContextResource;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -117,14 +116,16 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
 
   private String getResourceName(Resource resource) {
     String name;
-    if (resource instanceof ClassPathResource) {
-      name = ((ClassPathResource) resource).getPath();
-    } else if (resource instanceof ContextResource) {
+    if (resource instanceof ContextResource) {
       name = ((ContextResource) resource).getPathWithinContext();
     } else if (resource instanceof ByteArrayResource) {
       name = resource.getDescription();
     } else {
-      name = resource.getFilename();
+      try {
+        name = resource.getFile().getAbsolutePath();
+      } catch (IOException e) {
+        name = resource.getFilename();
+      }
     }
     return name;
   }
