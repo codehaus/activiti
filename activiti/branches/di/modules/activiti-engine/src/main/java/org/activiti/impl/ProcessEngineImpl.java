@@ -20,6 +20,7 @@ import org.activiti.ManagementService;
 import org.activiti.ProcessEngine;
 import org.activiti.ProcessService;
 import org.activiti.TaskService;
+import org.activiti.impl.cfg.ProcessEngineConfiguration;
 import org.activiti.impl.jobexecutor.JobExecutor;
 import org.activiti.impl.persistence.PersistenceSessionFactory;
 
@@ -30,15 +31,15 @@ public class ProcessEngineImpl implements ProcessEngine {
 
   private static Logger log = Logger.getLogger(ProcessEngineImpl.class.getName());
 
-  private final ProcessEngineConfiguration processEngineConfiguration;
-  private final String name;
-  private final ProcessService processService;
-  private final IdentityService identityService;
-  private final TaskService taskService;
-  private final ManagementService managementService;
-  private final DbSchemaStrategy dbSchemaStrategy;
-  private final JobExecutor jobExecutor;
-  private final PersistenceSessionFactory persistenceSessionFactory;
+  ProcessEngineConfiguration processEngineConfiguration;
+  String name;
+  ProcessService processService;
+  IdentityService identityService;
+  TaskService taskService;
+  ManagementService managementService;
+  DbSchemaStrategy dbSchemaStrategy;
+  JobExecutor jobExecutor;
+  PersistenceSessionFactory persistenceSessionFactory;
 
   public ProcessEngineImpl(ProcessEngineConfiguration processEngineConfiguration) {
     this.processEngineConfiguration = processEngineConfiguration;
@@ -89,6 +90,10 @@ public class ProcessEngineImpl implements ProcessEngine {
     return name;
   }
 
+  public JobExecutor getJobExecutor() {
+    return jobExecutor;
+  }
+
   public IdentityService getIdentityService() {
     return identityService;
   }
@@ -104,7 +109,9 @@ public class ProcessEngineImpl implements ProcessEngine {
   public ProcessService getProcessService() {
     return processService;
   }
-  
+  public DbSchemaStrategy getDbSchemaStrategy() {
+    return dbSchemaStrategy;
+  }
   public PersistenceSessionFactory getPersistenceSessionFactory() {
     return persistenceSessionFactory;
   }

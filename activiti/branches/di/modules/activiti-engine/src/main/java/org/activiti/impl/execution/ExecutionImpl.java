@@ -318,6 +318,8 @@ public class ExecutionImpl implements
     scopeExecution.setTransition(getTransition());
     setTransition(null);
     setActive(false);
+    
+    log.fine("create scope: parent scope "+this+" continues as scoped execution "+scopeExecution);
 
     // TODO: create declared scoped variables
 
@@ -330,6 +332,7 @@ public class ExecutionImpl implements
   }
 
   public void destroyScope() {
+    log.fine("destroy scope: scoped "+this+" continues as parent scope "+getParent());
     CommandContext commandContext = CommandContextHolder.getCurrentCommandContext();
     if (commandContext!=null) {
       commandContext

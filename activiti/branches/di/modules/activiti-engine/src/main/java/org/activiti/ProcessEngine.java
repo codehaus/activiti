@@ -46,7 +46,7 @@ package org.activiti;
 public interface ProcessEngine {
 
   /** the version of the activiti library */
-  String VERSION = "5.0.alpha4-SNAPSHOT";
+  public static String VERSION = "5.0.alpha4-SNAPSHOT";
 
   /** the name as specified in the 'process.engine.name' property in 
    * the activiti.properties configuration file or in the 

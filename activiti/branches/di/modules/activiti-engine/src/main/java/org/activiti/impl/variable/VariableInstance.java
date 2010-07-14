@@ -80,7 +80,6 @@ public class VariableInstance implements Serializable, PersistentObject {
 
   public void delete() {
     PersistenceSession persistenceSession = CommandContextHolder.getCurrentCommandContext().getPersistenceSession();
-
     persistenceSession.delete(this);
 
     if (byteArrayValueId != null) {

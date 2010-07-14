@@ -11,17 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.impl.interceptor;
 
-import java.util.Map;
+package org.activiti.impl.bpmn;
 
 /**
- * @author Agim Emruli
+ * Implementation of the BPMN 2.0 'manual task': a task that is external to the
+ * BPMS and to which there is no reference to IT systems whatsoever.
+ * 
+ * Given this definition, this activity will behave simply as a pass-though step
+ * in the process.
+ * 
+ * @author Joram Barrez
  */
-public interface CommandContextFactory {
-  CommandContext createCommandContext(Command<?> cmd);
-  void addSessionFactory(Class<?> sessionClass, SessionFactory sessionFactory);
-  SessionFactory getSessionFactory(Class<?> sessionClass);
-  void removeSessionFactory(Class<?> sessionClass);
-  Map<Class< ? >, SessionFactory> getSessionFactories();
+public class ManualTaskActivity extends TaskActivity {
+
 }

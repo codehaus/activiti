@@ -26,6 +26,7 @@ import org.activiti.ProcessDefinition;
 import org.activiti.impl.bpmn.BoundaryTimerEventActivity;
 import org.activiti.impl.bpmn.BpmnInterface;
 import org.activiti.impl.bpmn.ExclusiveGatewayActivity;
+import org.activiti.impl.bpmn.ManualTaskActivity;
 import org.activiti.impl.bpmn.NoneEndEventActivity;
 import org.activiti.impl.bpmn.NoneStartEventActivity;
 import org.activiti.impl.bpmn.Operation;
@@ -311,7 +312,9 @@ public class BpmnParse extends Parse {
         parseServiceTask(activityElement, scopeElement);
       } else if (activityElement.getTagName().equals("task")) {
         parseTask(activityElement, scopeElement);
-      } else if (activityElement.getTagName().equals("userTask")) {
+      } else if (activityElement.getTagName().equals("manualTask")) { 
+        parseManualTask(activityElement, scopeElement);
+      }else if (activityElement.getTagName().equals("userTask")) {
         parseUserTask(activityElement, scopeElement);
       } else if (activityElement.getTagName().equals("receiveTask")) {
         parseReceiveTask(activityElement, scopeElement);
@@ -430,7 +433,15 @@ public class BpmnParse extends Parse {
     ActivityImpl activity = parseAndCreateActivityOnScopeElement(taskElement, scopeElement);
     activity.setActivityBehavior(new TaskActivity());
   }
-
+  
+  /**
+   * Parses a manual task.
+   */
+  public void parseManualTask(Element manualTaskElement, ScopeElementImpl scopeElement) {
+    ActivityImpl activity = parseAndCreateActivityOnScopeElement(manualTaskElement, scopeElement);
+    activity.setActivityBehavior(new ManualTaskActivity());
+  }
+  
   /**
    * Parses a receive task.
    */
@@ -459,7 +470,7 @@ public class BpmnParse extends Parse {
    */
   public void parseUserTask(Element userTaskElement, ScopeElementImpl scopeElement) {
     ActivityImpl activity = parseAndCreateActivityOnScopeElement(userTaskElement, scopeElement);
-    UserTaskActivity userTaskActivity = new UserTaskActivity(scriptingEngines, parseTaskDefinition(userTaskElement));
+    UserTaskActivity userTaskActivity = new UserTaskActivity(expressionManager, parseTaskDefinition(userTaskElement));
 
     String form = userTaskElement.attributeNS(BpmnParser.BPMN_EXTENSIONS_NS, "form");
     String formLanguage = userTaskElement.attributeNS(BpmnParser.BPMN_EXTENSIONS_NS, "form-language", ScriptingEngines.DEFAULT_SCRIPTING_LANGUAGE);
