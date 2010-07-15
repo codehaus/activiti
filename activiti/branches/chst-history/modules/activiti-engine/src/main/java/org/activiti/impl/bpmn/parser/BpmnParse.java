@@ -359,6 +359,7 @@ public class BpmnParse extends Parse {
     }
     ActivityImpl activity = scopeElement.createActivity(id);
     activity.setName(name);
+    activity.setType(activityElement.getTagName());
     return activity;
   }
 

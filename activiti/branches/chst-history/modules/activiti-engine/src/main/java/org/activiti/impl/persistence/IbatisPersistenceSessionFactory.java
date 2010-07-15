@@ -107,6 +107,8 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     statements.add("selectTableCount");
     statements.add("selectTableData");
     statements.add("selectProperty");
+    statements.add("selectHistoricProcessInstance");
+    statements.add("selectHistoricActivityInstance");
 
     statements.add("insertExecution");
     statements.add("insertJob");
@@ -122,6 +124,8 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     statements.add("insertGroup");
     statements.add("insertUser");
     statements.add("insertMembership");
+    statements.add("insertHistoricProcessInstance");
+    statements.add("insertHistoricActivityInstance");
 
     statements.add("updateUser");
     statements.add("updateGroup");
@@ -133,6 +137,8 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     statements.add("updateByteArray");
     statements.add("updateMessage");
     statements.add("updateTimer");
+    statements.add("updateHistoricProcessInstance");
+    statements.add("updateHistoricActivityInstance");
 
     statements.add("deleteMembership");
     statements.add("deleteDeployment");
@@ -148,6 +154,8 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     statements.add("deleteGroup");
     statements.add("deleteMembershipsForUser");
     statements.add("deleteUser");
+    statements.add("deleteHistoricProcessInstance");
+    statements.add("deleteHistoricActivityInstance");
 
     // DB specific statement ids
     // e.g. addDatabaseSpecificStatement("oracle", "selectExecution",
