@@ -141,7 +141,7 @@ create table ACT_HISTORICPROCESSINSTANCE (
     START_TIME_ timestamp not null,
     END_TIME_ timestamp,
     DURATION_IN_MILLIS_ bigint,
-    // TODO: check endStateName length
+    -- TODO: check endStateName length
     END_STATE_NAME_ varchar(255),
     primary key (ID_),
     unique (PROC_INST_ID_)
