@@ -24,21 +24,30 @@ import org.activiti.pvm.ActivityExecution;
  */
 public class ScriptTaskActivity extends TaskActivity {
   
-  private final String script;
+  protected String script;
   
-  private final String language;
-
-  private final ScriptingEngines scriptingEngines;
+  protected String language;
+  
+  public ScriptTaskActivity() {
     
-  public ScriptTaskActivity(ScriptingEngines scriptingEngines, String script, String language) {
-    this.scriptingEngines = scriptingEngines;
+  }
+  
+  public ScriptTaskActivity(String script, String language) {
     this.script = script;
     this.language = language;
   }
   
   public void execute(ActivityExecution execution) throws Exception {
-    scriptingEngines.evaluate(script, language, (ExecutionImpl) execution);
+    ScriptingEngines.getScriptingEngines().evaluate(script, language, (ExecutionImpl) execution);
     leave(execution);
+  }
+
+  public void setScript(String script) {
+    this.script = script;
+  }
+
+  public void setLanguage(String language) {
+    this.language = language;
   }
   
 }

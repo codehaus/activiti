@@ -31,27 +31,19 @@ import org.activiti.impl.execution.ExecutionImpl;
  */
 public class ExecutionELContext extends ELContext {
   
-  private final ExecutionImpl execution;
-  private ELResolver elResolver;
+  protected ExecutionImpl execution;
     
   public ExecutionELContext(ExecutionImpl execution) {
     this.execution = execution;
-  }
-  
-  public void setElResolver(ELResolver elResolver) {
-    this.elResolver = elResolver;
   }
 
   public ELResolver getELResolver() {
     CompositeELResolver elResolver = new CompositeELResolver();
     elResolver.add(new ExecutionVariableElResolver(execution));
-    if (this.elResolver!=null) {
-      elResolver.add(this.elResolver);
-    }
-    elResolver.add(new ArrayELResolver());
     elResolver.add(new ListELResolver());
     elResolver.add(new MapELResolver());
     elResolver.add(new BeanELResolver());
+    elResolver.add(new ArrayELResolver());
     return elResolver;
   }
   

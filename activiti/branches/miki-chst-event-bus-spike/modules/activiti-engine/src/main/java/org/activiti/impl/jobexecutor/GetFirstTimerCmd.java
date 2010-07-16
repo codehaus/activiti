@@ -12,9 +12,6 @@
  */
 package org.activiti.impl.jobexecutor;
 
-import java.util.Date;
-import java.util.List;
-
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.job.TimerImpl;
@@ -22,20 +19,10 @@ import org.activiti.impl.job.TimerImpl;
 
 /**
  * @author Tom Baeyens
- * @author Joram Barrez
  */
-public class GetUnlockedTimersByDuedateCmd implements Command<List<TimerImpl>> {
+public class GetFirstTimerCmd implements Command<TimerImpl> {
 
-  protected Date duedate;
-  
-  protected int nrOfTimers = -1;
-  
-  public GetUnlockedTimersByDuedateCmd(Date duedate, int nrOfTimers) {
-	  this.duedate = duedate;
-	  this.nrOfTimers = nrOfTimers;
-  }
-
-  public List<TimerImpl> execute(CommandContext commandContext) {
-    return commandContext.getPersistenceSession().findUnlockedTimersByDuedate(duedate, nrOfTimers);
+  public TimerImpl execute(CommandContext commandContext) {
+    return commandContext.getPersistenceSession().findFirstTimer();
   }
 }

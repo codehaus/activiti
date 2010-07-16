@@ -22,17 +22,20 @@ import org.activiti.pvm.Condition;
  */
 public class ExpressionCondition implements Condition {
 
-  private final String expression;
-  private final String language;
-  private final ScriptingEngines scriptingEngines;
+  String expression;
+  String language = ScriptingEngines.DEFAULT_SCRIPTING_LANGUAGE;
 
-  public ExpressionCondition(ScriptingEngines scriptingEngines, String expression, String language) {
-    this.scriptingEngines = scriptingEngines;
+  public ExpressionCondition(String expression) {
+    this.expression = expression;
+  }
+
+  public ExpressionCondition(String expression, String language) {
     this.expression = expression;
     this.language = language;
   }
 
   public boolean evaluate(ActivityExecution execution) {
+    ScriptingEngines scriptingEngines = ScriptingEngines.getScriptingEngines();
     Object result = scriptingEngines.evaluate(expression, language, (ExecutionImpl) execution);
     if (result == null) {
       throw new ActivitiException("condition expression returns null: " + expression);

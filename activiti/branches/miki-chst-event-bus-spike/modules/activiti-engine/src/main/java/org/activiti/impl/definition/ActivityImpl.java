@@ -15,7 +15,6 @@ package org.activiti.impl.definition;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.impl.calendar.BusinessCalendar;
 import org.activiti.impl.timer.TimerDeclarationImpl;
 import org.activiti.pvm.Activity;
 import org.activiti.pvm.ActivityBehavior;
@@ -44,9 +43,9 @@ public class ActivityImpl extends ScopeElementImpl implements Activity {
     return transition;
   }
   
-  public TimerDeclarationImpl createTimerDeclaration(BusinessCalendar businessCalendar, String duedate, String jobHandlerType) {
+  public TimerDeclarationImpl createTimerDeclaration(String duedate, String jobHandlerType) {
     setScope(true);
-    return super.createTimerDeclaration(businessCalendar, duedate, jobHandlerType);
+    return super.createTimerDeclaration(duedate, jobHandlerType);
   }
 
   public VariableDeclarationImpl createVariableDeclaration(String name, String type) {

@@ -13,10 +13,8 @@
 package org.activiti.impl.el;
 
 import javax.el.ELContext;
-import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
 
-import org.activiti.ActivitiException;
 import org.activiti.impl.execution.ExecutionImpl;
 
 
@@ -35,11 +33,7 @@ public class ActivitiValueExpression {
 
   public Object getValue(ExecutionImpl execution) {
     ELContext elContext = expressionManager.getElContext(execution);
-    try {
-      return valueExpression.getValue(elContext);
-    } catch (PropertyNotFoundException e) {
-      throw new ActivitiException("Unknown property used in expression", e);
-    }
+    return valueExpression.getValue(elContext);
   }
 
   public void setValue(Object value, ExecutionImpl execution) {

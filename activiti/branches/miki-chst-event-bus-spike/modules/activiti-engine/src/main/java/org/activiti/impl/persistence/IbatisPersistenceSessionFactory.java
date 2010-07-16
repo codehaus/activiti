@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,25 +31,17 @@ import org.activiti.ActivitiException;
 import org.activiti.ActivitiWrongDbException;
 import org.activiti.ProcessEngine;
 import org.activiti.impl.db.IdGenerator;
-import org.activiti.impl.definition.ProcessDefinitionDbImpl;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.util.IoUtil;
-import org.activiti.impl.variable.Type;
-import org.activiti.impl.variable.VariableTypes;
-import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
-import org.apache.ibatis.reflection.factory.ObjectFactory;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
-import org.apache.ibatis.type.JdbcType;
 
 /**
  * @author Tom Baeyens
@@ -74,7 +65,6 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     statements.add("selectTask");
     statements.add("selectTaskByExecution");
     statements.add("selectDeployments");
-    statements.add("selectDeploymentsByName");
     statements.add("selectDeployment");
     statements.add("selectDeploymentByProcessDefinitionId");
     statements.add("selectByteArraysForDeployment");
@@ -90,7 +80,7 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     statements.add("selectJob");
     statements.add("selectJobs");
     statements.add("selectNextJobsToExecute");
-    statements.add("selectUnlockedTimersByDuedate");
+    statements.add("selectFirstTimer");
     statements.add("selectTimersByExecutionId");
     statements.add("selectUser");
     statements.add("selectUsersByGroup");
@@ -153,18 +143,19 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
     // e.g. addDatabaseSpecificStatement("oracle", "selectExecution",
     // "selectExecution_oracle");
     addDatabaseSpecificStatement("mysql", "selectTaskByDynamicCriteria", "selectTaskByDynamicCriteria_mysql");
-    addDatabaseSpecificStatement("mysql", "selectNextJobsToExecute", "selectNextJobsToExecute_mysql");
   }
 
   protected static void addDatabaseSpecificStatement(String databaseName, String activitiStatement, String ibatisStatement) {
-    Map<String, String> specificStatements = null;
-    if (databaseSpecificStatements == null) {
-      databaseSpecificStatements = new HashMap<String, Map<String, String>>();
+	Map<String, String> specificStatements = null;
+	if (databaseSpecificStatements==null) {
+	  databaseSpecificStatements = new HashMap<String, Map<String,String>>();	
       specificStatements = new HashMap<String, String>();
       databaseSpecificStatements.put(databaseName, specificStatements);
-    } else {
-      specificStatements = databaseSpecificStatements.get(databaseName);
     }
+	else
+	{
+		specificStatements = databaseSpecificStatements.get(databaseName);
+	}
 
     specificStatements.put(activitiStatement, ibatisStatement);
   }
@@ -174,17 +165,11 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
   protected final IdGenerator idGenerator;
   protected Map<String, String> databaseStatements;
 
-  private final VariableTypes variableTypes;
-
-  public IbatisPersistenceSessionFactory(VariableTypes variableTypes, IdGenerator idGenerator, String databaseName, String jdbcDriver, String jdbcUrl,
-          String jdbcUsername, String jdbcPassword) {
-    this(variableTypes, idGenerator, databaseName, new PooledDataSource(Thread.currentThread().getContextClassLoader(), jdbcDriver, jdbcUrl, jdbcUsername,
-            jdbcPassword), true);
+  public IbatisPersistenceSessionFactory(IdGenerator idGenerator, String databaseName, String jdbcDriver, String jdbcUrl, String jdbcUsername, String jdbcPassword) {
+    this(idGenerator, databaseName, new PooledDataSource(Thread.currentThread().getContextClassLoader(), jdbcDriver, jdbcUrl, jdbcUsername, jdbcPassword), true);
   }
 
-  public IbatisPersistenceSessionFactory(VariableTypes variableTypes, IdGenerator idGenerator, String databaseName, DataSource dataSource,
-          boolean localTransactions) {
-    this.variableTypes = variableTypes;
+  public IbatisPersistenceSessionFactory(IdGenerator idGenerator, String databaseName, DataSource dataSource, boolean localTransactions) {
     this.idGenerator = idGenerator;
     this.databaseName = databaseName;
     sqlSessionFactory = createSessionFactory(dataSource, localTransactions ? new JdbcTransactionFactory() : new ManagedTransactionFactory());
@@ -198,16 +183,12 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
       InputStream inputStream = classLoader.getResourceAsStream("org/activiti/db/ibatis/activiti.ibatis.mem.conf.xml");
 
       // update the jdbc parameters to the configured ones...
-      Environment environment = new Environment("default", transactionFactory, dataSource);
       Reader reader = new InputStreamReader(inputStream);
-      XMLConfigBuilder parser = new XMLConfigBuilder(reader);
-      Configuration configuration = parser.getConfiguration();
-      configuration.setEnvironment(environment);
-      configuration.getTypeHandlerRegistry().register(Type.class, JdbcType.VARCHAR, new IbatisVariableTypeHandler(variableTypes));
-      configuration.setObjectFactory(new ActivitiObjectFactory(variableTypes));
-      configuration = parser.parse();
+      SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);      
       
-      return new DefaultSqlSessionFactory(configuration);
+      Environment environment = new Environment("default", transactionFactory, dataSource);
+      sqlSessionFactory.getConfiguration().setEnvironment(environment);
+      return sqlSessionFactory;
 
     } catch (Exception e) {
       throw new ActivitiException("Error while building ibatis SqlSessionFactory: " + e.getMessage(), e);
@@ -348,31 +329,4 @@ public class IbatisPersistenceSessionFactory implements PersistenceSessionFactor
   public IdGenerator getIdGenerator() {
     return idGenerator;
   }
-
-  @SuppressWarnings("unchecked")
-  private static class ActivitiObjectFactory implements ObjectFactory {
-
-    private ObjectFactory delegate = new DefaultObjectFactory();
-    private final VariableTypes variableTypes;
-
-    public ActivitiObjectFactory(VariableTypes variableTypes) {
-      this.variableTypes = variableTypes;
-    }
-
-    public Object create(Class type, List<Class> constructorArgTypes, List<Object> constructorArgs) {
-      return delegate.create(type, constructorArgTypes, constructorArgs);
-    }
-
-    public Object create(Class type) {
-      if (type==ProcessDefinitionDbImpl.class) {
-        return new ProcessDefinitionDbImpl(variableTypes);
-      }
-      return delegate.create(type);
-    }
-
-    public void setProperties(Properties properties) {
-      delegate.setProperties(properties);
-    }
-  }
-
 }

@@ -28,9 +28,9 @@ import org.activiti.impl.persistence.PersistenceSessionFactory;
  * @author Tom Baeyens
  */
 public class ProcessEngineImpl implements ProcessEngine {
-
+  
   private static Logger log = Logger.getLogger(ProcessEngineImpl.class.getName());
-
+  
   ProcessEngineConfiguration processEngineConfiguration;
   String name;
   ProcessService processService;
@@ -40,7 +40,7 @@ public class ProcessEngineImpl implements ProcessEngine {
   DbSchemaStrategy dbSchemaStrategy;
   JobExecutor jobExecutor;
   PersistenceSessionFactory persistenceSessionFactory;
-
+  
   public ProcessEngineImpl(ProcessEngineConfiguration processEngineConfiguration) {
     this.processEngineConfiguration = processEngineConfiguration;
     this.name = processEngineConfiguration.getProcessEngineName();
@@ -52,40 +52,45 @@ public class ProcessEngineImpl implements ProcessEngine {
     this.jobExecutor = processEngineConfiguration.getJobExecutor();
     this.persistenceSessionFactory = processEngineConfiguration.getPersistenceSessionFactory();
 
-    if (DbSchemaStrategy.DROP_CREATE == dbSchemaStrategy) {
-      try {
-        persistenceSessionFactory.dbSchemaDrop();
-      } catch (RuntimeException e) {
-        // ignore
-      }
-    }
-    if (DbSchemaStrategy.CREATE_DROP == dbSchemaStrategy || DbSchemaStrategy.DROP_CREATE == dbSchemaStrategy || DbSchemaStrategy.CREATE == dbSchemaStrategy) {
+    if (DbSchemaStrategy.CREATE_DROP==dbSchemaStrategy 
+            || DbSchemaStrategy.CREATE==dbSchemaStrategy) {
+//      if (DbSchemaStrategy.CREATE_DROP==dbSchemaStrategy) {        
+//        try {
+//          persistenceSessionFactory.dbSchemaDrop();
+//        } catch (RuntimeException e) {
+//          // ignore
+//        }
+//      }
       persistenceSessionFactory.dbSchemaCreate();
-    } else if (DbSchemaStrategy.CHECK_VERSION == dbSchemaStrategy) {
+    } else if (DbSchemaStrategy.CHECK_VERSION==dbSchemaStrategy) {
       persistenceSessionFactory.dbSchemaCheckVersion();
     }
-
-    if (name == null) {
+    
+    if (name==null) {
       log.info("default activiti ProcessEngine created");
     } else {
-      log.info("ProcessEngine " + name + " created");
+      log.info("ProcessEngine "+name+" created");
     }
 
-    if ((jobExecutor != null) && (jobExecutor.isAutoActivate())) {
+    if ( (jobExecutor!=null)
+         && (processEngineConfiguration.isJobExecutorAutoActivate())
+       ) {
       jobExecutor.start();
     }
   }
-
+  
   public void close() {
-    if ((jobExecutor != null) && (jobExecutor.isActive())) {
+    if ( (jobExecutor!=null)
+         && (jobExecutor.isActive())
+       ) {
       jobExecutor.shutdown();
     }
-
-    if (DbSchemaStrategy.CREATE_DROP == dbSchemaStrategy) {
+    
+    if (DbSchemaStrategy.CREATE_DROP==dbSchemaStrategy) {
       persistenceSessionFactory.dbSchemaDrop();
     }
   }
-
+  
   public String getName() {
     return name;
   }
@@ -97,7 +102,7 @@ public class ProcessEngineImpl implements ProcessEngine {
   public IdentityService getIdentityService() {
     return identityService;
   }
-
+  
   public ManagementService getManagementService() {
     return managementService;
   }

@@ -19,7 +19,6 @@ import org.activiti.ActivitiException;
 import org.activiti.impl.execution.ExecutionImpl;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.job.TimerImpl;
-import org.activiti.impl.jobexecutor.JobExecutor;
 import org.activiti.impl.msg.MessageAddedNotification;
 import org.activiti.impl.persistence.PersistenceSession;
 import org.activiti.impl.time.Clock;
@@ -31,12 +30,10 @@ import org.activiti.impl.tx.TransactionState;
  */
 public class JobExecutorTimerSession implements TimerSession {
 
-  private final CommandContext commandContext;
-  private final JobExecutor jobExecutor;
+  CommandContext commandContext;
   
-  public JobExecutorTimerSession(CommandContext commandContext, JobExecutor jobExecutor) {
+  public JobExecutorTimerSession(CommandContext commandContext) {
     this.commandContext = commandContext;
-    this.jobExecutor = jobExecutor;
   }
 
   public void schedule(TimerImpl timer) {
@@ -52,12 +49,12 @@ public class JobExecutorTimerSession implements TimerSession {
     // Check if this timer fires before the next time the job executor will check for new timers to fire.
     // This is highly unlikely because normally waitTimeInMillis is 5000 (5 seconds)
     // and timers are usually set further in the future
-    int waitTimeInMillis = jobExecutor.getWaitTimeInMillis();
+    int waitTimeInMillis = commandContext.getJobExecutor().getWaitTimeInMillis();
     if (duedate.getTime() < (Clock.getCurrentTime().getTime()+waitTimeInMillis)) {
       // then notify the job executor.
       commandContext
         .getTransactionContext()
-        .addTransactionListener(TransactionState.COMMITTED, new MessageAddedNotification(jobExecutor));
+        .addTransactionListener(TransactionState.COMMITTED, new MessageAddedNotification());
     }
   }
 

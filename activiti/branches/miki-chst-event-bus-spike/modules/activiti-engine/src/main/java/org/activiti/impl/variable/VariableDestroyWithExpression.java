@@ -24,14 +24,12 @@ import org.activiti.pvm.ListenerExecution;
  */
 public class VariableDestroyWithExpression implements Listener {
 
-  private final String destinationVariableName;
-  private final String sourceValueExpression;
-  private final String sourceValueExpressionLanguage;
-  private final ScriptingEngines scriptingEngines;
+  String destinationVariableName;
+  String sourceValueExpression;
+  String sourceValueExpressionLanguage;
   
-  public VariableDestroyWithExpression(ScriptingEngines scriptingEngines, String sourceValueExpression,
+  public VariableDestroyWithExpression(String sourceValueExpression, 
           String destinationVariableName, String sourceValueExpressionLanguage) {
-    this.scriptingEngines = scriptingEngines;
     this.destinationVariableName = destinationVariableName;
     this.sourceValueExpression = sourceValueExpression;
     this.sourceValueExpressionLanguage = sourceValueExpressionLanguage;
@@ -40,6 +38,8 @@ public class VariableDestroyWithExpression implements Listener {
   public void notify(ListenerExecution execution) {
     ExecutionImpl innerScope = (ExecutionImpl) execution;
     ExecutionImpl outerScope = innerScope.getParent();
+
+    ScriptingEngines scriptingEngines = ScriptingEngines.getScriptingEngines();
     Object value = scriptingEngines.evaluate(sourceValueExpression, sourceValueExpressionLanguage, innerScope);
     outerScope.setVariable(destinationVariableName, value);
   }

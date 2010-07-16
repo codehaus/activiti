@@ -17,151 +17,428 @@ import org.activiti.IdentityService;
 import org.activiti.ManagementService;
 import org.activiti.ProcessService;
 import org.activiti.TaskService;
+import org.activiti.impl.IdentityServiceImpl;
+import org.activiti.impl.ManagementServiceImpl;
+import org.activiti.impl.ProcessEngineImpl;
+import org.activiti.impl.ProcessServiceImpl;
+import org.activiti.impl.TaskServiceImpl;
+import org.activiti.impl.bpmn.BpmnDeployer;
+import org.activiti.impl.calendar.BusinessCalendarManager;
+import org.activiti.impl.calendar.DurationBusinessCalendar;
+import org.activiti.impl.calendar.MapBusinessCalendarManager;
 import org.activiti.impl.db.IdGenerator;
+import org.activiti.impl.el.ExpressionManager;
+import org.activiti.impl.identity.IdentitySession;
 import org.activiti.impl.interceptor.CommandContextFactory;
 import org.activiti.impl.interceptor.CommandExecutor;
+import org.activiti.impl.interceptor.DefaultCommandExecutor;
 import org.activiti.impl.job.JobHandlers;
+import org.activiti.impl.job.TimerExecuteNestedActivityJobHandler;
 import org.activiti.impl.jobexecutor.JobExecutor;
+import org.activiti.impl.msg.JobExecutorMessageSessionFactory;
+import org.activiti.impl.msg.MessageSessionFactory;
+import org.activiti.impl.persistence.IbatisIdentitySessionFactory;
+import org.activiti.impl.persistence.IbatisPersistenceSessionFactory;
 import org.activiti.impl.persistence.PersistenceSessionFactory;
 import org.activiti.impl.repository.DeployerManager;
+import org.activiti.impl.repository.ProcessCache;
+import org.activiti.impl.scripting.ScriptingEngines;
+import org.activiti.impl.timer.JobExecutorTimerSessionFactory;
+import org.activiti.impl.timer.TimerSessionFactory;
+import org.activiti.impl.tx.StandaloneTransactionContextFactory;
+import org.activiti.impl.tx.TransactionContextFactory;
+import org.activiti.impl.variable.ByteArrayType;
+import org.activiti.impl.variable.DateType;
+import org.activiti.impl.variable.IntegerType;
+import org.activiti.impl.variable.LongType;
+import org.activiti.impl.variable.NullType;
+import org.activiti.impl.variable.SerializableType;
+import org.activiti.impl.variable.ShortType;
+import org.activiti.impl.variable.StringType;
 import org.activiti.impl.variable.VariableTypes;
+
+import com.sun.script.juel.JuelScriptEngineFactory;
 
 /**
  * @author Tom Baeyens
  */
 public class ProcessEngineConfiguration {
 
-  private String processEngineName;
+	String processEngineName;
 
-  private ProcessService processService;
-  private IdentityService identityService;
-  private TaskService taskService;
-  private ManagementService managementService;
+	ProcessService processService;
+	IdentityService identityService;
+	TaskService taskService;
+	ManagementService managementService;
 
-  private DeployerManager deployerManager;
-  private VariableTypes variableTypes;
-  private JobExecutor jobExecutor;
-  private JobHandlers jobHandlers;
-  private IdGenerator idGenerator;
-  private CommandExecutor commandExecutor;
+	DeployerManager deployerManager;
+	VariableTypes variableTypes;
+	ScriptingEngines scriptingEngines;
+	JobExecutor jobExecutor;
+	boolean jobExecutorAutoActivate;
+	IdGenerator idGenerator;
+	ProcessCache processCache;
+	CommandExecutor commandExecutor;
+	DbSchemaStrategy dbSchemaStrategy;
+	ExpressionManager expressionManager;
+	JobHandlers jobHandlers;
+	BusinessCalendarManager businessCalendarManager;
 
-  private DbSchemaStrategy dbSchemaStrategy;
+	CommandContextFactory commandContextFactory;
+	PersistenceSessionFactory persistenceSessionFactory;
+	MessageSessionFactory messageSessionFactory;
+	TimerSessionFactory timerSessionFactory;
+	TransactionContextFactory transactionContextFactory;
 
-  private CommandContextFactory commandContextFactory;
-  private PersistenceSessionFactory persistenceSessionFactory;
+	public ProcessEngineConfiguration() {
+		this(null);
+	}
 
-  // getters and setters
-  // //////////////////////////////////////////////////////
+	public ProcessEngineConfiguration(
+			CommandContextFactory commandContextFactory) {
 
-  public DeployerManager getDeployerManager() {
-    return deployerManager;
-  }
+		this.commandContextFactory = commandContextFactory == null ? createDefaultCommandContextFactory()
+				: commandContextFactory;
+		commandExecutor = createDefaultCmdExecutor(this.commandContextFactory);
 
-  public PersistenceSessionFactory getPersistenceSessionFactory() {
-    return persistenceSessionFactory;
-  }
+		deployerManager = createDefaultDeployerManager();
+		variableTypes = createDefaultVariableTypes();
+		scriptingEngines = createDefaultScriptingEngines();
+		dbSchemaStrategy = createDefaultDbSchemaStrategy();
+		jobExecutorAutoActivate = createDefaultJobExecutorAutoActivate();
+		expressionManager = createDefaultExpressionManager();
+		jobHandlers = createDefaultJobHandlers();
+		businessCalendarManager = createDefaultBusinessCalendarManager();
 
-  public void setPersistenceSessionFactory(PersistenceSessionFactory persistenceSessionFactory) {
-    this.persistenceSessionFactory = persistenceSessionFactory;
-  }
+		processCache = createDefaultProcessCache(deployerManager);
+		jobExecutor = createDefaultJobExecutor(commandExecutor);
+		idGenerator = createDefaultIdGenerator(commandExecutor);
 
-  public String getProcessEngineName() {
-    return processEngineName;
-  }
+		processService = createDefaultProcessService(commandExecutor);
+		identityService = createDefaultIdentityService(commandExecutor);
+		taskService = createDefaultTaskService(commandExecutor);
+		managementService = createDefaultManagementService(commandExecutor);
 
-  public void setProcessEngineName(String processEngineName) {
-    this.processEngineName = processEngineName;
-  }
+		persistenceSessionFactory = createDefaultPersistenceSessionFactory(idGenerator);
+		messageSessionFactory = createDefaultMessageSessionFactory();
+		timerSessionFactory = createDefaultTimerSessionFactory();
+		transactionContextFactory = createDefaultTransactionContextFactory();
+	}
 
-  public JobExecutor getJobExecutor() {
-    return jobExecutor;
-  }
+	public ProcessEngineImpl buildProcessEngine() {
+		return new ProcessEngineImpl(this);
+	}
 
-  public DbSchemaStrategy getDbSchemaStrategy() {
-    return dbSchemaStrategy;
-  }
+	protected BusinessCalendarManager createDefaultBusinessCalendarManager() {
+		MapBusinessCalendarManager defaultBusinessCalendarManager = new MapBusinessCalendarManager();
+		defaultBusinessCalendarManager.addBusinessCalendar(
+				DurationBusinessCalendar.NAME, new DurationBusinessCalendar());
+		return defaultBusinessCalendarManager;
+	}
 
-  public void setDbSchemaStrategy(DbSchemaStrategy dbSchemaStrategy) {
-    this.dbSchemaStrategy = dbSchemaStrategy;
-  }
+	protected TimerSessionFactory createDefaultTimerSessionFactory() {
+		return new JobExecutorTimerSessionFactory();
+	}
 
-  public ProcessService getProcessService() {
-    return processService;
-  }
+	protected TransactionContextFactory createDefaultTransactionContextFactory() {
+		return new StandaloneTransactionContextFactory();
+	}
 
-  public IdentityService getIdentityService() {
-    return identityService;
-  }
+	protected JobHandlers createDefaultJobHandlers() {
+		JobHandlers jobHandlers = new JobHandlers();
+		jobHandlers.addJobHandler(new TimerExecuteNestedActivityJobHandler());
+		return jobHandlers;
+	}
 
-  public TaskService getTaskService() {
-    return taskService;
-  }
+	protected boolean createDefaultJobExecutorAutoActivate() {
+		return true;
+	}
 
-  public ManagementService getManagementService() {
-    return managementService;
-  }
+	protected CommandContextFactory createDefaultCommandContextFactory() {
+		CommandContextFactory commandContextFactory = new CommandContextFactory(
+				this);
+		commandContextFactory.addSessionFactory(IdentitySession.class,
+				new IbatisIdentitySessionFactory());
+		return commandContextFactory;
+	}
 
-  public CommandContextFactory getCommandContextFactory() {
-    return commandContextFactory;
-  }
+	protected JobExecutor createDefaultJobExecutor(
+			CommandExecutor commandExecutor) {
+		JobExecutor jobExecutor = new JobExecutor(commandExecutor);
+		return jobExecutor;
+	}
 
-  public VariableTypes getVariableTypes() {
-    return variableTypes;
-  }
+	protected ManagementServiceImpl createDefaultManagementService(
+			CommandExecutor commandExecutor) {
+		ManagementServiceImpl managementService = new ManagementServiceImpl(
+				commandExecutor);
+		return managementService;
+	}
 
-  public IdGenerator getIdGenerator() {
-    return idGenerator;
-  }
+	protected TaskServiceImpl createDefaultTaskService(
+			CommandExecutor commandExecutor) {
+		TaskServiceImpl taskService = new TaskServiceImpl(commandExecutor);
+		return taskService;
+	}
 
-  public CommandExecutor getCommandExecutor() {
-    return commandExecutor;
-  }
+	protected IdentityServiceImpl createDefaultIdentityService(
+			CommandExecutor commandExecutor) {
+		IdentityServiceImpl identityService = new IdentityServiceImpl(
+				commandExecutor);
+		return identityService;
+	}
 
-  public JobHandlers getJobHandlers() {
-    return jobHandlers;
-  }
+	protected ProcessServiceImpl createDefaultProcessService(
+			CommandExecutor commandExecutor) {
+		ProcessServiceImpl processService = new ProcessServiceImpl(
+				commandExecutor);
+		return processService;
+	}
 
-  public void setProcessService(ProcessService processService) {
-    this.processService = processService;
-  }
-  
-  public void setIdentityService(IdentityService identityService) {
-    this.identityService = identityService;
-  }
-  
-  public void setTaskService(TaskService taskService) {
-    this.taskService = taskService;
-  }
-  
-  public void setManagementService(ManagementService managementService) {
-    this.managementService = managementService;
-  }
-  
-  public void setDeployerManager(DeployerManager deployerManager) {
-    this.deployerManager = deployerManager;
-  }
- 
-  public void setVariableTypes(VariableTypes variableTypes) {
-    this.variableTypes = variableTypes;
-  }
-  
-  public void setJobExecutor(JobExecutor jobExecutor) {
-    this.jobExecutor = jobExecutor;
-  }
- 
-  public void setJobHandlers(JobHandlers jobHandlers) {
-    this.jobHandlers = jobHandlers;
-  }
- 
-  public void setIdGenerator(IdGenerator idGenerator) {
-    this.idGenerator = idGenerator;
-  }
-  
-  public void setCommandExecutor(CommandExecutor commandExecutor) {
-    this.commandExecutor = commandExecutor;
-  }
-  
-  public void setCommandContextFactory(CommandContextFactory commandContextFactory) {
-    this.commandContextFactory = commandContextFactory;
-  }
+	protected DbSchemaStrategy createDefaultDbSchemaStrategy() {
+		return DbSchemaStrategy.CREATE_DROP;
+	}
+
+	protected MessageSessionFactory createDefaultMessageSessionFactory() {
+		return new JobExecutorMessageSessionFactory();
+	}
+
+	protected PersistenceSessionFactory createDefaultPersistenceSessionFactory(
+			IdGenerator idGenerator) {
+		return new IbatisPersistenceSessionFactory(idGenerator, "h2",
+				"org.h2.Driver", "jdbc:h2:mem:activiti", "sa", "");
+	}
+
+	protected CommandExecutor createDefaultCmdExecutor(
+			CommandContextFactory commandContextFactory) {
+		DefaultCommandExecutor commandExecutor = new DefaultCommandExecutor(
+				commandContextFactory);
+		return commandExecutor;
+	}
+
+	protected ScriptingEngines createDefaultScriptingEngines() {
+		return new ScriptingEngines()
+				.addScriptEngineFactory(new JuelScriptEngineFactory());
+	}
+
+	protected VariableTypes createDefaultVariableTypes() {
+		return new VariableTypes().addType(new NullType()).addType(
+				new StringType()).addType(new ShortType()).addType(
+				new IntegerType()).addType(new LongType()).addType(
+				new DateType()).addType(new ByteArrayType()).addType(
+				new SerializableType());
+	}
+
+	protected IdGenerator createDefaultIdGenerator(
+			CommandExecutor commandExecutor) {
+		IdGenerator idGenerator = new IdGenerator(commandExecutor);
+		return idGenerator;
+	}
+
+	protected ProcessCache createDefaultProcessCache(
+			DeployerManager deployerManager) {
+		ProcessCache processCache = new ProcessCache();
+		processCache.setDeployerManager(deployerManager);
+		return processCache;
+	}
+
+	protected DeployerManager createDefaultDeployerManager() {
+		return new DeployerManager().addDeployer(new BpmnDeployer());
+	}
+
+	protected ExpressionManager createDefaultExpressionManager() {
+		return new ExpressionManager();
+	}
+
+	// getters and setters
+	// //////////////////////////////////////////////////////
+
+	public DeployerManager getDeployerManager() {
+		return deployerManager;
+	}
+
+	public void setDeployerManager(DeployerManager deployerManager) {
+		this.deployerManager = deployerManager;
+	}
+
+	public ProcessCache getProcessCache() {
+		return processCache;
+	}
+
+	public void setProcessCache(ProcessCache processCache) {
+		this.processCache = processCache;
+	}
+
+	public VariableTypes getTypes() {
+		return variableTypes;
+	}
+
+	public void setTypes(VariableTypes variableTypes) {
+		this.variableTypes = variableTypes;
+	}
+
+	public ScriptingEngines getScriptingEngines() {
+		return scriptingEngines;
+	}
+
+	public void setScriptingEngines(ScriptingEngines scriptingEngines) {
+		this.scriptingEngines = scriptingEngines;
+	}
+
+	public PersistenceSessionFactory getPersistenceSessionFactory() {
+		return persistenceSessionFactory;
+	}
+
+	public void setPersistenceSessionFactory(
+			PersistenceSessionFactory persistenceSessionFactory) {
+		this.persistenceSessionFactory = persistenceSessionFactory;
+	}
+
+	public String getProcessEngineName() {
+		return processEngineName;
+	}
+
+	public void setProcessEngineName(String processEngineName) {
+		this.processEngineName = processEngineName;
+	}
+
+	public JobExecutor getJobExecutor() {
+		return jobExecutor;
+	}
+
+	public void setJobExecutor(JobExecutor jobExecutor) {
+		this.jobExecutor = jobExecutor;
+	}
+
+	public DbSchemaStrategy getDbSchemaStrategy() {
+		return dbSchemaStrategy;
+	}
+
+	public void setDbSchemaStrategy(DbSchemaStrategy dbSchemaStrategy) {
+		this.dbSchemaStrategy = dbSchemaStrategy;
+	}
+
+	public ProcessService getProcessService() {
+		return processService;
+	}
+
+	public void setProcessService(ProcessService processService) {
+		this.processService = processService;
+	}
+
+	public IdentityService getIdentityService() {
+		return identityService;
+	}
+
+	public void setIdentityService(IdentityService identityService) {
+		this.identityService = identityService;
+	}
+
+	public TaskService getTaskService() {
+		return taskService;
+	}
+
+	public void setTaskService(TaskService taskService) {
+		this.taskService = taskService;
+	}
+
+	public ManagementService getManagementService() {
+		return managementService;
+	}
+
+	public void setManagementService(ManagementService managementService) {
+		this.managementService = managementService;
+	}
+
+	public boolean isJobExecutorAutoActivate() {
+		return jobExecutorAutoActivate;
+	}
+
+	public void setJobExecutorAutoActivate(boolean jobExecutorAutoActivate) {
+		this.jobExecutorAutoActivate = jobExecutorAutoActivate;
+	}
+
+	public void setManagementService(ManagementServiceImpl managementService) {
+		this.managementService = managementService;
+	}
+
+	public CommandContextFactory getCommandContextFactory() {
+		return commandContextFactory;
+	}
+
+	public void setCommandContextFactory(
+			CommandContextFactory commandContextFactory) {
+		this.commandContextFactory = commandContextFactory;
+	}
+
+	public ExpressionManager getExpressionManager() {
+		return expressionManager;
+	}
+
+	public void setExpressionManager(ExpressionManager expressionManager) {
+		this.expressionManager = expressionManager;
+	}
+
+	public VariableTypes getVariableTypes() {
+		return variableTypes;
+	}
+
+	public void setVariableTypes(VariableTypes variableTypes) {
+		this.variableTypes = variableTypes;
+	}
+
+	public IdGenerator getIdGenerator() {
+		return idGenerator;
+	}
+
+	public void setIdGenerator(IdGenerator idGenerator) {
+		this.idGenerator = idGenerator;
+	}
+
+	public CommandExecutor getCommandExecutor() {
+		return commandExecutor;
+	}
+
+	public MessageSessionFactory getMessageSessionFactory() {
+		return messageSessionFactory;
+	}
+
+	public void setMessageSessionFactory(
+			MessageSessionFactory messageSessionFactory) {
+		this.messageSessionFactory = messageSessionFactory;
+	}
+
+	public JobHandlers getJobHandlers() {
+		return jobHandlers;
+	}
+
+	public void setJobHandlers(JobHandlers jobHandlers) {
+		this.jobHandlers = jobHandlers;
+	}
+
+	public TimerSessionFactory getTimerSessionFactory() {
+		return timerSessionFactory;
+	}
+
+	public void setTimerSessionFactory(TimerSessionFactory timerSessionFactory) {
+		this.timerSessionFactory = timerSessionFactory;
+	}
+
+	public TransactionContextFactory getTransactionContextFactory() {
+		return transactionContextFactory;
+	}
+
+	public void setTransactionContextFactory(
+			TransactionContextFactory transactionContextFactory) {
+		this.transactionContextFactory = transactionContextFactory;
+	}
+
+	public BusinessCalendarManager getBusinessCalendarManager() {
+		return businessCalendarManager;
+	}
+
+	public void setBusinessCalendarManager(
+			BusinessCalendarManager businessCalendarManager) {
+		this.businessCalendarManager = businessCalendarManager;
+	}
 }

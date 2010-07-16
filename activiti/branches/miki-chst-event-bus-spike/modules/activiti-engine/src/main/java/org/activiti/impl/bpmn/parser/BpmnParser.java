@@ -12,9 +12,6 @@
  */
 package org.activiti.impl.bpmn.parser;
 
-import org.activiti.impl.calendar.BusinessCalendarManager;
-import org.activiti.impl.el.ExpressionManager;
-import org.activiti.impl.scripting.ScriptingEngines;
 import org.activiti.impl.xml.Parser;
 
 
@@ -29,6 +26,11 @@ import org.activiti.impl.xml.Parser;
  * @author Joram Barrez
  */
 public class BpmnParser extends Parser {
+
+  /**
+   * The singleton instance of the BPMN 2.0 parser.
+   */
+  public static final BpmnParser INSTANCE = new BpmnParser();
   
   /**
    * The location of the BPMN 2.0 XML schema
@@ -44,25 +46,13 @@ public class BpmnParser extends Parser {
    * The Schema-Instance namespace.
    */
   public static final String XSI_NS = "http://www.w3.org/2001/XMLSchema-instance";
-
-  private final ExpressionManager expressionManager;
-
-  private final ScriptingEngines scriptingEngines;
-
-  private final BusinessCalendarManager businessCalendarManager;
-
-  public BpmnParser(ExpressionManager expressionManager, ScriptingEngines scriptingEngines, BusinessCalendarManager businessCalendarManager) {
-    this.expressionManager = expressionManager;
-    this.scriptingEngines = scriptingEngines;
-    this.businessCalendarManager = businessCalendarManager;
-  }
   
   /**
    * Creates a new {@link BpmnParse} instance that can be used
    * to parse only one BPMN 2.0 process definition.
    */
   public BpmnParse createParse() {
-    return new BpmnParse(this, expressionManager, scriptingEngines, businessCalendarManager);
+    return new BpmnParse(this);
   }
   
 }

@@ -23,7 +23,7 @@ import org.activiti.test.pvm.activities.WaitState;
  */
 public class Order {
   
-  static ObjectProcessDefinition orderProcess = ProcessDefinitionBuilder.createProcessDefinitionBuilder()
+  static ObjectProcessDefinition orderProcess = ProcessDefinitionBuilder.createProcessDefinition()
     .createActivity("start")
       .initial()
       .behavior(new Automatic())
@@ -40,7 +40,7 @@ public class Order {
     .createActivity("archived")
       .behavior(new WaitState())
     .endActivity()
-  .build();
+  .endProcessDefinition();
 
   String state = null;
   StateManager stateManager = null;

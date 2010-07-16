@@ -21,13 +21,11 @@ import java.util.List;
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.interceptor.CommandExecutor;
-import org.activiti.impl.job.JobHandlers;
 import org.activiti.impl.job.MessageImpl;
 import org.activiti.impl.job.TimerImpl;
 import org.activiti.impl.jobexecutor.AcquireJobsCmd;
 import org.activiti.impl.jobexecutor.AcquiredJobs;
 import org.activiti.impl.jobexecutor.ExecuteJobsCmd;
-import org.activiti.impl.jobexecutor.JobExecutor;
 import org.activiti.impl.time.Clock;
 import org.junit.Test;
 
@@ -39,8 +37,6 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
   @Test
   public void testJobCommandsWithMessage() {
     CommandExecutor commandExecutor = deployer.getCommandExecutor();
-    JobHandlers jobHandlers = deployer.getJobHandlers();
-    JobExecutor jobExecutor = deployer.getJobExecutor();
     String jobId = commandExecutor.execute(new Command<String>() {
 
       public String execute(CommandContext commandContext) {
@@ -50,7 +46,7 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
       }
     });
 
-    AcquiredJobs acquiredJobs = commandExecutor.execute(new AcquireJobsCmd(jobExecutor));
+    AcquiredJobs acquiredJobs = commandExecutor.execute(new AcquireJobsCmd());
     List<List<String>> jobIdsList = acquiredJobs.getJobIdsList();
     assertEquals(1, jobIdsList.size());
 
@@ -62,7 +58,7 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
     assertEquals(expectedJobIds, new ArrayList<String>(jobIds));
     assertEquals(0, tweetHandler.getMessages().size());
 
-    commandExecutor.execute(new ExecuteJobsCmd(jobHandlers, jobId));
+    commandExecutor.execute(new ExecuteJobsCmd(jobId));
 
     assertEquals("i'm coding a test", tweetHandler.getMessages().get(0));
     assertEquals(1, tweetHandler.getMessages().size());
@@ -77,9 +73,6 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
     Clock.setCurrentTime(new Date(SOME_TIME));
 
     CommandExecutor commandExecutor = deployer.getCommandExecutor();
-    JobHandlers jobHandlers = deployer.getJobHandlers();
-    JobExecutor jobExecutor = deployer.getJobExecutor();
-
     String jobId = commandExecutor.execute(new Command<String>() {
 
       public String execute(CommandContext commandContext) {
@@ -89,7 +82,7 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
       }
     });
 
-    AcquiredJobs acquiredJobs = commandExecutor.execute(new AcquireJobsCmd(jobExecutor));
+    AcquiredJobs acquiredJobs = commandExecutor.execute(new AcquireJobsCmd());
     List<List<String>> jobIdsList = acquiredJobs.getJobIdsList();
     assertEquals(0, jobIdsList.size());
 
@@ -97,7 +90,7 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
 
     Clock.setCurrentTime(new Date(SOME_TIME + (20 * SECOND)));
 
-    acquiredJobs = commandExecutor.execute(new AcquireJobsCmd(jobExecutor));
+    acquiredJobs = commandExecutor.execute(new AcquireJobsCmd());
     jobIdsList = acquiredJobs.getJobIdsList();
     assertEquals(1, jobIdsList.size());
 
@@ -108,7 +101,7 @@ public class JobExecutorCmdHappyTest extends JobExecutorTestCase {
 
     assertEquals(0, tweetHandler.getMessages().size());
 
-    commandExecutor.execute(new ExecuteJobsCmd(jobHandlers, jobId));
+    commandExecutor.execute(new ExecuteJobsCmd(jobId));
 
     assertEquals("i'm coding a test", tweetHandler.getMessages().get(0));
     assertEquals(1, tweetHandler.getMessages().size());

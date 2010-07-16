@@ -83,6 +83,7 @@ public class TaskCandidateTest {
 
     // Deploy and start process
     ProcessInstance processInstance = deployer.getProcessService().startProcessInstanceByKey("singleCandidateGroup");
+    deployer.assertProcessEnded(processInstance.getId());
 
     // Task should not yet be assigned to kermit
     TaskService taskService = deployer.getTaskService();
@@ -109,8 +110,6 @@ public class TaskCandidateTest {
 
     // Completing the task ends the process
     taskService.complete(task.getId());
-
-    deployer.assertProcessEnded(processInstance.getId());
   }
 
   @Test
@@ -119,6 +118,7 @@ public class TaskCandidateTest {
 
     // Deploy and start process
     ProcessInstance processInstance = deployer.getProcessService().startProcessInstanceByKey("multipleCandidatesGroup");
+    deployer.assertProcessEnded(processInstance.getId());
 
     // Task should not yet be assigned to anyone
     TaskService taskService = deployer.getTaskService();
@@ -154,8 +154,6 @@ public class TaskCandidateTest {
 
     // Completing the task ends the process
     taskService.complete(task.getId());
-
-    deployer.assertProcessEnded(processInstance.getId());
   }
 
   @Test

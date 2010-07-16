@@ -21,7 +21,6 @@ import org.activiti.DbProcessEngineBuilder;
 import org.activiti.DbSchemaStrategy;
 import org.activiti.ProcessEngine;
 import org.activiti.impl.ProcessEngineImpl;
-import org.activiti.impl.persistence.CachingPersistenceSessionFactory;
 import org.activiti.impl.persistence.IbatisPersistenceSessionFactory;
 import org.activiti.impl.persistence.PersistenceSessionFactory;
 import org.activiti.test.LogInitializer;
@@ -63,10 +62,6 @@ public class ProcessEngineInitializationTest {
     // then update the version to something that is different to the library
     // version
     PersistenceSessionFactory persistenceSessionFactory = processEngine.getPersistenceSessionFactory();
-    if(persistenceSessionFactory instanceof CachingPersistenceSessionFactory){
-      persistenceSessionFactory = ((CachingPersistenceSessionFactory) persistenceSessionFactory).getTargetPersistenceSessionFactory();
-    }
-
     SqlSessionFactory sqlSessionFactory = ((IbatisPersistenceSessionFactory) persistenceSessionFactory).getSqlSessionFactory();
     SqlSession sqlSession = sqlSessionFactory.openSession();
     boolean success = false;

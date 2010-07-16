@@ -64,7 +64,7 @@ public abstract class EmbeddedState {
   public void serializeExecutionTree() {
     if (embeddedProcessInstance != null) {
       StringBuilder strb = new StringBuilder();
-      if (embeddedProcessInstance.getExecutions().isEmpty()) {
+      if (!embeddedProcessInstance.hasExecutions()) {
         if (embeddedProcessInstance.getActivity() != null) {
           strb.append("activity:" + embeddedProcessInstance.getActivity().getId()); // TODO: dummy serialisation. Need to use something more clever
         }
@@ -82,7 +82,7 @@ public abstract class EmbeddedState {
       String[] splittedSerialization = procInstString.split(",");
       String activityId = splittedSerialization[0].replace("activity:", "");
       ProcessDefinitionImpl processDefinitionImpl = getProcessDefinition();
-      embeddedProcessInstance = processDefinitionImpl.createProcessInstance();
+      embeddedProcessInstance = new ExecutionImpl(processDefinitionImpl);
       embeddedProcessInstance.setActivity(processDefinitionImpl.findActivity(activityId));
     }
   }
@@ -100,7 +100,7 @@ public abstract class EmbeddedState {
   public void start(Map<String, Object> variables) {
     
     if (embeddedProcessInstance == null) {
-      embeddedProcessInstance = getProcessDefinition().createProcessInstance();
+      embeddedProcessInstance = new ExecutionImpl(getProcessDefinition());
     }
     
     if (variables != null) {

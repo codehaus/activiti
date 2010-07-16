@@ -20,9 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import org.activiti.ActivitiException;
 import org.activiti.impl.interceptor.CommandExecutor;
-import org.activiti.impl.job.JobHandlers;
 
 /**
  * Manager class in charge of all background / asynchronous
@@ -37,28 +35,24 @@ public class JobExecutor {
   
   private static Logger log = Logger.getLogger(JobExecutor.class.getName());
 
-  private final CommandExecutor commandExecutor;
-  private final JobHandlers jobHandlers;
+  protected final CommandExecutor commandExecutor;
 
-  private int maxJobsPerAcquisition = 3;
-  private int waitTimeInMillis = 5 * 1000;
-  private String lockOwner = UUID.randomUUID().toString();
-  private int lockTimeInMillis = 5 * 60 * 1000;
-  private int queueSize = 5;
-  private int corePoolSize = 3;
-  private int maxPoolSize = 10;
+  protected int maxJobsPerAcquisition = 3;
+  protected int waitTimeInMillis = 5 * 1000;
+  protected String lockOwner = UUID.randomUUID().toString();
+  protected int lockTimeInMillis = 5 * 60 * 1000;
+  protected int queueSize = 5;
+  protected int corePoolSize = 3;
+  protected int maxPoolSize = 10;
 
-  private JobAcquisitionThread jobAcquisitionThread;
-  private BlockingQueue<Runnable> threadPoolQueue;
-  private ThreadPoolExecutor threadPoolExecutor;
+  protected JobAcquisitionThread jobAcquisitionThread;
+  protected BlockingQueue<Runnable> threadPoolQueue;
+  protected ThreadPoolExecutor threadPoolExecutor;
   
-  private boolean isActive = false;
+  protected boolean isActive = false;
 
-  private boolean autoActivate = false;
-
-  public JobExecutor(CommandExecutor commandExecutor, JobHandlers jobHandlers) {
+  public JobExecutor(CommandExecutor commandExecutor) {
     this.commandExecutor = commandExecutor;
-    this.jobHandlers = jobHandlers;
   }
 
   public synchronized void start() {
@@ -96,14 +90,6 @@ public class JobExecutor {
     // Ask the thread pool to finish and exit
     threadPoolExecutor.shutdown();
     
-    // Waits for 1 minute to finish all currently executing jobs
-    try {
-	  threadPoolExecutor.awaitTermination(60L, TimeUnit.SECONDS);
-	} catch (InterruptedException e) {
-      throw new ActivitiException("Timeout during shutdown of job executor. " +
-	    "The current running jobs could not end withing 60 seconds after shutdown operation.", e);
-	}
-    
     // Close the pending jobs task
     jobAcquisitionThread.shutdown();
     
@@ -123,14 +109,14 @@ public class JobExecutor {
   public void jobWasAdded() {
     if ( isActive 
          && jobAcquisitionThread != null 
-         && jobAcquisitionThread.isActive()
+         && jobAcquisitionThread.isActive
        ) {
       jobAcquisitionThread.jobWasAdded();
     }
   }
   
   public void executeJobs(List<String> jobIds) {
-    threadPoolExecutor.execute(new ExecuteJobsRunnable(commandExecutor, jobIds, jobHandlers, this));
+    threadPoolExecutor.execute(new ExecuteJobsRunnable(commandExecutor, jobIds));
   }
 
   // getters and setters ////////////////////////////////////////////////////// 
@@ -221,15 +207,6 @@ public class JobExecutor {
 
   public void setLockOwner(String lockOwner) {
     this.lockOwner = lockOwner;
-  }
-
-  public boolean isAutoActivate() {
-    return autoActivate;
-  }
-  
-  
-  public void setAutoActivate(boolean autoActivate) {
-    this.autoActivate = autoActivate;
   }
 
 }

@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.activiti.impl.bytes.ByteArrayImpl;
 import org.activiti.impl.db.execution.DbExecutionImpl;
-import org.activiti.impl.interceptor.CommandContextHolder;
+import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.persistence.PersistenceSession;
 import org.activiti.impl.persistence.PersistentObject;
 import org.activiti.impl.task.TaskImpl;
@@ -29,39 +29,51 @@ import org.activiti.impl.task.TaskImpl;
 public class VariableInstance implements Serializable, PersistentObject {
 
   private static final long serialVersionUID = 1L;
-
-  private String id;
-  private int revision;
-
-  private String name;
-
-  private String processInstanceId;
-  private String executionId;
-  private String taskId;
-
-  private Long longValue;
-  private Double doubleValue;
-  private String textValue;
-
-  private ByteArrayImpl byteArrayValue;
-  private String byteArrayValueId;
-
-  private Object cachedValue;
-
-  private Type type;
   
-  // Default constructor for SQL mapping
-  VariableInstance() {
-  }
+  protected String id;
+  protected int revision;
+  
+  protected String name;
+  
+  protected String processInstanceId;
+  protected String executionId;  
+  protected String taskId;
+  
+  protected Long longValue;
+  protected Double doubleValue;
+  protected String textValue;
 
-  public VariableInstance(Type type, String name, Object value) {
-    this.type = type;
+  protected ByteArrayImpl byteArrayValue;
+  protected String byteArrayValueId;
+  
+  protected Object cachedValue;
+  
+  protected String typeName;
+  protected Type type;
+
+  public VariableInstance() {
+  }
+  
+  public VariableInstance(String name, String typeName) {
     this.name = name;
-    setValue(value);
+    this.typeName = typeName;
+    this.type = CommandContext
+      .getCurrent()
+      .getVariableTypes()
+      .getVariableType(typeName);
   }
 
+  public VariableInstance(String name, Object value) {
+    this.name = name;
+    this.type = CommandContext
+      .getCurrent()
+      .getVariableTypes()
+      .findVariableType(value);
+    this.typeName = type.getTypeName();
+  }
+  
   public void setExecution(DbExecutionImpl execution) {
-    if (execution == null) {
+    if (execution==null) {
       this.executionId = null;
       this.processInstanceId = null;
     } else {
@@ -71,7 +83,7 @@ public class VariableInstance implements Serializable, PersistentObject {
   }
 
   public void setTask(TaskImpl task) {
-    if (task != null) {
+    if (task!=null) {
       this.taskId = task.getId();
     } else {
       this.taskId = null;
@@ -79,17 +91,20 @@ public class VariableInstance implements Serializable, PersistentObject {
   }
 
   public void delete() {
-    PersistenceSession persistenceSession = CommandContextHolder.getCurrentCommandContext().getPersistenceSession();
+    PersistenceSession persistenceSession = CommandContext
+      .getCurrent()
+      .getPersistenceSession();
+    
     persistenceSession.delete(this);
-
-    if (byteArrayValueId != null) {
+    
+    if (byteArrayValueId!=null) {
       persistenceSession.delete(getByteArrayValue());
     }
   }
 
   public void setByteArrayValue(ByteArrayImpl byteArrayValue) {
     this.byteArrayValue = byteArrayValue;
-    if (byteArrayValue != null) {
+    if (byteArrayValue!=null) {
       this.byteArrayValueId = byteArrayValue.getId();
     } else {
       this.byteArrayValueId = null;
@@ -98,16 +113,16 @@ public class VariableInstance implements Serializable, PersistentObject {
 
   public Object getPersistentState() {
     Map<String, Object> persistentState = new HashMap<String, Object>();
-    if (longValue != null) {
+    if (longValue!=null) {
       persistentState.put("longValue", longValue);
     }
-    if (doubleValue != null) {
+    if (doubleValue!=null) {
       persistentState.put("doubleValue", doubleValue);
     }
-    if (textValue != null) {
+    if (textValue!=null) {
       persistentState.put("textValue", textValue);
     }
-    if (byteArrayValueId != null) {
+    if (byteArrayValueId!=null) {
       persistentState.put("byteArrayValueId", byteArrayValueId);
     }
     return persistentState;
@@ -124,21 +139,32 @@ public class VariableInstance implements Serializable, PersistentObject {
   public void setTaskId(String taskId) {
     this.taskId = taskId;
   }
-
+  
   public void setByteArrayValueId(String byteArrayValueId) {
     this.byteArrayValueId = byteArrayValueId;
     this.byteArrayValue = null;
   }
 
   public ByteArrayImpl getByteArrayValue() {
-    if ((byteArrayValue == null) && (byteArrayValueId != null)) {
-      byteArrayValue = CommandContextHolder.getCurrentCommandContext().getPersistenceSession().findByteArrayById(byteArrayValueId);
+    if ( (byteArrayValue==null) && (byteArrayValueId!=null) ) {
+      byteArrayValue = CommandContext 
+        .getCurrent()
+        .getPersistenceSession()
+        .findByteArrayById(byteArrayValueId);
     }
     return byteArrayValue;
   }
 
   // type /////////////////////////////////////////////////////////////////////
-
+  
+  public void setTypeName(String typeName) {
+    this.typeName = typeName;
+    VariableTypes variableTypes = CommandContext
+      .getCurrent()
+      .getVariableTypes();
+    this.type = variableTypes.getVariableType(typeName);
+  }
+  
   public Object getValue() {
     return type.getValue(this);
   }
@@ -148,7 +174,7 @@ public class VariableInstance implements Serializable, PersistentObject {
   }
 
   // getters and setters //////////////////////////////////////////////////////
-
+  
   public String getId() {
     return id;
   }
@@ -197,9 +223,10 @@ public class VariableInstance implements Serializable, PersistentObject {
   public void setRevision(int revision) {
     this.revision = revision;
   }
-  public void setType(Type type) {
-    this.type = type;
+  public String getTypeName() {
+    return typeName;
   }
+
   public Type getType() {
     return type;
   }

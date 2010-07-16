@@ -12,11 +12,13 @@
  */
 package org.activiti.impl.bpmn;
 
-import org.activiti.impl.el.ExpressionManager;
 import org.activiti.impl.execution.ExecutionImpl;
+import org.activiti.impl.interceptor.CommandContext;
+import org.activiti.impl.scripting.ScriptingEngines;
 import org.activiti.impl.task.TaskDefinition;
 import org.activiti.impl.task.TaskImpl;
 import org.activiti.pvm.ActivityExecution;
+
 
 /**
  * activity implementation for the user task.
@@ -24,57 +26,56 @@ import org.activiti.pvm.ActivityExecution;
  * @author Joram Barrez
  */
 public class UserTaskActivity extends TaskActivity {
-
-  private final TaskDefinition taskDefinition;
-  private final ExpressionManager expressionManager;
-
-  public UserTaskActivity(ExpressionManager expressionManager, TaskDefinition taskDefinition) {
-    this.expressionManager = expressionManager;
-    this.taskDefinition = taskDefinition;
-  }
+  
+  protected TaskDefinition taskDefinition;
 
   public void execute(ActivityExecution execution) throws Exception {
     TaskImpl task = TaskImpl.createAndInsert();
     task.setExecution(execution);
-
+    
     if (taskDefinition.getName() != null) {
       String name = evaluateExpression(taskDefinition.getName(), execution);
-      task.setName(name);
+      task.setName(name);    
     }
-
+    
     if (taskDefinition.getDescription() != null) {
       String description = evaluateExpression(taskDefinition.getDescription(), execution);
-      task.setDescription(description);
+      task.setDescription(description);      
     }
-
+    
     handleAssignments(task, execution);
   }
-
+  
   public void event(ActivityExecution execution, Object event) throws Exception {
     leave(execution);
   }
-
+  
   protected void handleAssignments(TaskImpl task, ActivityExecution execution) {
     if (taskDefinition.getAssignee() != null) {
-      task.setAssignee(evaluateExpression(taskDefinition.getAssignee(), execution));
-    }
-
+      task.setAssignee(evaluateExpression(taskDefinition.getAssignee(), execution));      
+    } 
+    
     if (!taskDefinition.getCandidateGroupIds().isEmpty()) {
       for (String groupId : taskDefinition.getCandidateGroupIds()) {
         task.addCandidateGroup(evaluateExpression(groupId, execution));
       }
-    }
-
+    } 
+    
     if (!taskDefinition.getCandidateUserIds().isEmpty()) {
       for (String userId : taskDefinition.getCandidateUserIds()) {
         task.addCandidateUser(evaluateExpression(userId, execution));
       }
     }
   }
-
+  
   protected String evaluateExpression(String expr, ActivityExecution execution) {
-    // FIXME: downcast
-    return (String) expressionManager.createValueExpression(expr).getValue((ExecutionImpl) execution);
+    ScriptingEngines scriptingEngines = CommandContext.getCurrent().getScriptingEngines();
+    return (String) scriptingEngines.evaluate(expr, 
+            ScriptingEngines.DEFAULT_SCRIPTING_LANGUAGE, (ExecutionImpl) execution);
   }
 
+  public void setTaskDefinition(TaskDefinition taskDefinition) {
+    this.taskDefinition = taskDefinition;
+  }
+  
 }

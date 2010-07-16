@@ -14,15 +14,12 @@ package org.activiti.impl.el;
 
 import javax.el.ELContext;
 import javax.el.MethodExpression;
-import javax.el.MethodNotFoundException;
 
-import org.activiti.ActivitiException;
 import org.activiti.impl.execution.ExecutionImpl;
 
 
 /**
  * @author Tom Baeyens
- * @author Joram Barrez
  */
 public class ActivitiMethodExpression {
 
@@ -36,10 +33,6 @@ public class ActivitiMethodExpression {
 
   public Object invoke(ExecutionImpl execution) {
     ELContext elContext = expressionManager.getElContext(execution);
-    try {
-      return methodExpression.invoke(elContext, null);
-    } catch (MethodNotFoundException e) {
-      throw new ActivitiException("Unknown method used in expression", e);
-    }
+    return methodExpression.invoke(elContext, null);
   }
 }

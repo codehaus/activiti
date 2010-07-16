@@ -28,7 +28,6 @@ import org.activiti.impl.cmd.DeleteDeploymentCmd;
 import org.activiti.impl.cmd.DeleteProcessInstanceCmd;
 import org.activiti.impl.cmd.DeployCmd;
 import org.activiti.impl.cmd.FindDeploymentResourcesCmd;
-import org.activiti.impl.cmd.FindDeploymentsByNameCmd;
 import org.activiti.impl.cmd.FindDeploymentsCmd;
 import org.activiti.impl.cmd.FindExecutionCmd;
 import org.activiti.impl.cmd.FindExecutionInActivityCmd;
@@ -44,26 +43,19 @@ import org.activiti.impl.cmd.SetExecutionVariablesCmd;
 import org.activiti.impl.cmd.StartProcessInstanceCmd;
 import org.activiti.impl.execution.ProcessInstanceQueryImpl;
 import org.activiti.impl.interceptor.CommandExecutor;
-import org.activiti.impl.repository.DeployerManager;
 import org.activiti.impl.repository.DeploymentBuilderImpl;
 import org.activiti.impl.repository.DeploymentImpl;
-import org.activiti.impl.scripting.ScriptingEngines;
+
 
 /**
  * @author Tom Baeyens
  */
 public class ProcessServiceImpl implements ProcessService {
-
-  private final CommandExecutor commandExecutor;
-
-  private final DeployerManager deployerManager;
-
-  private final ScriptingEngines scriptingEngines;
-
-  public ProcessServiceImpl(CommandExecutor commandExecutor, DeployerManager deployerManager, ScriptingEngines scriptingEngines) {
-    this.commandExecutor = commandExecutor;
-    this.deployerManager = deployerManager;
-    this.scriptingEngines = scriptingEngines;
+  
+  protected final CommandExecutor commandExecutor;
+  
+  public ProcessServiceImpl(CommandExecutor commandExecutor) {
+    this.commandExecutor = commandExecutor;  
   }
 
   public DeploymentBuilder createDeployment() {
@@ -73,15 +65,15 @@ public class ProcessServiceImpl implements ProcessService {
   public ProcessInstance findProcessInstanceById(String id) {
     return commandExecutor.execute(new FindProcessInstanceCmd(id));
   }
-
+  
   public Execution findExecutionById(String id) {
     return commandExecutor.execute(new FindExecutionCmd(id));
   }
-
+  
   public void deleteDeployment(String deploymentId) {
     commandExecutor.execute(new DeleteDeploymentCmd(deploymentId, false));
   }
-
+  
   public void deleteDeploymentCascade(String deploymentId) {
     commandExecutor.execute(new DeleteDeploymentCmd(deploymentId, true));
   }
@@ -101,20 +93,20 @@ public class ProcessServiceImpl implements ProcessService {
   public ProcessInstance startProcessInstanceById(String processDefinitionId) {
     return commandExecutor.execute(new StartProcessInstanceCmd<ProcessInstance>(null, processDefinitionId, null));
   }
-
+  
   public ProcessInstance startProcessInstanceById(String processDefinitionId, Map<String, Object> variables) {
     return commandExecutor.execute(new StartProcessInstanceCmd<ProcessInstance>(null, processDefinitionId, variables));
   }
 
   public Deployment deploy(DeploymentImpl deployment) {
-    return commandExecutor.execute(new DeployCmd<Deployment>(deployerManager, deployment));
+    return commandExecutor.execute(new DeployCmd<Deployment>(deployment));
   }
 
   @SuppressWarnings("unchecked")
   public List<ProcessDefinition> findProcessDefinitions() {
     return commandExecutor.execute(new FindProcessDefinitionsCmd());
   }
-
+  
   public ProcessDefinition findProcessDefinitionById(String processDefinitionId) {
     return commandExecutor.execute(new FindProcessDefinitionCmd(processDefinitionId));
   }
@@ -123,21 +115,16 @@ public class ProcessServiceImpl implements ProcessService {
   public List<Deployment> findDeployments() {
     return commandExecutor.execute(new FindDeploymentsCmd());
   }
-
+  
   @SuppressWarnings("unchecked")
   public List<String> findDeploymentResources(String deploymentId) {
     return commandExecutor.execute(new FindDeploymentResourcesCmd(deploymentId));
   }
-
-  @SuppressWarnings("unchecked")
-  public List<Deployment> findDeploymentsByName(String name) {
-    return (List<Deployment>) commandExecutor.execute(new FindDeploymentsByNameCmd(name));
-  }
-
+  
   public InputStream getDeploymentResourceContent(String deploymentId, String resourceName) {
     return commandExecutor.execute(new GetDeploymentResourceCmd(deploymentId, resourceName));
   }
-
+  
   public ProcessInstanceQuery createProcessInstanceQuery() {
     return new ProcessInstanceQueryImpl(commandExecutor);
   }
@@ -145,7 +132,7 @@ public class ProcessServiceImpl implements ProcessService {
   public Map<String, Object> getVariables(String executionId) {
     return commandExecutor.execute(new GetExecutionVariablesCmd(executionId));
   }
-
+  
   public Object getVariable(String executionId, String variableName) {
     return commandExecutor.execute(new GetExecutionVariableCmd(executionId, variableName));
   }
@@ -161,11 +148,11 @@ public class ProcessServiceImpl implements ProcessService {
   }
 
   public Object getStartFormById(String processDefinitionId) {
-    return commandExecutor.execute(new GetFormCmd(scriptingEngines, processDefinitionId, null, null));
+    return commandExecutor.execute(new GetFormCmd(processDefinitionId, null, null));
   }
 
   public Object getStartFormByKey(String processDefinitionKey) {
-    return commandExecutor.execute(new GetFormCmd(scriptingEngines, null, processDefinitionKey, null));
+    return commandExecutor.execute(new GetFormCmd(null, processDefinitionKey, null));
   }
 
   public void sendEvent(String executionId) {
@@ -175,7 +162,7 @@ public class ProcessServiceImpl implements ProcessService {
   public void sendEvent(String executionId, Object eventData) {
     commandExecutor.execute(new SendEventCmd(executionId, eventData));
   }
-
+  
   public Execution findExecutionInActivity(String processInstanceId, String activityId) {
     return commandExecutor.execute(new FindExecutionInActivityCmd(processInstanceId, activityId));
   }

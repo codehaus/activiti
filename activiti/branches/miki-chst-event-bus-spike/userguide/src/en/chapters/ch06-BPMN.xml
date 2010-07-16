@@ -40,7 +40,7 @@
 		
 		<para>
 		  Create a new XML file (<emphasis>New->Other->XML-XML</emphasis>) and give it a name.
-		  Make sure that the file <emphasis role="bold">ends with .bpmn20.xml</emphasis>, since
+		  Make sure that the file <emphasis role="bold">ends with .bpmn.xml</emphasis>, since
 		  otherwise the engine won't pick up this file for deployment.
 		  <mediaobject><imageobject><imagedata align="center" fileref="images/new.bpmn.procdef.png"/></imageobject></mediaobject>
 		</para>
@@ -419,8 +419,8 @@ Deployment deployment = processService.newDeployment()
       
       <para>
         It's easy to see that this business process is too simple to be useable in reality.
-        However, as you are going through the BPMN 2.0 constructs available in Activiti, 
-        you will be able to enhance the business process by 
+        However, as we are advancing in implementing process constructs, we will be able
+        to enhance the business process by 
         
         <itemizedlist>
           <listitem>
@@ -747,7 +747,7 @@ ProcessInstance processInstance = processService.startProcessInstanceByXXX();</p
           is left, the default behaviour is to evaluate the conditions on the outgoing
           sequence flow. When a condition evaluates to <emphasis>true</emphasis>, that
           outgoing sequence flow is selected. When multiple sequence flow are selected
-          that way, multiple <emphasis>executions</emphasis> will be generated
+          that way, multiple <emphasis>tokens of execution</emphasis> will be generated
           and the process will be continued in a parallel way.
         </para>
         
@@ -783,63 +783,12 @@ ProcessInstance processInstance = processService.startProcessInstanceByXXX();</p
           Omitting the <emphasis>xsi:type=&quot;&quot;</emphasis> definition will simply
           default to this only supported type of expressions. 
           <programlisting>&lt;sequenceFlow id=&quot;flow&quot; sourceRef=&quot;theStart&quot; targetRef=&quot;theTask&quot;&gt;
-  &lt;conditionExpression xsi:type=&quot;tFormalExpression&quot;&gt;
-    &lt;![CDATA[${order.price &gt; 100 &amp;&amp; order.price &lt; 250}]]&gt;
-  &lt;/conditionExpression&gt;
+  &lt;conditionExpression xsi:type=&quot;tFormalExpression&quot;&gt;${input == 1}&lt;/conditionExpression&gt;
 &lt;/sequenceFlow&gt;</programlisting>
-        </para>
-        
-        <para>
-          Activiti supports two kind of expressions: UEL-value and UEL-method expressions 
-          (UEL stands for <emphasis>Unified Expression Language</emphasis> and is part of the EE6 specification, see
-          <ulink url="http://docs.sun.com/app/docs/doc/820-7627/gjddd?l=en&amp;a=view">
-          the EE6 specification</ulink> for detailed information)
-        </para>
-        
-        <para>
-          Specifying the type of expression, is done through the <emphasis role="bold">language</emphasis>
-          attribute on the <emphasis>expression</emphasis> element:
-  <programlisting>
-&lt;conditionExpression xsi:type=&quot;tFormalExpression&quot; <emphasis role="bold">language=&quot;uel-value | uel-method</emphasis>&quot;>
-  &lt;![CDATA[${order.isStandard}]]&gt;
-&lt;/conditionExpression&gt;</programlisting>
-        </para>
-        
-        <para>
-          <itemizedlist>
-            <listitem>
-              <para>
-                <emphasis role="bold">uel-value</emphasis>: references data of a process 
-                variable, in the typical JavaBean style through getters. 
-              </para>
-              <para>
-<programlisting>&lt;conditionExpression xsi:type=&quot;tFormalExpression&quot; <emphasis role="bold">language=&quot;uel-value&quot;</emphasis>&gt;
-  &lt;![CDATA[${order.price &gt; 100 &amp;&amp; order.price &lt; 250}]]&gt;
-&lt;/conditionExpression&gt;</programlisting>
-              </para>
-            </listitem>
-             <listitem>
-              <para>
-                <emphasis role="bold">uel-method</emphasis>: invokes a method that resolves to a boolean value.
-<programlisting>&lt;conditionExpression xsi:type=&quot;tFormalExpression&quot; <emphasis role="bold">language=&quot;uel-method&quot;</emphasis>&gt;
-  &lt;![CDATA[${order.isStandardOrder}]]&gt;
-&lt;/conditionExpression&gt;</programlisting>                
-              </para>
-            </listitem>
-          </itemizedlist>
-          Note that these expressions support resolving primitives (incl. comparing them), beans, lists, arrays and maps.
-          <emphasis role="bold">If no value for the language attribute is specified, by default
-          the expression is resolved as a value expression.</emphasis> 
-        </para>
-        
-        <para>
-          The Activiti distribution contains the following example process using value and method expressions
-          (see <emphasis>org.activiti.examples.bpmn.expression)</emphasis>:
-          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.uel-expression.on.seq.flow.png"/></imageobject></mediaobject>
         </para>
       
       </section>
-      
+    
     </section>
     
     <section id="bpmnGateways">
@@ -880,15 +829,10 @@ ProcessInstance processInstance = processService.startProcessInstanceByXXX();</p
         </para>
         
         <para>
-          <emphasis role="bold">Note that the semantics of outgoing sequence flow is 
-          different to that of the general case in BPMN 2.0. While in general all sequence
-          flow which condition evaluates to true are selected to continue in a parallel way,
-          only one sequence flow is selected when using the exclusive gateway. 
-          In case multiple sequence flow have a condition that evaluates to true, the 
-          first one defined in the XML (and only that one!) is selected for continuing the process.
-          If no sequence flow can be selected, an exception will be thrown.</emphasis>
+          <emphasis role="bold">Note:</emphasis> an exclusive gateway will never
+          consume nor generate new tokens.
         </para>
-        
+      
       </section>
       
       <section id="exclusiveGatewayGraphNotation">
@@ -913,11 +857,6 @@ ProcessInstance processInstance = processService.startProcessInstanceByXXX();</p
         <para>
           The XML representation of an exclusive gateway is straight-forward: one line defining
           the gateway and condition expressions defined on the outgoing sequence flow. 
-          See the section on <link linkend="bpmnConditionalSequenceFlow">conditional sequence flow</link>
-          to see which options are available for such expressions.
-       </para>
-       
-       <para>   
           Take for example the following model:
           <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.exclusive.gateway.png"/></imageobject></mediaobject> 
           Which is represented in XML as follows:
@@ -935,144 +874,10 @@ ProcessInstance processInstance = processService.startProcessInstanceByXXX();</p
   &lt;conditionExpression xsi:type=&quot;tFormalExpression&quot;&gt;${input == 3}&lt;/conditionExpression&gt;
 &lt;/sequenceFlow&gt;</programlisting>
         </para>
-        
+      
       </section>
     
     </section>
-    
-    <section id="bpmnParallelGateway">
-      
-      <title>Parallel Gateway</title>
-      
-      <section id="bpmnParallelGatewayDescription">
-        
-        <title>Description</title>
-        
-        <para>
-          Gateways can also be used to model concurrency in a process. The most straightforward
-          gateway to introduce concurrency in a process model, is the 
-          <emphasis role="bold">Parallel Gateway</emphasis>, which allows to <emphasis>fork</emphasis> 
-          into multiple paths of execution or <emphasis>join</emphasis> multiple incoming paths
-          of execution.
-        </para>
-        
-        <para>
-          The funtionality of the parallel gateway is based on the incoming and outgoing sequence flow:
-          <itemizedlist>
-            <listitem>
-              <para>
-                <emphasis role="bold">join:</emphasis>   
-                all concurrent executions arriving at the parallel gateway wait in the gateway
-                until an execution has arrived for each of the incoming sequence flow. Then the 
-                process continues past the joining gateway.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                <emphasis role="bold">fork:</emphasis>
-                all outgoing sequence flow are followed in parallel, creating one concurrent
-                execution for each sequence flow.
-              </para>
-            </listitem>
-          </itemizedlist>
-          Note that a parallel gateway can have <emphasis role="bold">both fork and join behavior</emphasis>,
-          if there are multiple incoming and outgoing sequence flow for the same parallel gateway.
-          In that case, the gateway will first join all incoming sequence flow, before splitting
-          into multiple concurrent paths of executions.
-        </para>
-        
-        <para>
-          <emphasis role="bold">An important difference with other gateway types is that
-          the parallel gateway does not evaluate conditions. If conditions are defined
-          on the sequence flow connected with the parallel gateway, they are simply neglected.</emphasis>  
-        </para>
-      
-      </section>
-      
-      <section id="bpmnParallelGatewayGraphicalNotation">
-        
-        <title>Graphical Notation</title>
-        
-        <para>
-          A parallel gateway is visualized as a gateway (diamond shape) with the 'plus' symbol inside,
-          referring to the 'AND' semantics.
-          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.parallel.gateway.png"/></imageobject></mediaobject>
-        </para>
-      
-      </section>
-      
-      <section id="bpmnParallelGatewayyXML">
-        
-        <title>XML representation</title>
-        
-        <para>
-          Defining a parallel gateway needs one line of XML:
-          <programlisting>&lt;parallelGateway id=&quot;myParallelGateway&quot; /></programlisting>
-          The actual behavior (fork, join or both), is defined by 
-          the sequence flow connected to the parallel gateway.
-        </para>
-      
-        <para>
-          For example, the model above comes down to the following XML:
-<programlisting>
-    &lt;startEvent id=&quot;theStart&quot; /&gt;
-    &lt;sequenceFlow id=&quot;flow1&quot; sourceRef=&quot;theStart&quot; targetRef=&quot;fork&quot; /&gt;
-    
-    <emphasis role="bold">&lt;parallelGateway id=&quot;fork&quot; /&gt;</emphasis>
-    &lt;sequenceFlow sourceRef=&quot;fork&quot; targetRef=&quot;receivePayment&quot; /&gt;
-    &lt;sequenceFlow sourceRef=&quot;fork&quot; targetRef=&quot;shipOrder&quot; /&gt;
-    
-    &lt;userTask id=&quot;receivePayment&quot; name=&quot;Receive Payment&quot; /&gt;  
-    &lt;sequenceFlow sourceRef=&quot;receivePayment&quot; targetRef=&quot;join&quot; /&gt;
-    
-    &lt;userTask id=&quot;shipOrder&quot; name=&quot;Ship Order&quot; /&gt; 
-    &lt;sequenceFlow sourceRef=&quot;shipOrder&quot; targetRef=&quot;join&quot; /&gt;
-    
-    <emphasis role="bold">&lt;parallelGateway id=&quot;join&quot; /&gt;</emphasis>
-    &lt;sequenceFlow sourceRef=&quot;join&quot; targetRef=&quot;archiveOrder&quot; /&gt;
-    
-    &lt;userTask id=&quot;archiveOrder&quot; name=&quot;Archive Order&quot; /&gt; 
-    &lt;sequenceFlow sourceRef=&quot;archiveOrder&quot; targetRef=&quot;theEnd&quot; /&gt;
-    
-    &lt;endEvent id=&quot;theEnd&quot; /&gt;
-</programlisting>
-        </para>
-        
-        <para>
-          In the above example, after the process is started, two tasks will be created:
-          <programlisting>
-  ProcessInstance pi = processService.startProcessInstanceByKey(&quot;forkJoin&quot;);
-  TaskQuery query = deployer.getTaskService()
-                           .createTaskQuery()
-                           .processInstance(pi.getId())
-                           .orderAsc(TaskQuery.PROPERTY_NAME);
-
-  List&lt;Task&gt; tasks = query.list();
-  assertEquals(2, tasks.size());
-  
-  Task task1 = tasks.get(0);
-  assertEquals(&quot;Receive Payment&quot;, task1.getName());
-  Task task2 = tasks.get(1);
-  assertEquals(&quot;Ship Order&quot;, task2.getName());
-          </programlisting>
-          When these two tasks are completed, the second parallel gateway will join the two
-          executions and since there is only one outgoing sequence flow, no concurrent paths
-          of execution will be created, and only the <emphasis>Archive Order</emphasis>
-          task will be active.
-        </para>
-        
-        <para>
-          Note that a parallel gateway does not need to be 'balanced' (ie. a matching number
-          of incoming/outgoing sequence flow for corresponding parallel gateways). 
-          A parallel gateway will simply wait for all incoming sequence flow and create 
-          a concurrent path of execution for each outgoing sequence flow, not influenced by
-          other constructs in the process model. So, the following process is legal in BPMN 2.0:
-          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.unbalanced.parallel.gateway.png"/></imageobject></mediaobject>
-        </para>
-      
-      </section>
-   
-    </section> 
 
 		<section id="bpmnUserTask">
 
@@ -1282,7 +1087,7 @@ List&lt;Task&gt; tasks = taskService.createTaskQuery().assignee(&quot;kermit&quo
 
 			</section> <!-- task assignment -->
 
-		</section>
+		</section> <!-- userTask -->
 		
 		<section id="bpmnScriptTask">
 		
@@ -1383,49 +1188,7 @@ List&lt;Task&gt; tasks = taskService.createTaskQuery().assignee(&quot;kermit&quo
 		  
 		  </section>
 		
-		</section> 
-		
-		<section id="bpmnManualTask">
-		
-		  <title>Manual Task</title>
-		  
-		  <section id="bpmnManualTaskDescription">
-		  
-		    <title>Description</title>
-		    
-		    <para>
-		      A <emphasis>Manual Task</emphasis> defines a task that is external to the BPM engine.
-		      It is used to model work that is done by somebody, which the engine
-		      does not need to know of, nor is there a system of UI interface.
-		      For the engine, a manual task is handled as a <emphasis role="bold">pass-though activity</emphasis>,
-		      ,automatically continuing the process from the moment process execution arrives into it. 
-		    </para>
-		  
-		  </section>
-		  
-		  <section id="bpmnManualTaskGraphicalNotation">
-		  
-		    <title>Graphical Notation</title>
-		    
-		    <para>
-		      A manual task is visualized as a rounded rectangle, with a little 'hand' icon 
-		      in the upper left corner
-		      <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.manual.task.png"/></imageobject></mediaobject>
-		    </para>
-		  
-		  </section>
-		  
-		  <section id="bpmnManualTaskXml">
-		  
-		    <title>XML representation</title>
-		    
-		    <para>
-		      <programlisting>&lt;manualTask id=&quot;myManualTask&quot; name=&quot;Call client for more information&quot; /></programlisting>
-		    </para>
-		  
-		  </section>
-		
-		</section>
+		</section> <!-- scriptTask -->
 		
 		<section id="bpmnBoundaryEvent">
 		  
@@ -1529,130 +1292,11 @@ List&lt;Task&gt; tasks = taskService.createTaskQuery().assignee(&quot;kermit&quo
           used is the <ulink url="http://en.wikipedia.org/wiki/ISO_8601#Durations">ISO 8601</ulink>
           format (as required by the BPMN 2.0 specification).
         </para>
-        
-        <para>
-          <emphasis role="bold">Note:</emphasis> boundary timer events are only fired when 
-          the job executor is enabled (ie. <emphasis>job.executor.auto.activate=off</emphasis>
-          needs to be removed from the <emphasis>activiti.properties</emphasis>, since the job
-          executor is otherwise enabled by default). 
-        </para>
       
       </section>
 		
-		</section> 
-		
-		<section id="bpmnSubProcess">
-		
-		  <title>SubProcess</title>
-		  
-		  <section id="bpmnSubProcessDescription">
-		  
-		    <title>Description</title>
-		    
-		    <para>
-		      A <emphasis>subprocess</emphasis> is an activity that contains other activities, gateways,
-		      events, etc. which on itself form a process that is part of the bigger process. 
-		      A <emphasis>subprocess</emphasis> is completely defined inside a parent process
-		      (that's why it's often called an <emphasis>embedded</emphasis> subprocess).
-		    </para>
-		    
-		    <para>
-		      Subprocesses have two major use cases:
-		      <itemizedlist>
-		        <listitem>
-		          <para>
-		            Subprocesses allow <emphasis role="bold">hierarchical modeling</emphasis>.
-		            Many modeling tools allow that subprocesses can be <emphasis>collapsed</emphasis>, 
-		            hiding all the details of the subprocess and displaying a high-level end-to-end
-		            overview of the business process.
-		          </para>
-		        </listitem>
-		        <listitem>
-		          <para>
-		            A subprocess creates a new <emphasis role="bold">scope for events</emphasis>.
-		            Events that are thrown during execution of the subprocess, can be catched by
-		            <link linkend="bpmnBoundaryEvent">a boundary event</link> on the boundary 
-		            of the subprocess, thus creating a scope for that event limited to the subprocess.
-		          </para>
-		        </listitem>
-		      </itemizedlist>
-		    </para>
-		    
-		    <para>
-		      Using a subprocess does impose some constraints:
-		      <itemizedlist>
-		        <listitem>
-		          <para>
-		            A subprocess can only have <emphasis role="bold">one none start event</emphasis>, no other
-		            start event types are allowed. A subprocess must <emphasis role="bold">
-		            at least have one end event</emphasis>. Note that the BPMN 2.0 specification
-		            allows to ommit the start and end events in a sbprocess, but the current
-		            Activiti implementation does not support this.
-		          </para>
-		        </listitem>
-		        <listitem>
-		          <para>
-		            <emphasis role="bold">Sequence flow can not cross subprocess boundaries.</emphasis>
-		          </para>
-		        </listitem>
-		      </itemizedlist>
-		    </para>
-		  
-		  </section>
-		  
-		  <section id="bpmnSubProcessGraphicalNotation">
-      
-        <title>Graphical Notation</title>
-        
-        <para>
-          A subprocess is visualized as a typical activity, ie. a rounded rectangle.
-          In case the subprocess is <emphasis>collapsed</emphasis>, only the name and a plus-sign are displayed,
-          giving a high-level overview of the process:
-          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.collapsed.subprocess.png"/></imageobject></mediaobject>
-        </para>
-        
-        <para>  
-          In case the subprocess is <emphasis>expanded</emphasis>, the steps of the subprocess
-          are displayed within the subprocess boundaries:
-          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.expanded.subprocess.png"/></imageobject></mediaobject>
-        </para>
-        
-        <para>
-          One of the main reasons to use a subprocess, is to define a scope for a certain event.
-          The following process model shows this: both the <emphasis>investigate software/investigate hardware</emphasis>
-          tasks need to be done in parallel, but both tasks need to be done within a certain time,
-          before <emphasis>Level 2 support</emphasis> is consulted.
-          Here, the scope of the timer (ie. which activities must be done in time) is constrained by the subprocess. 
-          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.subprocess.with.boundary.timer.png"/></imageobject></mediaobject>
-        </para>
-      
-      </section>
-      
-      <section id="bpmnSubProcessXML">
-      
-        <title>XML representation</title>
-        
-        <para>
-          A subprocess is defined by the <emphasis>subprocess</emphasis> element.
-          All activities, gateways, events, etc. that are part of the subprocess, need
-          to be enclosed within this element.
-          <programlisting>
-&lt;subProcess id=&quot;subProcess&quot;&gt;
-    
-  &lt;startEvent id=&quot;subProcessStart&quot; /&gt;
-  
-  ... other subprocess elements ...
+		</section> <!-- timer boundary event -->
 
-  &lt;endEvent id=&quot;subProcessEnd&quot; /&gt;
-    
- &lt;/subProcess&gt;          
-          </programlisting> 
-        </para>
-      
-      </section>
-		
-		</section>
-
-	</section>
+	</section> <!-- bpmnConstructs -->
 
 </chapter>

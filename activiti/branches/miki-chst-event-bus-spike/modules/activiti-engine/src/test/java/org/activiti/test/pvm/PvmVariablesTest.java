@@ -20,27 +20,23 @@ import org.activiti.pvm.ObjectProcessInstance;
 import org.activiti.pvm.ProcessDefinitionBuilder;
 import org.activiti.test.LogInitializer;
 import org.activiti.test.pvm.activities.WaitState;
-import org.junit.Rule;
 import org.junit.Test;
 
 
 /**
  * @author Tom Baeyens
  */
-public class PvmVariablesTest {
+public class PvmVariablesTest extends LogInitializer {
 
-  @Rule 
-  public LogInitializer logInitializer = new LogInitializer();
-  
   @Test
   public void testVariables() {
     ObjectProcessDefinition processDefinition = ProcessDefinitionBuilder
-    .createProcessDefinitionBuilder()
+    .createProcessDefinition()
       .createActivity("a")
         .initial()
         .behavior(new WaitState())
       .endActivity()
-    .build();
+    .endProcessDefinition();
       
     
     

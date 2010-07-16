@@ -16,9 +16,6 @@ package org.activiti.test;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -142,22 +139,8 @@ public class ProcessDeployer extends ProcessEngineBuilder {
    * <code>xmlString.bpmn20.xml</code>
    */
   public void deployProcessString(String xmlString) {
-    String resourceName = "xmlString." + createKey(xmlString.getBytes()) + BpmnDeployer.BPMN_RESOURCE_SUFFIX;
+    String resourceName = "xmlString." + BpmnDeployer.BPMN_RESOURCE_SUFFIX;
     createDeployment().name(resourceName).addString(resourceName, xmlString).deploy();
-  }
-
-  private String createKey(byte[] bytes) {
-    if (bytes == null) {
-      return "";
-    }
-    MessageDigest digest;
-    try {
-      digest = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      throw new IllegalStateException("MD5 algorithm not available.  Fatal (should be in the JDK).");
-    }
-    bytes = digest.digest(bytes);
-    return String.format("%032x", new BigInteger(1, bytes));
   }
 
   private DeploymentBuilder getDeploymentBuilderProxy(final DeploymentBuilder builder) {

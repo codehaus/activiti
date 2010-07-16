@@ -24,6 +24,7 @@ import org.activiti.impl.ProcessServiceImpl;
 import org.activiti.impl.bytes.ByteArrayImpl;
 import org.activiti.impl.util.IoUtil;
 
+
 /**
  * @author Tom Baeyens
  */
@@ -31,8 +32,8 @@ public class DeploymentBuilderImpl implements DeploymentBuilder {
 
   private static final long serialVersionUID = 1L;
 
-  private final ProcessServiceImpl processService;
-  private final DeploymentImpl deployment = DeploymentImpl.create();
+  protected ProcessServiceImpl processService;
+  protected DeploymentImpl deployment = DeploymentImpl.create();
 
   public DeploymentBuilderImpl(ProcessServiceImpl processManager) {
     this.processService = processManager;
@@ -61,7 +62,7 @@ public class DeploymentBuilderImpl implements DeploymentBuilder {
   public DeploymentBuilder addZipInputStream(ZipInputStream zipInputStream) {
     try {
       ZipEntry entry = zipInputStream.getNextEntry();
-      while (entry != null) {
+      while( entry!=null ) {
         String entryName = entry.getName();
         byte[] bytes = IoUtil.readInputStream(zipInputStream, entryName);
         ByteArrayImpl byteArray = new ByteArrayImpl(entryName, bytes);
@@ -73,13 +74,14 @@ public class DeploymentBuilderImpl implements DeploymentBuilder {
     }
     return this;
   }
-
+  
   public DeploymentBuilder name(String name) {
     deployment.setName(name);
     return this;
   }
 
   public Deployment deploy() {
-    return processService.deploy(deployment);
+    processService.deploy(deployment);
+    return deployment;
   }
 }

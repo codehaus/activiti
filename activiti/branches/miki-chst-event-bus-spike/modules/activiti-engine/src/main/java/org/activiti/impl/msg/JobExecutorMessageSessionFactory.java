@@ -13,22 +13,15 @@
 package org.activiti.impl.msg;
 
 import org.activiti.impl.interceptor.CommandContext;
-import org.activiti.impl.jobexecutor.JobExecutor;
 
 
 /**
  * @author Tom Baeyens
  */
 public class JobExecutorMessageSessionFactory implements MessageSessionFactory {
-
-  private final JobExecutor jobExecutor;
-
-  public JobExecutorMessageSessionFactory(JobExecutor jobExecutor) {
-    this.jobExecutor = jobExecutor;
-  }
   
   public MessageSession openMessageSession(CommandContext commandContext) {
-    return new JobExecutorMessageSession(commandContext, jobExecutor);
+    return new JobExecutorMessageSession(commandContext);
   }
 
 }

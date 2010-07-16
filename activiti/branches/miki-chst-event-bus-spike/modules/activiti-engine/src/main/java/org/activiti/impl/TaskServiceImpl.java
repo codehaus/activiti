@@ -28,7 +28,6 @@ import org.activiti.impl.cmd.GetFormCmd;
 import org.activiti.impl.cmd.SaveTaskCmd;
 import org.activiti.impl.cmd.SetTaskPriorityCmd;
 import org.activiti.impl.interceptor.CommandExecutor;
-import org.activiti.impl.scripting.ScriptingEngines;
 import org.activiti.impl.task.TaskImpl;
 import org.activiti.impl.task.TaskInvolvementType;
 import org.activiti.impl.task.TaskQueryImpl;
@@ -42,11 +41,9 @@ public class TaskServiceImpl implements TaskService {
 
   /** must be injected */
   protected final CommandExecutor commandExecutor;
-  private final ScriptingEngines scriptingEngines;
 
-  public TaskServiceImpl(CommandExecutor commandExecutor, ScriptingEngines scriptingEngines) {
+  public TaskServiceImpl(CommandExecutor commandExecutor) {
     this.commandExecutor = commandExecutor;
-    this.scriptingEngines = scriptingEngines;
   }
 
   public Task newTask() {
@@ -144,7 +141,7 @@ public class TaskServiceImpl implements TaskService {
   }
 
   public Object getTaskForm(String taskId) {
-    return commandExecutor.execute(new GetFormCmd(scriptingEngines, null, null, taskId));
+    return commandExecutor.execute(new GetFormCmd(null, null, taskId));
   }
 
   // getters and setters //////////////////////////////////////////////////////

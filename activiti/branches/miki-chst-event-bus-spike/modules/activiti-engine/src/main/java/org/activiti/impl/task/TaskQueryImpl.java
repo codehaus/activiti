@@ -25,7 +25,6 @@ import org.activiti.Task;
 import org.activiti.TaskQuery;
 import org.activiti.impl.identity.GroupImpl;
 import org.activiti.impl.interceptor.CommandContext;
-import org.activiti.impl.interceptor.CommandContextHolder;
 import org.activiti.impl.interceptor.CommandExecutor;
 import org.activiti.impl.query.AbstractListQuery;
 
@@ -145,8 +144,8 @@ public class TaskQueryImpl extends AbstractListQuery<Task> implements TaskQuery 
   }
   
   protected List<String> getGroupsForCandidateUser(String candidateUser) {
-    List<GroupImpl> groups = CommandContextHolder
-      .getCurrentCommandContext()
+    List<GroupImpl> groups = CommandContext
+      .getCurrent()
       .getPersistenceSession()
       .findGroupsByUser(candidateUser);
     List<String> groupIds = new ArrayList<String>();

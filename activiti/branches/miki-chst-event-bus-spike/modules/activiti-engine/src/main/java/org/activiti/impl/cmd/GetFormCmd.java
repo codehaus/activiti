@@ -21,6 +21,7 @@ import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.persistence.PersistenceSession;
 import org.activiti.impl.repository.DeploymentImpl;
+import org.activiti.impl.repository.ProcessCache;
 import org.activiti.impl.scripting.ScriptingEngines;
 import org.activiti.impl.task.TaskImpl;
 
@@ -31,20 +32,18 @@ import org.activiti.impl.task.TaskImpl;
  */
 public class GetFormCmd implements Command<Object> {
 
-  private final String processDefinitionId;
-  private final String processDefinitionKey;
-  private final String taskId;
-  private final ScriptingEngines scriptingEngines;
+  protected String processDefinitionId;
+  protected String processDefinitionKey;
+  protected String taskId;
   
-  public GetFormCmd(ScriptingEngines scriptingEngines, String processDefinitionId, String processDefinitionKey, String taskId) {
-    this.scriptingEngines = scriptingEngines;
+  public GetFormCmd(String processDefinitionId, String processDefinitionKey, String taskId) {
     this.processDefinitionId = processDefinitionId;
     this.processDefinitionKey = processDefinitionKey;
     this.taskId = taskId;
   }
 
   public Object execute(CommandContext commandContext) {
-    PersistenceSession persistenceSession = commandContext.getPersistenceSession();
+    ProcessCache processCache = commandContext.getProcessCache();
     ProcessDefinitionImpl processDefinition = null;
     TaskImpl task = null;
     ExecutionImpl execution = null;
@@ -52,17 +51,18 @@ public class GetFormCmd implements Command<Object> {
     
     if (taskId!=null) {
       
+      PersistenceSession persistenceSession = commandContext.getPersistenceSession();
       task = persistenceSession.findTask(taskId);
       if (task == null) {
         throw new ActivitiException("No task found for id = '" + taskId + "'");
       }
       execution = task.getExecution();
-      processDefinition = persistenceSession.findProcessDefinitionById(task.getProcessDefinitionId());
+      processDefinition = processCache.findProcessDefinitionById(task.getProcessDefinitionId());
       formReference = execution.getActivity().getFormReference();
       
     } else if (processDefinitionId!=null) {
       
-      processDefinition = persistenceSession.findProcessDefinitionById(processDefinitionId);
+      processDefinition = processCache.findProcessDefinitionById(processDefinitionId);
       if (processDefinition == null) {
         throw new ActivitiException("No process definition found for id = '" + processDefinitionId + "'");
       }
@@ -70,7 +70,7 @@ public class GetFormCmd implements Command<Object> {
       
     } else if (processDefinitionKey!=null) {
       
-      processDefinition = persistenceSession.findLatestProcessDefinitionByKey(processDefinitionKey);
+      processDefinition = processCache.findProcessDefinitionByKey(processDefinitionKey);
       if (processDefinition == null) {
         throw new ActivitiException("No process definition found for key '" + processDefinitionKey +"'");
       }
@@ -85,6 +85,7 @@ public class GetFormCmd implements Command<Object> {
       String form = formReference.getForm();
       String formTemplateString = getFormTemplateString(form, deployment);      
       
+      ScriptingEngines scriptingEngines = commandContext.getScriptingEngines();
       result = scriptingEngines.evaluate(formTemplateString, formLanguage, execution);
     }
 

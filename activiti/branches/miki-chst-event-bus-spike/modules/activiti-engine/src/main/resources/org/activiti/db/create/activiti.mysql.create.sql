@@ -35,8 +35,7 @@ create table ACT_EXECUTION (
     PROC_DEF_ID_ varchar(255),
     ACTIVITY_ID_ varchar(255),
     IS_ACTIVE_ TINYINT,
-    IS_CONCURRENT_ TINYINT,
-    IS_SCOPE_ TINYINT,
+    IS_CONCURRENCY_SCOPE_ TINYINT,
     primary key (ID_)
 );
 
@@ -50,7 +49,7 @@ create table ACT_JOB (
     PROCESS_INSTANCE_ID_ varchar(255),
     RETRIES_ integer,
     EXCEPTION_ varchar(255),
-    DUEDATE_ timestamp NULL,
+    DUEDATE_ timestamp,
     REPEAT_ varchar(255),
     HANDLER_TYPE_ varchar(255),
     HANDLER_CFG_ varchar(255),

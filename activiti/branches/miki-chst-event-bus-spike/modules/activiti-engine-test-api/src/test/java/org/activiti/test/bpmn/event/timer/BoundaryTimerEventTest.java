@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.activiti.Job;
 import org.activiti.JobQuery;
@@ -47,15 +48,13 @@ public class BoundaryTimerEventTest {
    * 
    * Configuration: - timer 1 -> 2 hours -> secondTask - timer 2 -> 1 hour ->
    * thirdTask - timer 3 -> 3 hours -> fourthTask
-   * 
-   * See process image next to the process xml resource
    */
   @Test
   @ProcessDeclared
   public void testMultipleTimersOnUserTask() {
 
-    // Set the clock fixed
-    Date startTime = new Date();
+    // Set the clock to time '0'
+    Clock.setCurrentTime(new Date(0L));
 
     // After process start, there should be 3 timers created
     ProcessInstance pi = deployer.getProcessService().startProcessInstanceByKey("multipleTimersOnUserTask");
@@ -63,8 +62,9 @@ public class BoundaryTimerEventTest {
     List<Job> jobs = jobQuery.list();
     assertEquals(3, jobs.size());
 
-    // After setting the clock to time '1 hour and 5 seconds', the second timer should fire
-    Clock.setCurrentTime(new Date(startTime.getTime() + ((60 * 60 * 1000) + 5000)));
+    // After setting the clock to time '1 hour and 5 seconds', the second timer
+    // should fire
+    Clock.setCurrentTime(new Date((60 * 60 * 1000) + 5000));
     new JobExecutorPoller(deployer.getJobExecutor(), deployer.getCommandExecutor()).waitForJobExecutorToProcessAllJobs(5000L, 25L);
     assertEquals(0L, jobQuery.count());
 

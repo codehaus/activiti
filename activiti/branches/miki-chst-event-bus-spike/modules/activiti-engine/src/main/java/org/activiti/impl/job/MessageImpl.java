@@ -26,17 +26,19 @@ public class MessageImpl extends JobImpl {
 
   private String repeat = null;
   
-  @Override
-  public void execute(JobHandler jobHandler, CommandContext commandContext) {
-    super.execute(jobHandler, commandContext);
+  public Void execute(CommandContext commandContext) {
+    super.execute(commandContext);
+    
     commandContext
       .getPersistenceSession()
       .delete(this);
+    
+    return null;
   }
 
   public Object getPersistentState() {
     Map<String, Object> persistentState = (Map<String, Object>) super.getPersistentState();
-    persistentState.put("duedate", getDuedate());
+    persistentState.put("duedate", duedate);
     return persistentState;
   }
   

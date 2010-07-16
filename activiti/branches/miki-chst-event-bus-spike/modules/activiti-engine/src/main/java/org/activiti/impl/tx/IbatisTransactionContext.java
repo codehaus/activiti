@@ -19,7 +19,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.activiti.impl.interceptor.CommandContext;
-import org.activiti.impl.persistence.PersistenceSession;
+import org.activiti.impl.persistence.IbatisPersistenceSession;
+import org.apache.ibatis.session.SqlSession;
 
 
 /**
@@ -53,7 +54,7 @@ public class IbatisTransactionContext implements TransactionContext {
     log.fine("firing event committing...");
     fireTransactionEvent(TransactionState.COMMITTING);
     log.fine("committing the ibatis sql session...");
-    getPersistenceSession().commit();
+    getSqlSession().commit();
     log.fine("firing event committed...");
     fireTransactionEvent(TransactionState.COMMITTED);
   }
@@ -71,8 +72,10 @@ public class IbatisTransactionContext implements TransactionContext {
     }
   }
 
-  private PersistenceSession getPersistenceSession() {
-    return commandContext.getPersistenceSession();
+  private SqlSession getSqlSession() {
+    IbatisPersistenceSession ibatisPersistenceSession = (IbatisPersistenceSession) commandContext.getPersistenceSession();
+    SqlSession sqlSession = ibatisPersistenceSession.getSqlSession();
+    return sqlSession;
   }
 
   public void rollback() {
@@ -82,15 +85,13 @@ public class IbatisTransactionContext implements TransactionContext {
         fireTransactionEvent(TransactionState.ROLLINGBACK);
         
       } catch (Throwable exception) {
-        log.info("Exception during transaction: " + exception.getMessage());
         commandContext.exception(exception);
       } finally {
         log.fine("rolling back ibatis sql session...");
-        getPersistenceSession().rollback();
+        getSqlSession().rollback();
       }
       
     } catch (Throwable exception) {
-      log.info("Exception during transaction: " + exception.getMessage());
       commandContext.exception(exception);
 
     } finally {
