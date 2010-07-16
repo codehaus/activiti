@@ -13,7 +13,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="Maven: com.h2database:h2:1.2.132" level="project" />
-    <orderEntry type="library" exported="" name="Maven: juel:juel:2.1.0" level="project" />
+    <orderEntry type="library" exported="" name="Maven: juel:juel:2.2.1" level="project" />
     <orderEntry type="library" exported="" name="Maven: juel:juel-engine:2.1.0" level="project" />
     <orderEntry type="library" exported="" name="Maven: org.codehaus.groovy:groovy-all:1.7.2" level="project" />
     <orderEntry type="library" exported="" name="Maven: junit:junit:4.8.1" level="project" />
@@ -31,6 +31,9 @@
     <orderEntry type="library" exported="" name="Maven: org.springframework:spring-expression:3.0.3.RELEASE" level="project" />
     <orderEntry type="library" exported="" name="Maven: org.springframework:spring-orm:3.0.3.RELEASE" level="project" />
     <orderEntry type="library" exported="" name="Maven: org.mybatis:mybatis:3.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-core:1.8.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.objenesis:objenesis:1.0" level="project" />
   </component>
 </module>
 

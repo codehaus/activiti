@@ -12,6 +12,7 @@
  */
 package org.activiti.impl.db.execution;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,11 +23,10 @@ import org.activiti.impl.definition.ActivityImpl;
 import org.activiti.impl.definition.ProcessDefinitionDbImpl;
 import org.activiti.impl.definition.ProcessDefinitionImpl;
 import org.activiti.impl.execution.ExecutionImpl;
-import org.activiti.impl.interceptor.CommandContext;
+import org.activiti.impl.interceptor.CommandContextHolder;
 import org.activiti.impl.persistence.PersistenceSession;
 import org.activiti.impl.persistence.PersistentObject;
 import org.activiti.impl.task.TaskImpl;
-
 
 /**
  * @author Tom Baeyens
@@ -39,91 +39,101 @@ public class DbExecutionImpl extends ExecutionImpl implements PersistentObject {
   protected String id = null;
   protected int revision = 1;
 
-  /** persisted reference to the processDefinition. 
-   * @see #processDefinition 
+  /**
+   * persisted reference to the processDefinition.
+   * 
+   * @see #processDefinition
    * @see #setProcessDefinition(ProcessDefinitionImpl)
-   * @see #getProcessDefinition() */
+   * @see #getProcessDefinition()
+   */
   protected String processDefinitionId;
 
-  /** persisted reference to the current position in the diagram within the {@link #processDefinition}. 
-   * @see #activity 
-   * @see #setActivity(ActivityImpl) 
-   * @see #getActivity() */
+  /**
+   * persisted reference to the current position in the diagram within the
+   * {@link #processDefinition}.
+   * 
+   * @see #activity
+   * @see #setActivity(ActivityImpl)
+   * @see #getActivity()
+   */
   protected String activityId;
-  
 
-  /** persisted reference to the process instance. 
-   * @see #getProcessInstance()  */
+  /**
+   * persisted reference to the process instance.
+   * 
+   * @see #getProcessInstance()
+   */
   protected String processInstanceId;
-  
-  /** persisted reference to the parent of this execution.
+
+  /**
+   * persisted reference to the parent of this execution.
+   * 
    * @see #getParent()
-   * @see #setParent(ExecutionImpl) */
+   * @see #setParent(ExecutionImpl)
+   */
   protected String parentId;
-  
+
   protected boolean isNew = false;
-  
+  protected boolean isExecutionsInitialized = false;
+
   transient protected List<TaskImpl> tasks = null;
-  
+
   DbExecutionImpl() {
-    variableMap = new DbVariableMap(this);
   }
-  
-  DbExecutionImpl(ProcessDefinitionDbImpl processDefinition) {
+
+  public DbExecutionImpl(ProcessDefinitionDbImpl processDefinition) {
     super(processDefinition);
     this.isNew = true;
-    this.variableMap = new DbVariableMap(this);
-  }
-  
-  DbExecutionImpl(ExecutionImpl parent) {
-    super(parent);
-    this.isNew = true;
-    this.variableMap = new DbVariableMap(this);
-  }
-  
-  public static DbExecutionImpl createAndInsert(ProcessDefinitionDbImpl processDefinition) {
-    DbExecutionImpl processInstance = new DbExecutionImpl(processDefinition);
-    
-    CommandContext
-      .getCurrent()
+    this.executions = new ArrayList<ExecutionImpl>();
+    this.isExecutionsInitialized = true;
+    // Do not initialize variable map (let it happen lazily)
+
+    CommandContextHolder
+      .getCurrentCommandContext()
       .getPersistenceSession()
-      .insert(processInstance);
-    
-    processInstance.setProcessInstance(processInstance);
-    
-    return processInstance;
+      .insert(this);
   }
-  
-  public static DbExecutionImpl createAndInsert(ExecutionImpl parent) {
-    DbExecutionImpl childExecution = new DbExecutionImpl(parent);
-    
-    CommandContext
-      .getCurrent()
-      .getPersistenceSession()
-      .insert(childExecution);
-    
-    childExecution.setProcessInstance(parent.getProcessInstance());
-    
-    return childExecution;
-  }
-  
-  public ProcessDefinitionImpl getProcessDefinition() {
-    if ( (processDefinition==null)
-         && (processDefinitionId!=null) 
-       ) {
-      processDefinition = CommandContext
-        .getCurrent()
-        .getProcessCache()
-        .findProcessDefinitionById(processDefinitionId);
-    }
-    return processDefinition;
-  }
-  
+
   @Override
-  public String getProcessDefinitionId() {
-    return processDefinitionId;
+  protected ExecutionImpl newExecution() {
+    DbExecutionImpl newExecution = new DbExecutionImpl();
+    newExecution.isNew = true;
+    newExecution.executions = new ArrayList<ExecutionImpl>();
+    newExecution.isExecutionsInitialized = true;
+    // Do not initialize variable map (let it happen lazily)
+
+    CommandContextHolder
+      .getCurrentCommandContext()
+      .getPersistenceSession()
+      .insert(newExecution);
+    
+    return newExecution;
   }
-  
+    
+  // process definition ///////////////////////////////////////////////////////
+
+  @Override
+  public void ensureProcessDefinitionInitialized() {
+    if ((processDefinition == null) && (processDefinitionId != null)) {
+      setProcessDefinition(CommandContextHolder.getCurrentCommandContext().getPersistenceSession().findProcessDefinitionById(processDefinitionId));
+    }
+  }
+
+  @Override
+  public void setProcessDefinition(ProcessDefinitionImpl processDefinition) {
+    super.setProcessDefinition(processDefinition);
+    this.processDefinitionId = processDefinition.getId();
+  }
+
+  // process instance /////////////////////////////////////////////////////////
+
+  @Override
+  public void ensureProcessInstanceInitialized() {
+    if ((processInstance == null) && (processInstanceId != null)) {
+      processInstance = CommandContextHolder.getCurrentCommandContext().getPersistenceSession().findExecution(processInstanceId);
+    }
+  }
+
   @Override
   public void setProcessInstance(ExecutionImpl processInstance) {
     super.setProcessInstance(processInstance);
@@ -133,135 +143,118 @@ public class DbExecutionImpl extends ExecutionImpl implements PersistentObject {
   }
   
   @Override
-  public ExecutionImpl getProcessInstance() {
-    if ( (processInstance==null) && (processInstanceId!=null) ) {
-      processInstance = CommandContext
-        .getCurrent()
-        .getPersistenceSession()
-        .findExecution(processInstanceId);
-    }
-    return processInstance;
+  public boolean isProcessInstance() {
+    return parentId == null;
   }
 
-  @Override
-  public void setProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    this.processDefinition = processDefinition;
-    this.processDefinitionId = processDefinition.getId();
-  }
+  // activity /////////////////////////////////////////////////////////////////
 
   @Override
-  public ActivityImpl getActivity() {
-    if ( (activity==null)
-        && (activityId!=null) 
-       ) {
+  public void ensureActivityInitialized() {
+    if ((activity == null) && (activityId != null)) {
       activity = getProcessDefinition().findActivity(activityId);
     }
-    return activity;
   }
-  
+
   @Override
   public void setActivity(ActivityImpl activity) {
-    this.activity = activity;
-    if (activity!=null) {
+    super.setActivity(activity);
+    if (activity != null) {
       this.activityId = activity.getId();
     } else {
       this.activityId = null;
     }
   }
   
-  @Override
-  public ExecutionImpl getParent() {
-    if (parent == null && parentId != null) {
-      parent = CommandContext
-        .getCurrent()
-        .getPersistenceSession()
-        .findExecution(parentId);      
-    }
-    return parent;
-  }
+  // executions ///////////////////////////////////////////////////////////////
   
+  @Override
+  public void ensureExecutionsInitialized() {
+    // If the execution is new, then the child execution objects are already
+    // fetched
+    if (!isExecutionsInitialized) {
+      this.executions = CommandContextHolder.getCurrentCommandContext().getPersistenceSession().findChildExecutions(getId());
+      this.isExecutionsInitialized = true;
+    }
+  }
+
+  // parent ///////////////////////////////////////////////////////////////////
+  
+  @Override
+  public void ensureParentInitialized() {
+    if (parent == null && parentId != null) {
+      parent = CommandContextHolder.getCurrentCommandContext().getPersistenceSession().findExecution(parentId);
+    }
+  }
+
   @Override
   public void setParent(ExecutionImpl parent) {
     super.setParent(parent);
-    
+
     if (parent != null) {
       this.parentId = parent.getId();
+    } else {
+      this.parentId = null;
     }
   }
   
-  @Override
-  protected boolean isProcessInstance() {
-    return parentId == null;
-  }
+  // customized persistence behaviour /////////////////////////////////////////
 
   @Override
   public void end() {
     super.end();
-    delete();
-  }
 
-  protected void delete() {
-    PersistenceSession persistenceSession = CommandContext.getCurrent().getPersistenceSession();
-    
+    ensureVariableMapInitialized();
+
+    PersistenceSession persistenceSession = CommandContextHolder.getCurrentCommandContext().getPersistenceSession();
+
     Set<String> variableNames = new HashSet<String>(variableMap.getVariableNames());
-    for (String variableName: variableNames) {
+    for (String variableName : variableNames) {
       variableMap.deleteVariable(variableName);
     }
-    
+
     List<TaskImpl> tasks = persistenceSession.findTasksByExecution(id);
-    for (TaskImpl task: tasks) {
+    for (TaskImpl task : tasks) {
       task.delete();
     }
-    
+
     // then delete execution
     persistenceSession.delete(this);
   }
+
+  // variables ////////////////////////////////////////////////////////////////
   
   @Override
-  public List< ? extends ExecutionImpl> getExecutions() {
-    // If the execution is new, then the child execution objects are already fetched
-    if (!isNew && (executions == null || executions.isEmpty())) {
-      this.executions =  
-        CommandContext
-          .getCurrent()
-          .getPersistenceSession()
-          .findChildExecutions(getId()); 
-      return executions;
+  protected void ensureVariableMapInitialized() {
+    if (variableMap==null) {
+      ensureProcessDefinitionInitialized();
+      this.variableMap = new DbVariableMap(this);
     }
-    return super.getExecutions();
-  }
- 
-  @Override
-  protected ExecutionImpl createChildExecution() {
-    return createAndInsert(this);
   }
   
-  @Override
-  protected void initializeVariableMap() {
-    this.variableMap = new DbVariableMap(this);
-  }
+  // persistent state /////////////////////////////////////////////////////////
 
   public Object getPersistentState() {
-    Map<String, Object> persistentState = new  HashMap<String, Object>();
+    Map<String, Object> persistentState = new HashMap<String, Object>();
     persistentState.put("processDefinitionId", this.processDefinitionId);
     persistentState.put("activitiId", this.activityId);
     persistentState.put("isActive", this.isActive);
-    persistentState.put("isConcurrencyScope", this.isConcurrencyScope);
+    persistentState.put("isConcurrent", this.isConcurrent);
+    persistentState.put("isScope", this.isScope);
     persistentState.put("parentId", parentId);
     persistentState.put("transition", this.transition);
     return persistentState;
   }
+
+  // toString customization ///////////////////////////////////////////////////
   
-  // Need to overwrite the default toString(),
-  // since that one could fetch data from the DB, which 
-  // causes unnessary loadings.
-  public String toString() {
-    return "ProcInst[id=" + getId() + " at activity " + activityId + "]";
+  @Override
+  protected String getIdForToString() {
+    return id;
   }
-  
+
   // getters and setters //////////////////////////////////////////////////////
 
-  
   public String getProcessInstanceId() {
     return processInstanceId;
   }
@@ -285,5 +278,8 @@ public class DbExecutionImpl extends ExecutionImpl implements PersistentObject {
   }
   public boolean isNew() {
     return isNew;
+  }
+  public String getProcessDefinitionId() {
+    return processDefinitionId;
   }
 }

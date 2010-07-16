@@ -14,6 +14,8 @@ package org.activiti.impl.definition;
 
 import org.activiti.impl.db.execution.DbExecutionImpl;
 import org.activiti.impl.execution.ExecutionImpl;
+import org.activiti.impl.variable.DefaultVariableTypes;
+import org.activiti.impl.variable.VariableTypes;
 
 
 /**
@@ -23,9 +25,16 @@ public class ProcessDefinitionDbImpl extends ProcessDefinitionImpl {
 
   private static final long serialVersionUID = 1L;
 
+  public ProcessDefinitionDbImpl() {
+    this(new DefaultVariableTypes());
+  }
+
+  public ProcessDefinitionDbImpl(VariableTypes variableTypes) {
+    super(variableTypes);
+  }
+
   public ExecutionImpl createProcessInstance() {
-    DbExecutionImpl execution = DbExecutionImpl.createAndInsert(this);
-    initializeVariableDeclarations(execution);
+    DbExecutionImpl execution = new DbExecutionImpl(this);
     return execution;
   }
   

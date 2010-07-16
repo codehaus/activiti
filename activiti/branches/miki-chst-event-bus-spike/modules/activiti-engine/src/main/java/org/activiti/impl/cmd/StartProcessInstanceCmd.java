@@ -20,7 +20,7 @@ import org.activiti.impl.definition.ProcessDefinitionImpl;
 import org.activiti.impl.execution.ExecutionImpl;
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandContext;
-import org.activiti.impl.repository.ProcessCache;
+import org.activiti.impl.persistence.PersistenceSession;
 
 
 /**
@@ -39,15 +39,15 @@ public class StartProcessInstanceCmd<T> implements Command<ProcessInstance> {
   }
   
   public ProcessInstance execute(CommandContext commandContext) {
-    ProcessCache processCache = commandContext.getProcessCache();
+    PersistenceSession persistenceSession = commandContext.getPersistenceSession();
     ProcessDefinitionImpl processDefinition = null;
     if (processDefinitionId!=null) {
-      processDefinition = processCache.findProcessDefinitionById(processDefinitionId);
+      processDefinition = persistenceSession.findProcessDefinitionById(processDefinitionId);
       if (processDefinition == null) {
         throw new ActivitiException("No process definition found for id = '" + processDefinitionId + "'");
       }
     } else {
-      processDefinition = processCache.findProcessDefinitionByKey(processDefinitionKey);
+      processDefinition = persistenceSession.findLatestProcessDefinitionByKey(processDefinitionKey);
       if (processDefinition == null) {
         throw new ActivitiException("No process definition found for key '" + processDefinitionKey +"'");
       }

@@ -23,18 +23,22 @@ import org.activiti.pvm.ProcessDefinitionBuilder;
 import org.activiti.test.LogInitializer;
 import org.activiti.test.pvm.activities.Automatic;
 import org.activiti.test.pvm.activities.WaitState;
+import org.junit.Rule;
 import org.junit.Test;
 
 
 /**
  * @author Tom Baeyens
  */
-public class PvmScopesTest extends LogInitializer {
+public class PvmScopesTest {
 
+  @Rule 
+  public LogInitializer logInitializer = new LogInitializer();
+  
   @Test
   public void testSimpleNestedScope() {
     ObjectProcessDefinition processDefinition = ProcessDefinitionBuilder
-    .createProcessDefinition()
+    .createProcessDefinitionBuilder()
       .createActivity("start")
         .initial()
         .behavior(new Automatic())
@@ -52,7 +56,7 @@ public class PvmScopesTest extends LogInitializer {
       .createActivity("unscopedC")
         .behavior(new WaitState())
       .endActivity()
-    .endProcessDefinition();
+    .build();
     
     ObjectProcessInstance processInstance = processDefinition.createProcessInstance(); 
     processInstance.start();

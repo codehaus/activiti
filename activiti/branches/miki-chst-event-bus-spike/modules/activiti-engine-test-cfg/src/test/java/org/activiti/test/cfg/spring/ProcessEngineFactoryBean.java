@@ -13,58 +13,68 @@
 
 package org.activiti.test.cfg.spring;
 
+import java.io.IOException;
+import java.util.zip.ZipInputStream;
+
+import javax.el.ELResolver;
 import javax.sql.DataSource;
 
 import org.activiti.DbSchemaStrategy;
+import org.activiti.DeploymentBuilder;
+import org.activiti.IdentityService;
 import org.activiti.ProcessEngine;
-import org.activiti.impl.cfg.ProcessEngineConfiguration;
+import org.activiti.ProcessService;
+import org.activiti.impl.ProcessEngineImpl;
+import org.activiti.impl.cfg.ProcessEngineFactory;
 import org.activiti.impl.db.IdGenerator;
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandExecutor;
 import org.activiti.impl.interceptor.CommandInterceptor;
 import org.activiti.impl.interceptor.DefaultCommandExecutor;
-import org.activiti.impl.persistence.IbatisPersistenceSessionFactory;
-import org.activiti.impl.persistence.PersistenceSessionFactory;
+import org.activiti.impl.jobexecutor.JobExecutor;
+import org.activiti.impl.variable.VariableTypes;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ContextResource;
+import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.Assert;
 
 /**
  * @author Dave Syer
  */
-public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine> {
+public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, DisposableBean {
 
-  private String databaseName;
-  private DataSource dataSource;
+  private ProcessEngineFactory factory = new ProcessEngineFactory();
+
   private PlatformTransactionManager transactionManager;
-  private DbSchemaStrategy dbSchemaStrategy;
-  private boolean jobExecutorAutoActivate;
-  private String processEngineName;
+
+  private Resource[] processResources = new Resource[0];
+
+  private ProcessEngineImpl processEngine;
+
+  public void destroy() throws Exception {
+    if (processEngine != null) {
+      processEngine.close();
+    }
+  }
 
   public ProcessEngine getObject() throws Exception {
 
-    Assert.state(databaseName != null, "A database name must be provided (e.g. 'h2')");
-
-    ProcessEngineConfiguration configuration = new ProcessEngineConfiguration();
-    configuration.setDbSchemaStrategy(dbSchemaStrategy);
-    configuration.setJobExecutorAutoActivate(jobExecutorAutoActivate);
-    configuration.setProcessEngineName(processEngineName);
-    IdGenerator idGenerator = configuration.getIdGenerator();
-    PersistenceSessionFactory persistenceSessionFactory = new IbatisPersistenceSessionFactory(idGenerator, databaseName, dataSource, transactionManager == null);
-    configuration.setPersistenceSessionFactory(persistenceSessionFactory);
+    factory.setLocalTransactions(transactionManager == null);
 
     if (transactionManager != null) {
-      // FIXME: downcast
-      DefaultCommandExecutor commandExecutor = (DefaultCommandExecutor) configuration.getCommandExecutor();
+      DefaultCommandExecutor commandExecutor = new DefaultCommandExecutor(factory.getCommandContextFactory());
       commandExecutor.addCommandInterceptor(new CommandInterceptor() {
 
         public <T> T invoke(final CommandExecutor next, final Command<T> command) {
           // TODO: Add transaction attributes
           @SuppressWarnings("unchecked")
           T result = (T) new TransactionTemplate(transactionManager).execute(new TransactionCallback() {
+
             public Object doInTransaction(TransactionStatus status) {
               return next.execute(command);
             }
@@ -72,9 +82,12 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine> {
           return result;
         }
       });
+      factory.setCommandExecutor(commandExecutor);
     }
 
-    return configuration.buildProcessEngine();
+    processEngine = factory.createProcessEngine();
+    refreshProcessResources(processEngine.getProcessService(), processResources);
+    return processEngine;
 
   }
   public Class< ? > getObjectType() {
@@ -85,28 +98,89 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine> {
     return true;
   }
 
-  public void setDatabaseName(String databaseName) {
-    this.databaseName = databaseName;
+  protected void refreshProcessResources(ProcessService processService, Resource[] processResources) throws IOException {
+    for (Resource resource : processResources) {
+      String name = getResourceName(resource);
+      DeploymentBuilder deploymentBuilder = processService.createDeployment().name(name);
+      deploy(deploymentBuilder, resource, name);
+    }
   }
 
-  public void setDataSource(DataSource dataSource) {
-    this.dataSource = dataSource;
+  private void deploy(DeploymentBuilder deploymentBuilder, Resource resource, String name) throws IOException {
+    if (name.endsWith(".zip") || name.endsWith(".jar")) {
+      deploymentBuilder.addZipInputStream(new ZipInputStream(resource.getInputStream()));
+    } else {
+      deploymentBuilder.addInputStream(name, resource.getInputStream());
+    }
+    deploymentBuilder.deploy();
   }
 
-  public void setDbSchemaStrategy(DbSchemaStrategy dbSchemaStrategy) {
-    this.dbSchemaStrategy = dbSchemaStrategy;
-  }
-
-  public void setJobExecutorAutoActivation(boolean jobExecutorAutoActivate) {
-    this.jobExecutorAutoActivate = jobExecutorAutoActivate;
-  }
-
-  public void setProcessEngineName(String processEngineName) {
-    this.processEngineName = processEngineName;
+  private String getResourceName(Resource resource) {
+    String name;
+    if (resource instanceof ContextResource) {
+      name = ((ContextResource) resource).getPathWithinContext();
+    } else if (resource instanceof ByteArrayResource) {
+      name = resource.getDescription();
+    } else {
+      try {
+        name = resource.getFile().getAbsolutePath();
+      } catch (IOException e) {
+        name = resource.getFilename();
+      }
+    }
+    return name;
   }
 
   public void setTransactionManager(PlatformTransactionManager transactionManager) {
     this.transactionManager = transactionManager;
+  }
+
+  public void setProcessResources(Resource[] processResources) {
+    this.processResources = processResources;
+  }
+
+  public void setCommandExecutor(CommandExecutor commandExecutor) {
+    factory.setCommandExecutor(commandExecutor);
+  }
+
+  public void setDataBaseName(String dataBaseName) {
+    factory.setDataBaseName(dataBaseName);
+  }
+
+  public void setDataSource(DataSource dataSource) {
+    factory.setDataSource(dataSource);
+  }
+
+  public void setDbSchemaStrategy(DbSchemaStrategy dbSchemaStrategy) {
+    factory.setDbSchemaStrategy(dbSchemaStrategy);
+  }
+
+  public void setIdentityService(IdentityService identityService) {
+    factory.setIdentityService(identityService);
+  }
+
+  public void setIdGenerator(IdGenerator idGenerator) {
+    factory.setIdGenerator(idGenerator);
+  }
+
+  public void setJobExecutor(JobExecutor jobExecutor) {
+    factory.setJobExecutor(jobExecutor);
+  }
+
+  public void setJobExecutorAutoActivate(boolean jobExecutorAutoActivate) {
+    factory.setJobExecutorAutoActivate(jobExecutorAutoActivate);
+  }
+
+  public void setProcessEngineName(String processEngineName) {
+    factory.setProcessEngineName(processEngineName);
+  }
+
+  public void setVariableTypes(VariableTypes variableTypes) {
+    factory.setVariableTypes(variableTypes);
+  }
+
+  public void setElResolver(ELResolver elResolver) {
+    factory.setElResolver(elResolver);
   }
 
 }

@@ -12,6 +12,7 @@
  */
 package org.activiti.impl.persistence;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +41,16 @@ import org.activiti.impl.variable.VariableInstance;
 
 /**
  * @author Tom Baeyens
- * @author Joram BarrezS
+ * @author Joram Barrez
  */
 public interface PersistenceSession extends Session {
   
+  void commit();
+  void rollback();
+
   /* Deployment */
   List<DeploymentImpl> findDeployments();
+  List<DeploymentImpl> findDeploymentsByName(String name);
   DeploymentImpl findDeployment(String deploymentId);
   DeploymentImpl findDeploymentByProcessDefinitionId(String processDefinitionId);
   List<ByteArrayImpl> findDeploymentResources(String deploymentId);
@@ -99,7 +104,7 @@ public interface PersistenceSession extends Session {
   JobImpl findJobById(String jobId);
   List<JobImpl> findJobs();
   List<JobImpl> findNextJobsToExecute(int maxJobsPerAcquisition);
-  TimerImpl findFirstTimer();
+  List<TimerImpl> findUnlockedTimersByDuedate(Date duedate, int nrOfTimers);
   List<TimerImpl> findTimersByExecutionId(String executionId);
   
   List<Job> dynamicFindJobs(Map<String, Object> params, Page page);
@@ -128,4 +133,4 @@ public interface PersistenceSession extends Session {
   Map<String, Long> getTableCount();
   TablePage getTablePage(String tableName, int offset, int maxResults, String sortColumn, SortOrder sortOrder);
   TableMetaData getTableMetaData(String tableName);
-}
+  }
