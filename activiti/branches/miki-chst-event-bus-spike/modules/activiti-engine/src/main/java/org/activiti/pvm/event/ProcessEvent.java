@@ -13,6 +13,8 @@
  */
 package org.activiti.pvm.event;
 
+import java.util.Map;
+
 /**
  * This interface is common to all process events being triggered by the
  * workflow system and handled by the {@link org.activiti.pvm.event.ProcessEventBus}.
@@ -24,8 +26,10 @@ package org.activiti.pvm.event;
  * and optionally to an {@link org.activiti.pvm.Activity}.
  *
  * @author Micha Kiener
+ *
+ * @param <T> the type of the payload this event is handling
  */
-public interface ProcessEvent {
+public interface ProcessEvent<T> {
   /**
    * Returns the type of this event which is used within the bus to search for
    * an appropriate handler consuming this event. It is the mapping between
@@ -35,17 +39,6 @@ public interface ProcessEvent {
    * @return the type of this event
    */
   Class<?> getEventType();
-
-  /**
-   * Returns <code>true</code>, if this is a stateful event, meaning it
-   * implements the {@link StatefulProcessEvent} interface and provides stateful
-   * information as a payload.
-   *
-   * @return <code>true</code> if this event is stateful and provides a payload
-   *         in addition to the related elements like definition, instance and
-   *         activity
-   */
-  boolean isStateful();
 
   /**
    * @return the id of the process definition this event is related to (never
@@ -64,4 +57,30 @@ public interface ProcessEvent {
    *         <code>null</code>)
    */
   String getActivityId();
+
+  /**
+   * Returns the value for the attribute with the given key, if any,
+   * <code>null</code> otherwise.
+   *
+   * @param key the key with which the attribute has been stored
+   * @param <A> the expected type of the attribute
+   * @return the value or <code>null</code> if not available
+   */
+  <A> A getHeaderAttribute(String key);
+
+  /**
+   * TODO: Comment!
+   * @return
+   */
+  Map<String, ?> getHeaderAttributesMap();
+
+  /**
+   * Returns the payload of this event. If the workflow system is used in a
+   * distributed or clustered environment, it might be necessary to make the
+   * payload serializable, depending on the type of event, if it needs to be
+   * broadcasted or not.
+   *
+   * @return the optional payload for this event, might be <code>null</code>
+   */
+  T getPayload();
 }

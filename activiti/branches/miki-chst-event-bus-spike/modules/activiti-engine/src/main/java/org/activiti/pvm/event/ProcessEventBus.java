@@ -31,26 +31,26 @@ public interface ProcessEventBus {
   void postEvent(ProcessEvent event);
 
   /**
-   * Adds the given event handler to the internal list of consumers for the
+   * Adds the given event consumer to the internal list of consumers for the
    * specified event types. At least one event type has to be provided but the
-   * handler might register itself to actually handle more than one event
-   * type. If more than one handler is finally subscribed for the same event
+   * consumer might register itself to actually handle more than one event
+   * type. If more than one consumer is finally subscribed for the same event
    * type, they are being invoked in the same order they have been
    * registered.
    *
-   * @param handler the event handler being registered within this bus
-   * @param eventTypes one or more event types the handler will be subscribed
+   * @param consumer the event consumer being registered within this bus
+   * @param eventTypes one or more event types the consumer will be subscribed
    * to
    */
-  void subscribe(ProcessEventHandler<? extends ProcessEvent> handler, Class<?>... eventTypes);
+  void subscribe(ProcessEventConsumer<? extends ProcessEvent> consumer, Class<?>... eventTypes);
 
   /**
-   * Removes the given handler from the subscription list within the event
-   * bus. If it was registered for more than one event type, the handler will
+   * Removes the given consumer from the subscription list within the event
+   * bus. If it was registered for more than one event type, the consumer will
    * be removed from all event type registrations.
    *
-   * @param handler the event handler to be removed from the bus
+   * @param consumer the event consumer to be removed from the bus
    */
-  void unsubscribe(ProcessEventHandler<? extends ProcessEvent> handler);
+  void unsubscribe(ProcessEventConsumer<? extends ProcessEvent> consumer);
 }
 

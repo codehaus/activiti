@@ -14,15 +14,15 @@
 
 package org.activiti.impl.event;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.activiti.pvm.event.ProcessEvent;
 import org.activiti.pvm.event.ProcessEventBus;
-import org.activiti.pvm.event.ProcessEventHandler;
+import org.activiti.pvm.event.ProcessEventConsumer;
 
 /**
  * Simple implementation of the {@link org.activiti.pvm.event.ProcessEventBus}
@@ -31,8 +31,8 @@ import org.activiti.pvm.event.ProcessEventHandler;
  * @author Micha Kiener
  */
 public class SimpleProcessEventBus implements ProcessEventBus {
-  /** The map of statically registered handlers. */
-  private Map<Class<?>, List<ProcessEventHandler<ProcessEvent>>> handlers = new HashMap<Class<?>, List<ProcessEventHandler<ProcessEvent>>>();
+  /** The map of statically registered consumers. */
+  private final Map<Class<?>, List<ProcessEventConsumer<ProcessEvent>>> consumers = new ConcurrentHashMap<Class<?>, List<ProcessEventConsumer<ProcessEvent>>>();
 
   /**
    * @see org.activiti.pvm.event.ProcessEventBus#postEvent(org.activiti.pvm.event.ProcessEvent)
@@ -47,42 +47,42 @@ public class SimpleProcessEventBus implements ProcessEventBus {
    * @param event the event to be dispatched
    */
   protected void dispatchEvent(ProcessEvent event) {
-    // get the handlers for this event
-    List<ProcessEventHandler<ProcessEvent>> handlerList = handlers.get(event.getEventType());
-    if (handlerList == null) {
+    // get the consumers for this event
+    List<ProcessEventConsumer<ProcessEvent>> consumerList = consumers.get(event.getEventType());
+    if (consumerList == null) {
       return;
     }
 
-    for (ProcessEventHandler<ProcessEvent> handler : handlerList) {
-      handler.handleEvent(event);
+    for (ProcessEventConsumer<ProcessEvent> consumer : consumerList) {
+      consumer.consumeEvent(event);
     }
   }
 
   /**
-   * @see org.activiti.pvm.event.ProcessEventBus#subscribe(org.activiti.pvm.event.ProcessEventHandler, Class[])
+   * @see org.activiti.pvm.event.ProcessEventBus#subscribe(org.activiti.pvm.event.ProcessEventConsumer , Class[])
    */
-  public void subscribe(ProcessEventHandler<? extends ProcessEvent> handler, Class<?>... eventTypes) {
+  public void subscribe(ProcessEventConsumer<? extends ProcessEvent> consumer, Class<?>... eventTypes) {
     for (Class<?> eventType : eventTypes) {
-      List<ProcessEventHandler<ProcessEvent>> handlerList = handlers.get(eventType);
-      if (handlerList == null) {
-        handlerList = new ArrayList<ProcessEventHandler<ProcessEvent>>();
-        handlers.put(eventType, handlerList);
+      List<ProcessEventConsumer<ProcessEvent>> consumerList = consumers.get(eventType);
+      if (consumerList == null) {
+        consumerList = new CopyOnWriteArrayList<ProcessEventConsumer<ProcessEvent>>();
+        consumers.put(eventType, consumerList);
       }
-      handlerList.add((ProcessEventHandler<ProcessEvent>) handler);
+      consumerList.add((ProcessEventConsumer<ProcessEvent>) consumer);
     }
   }
 
   /**
-   * @see org.activiti.pvm.event.ProcessEventBus#unsubscribe(org.activiti.pvm.event.ProcessEventHandler)
+   * @see org.activiti.pvm.event.ProcessEventBus#unsubscribe(org.activiti.pvm.event.ProcessEventConsumer)
    */
-  public void unsubscribe(ProcessEventHandler<? extends ProcessEvent> handler) {
-    for (Iterator<Map.Entry<Class<?>, List<ProcessEventHandler<ProcessEvent>>>> it = handlers.entrySet().iterator(); it
+  public void unsubscribe(ProcessEventConsumer<? extends ProcessEvent> consumer) {
+    for (Iterator<Map.Entry<Class<?>, List<ProcessEventConsumer<ProcessEvent>>>> it = consumers.entrySet().iterator(); it
             .hasNext();) {
-      Map.Entry<Class<?>, List<ProcessEventHandler<ProcessEvent>>> entry = it.next();
-      List<ProcessEventHandler<ProcessEvent>> handlerList = entry.getValue();
-      if (handlerList.remove(handler)) {
-        // if the list of handlers is now empty, remove the entry from the map
-        if (handlerList.isEmpty()) {
+      Map.Entry<Class<?>, List<ProcessEventConsumer<ProcessEvent>>> entry = it.next();
+      List<ProcessEventConsumer<ProcessEvent>> consumerList = entry.getValue();
+      if (consumerList.remove(consumer)) {
+        // if the list of consumers is now empty, remove the entry from the map
+        if (consumerList.isEmpty()) {
           it.remove();
         }
       }

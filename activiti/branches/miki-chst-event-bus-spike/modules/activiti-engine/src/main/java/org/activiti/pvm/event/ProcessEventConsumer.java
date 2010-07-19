@@ -22,7 +22,7 @@ package org.activiti.pvm.event;
  * @author Micha Kiener
  * @param <T> the type of process event handled by this handler
  */
-public interface ProcessEventHandler<T extends ProcessEvent> {
+public interface ProcessEventConsumer<T extends ProcessEvent> {
 
   /**
    * Invoked by the {@link ProcessEventBus} to consume the given event. Events
@@ -34,5 +34,5 @@ public interface ProcessEventHandler<T extends ProcessEvent> {
    *
    * @param event the event to be consumed by this handler
    */
-  void handleEvent(T event);
+  void consumeEvent(T event);
 }
