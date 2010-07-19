@@ -59,7 +59,7 @@ public interface ProcessEvent<T> {
   String getActivityId();
 
   /**
-   * Returns the value for the attribute with the given key, if any,
+   * Returns the value for the header attribute with the given key, if any,
    * <code>null</code> otherwise.
    *
    * @param key the key with which the attribute has been stored
@@ -69,8 +69,12 @@ public interface ProcessEvent<T> {
   <A> A getHeaderAttribute(String key);
 
   /**
-   * TODO: Comment!
-   * @return
+   * Returns a map view on the header attributes of this event. Even though
+   * header attributes are optional, the map being returned is never
+   * <code>null</code> but might be empty, furthermore, it is immutable and must
+   * not be changed.
+   *
+   * @return the map of header attributes for this event
    */
   Map<String, ?> getHeaderAttributesMap();
 
