@@ -15,16 +15,15 @@ package org.activiti.pvm.event;
 /**
  * This process event bus is responsible for receiving events, most likely being
  * triggered by the engine and it will route them to subscribers (event
- * handlers), being registered for receiving events. <p> It supports synchronous
- * and asynchronous events and payloads.
+ * consumers), being registered for receiving events.
  *
  * @author Micha Kiener
  */
 public interface ProcessEventBus {
   /**
    * Posts the given event to the bus. As events are synchronous, it is
-   * forwarded to all registered event handlers, listening to the event type
-   * immediately, thus blocking the invoker until consumed by the handlers.
+   * forwarded to all registered event consumers, listening to the event type
+   * immediately, thus blocking the invoker until consumed by the consumers.
    *
    * @param event the event to be posted and consumed
    */
