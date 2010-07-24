@@ -132,9 +132,7 @@ create table ACT_VARIABLE (
     primary key (ID_)
 );
 
--- TODO: add to MySql schema
--- TODO: check table naming convention
-create table ACT_HISTORICPROCESSINSTANCE (
+create table ACT_H_PROCINST (
     ID_ varchar not null,
     PROC_INST_ID_ varchar(255) not null,
     PROC_DEF_ID_ varchar(255) not null,
@@ -147,16 +145,10 @@ create table ACT_HISTORICPROCESSINSTANCE (
     unique (PROC_INST_ID_)
 );
 
--- TODO: add to MySql schema
--- TODO: check table naming convention
-create table ACT_HISTORICACTIVITYINSTANCE (
+create table ACT_H_ACTINST (
     ID_ varchar not null,
-    -- TODO: check activityId length
     ACT_ID_ varchar(255) not null,
-    -- TODO: check activityName length
-    -- TODO: check activityName not-null
-    ACT_NAME_ varchar(255) not null,
-    -- TODO: check activityType length
+    ACT_NAME_ varchar(255),
     ACT_TYPE_ varchar(255) not null,
     PROC_INST_ID_ varchar(255) not null,
     PROC_DEF_ID_ varchar(255) not null,

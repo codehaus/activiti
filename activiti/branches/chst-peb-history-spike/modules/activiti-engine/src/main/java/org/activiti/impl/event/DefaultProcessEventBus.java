@@ -25,18 +25,15 @@ import org.activiti.pvm.event.ProcessEventBus;
 import org.activiti.pvm.event.ProcessEventConsumer;
 
 /**
- * Simple implementation of the {@link org.activiti.pvm.event.ProcessEventBus}
+ * Default implementation of the {@link org.activiti.pvm.event.ProcessEventBus}
  * used by the process virtual machine.
  *
  * @author Micha Kiener
  */
-public class SimpleProcessEventBus implements ProcessEventBus {
+public class DefaultProcessEventBus implements ProcessEventBus {
   /** The map of statically registered consumers. */
   private final Map<Class<?>, List<ProcessEventConsumer<ProcessEvent>>> consumers = new ConcurrentHashMap<Class<?>, List<ProcessEventConsumer<ProcessEvent>>>();
 
-  /**
-   * @see org.activiti.pvm.event.ProcessEventBus#postEvent(org.activiti.pvm.event.ProcessEvent)
-   */
   public void postEvent(ProcessEvent event) {
     dispatchEvent(event);
   }
@@ -58,9 +55,6 @@ public class SimpleProcessEventBus implements ProcessEventBus {
     }
   }
 
-  /**
-   * @see org.activiti.pvm.event.ProcessEventBus#subscribe(org.activiti.pvm.event.ProcessEventConsumer , Class[])
-   */
   public void subscribe(ProcessEventConsumer<? extends ProcessEvent> consumer, Class<?>... eventTypes) {
     for (Class<?> eventType : eventTypes) {
       List<ProcessEventConsumer<ProcessEvent>> consumerList = consumers.get(eventType);
@@ -72,12 +66,8 @@ public class SimpleProcessEventBus implements ProcessEventBus {
     }
   }
 
-  /**
-   * @see org.activiti.pvm.event.ProcessEventBus#unsubscribe(org.activiti.pvm.event.ProcessEventConsumer)
-   */
   public void unsubscribe(ProcessEventConsumer<? extends ProcessEvent> consumer) {
-    for (Iterator<Map.Entry<Class<?>, List<ProcessEventConsumer<ProcessEvent>>>> it = consumers.entrySet().iterator(); it
-            .hasNext();) {
+    for (Iterator<Map.Entry<Class<?>, List<ProcessEventConsumer<ProcessEvent>>>> it = consumers.entrySet().iterator(); it.hasNext();) {
       Map.Entry<Class<?>, List<ProcessEventConsumer<ProcessEvent>>> entry = it.next();
       List<ProcessEventConsumer<ProcessEvent>> consumerList = entry.getValue();
       if (consumerList.remove(consumer)) {

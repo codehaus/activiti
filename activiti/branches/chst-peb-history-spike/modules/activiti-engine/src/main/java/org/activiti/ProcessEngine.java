@@ -12,6 +12,8 @@
  */
 package org.activiti;
 
+import org.activiti.impl.history.HistoricDataService;
+
 /**
  * provides access to all the services that expose the BPM and workflow operations.
  * 
@@ -55,6 +57,7 @@ public interface ProcessEngine {
 
   ProcessService getProcessService();
   TaskService getTaskService();
+  HistoricDataService getHistoricDataService();
   IdentityService getIdentityService();
   ManagementService getManagementService();
 

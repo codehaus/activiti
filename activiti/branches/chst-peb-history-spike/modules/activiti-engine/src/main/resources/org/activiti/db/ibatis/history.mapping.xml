@@ -18,7 +18,6 @@
 
 <mapper namespace="org.activiti.persistence">
 
-    <!-- TODO: use result map hierarchy based on "extend" and AbstractProcessInstanceImpl ??? -->
     <resultMap id="historicProcessInstanceResultMap" type="org.activiti.impl.history.HistoricProcessInstanceImpl">
       <id property="id" column="ID_" jdbcType="VARCHAR" />
       <result property="processInstanceId" column="PROC_INST_ID_" jdbcType="VARCHAR" />
@@ -42,7 +41,7 @@
     </resultMap>
 
     <insert id="insertHistoricProcessInstance" parameterType="org.activiti.impl.history.HistoricProcessInstanceImpl">
-        insert into ACT_HISTORICPROCESSINSTANCE (
+        insert into ACT_H_PROCINST (
           ID_,
           PROC_INST_ID_,
           PROC_DEF_ID_,
@@ -62,7 +61,7 @@
     </insert>
 
     <insert id="insertHistoricActivityInstance" parameterType="org.activiti.impl.history.HistoricActivityInstanceImpl">
-        insert into ACT_HISTORICACTIVITYINSTANCE (
+        insert into ACT_H_ACTINST (
           ID_,
           ACT_ID_,
           ACT_NAME_,
@@ -86,7 +85,7 @@
     </insert>
 
     <update id="updateHistoricProcessInstance" parameterType="org.activiti.impl.history.HistoricProcessInstanceImpl">
-      update ACT_HISTORICPROCESSINSTANCE set
+      update ACT_H_PROCINST set
         PROC_INST_ID_ = #{processInstanceId, jdbcType=VARCHAR},
         PROC_DEF_ID_ = #{processDefinitionId, jdbcType=VARCHAR},
         START_TIME_ = #{startTime, jdbcType=TIMESTAMP},
@@ -97,7 +96,7 @@
     </update>
 
     <update id="updateHistoricActivityInstance" parameterType="org.activiti.impl.history.HistoricActivityInstanceImpl">
-      update ACT_HISTORICACTIVITYINSTANCE set
+      update ACT_H_ACTINST set
         ACT_ID_ = #{activityId, jdbcType=VARCHAR},
         ACT_NAME_ = #{activityName, jdbcType=VARCHAR},
         ACT_TYPE_ = #{activityType, jdbcType=VARCHAR},
@@ -110,19 +109,19 @@
     </update>
 
     <select id="selectHistoricProcessInstance" resultMap="historicProcessInstanceResultMap">
-      select * from ACT_HISTORICPROCESSINSTANCE where PROC_INST_ID_ = #{processInstanceId}
+      select * from ACT_H_PROCINST where PROC_INST_ID_ = #{processInstanceId}
     </select>
 
     <select id="selectHistoricActivityInstance" resultMap="historicActivityInstanceResultMap">
-      select * from ACT_HISTORICACTIVITYINSTANCE where ACT_ID_ = #{activityId} and PROC_INST_ID_ = #{processInstanceId}
+      select * from ACT_H_ACTINST where ACT_ID_ = #{activityId} and PROC_INST_ID_ = #{processInstanceId}
     </select>
 
     <delete id="deleteHistoricProcessInstance">
-      delete from ACT_HISTORICPROCESSINSTANCE where PROC_INST_ID_ = #{processInstanceId}
+      delete from ACT_H_PROCINST where PROC_INST_ID_ = #{processInstanceId}
     </delete>
 
     <delete id="deleteHistoricActivityInstance">
-      delete from ACT_HISTORICACTIVITYINSTANCE where ACT_ID_ = #{activityId} and PROC_INST_ID_ = #{processInstanceId} 
+      delete from ACT_H_ACTINST where ACT_ID_ = #{activityId} and PROC_INST_ID_ = #{processInstanceId}
     </delete>
 
 </mapper>

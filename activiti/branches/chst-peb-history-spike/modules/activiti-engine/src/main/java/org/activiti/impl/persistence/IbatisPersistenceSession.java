@@ -88,8 +88,8 @@ public class IbatisPersistenceSession implements PersistenceSession {
       "ACT_TASK",
       "ACT_TASKINVOLVEMENT",
       "ACT_VARIABLE",
-      "ACT_HISTORICPROCESSINSTANCE",
-      "ACT_HISTORICACTIVITYINSTANCE"
+      "ACT_H_PROCINST",
+      "ACT_H_ACTINST"
   };
 
   public IbatisPersistenceSession(SqlSession sqlSession, IdGenerator idGenerator, Map<String, String> databaseStatements) {

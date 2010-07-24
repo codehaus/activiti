@@ -15,42 +15,29 @@
 package org.activiti.impl.event;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.pvm.event.ProcessEvent;
 
 /**
  * The abstract base class for a {@link org.activiti.pvm.event.ProcessEvent},
- * supporting the basic relations like process definition, instance and
- * activity, the event is related to.
+ * supporting header attributes and payload object.
  *
  * @author Micha Kiener
+ * @author Christian Stettler
  */
 public abstract class AbstractProcessEvent<T> implements ProcessEvent<T> {
-  private final String processDefinitionId;
-  private final String processInstanceId;
-  private final String activityId;
-  private final Map<String, ?> headerAttributesMap;
+  private final Map<String, Object> headerAttributesMap;
   private final T payload;
 
   /**
-   * Standard constructor used to create a new process event based on the given
-   * relations.
+   * Standard constructor used to create a new process event.
    *
-   * @param processDefinitionId the id of the process definition this event is
-   * related to (must not be <code>null</code>)
-   * @param processInstanceId the id of the process instance this event is
-   * related to (must not be <code>null</code>)
-   * @param activityId the optional id of the activity this event is created in
-   * @param headerAttributesMap
-   * @param payload
+   * @param headerAttributesMap the optional map of header attributes
+   * @param payload the optional payload
    */
-  protected AbstractProcessEvent(String processDefinitionId, String processInstanceId, String activityId, Map<String, ?> headerAttributesMap, T payload) {
-    this.processDefinitionId = processDefinitionId;
-    this.processInstanceId = processInstanceId;
-    this.activityId = activityId;
-    this.headerAttributesMap = Collections.unmodifiableMap(headerAttributesMap);
+  protected AbstractProcessEvent(Map<String, Object> headerAttributesMap, T payload) {
+    this.headerAttributesMap = headerAttributesMap == null ? Collections.<String, Object>emptyMap() : Collections.unmodifiableMap(headerAttributesMap);
     this.payload = payload;
   }
 
@@ -64,44 +51,14 @@ public abstract class AbstractProcessEvent<T> implements ProcessEvent<T> {
     return this.getClass();
   }
 
-  /**
-   * @see org.activiti.pvm.event.ProcessEvent#getProcessDefinitionId()
-   */
-  public String getProcessDefinitionId() {
-    return processDefinitionId;
-  }
-
-  /**
-   * @see org.activiti.pvm.event.ProcessEvent#getProcessInstanceId()
-   */
-  public String getProcessInstanceId() {
-    return processInstanceId;
-  }
-
-  /**
-   * @see org.activiti.pvm.event.ProcessEvent#getActivityId()
-   */
-  public String getActivityId() {
-    return activityId;
-  }
-
-  /**
-   * @see org.activiti.pvm.event.ProcessEvent#getHeaderAttributesMap()
-   */
-  public Map<String, ?> getHeaderAttributesMap() {
+  public Map<String, Object> getHeaderAttributesMap() {
     return headerAttributesMap;
   }
 
-  /**
-   * @see org.activiti.pvm.event.ProcessEvent#getHeaderAttribute(String)  
-   */
   public <A> A getHeaderAttribute(String key) {
     return (A) headerAttributesMap.get(key);
   }
 
-  /**
-   * @see org.activiti.pvm.event.ProcessEvent#getPayload()
-   */
   public T getPayload() {
     return payload;
   }

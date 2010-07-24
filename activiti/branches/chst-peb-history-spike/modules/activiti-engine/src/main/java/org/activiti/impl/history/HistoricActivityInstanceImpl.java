@@ -36,9 +36,6 @@ public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl i
     if (activityId == null) {
       throw new IllegalArgumentException("Activity id must not be null");
     }
-    if (activityName == null) {
-      throw new IllegalArgumentException("Activity name must not be null");
-    }
     if (activityType == null) {
       throw new IllegalArgumentException("Activity type must not be null");
     }

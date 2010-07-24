@@ -53,18 +53,12 @@ public class HistoricActivityInstanceImplTest {
     assertEquals(endTime, historicActivityInstance.getEndTime());
     assertEquals(Long.valueOf(1234), historicActivityInstance.getDurationInMillis());
   }
-  
+
   @Test
   public void testMandatoryStateForHistoricProcessInstanceInitialization() {
     assertIllegalArgumentException("activity id", new Runnable() {
       public void run() {
         new HistoricActivityInstanceImpl(null, "activityName", "activityType", "processInstanceId", "processDefinitionId", new Date());
-      }
-    });
-
-    assertIllegalArgumentException("activity name", new Runnable() {
-      public void run() {
-        new HistoricActivityInstanceImpl("activityId", null, "activityType", "processInstanceId", "processDefinitionId", new Date());
       }
     });
 
@@ -91,6 +85,8 @@ public class HistoricActivityInstanceImplTest {
         new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", null);
       }
     });
+
+    new HistoricActivityInstanceImpl("activityId", null, "activityType", "processInstanceId", "processDefinitionId", new Date());    
   }
 
   @Test

@@ -12,15 +12,18 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.history;
+package org.activiti.impl.event;
+
+import org.activiti.ProcessInstance;
+import org.activiti.pvm.Activity;
 
 /**
  * @author Christian Stettler
  */
-public interface HistoricDataService {
+public class ActivityEndedEvent extends AbstractProcessInstanceEvent<Activity> {
 
-  HistoricProcessInstance findHistoricProcessInstance(String processInstanceId);
+  public  ActivityEndedEvent(ProcessInstance processInstance, Activity activity) {
+    super(processInstance.getProcessDefinitionId(), processInstance.getId(), activity.getId(), null, activity);
+  }
 
-  HistoricActivityInstance findHistoricActivityInstance(String activityId, String processInstanceId);
-  
 }

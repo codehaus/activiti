@@ -92,6 +92,9 @@ public class DbExecutionImpl extends ExecutionImpl implements PersistentObject {
       .getCurrentCommandContext()
       .getPersistenceSession()
       .insert(this);
+
+    // reset the process instance in order to have the db-generated process instance id available
+    setProcessInstance(this);
   }
 
   @Override

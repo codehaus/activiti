@@ -16,16 +16,21 @@ package org.activiti.impl.history;
 
 import java.util.Date;
 
-import org.activiti.ProcessInstance;
+import org.activiti.impl.event.ActivityEndedEvent;
+import org.activiti.impl.event.ActivityStartedEvent;
+import org.activiti.impl.event.ProcessInstanceEndedEvent;
+import org.activiti.impl.event.ProcessInstanceStartedEvent;
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.impl.interceptor.CommandExecutor;
 import org.activiti.impl.time.Clock;
-import org.activiti.pvm.Activity;
+import org.activiti.pvm.event.ProcessEventBus;
+import org.activiti.pvm.event.ProcessEventConsumer;
 
 /**
  * @author Christian Stettler
  */
+// TODO: define/implement semantics of historic data: only completed processes vs. also ongoing ones
 public class HistoricDataServiceImpl implements HistoricDataService {
 
   private final CommandExecutor commandExecutor;
@@ -34,64 +39,18 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     this.commandExecutor = commandExecutor;
   }
 
-  public HistoricProcessInstance createHistoricProcessInstance(final ProcessInstance processInstance) {
-    return commandExecutor.execute(new Command<HistoricProcessInstance>() {
-      public HistoricProcessInstance execute(CommandContext commandContext) {
-        String processInstanceId = processInstance.getId();
-        String processDefinitionId = processInstance.getProcessDefinitionId();
-        Date startTime = Clock.getCurrentTime();
-
-        HistoricProcessInstanceImpl historicProcessInstance = new HistoricProcessInstanceImpl(processInstanceId, processDefinitionId, startTime);
-
-        commandContext.getPersistenceSession().saveHistoricProcessInstance(historicProcessInstance);
-
-        return historicProcessInstance;
-      }
-    });
+  public void registerEventConsumers(ProcessEventBus processEventBus) {
+    // TODO: where/how to register historic data service with event bus?
+    processEventBus.subscribe(new ProcessInstanceStartedEventConsumer(), ProcessInstanceStartedEvent.class);
+    processEventBus.subscribe(new ProcessInstanceEndedEventConsumer(), ProcessInstanceEndedEvent.class);
+    processEventBus.subscribe(new ActivityStartedEventConsumer(), ActivityStartedEvent.class);
+    processEventBus.subscribe(new ActivityEndedEventConsumer(), ActivityEndedEvent.class);
   }
 
   public HistoricProcessInstance findHistoricProcessInstance(final String processInstanceId) {
     return commandExecutor.execute(new Command<HistoricProcessInstance>() {
       public HistoricProcessInstance execute(CommandContext commandContext) {
         return commandContext.getPersistenceSession().findHistoricProcessInstance(processInstanceId);
-      }
-    });
-  }
-
-  public HistoricProcessInstance markHistoricProcessInstanceEnded(final String processInstanceId, final String endStateName) {
-    return commandExecutor.execute(new Command<HistoricProcessInstance>() {
-      public HistoricProcessInstance execute(CommandContext commandContext) {
-        MutableHistoricProcessInstance historicProcessInstance = commandContext.getPersistenceSession().findHistoricProcessInstance(processInstanceId);
-
-        if (historicProcessInstance == null) {
-          throw new IllegalArgumentException("No historic process instance found for process instance id '" + processInstanceId + "'");
-        }
-
-        Date endTime = Clock.getCurrentTime();
-        historicProcessInstance.markEnded(endTime, endStateName);
-
-        commandContext.getPersistenceSession().saveHistoricProcessInstance(historicProcessInstance);
-
-        return historicProcessInstance;
-      }
-    });
-  }
-
-  public HistoricActivityInstance createHistoricActivityInstance(final Activity activity, final ProcessInstance processInstance) {
-    return commandExecutor.execute(new Command<HistoricActivityInstance>() {
-      public HistoricActivityInstance execute(CommandContext commandContext) {
-        String activityId = activity.getId();
-        String activityName = activity.getName();
-        String activityType = activity.getType();
-        String processInstanceId = processInstance.getId();
-        String processDefinitionId = processInstance.getProcessDefinitionId();
-        Date startTime = Clock.getCurrentTime();
-
-        HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl(activityId, activityName, activityType, processInstanceId, processDefinitionId, startTime);
-
-        commandContext.getPersistenceSession().saveHistoricActivityInstance(historicActivityInstance);
-
-        return historicActivityInstance;
       }
     });
   }
@@ -104,21 +63,88 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     });
   }
 
-  public HistoricActivityInstance markHistoricActivityInstanceEnded(final String activityId, final String processInstanceId) {
-    return commandExecutor.execute(new Command<HistoricActivityInstance>() {
-      public HistoricActivityInstance execute(CommandContext commandContext) {
-        MutableHistoricActivityInstance historicActivityInstance = commandContext.getPersistenceSession().findHistoricActivityInstance(activityId, processInstanceId);
+  private static void ensureCommandContextAvailable() {
+    if (CommandContext.getCurrentCommandContext() == null) {
+      throw new IllegalStateException("History events can only be processed in the context of a command execution");
+    }
+  }
 
-        if (historicActivityInstance == null) {
-          throw new IllegalArgumentException("No historic activity instance found for activity id '" + activityId + "' and process instance id '" + processInstanceId + "'");
-        }
+  private static class ProcessInstanceStartedEventConsumer implements ProcessEventConsumer<ProcessInstanceStartedEvent> {
+    public void consumeEvent(ProcessInstanceStartedEvent event) {
+      ensureCommandContextAvailable();
 
-        historicActivityInstance.markEnded(Clock.getCurrentTime());
+      String processInstanceId = event.getProcessInstanceId();
+      String processDefinitionId = event.getProcessDefinitionId();
+      Date startTime = Clock.getCurrentTime();
 
-        commandContext.getPersistenceSession().saveHistoricActivityInstance(historicActivityInstance);
+      HistoricProcessInstanceImpl historicProcessInstance = new HistoricProcessInstanceImpl(processInstanceId, processDefinitionId, startTime);
 
-        return historicActivityInstance;
+      CommandContext.getCurrentCommandContext().getPersistenceSession().saveHistoricProcessInstance(historicProcessInstance);
+    }
+  }
+
+  private static class ProcessInstanceEndedEventConsumer implements ProcessEventConsumer<ProcessInstanceEndedEvent> {
+    public void consumeEvent(ProcessInstanceEndedEvent event) {
+      ensureCommandContextAvailable();
+
+      MutableHistoricProcessInstance historicProcessInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricProcessInstance(event.getProcessInstanceId());
+
+      if (historicProcessInstance == null) {
+        String processInstanceId = event.getProcessInstanceId();
+        String processDefinitionId = event.getProcessDefinitionId();
+        Date startTime = Clock.getCurrentTime();
+        historicProcessInstance = new HistoricProcessInstanceImpl(processInstanceId, processDefinitionId, startTime);
+
+        // throw new IllegalArgumentException("No historic process instance found for process instance id '" + event.getProcessInstanceId() + "'");
       }
-    });
+
+      Date endTime = Clock.getCurrentTime();
+      // TODO: does end state name makes sense at all (might be multiple)
+      historicProcessInstance.markEnded(endTime, "endStateName");
+
+      CommandContext.getCurrentCommandContext().getPersistenceSession().saveHistoricProcessInstance(historicProcessInstance);
+    }
+  }
+
+  private static class ActivityStartedEventConsumer implements ProcessEventConsumer<ActivityStartedEvent> {
+    public void consumeEvent(ActivityStartedEvent event) {
+      ensureCommandContextAvailable();
+
+      String activityId = event.getActivityId();
+      String activityName = event.getPayload().getName();
+      String activityType = event.getPayload().getType();
+      String processInstanceId = event.getProcessInstanceId();
+      String processDefinitionId = event.getProcessDefinitionId();
+      Date startTime = Clock.getCurrentTime();
+
+      HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl(activityId, activityName, activityType, processInstanceId, processDefinitionId, startTime);
+
+      CommandContext.getCurrentCommandContext().getPersistenceSession().saveHistoricActivityInstance(historicActivityInstance);
+    }
+  }
+
+  private static class ActivityEndedEventConsumer implements ProcessEventConsumer<ActivityEndedEvent> {
+    public void consumeEvent(ActivityEndedEvent event) {
+      ensureCommandContextAvailable();
+
+      MutableHistoricActivityInstance historicActivityInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricActivityInstance(event.getActivityId(), event.getProcessInstanceId());
+
+      if (historicActivityInstance == null) {
+        String activityId = event.getActivityId();
+        String activityName = event.getPayload().getName();
+        String activityType = event.getPayload().getType();
+        String processInstanceId = event.getProcessInstanceId();
+        String processDefinitionId = event.getProcessDefinitionId();
+        Date startTime = Clock.getCurrentTime();
+
+        historicActivityInstance = new HistoricActivityInstanceImpl(activityId, activityName, activityType, processInstanceId, processDefinitionId, startTime);
+
+        // throw new IllegalArgumentException("No historic activity instance found for activity id '" + event.getActivityId() + "' and process instance id '" + event.getProcessInstanceId() + "'");
+      }
+
+      historicActivityInstance.markEnded(Clock.getCurrentTime());
+
+      CommandContext.getCurrentCommandContext().getPersistenceSession().saveHistoricActivityInstance(historicActivityInstance);
+    }
   }
 }

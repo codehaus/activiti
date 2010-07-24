@@ -22,10 +22,9 @@ import java.util.Map;
  * safety and must extend the {@link org.activiti.pvm.event.ProcessEvent}
  * interface. It is a good practice to use the same class as the event itself,
  * however, in certain cases this might not be an option.<br/>
- * A process event is always related to a {@link org.activiti.ProcessInstance}
- * and optionally to an {@link org.activiti.pvm.Activity}.
  *
  * @author Micha Kiener
+ * @author Christian Stettler 
  *
  * @param <T> the type of the payload this event is handling
  */
@@ -39,24 +38,6 @@ public interface ProcessEvent<T> {
    * @return the type of this event
    */
   Class<?> getEventType();
-
-  /**
-   * @return the id of the process definition this event is related to (never
-   *         <code>null</code>)
-   */
-  String getProcessDefinitionId();
-
-  /**
-   * @return the id of the process instance this event is related to (never
-   *         <code>null</code>)
-   */
-  String getProcessInstanceId();
-
-  /**
-   * @return the id of the optional activity this event is related to (might be
-   *         <code>null</code>)
-   */
-  String getActivityId();
 
   /**
    * Returns the value for the header attribute with the given key, if any,
