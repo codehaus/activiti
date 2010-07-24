@@ -36,6 +36,8 @@ public class UserTaskActivity extends TaskActivity {
   }
 
   public void execute(ActivityExecution execution) throws Exception {
+    execution.fireEvent(new ActivityStartedEvent(execution.getProcessInstance(), execution.getActivity()));
+
     TaskImpl task = TaskImpl.createAndInsert();
     task.setExecution(execution);
 
@@ -53,6 +55,8 @@ public class UserTaskActivity extends TaskActivity {
   }
 
   public void event(ActivityExecution execution, Object event) throws Exception {
+    execution.fireEvent(new ActivityEndedEvent(execution.getProcessInstance(), execution.getActivity()));
+
     leave(execution);
   }
 
