@@ -12,19 +12,25 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.history;
+package org.activiti.history;
 
 import java.util.Date;
 
 /**
  * @author Christian Stettler
  */
-public interface MutableHistoricActivityInstance extends HistoricActivityInstance {
+public interface HistoricProcessInstance {
+  
+  String getProcessInstanceId();
 
-  String getId();
+  String getProcessDefinitionId();
 
-  void setId(String id);
+  Date getStartTime();
 
-  void markEnded(Date endTime);
+  Date getEndTime();
+
+  Long getDurationInMillis();
+
+  String getEndStateName();
 
 }

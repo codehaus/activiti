@@ -23,13 +23,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.DbProcessEngineBuilder;
+import org.activiti.HistoricDataService;
 import org.activiti.IdentityService;
 import org.activiti.ManagementService;
 import org.activiti.ProcessEngine;
 import org.activiti.ProcessService;
 import org.activiti.TaskService;
 import org.activiti.impl.ProcessEngineImpl;
-import org.activiti.impl.history.HistoricDataService;
 import org.activiti.impl.interceptor.CommandExecutor;
 import org.activiti.impl.job.JobHandlers;
 import org.activiti.impl.jobexecutor.JobExecutor;

@@ -28,8 +28,8 @@ import org.activiti.impl.db.DbidBlock;
 import org.activiti.impl.db.execution.DbExecutionImpl;
 import org.activiti.impl.definition.ProcessDefinitionImpl;
 import org.activiti.impl.execution.ExecutionImpl;
-import org.activiti.impl.history.MutableHistoricActivityInstance;
-import org.activiti.impl.history.MutableHistoricProcessInstance;
+import org.activiti.impl.history.HistoricActivityInstanceImpl;
+import org.activiti.impl.history.HistoricProcessInstanceImpl;
 import org.activiti.impl.identity.GroupImpl;
 import org.activiti.impl.identity.UserImpl;
 import org.activiti.impl.job.JobImpl;
@@ -138,12 +138,12 @@ public interface PersistenceSession extends Session {
   TableMetaData getTableMetaData(String tableName);
 
   /* History */
-  void saveHistoricProcessInstance(MutableHistoricProcessInstance historicProcessInstance);
-  MutableHistoricProcessInstance findHistoricProcessInstance(String processInstanceId);
+  void saveHistoricProcessInstance(HistoricProcessInstanceImpl historicProcessInstance);
+  HistoricProcessInstanceImpl findHistoricProcessInstance(String processInstanceId);
   // TODO: currently only used to clean-up tests, discuss whether historic data can be deleted via API
   void deleteHistoricProcessInstance(String processInstanceId);
-  void saveHistoricActivityInstance(MutableHistoricActivityInstance historicActivityInstance);
-  MutableHistoricActivityInstance findHistoricActivityInstance(String activityId, String processInstanceId);
+  void saveHistoricActivityInstance(HistoricActivityInstanceImpl historicActivityInstance);
+  HistoricActivityInstanceImpl findHistoricActivityInstance(String activityId, String processInstanceId);
   // TODO: currently only used to clean-up tests, discuss whether historic data can be deleted via API
   void deleteHistoricActivityInstance(String activityId, String processInstanceId);
   }

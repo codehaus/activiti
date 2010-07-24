@@ -41,8 +41,8 @@ import org.activiti.impl.db.PropertyImpl;
 import org.activiti.impl.db.execution.DbExecutionImpl;
 import org.activiti.impl.definition.ProcessDefinitionImpl;
 import org.activiti.impl.execution.ExecutionImpl;
-import org.activiti.impl.history.MutableHistoricActivityInstance;
-import org.activiti.impl.history.MutableHistoricProcessInstance;
+import org.activiti.impl.history.HistoricActivityInstanceImpl;
+import org.activiti.impl.history.HistoricProcessInstanceImpl;
 import org.activiti.impl.identity.GroupImpl;
 import org.activiti.impl.identity.UserImpl;
 import org.activiti.impl.job.JobImpl;
@@ -602,7 +602,7 @@ public class IbatisPersistenceSession implements PersistenceSession {
     return tableNames;
   }
 
-  public void saveHistoricProcessInstance(MutableHistoricProcessInstance historicProcessInstance) {
+  public void saveHistoricProcessInstance(HistoricProcessInstanceImpl historicProcessInstance) {
     if (historicProcessInstance.getId() == null) {
       historicProcessInstance.setId(String.valueOf(idGenerator.getNextDbid()));
       sqlSession.insert(statement("insertHistoricProcessInstance"), historicProcessInstance);
@@ -611,15 +611,15 @@ public class IbatisPersistenceSession implements PersistenceSession {
     }
   }
 
-  public MutableHistoricProcessInstance findHistoricProcessInstance(String processInstanceId) {
-    return (MutableHistoricProcessInstance) sqlSession.selectOne(statement("selectHistoricProcessInstance"), processInstanceId);
+  public HistoricProcessInstanceImpl findHistoricProcessInstance(String processInstanceId) {
+    return (HistoricProcessInstanceImpl) sqlSession.selectOne(statement("selectHistoricProcessInstance"), processInstanceId);
   }
 
   public void deleteHistoricProcessInstance(String processInstanceId) {
     sqlSession.delete(statement("deleteHistoricProcessInstance"), processInstanceId);
   }
 
-  public void saveHistoricActivityInstance(MutableHistoricActivityInstance historicActivityInstance) {
+  public void saveHistoricActivityInstance(HistoricActivityInstanceImpl historicActivityInstance) {
     if (historicActivityInstance.getId() == null) {
       historicActivityInstance.setId(String.valueOf(idGenerator.getNextDbid()));
       sqlSession.insert(statement("insertHistoricActivityInstance"), historicActivityInstance);
@@ -628,12 +628,12 @@ public class IbatisPersistenceSession implements PersistenceSession {
     }
   }
 
-  public MutableHistoricActivityInstance findHistoricActivityInstance(String activityId, String processInstanceId) {
+  public HistoricActivityInstanceImpl findHistoricActivityInstance(String activityId, String processInstanceId) {
     Map<String, String> parameters = new HashMap<String, String>();
     parameters.put("activityId", activityId);
     parameters.put("processInstanceId", processInstanceId);
 
-    return (MutableHistoricActivityInstance) sqlSession.selectOne(statement("selectHistoricActivityInstance"), parameters);
+    return (HistoricActivityInstanceImpl) sqlSession.selectOne(statement("selectHistoricActivityInstance"), parameters);
   }
 
   public void deleteHistoricActivityInstance(String activityId, String processInstanceId) {

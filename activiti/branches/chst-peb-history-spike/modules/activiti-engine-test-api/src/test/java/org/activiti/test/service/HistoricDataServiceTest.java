@@ -20,8 +20,7 @@ import java.util.List;
 
 import org.activiti.ProcessInstance;
 import org.activiti.Task;
-import org.activiti.impl.history.HistoricActivityInstance;
-import org.activiti.impl.history.HistoricProcessInstance;
+import org.activiti.history.HistoricProcessInstance;
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandContext;
 import org.activiti.test.LogInitializer;

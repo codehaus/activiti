@@ -15,12 +15,12 @@ package org.activiti.impl.cfg;
 import java.util.Map;
 
 import org.activiti.DbSchemaStrategy;
+import org.activiti.HistoricDataService;
 import org.activiti.IdentityService;
 import org.activiti.ManagementService;
 import org.activiti.ProcessService;
 import org.activiti.TaskService;
 import org.activiti.impl.db.IdGenerator;
-import org.activiti.impl.history.HistoricDataService;
 import org.activiti.impl.interceptor.CommandContextFactory;
 import org.activiti.impl.interceptor.CommandExecutor;
 import org.activiti.impl.interceptor.SessionFactory;

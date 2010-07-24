@@ -16,10 +16,12 @@ package org.activiti.impl.history;
 
 import java.util.Date;
 
+import org.activiti.history.HistoricActivityInstance;
+
 /**
  * @author Christian Stettler
  */
-public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl implements MutableHistoricActivityInstance {
+public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl implements HistoricActivityInstance {
 
   private String id;
   private String activityId;

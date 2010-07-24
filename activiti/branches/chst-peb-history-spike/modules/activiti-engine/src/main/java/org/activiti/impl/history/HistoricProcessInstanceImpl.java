@@ -16,10 +16,12 @@ package org.activiti.impl.history;
 
 import java.util.Date;
 
+import org.activiti.history.HistoricProcessInstance;
+
 /**
  * @author Christian Stettler
  */
-public class HistoricProcessInstanceImpl extends AbstractHistoricInstanceImpl implements MutableHistoricProcessInstance {
+public class HistoricProcessInstanceImpl extends AbstractHistoricInstanceImpl implements HistoricProcessInstance {
 
   private String id;
   private String endStateName;

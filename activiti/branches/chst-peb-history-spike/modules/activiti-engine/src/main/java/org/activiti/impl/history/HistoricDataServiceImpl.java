@@ -16,6 +16,9 @@ package org.activiti.impl.history;
 
 import java.util.Date;
 
+import org.activiti.HistoricDataService;
+import org.activiti.history.HistoricActivityInstance;
+import org.activiti.history.HistoricProcessInstance;
 import org.activiti.impl.event.ActivityEndedEvent;
 import org.activiti.impl.event.ActivityStartedEvent;
 import org.activiti.impl.event.ProcessInstanceEndedEvent;
@@ -87,7 +90,7 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     public void consumeEvent(ProcessInstanceEndedEvent event) {
       ensureCommandContextAvailable();
 
-      MutableHistoricProcessInstance historicProcessInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricProcessInstance(event.getProcessInstanceId());
+      HistoricProcessInstanceImpl historicProcessInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricProcessInstance(event.getProcessInstanceId());
 
       if (historicProcessInstance == null) {
         String processInstanceId = event.getProcessInstanceId();
@@ -127,7 +130,7 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     public void consumeEvent(ActivityEndedEvent event) {
       ensureCommandContextAvailable();
 
-      MutableHistoricActivityInstance historicActivityInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricActivityInstance(event.getActivityId(), event.getProcessInstanceId());
+      HistoricActivityInstanceImpl historicActivityInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricActivityInstance(event.getActivityId(), event.getProcessInstanceId());
 
       if (historicActivityInstance == null) {
         String activityId = event.getActivityId();

@@ -32,7 +32,7 @@ import org.activiti.impl.calendar.MapBusinessCalendarManager;
 import org.activiti.impl.db.IdGenerator;
 import org.activiti.impl.el.ExpressionManager;
 import org.activiti.impl.event.DefaultProcessEventBus;
-import org.activiti.impl.history.HistoricDataService;
+import org.activiti.HistoricDataService;
 import org.activiti.impl.history.HistoricDataServiceImpl;
 import org.activiti.impl.interceptor.CommandContextFactory;
 import org.activiti.impl.interceptor.CommandExecutor;

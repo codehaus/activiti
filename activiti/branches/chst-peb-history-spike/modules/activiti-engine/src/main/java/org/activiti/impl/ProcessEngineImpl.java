@@ -21,7 +21,7 @@ import org.activiti.ProcessEngine;
 import org.activiti.ProcessService;
 import org.activiti.TaskService;
 import org.activiti.impl.cfg.ProcessEngineConfiguration;
-import org.activiti.impl.history.HistoricDataService;
+import org.activiti.HistoricDataService;
 import org.activiti.impl.jobexecutor.JobExecutor;
 import org.activiti.impl.persistence.PersistenceSessionFactory;
 

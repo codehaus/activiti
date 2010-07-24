@@ -21,13 +21,13 @@ import javax.sql.DataSource;
 
 import org.activiti.DbSchemaStrategy;
 import org.activiti.DeploymentBuilder;
+import org.activiti.HistoricDataService;
 import org.activiti.IdentityService;
 import org.activiti.ProcessEngine;
 import org.activiti.ProcessService;
 import org.activiti.impl.ProcessEngineImpl;
 import org.activiti.impl.cfg.ProcessEngineFactory;
 import org.activiti.impl.db.IdGenerator;
-import org.activiti.impl.history.HistoricDataService;
 import org.activiti.impl.interceptor.Command;
 import org.activiti.impl.interceptor.CommandExecutor;
 import org.activiti.impl.interceptor.CommandInterceptor;
