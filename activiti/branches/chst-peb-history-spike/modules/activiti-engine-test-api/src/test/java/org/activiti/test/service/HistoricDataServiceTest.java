@@ -33,7 +33,6 @@ import org.junit.Test;
 /**
  * @author Christian Stettler
  */
-// TODO: add more tests
 public class HistoricDataServiceTest {
 
   @Rule
