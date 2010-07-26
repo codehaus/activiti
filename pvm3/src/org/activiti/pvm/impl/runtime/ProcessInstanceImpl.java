@@ -11,28 +11,22 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.process;
+package org.activiti.pvm.impl.runtime;
 
-import org.activiti.impl.pvm.runtime.ProcessInstanceImpl;
-
+import org.activiti.pvm.impl.process.ProcessDefinitionImpl;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ProcessDefinitionImpl extends ScopeImpl {
+public class ProcessInstanceImpl extends ScopeInstanceImpl {
   
-  protected ActivityImpl initial;
-
-  public ProcessInstanceImpl createProcessInstance() {
-    return new ProcessInstanceImpl(this);
+  public ProcessInstanceImpl(ProcessDefinitionImpl processDefinition) {
+    super(processDefinition, processDefinition);
+  }
+  
+  public void start() {
+    new ExecutionContextImpl().startProcessInstance(this);
   }
 
-  public ActivityImpl getInitial() {
-    return initial;
-  }
-
-  public void setInitial(ActivityImpl initial) {
-    this.initial = initial;
-  }
 }

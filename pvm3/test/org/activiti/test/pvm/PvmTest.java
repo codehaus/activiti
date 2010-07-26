@@ -1,10 +1,10 @@
 package org.activiti.test.pvm;
 import junit.framework.TestCase;
 
-import org.activiti.impl.pvm.process.ProcessDefinitionImpl;
-import org.activiti.impl.pvm.runtime.ActivityInstanceImpl;
-import org.activiti.impl.pvm.runtime.ProcessInstanceImpl;
 import org.activiti.pvm.ProcessDefinitionBuilder;
+import org.activiti.pvm.impl.process.ProcessDefinitionImpl;
+import org.activiti.pvm.impl.runtime.ActivityInstanceImpl;
+import org.activiti.pvm.impl.runtime.ProcessInstanceImpl;
 import org.activiti.test.pvm.activities.Automatic;
 import org.activiti.test.pvm.activities.WaitState;
 

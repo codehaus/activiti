@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.runtime;
+package org.activiti.pvm.impl.runtime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.activiti.impl.pvm.process.ActivityImpl;
-import org.activiti.impl.pvm.process.ProcessDefinitionImpl;
-import org.activiti.impl.pvm.process.ScopeImpl;
+import org.activiti.pvm.impl.process.ActivityImpl;
+import org.activiti.pvm.impl.process.ProcessDefinitionImpl;
+import org.activiti.pvm.impl.process.ScopeImpl;
 
 
 

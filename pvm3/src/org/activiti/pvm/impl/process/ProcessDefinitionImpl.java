@@ -11,35 +11,28 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.process;
+package org.activiti.pvm.impl.process;
 
-import org.activiti.pvm.activity.Transition;
-
+import org.activiti.pvm.impl.runtime.ProcessInstanceImpl;
 
 
 
 /**
  * @author Tom Baeyens
  */
-public class TransitionImpl extends ProcessElementImpl implements Transition {
-
-  protected ActivityImpl source;
-  protected ActivityImpl destination;
+public class ProcessDefinitionImpl extends ScopeImpl {
   
-  public ActivityImpl getSource() {
-    return source;
+  protected ActivityImpl initial;
+
+  public ProcessInstanceImpl createProcessInstance() {
+    return new ProcessInstanceImpl(this);
   }
 
-  public void setDestination(ActivityImpl destination) {
-    this.destination = destination;
-    destination.getIncomingTransitions().add(this);
-  }
-  
-  protected void setSource(ActivityImpl source) {
-    this.source = source;
+  public ActivityImpl getInitial() {
+    return initial;
   }
 
-  public ActivityImpl getDestination() {
-    return destination;
+  public void setInitial(ActivityImpl initial) {
+    this.initial = initial;
   }
 }

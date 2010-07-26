@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.process;
+package org.activiti.pvm.impl.process;
 
 import java.util.ArrayList;
 import java.util.List;

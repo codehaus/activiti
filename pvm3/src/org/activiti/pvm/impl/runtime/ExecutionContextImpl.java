@@ -11,16 +11,13 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.runtime;
+package org.activiti.pvm.impl.runtime;
 
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.activiti.impl.pvm.process.ActivityImpl;
-import org.activiti.impl.pvm.process.ProcessElementImpl;
-import org.activiti.impl.pvm.process.TransitionImpl;
 import org.activiti.pvm.activity.Activity;
 import org.activiti.pvm.activity.ActivityBehaviour;
 import org.activiti.pvm.activity.ActivityContext;
@@ -29,6 +26,9 @@ import org.activiti.pvm.activity.Transition;
 import org.activiti.pvm.event.Event;
 import org.activiti.pvm.event.EventListener;
 import org.activiti.pvm.event.EventContext;
+import org.activiti.pvm.impl.process.ActivityImpl;
+import org.activiti.pvm.impl.process.ProcessElementImpl;
+import org.activiti.pvm.impl.process.TransitionImpl;
 
 
 /**

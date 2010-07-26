@@ -11,9 +11,9 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.runtime;
+package org.activiti.pvm.impl.runtime;
 
-import org.activiti.impl.pvm.process.ActivityImpl;
+import org.activiti.pvm.impl.process.ActivityImpl;
 
 
 /**

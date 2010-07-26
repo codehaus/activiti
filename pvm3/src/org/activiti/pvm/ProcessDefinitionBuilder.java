@@ -17,12 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.activiti.impl.pvm.process.ActivityImpl;
-import org.activiti.impl.pvm.process.ProcessDefinitionImpl;
-import org.activiti.impl.pvm.process.ProcessElementImpl;
-import org.activiti.impl.pvm.process.ScopeImpl;
-import org.activiti.impl.pvm.process.TransitionImpl;
 import org.activiti.pvm.activity.ActivityBehaviour;
+import org.activiti.pvm.impl.process.ActivityImpl;
+import org.activiti.pvm.impl.process.ProcessDefinitionImpl;
+import org.activiti.pvm.impl.process.ProcessElementImpl;
+import org.activiti.pvm.impl.process.ScopeImpl;
+import org.activiti.pvm.impl.process.TransitionImpl;
 
 
 
