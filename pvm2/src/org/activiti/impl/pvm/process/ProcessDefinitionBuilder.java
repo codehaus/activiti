@@ -37,7 +37,7 @@ public class ProcessDefinitionBuilder {
 
   public ProcessDefinitionBuilder startActivity(String name) {
     Activity activity = scopeStack.peek().createActivity();
-    activity.name = name;
+    activity.id = name;
     scopeStack.push(activity);
     
     transition = null;
@@ -85,6 +85,9 @@ public class ProcessDefinitionBuilder {
       Transition transition = (Transition) unresolvedTransition[0];
       String destinationActivityName = (String) unresolvedTransition[1];
       transition.destination = processDefinition.findActivity(destinationActivityName);
+      if (transition.destination == null) {
+        throw new RuntimeException("destination '"+destinationActivityName+"' not found");
+      }
     }
     return processDefinition;
   }

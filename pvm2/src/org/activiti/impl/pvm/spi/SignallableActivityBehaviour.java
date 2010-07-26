@@ -11,32 +11,18 @@
  * limitations under the License.
  */
 
-package org.activiti.test.pvm.activities;
+package org.activiti.impl.pvm.spi;
 
 import java.util.Map;
 
-import org.activiti.impl.pvm.process.Transition;
 import org.activiti.impl.pvm.runtime.ActivityInstance;
-import org.activiti.impl.pvm.spi.SignallableActivityBehaviour;
 
 
 /**
  * @author Tom Baeyens
  */
-public class WaitState implements SignallableActivityBehaviour {
+public interface SignallableActivityBehaviour extends ActivityBehaviour {
 
-  @Override
-  public void start(ActivityInstance activityInstance) {
-  }
-  
-  @Override
-  public Map<String, Class< ? >> getSignalDescriptors(ActivityInstance activityInstance) {
-    return null;
-  }
-
-  @Override
-  public void signal(ActivityInstance activityInstance, String signal, Object data) {
-    Transition transition = activityInstance.getActivity().getOutgoingTransitions().get(0);
-    activityInstance.take(transition);
-  }
+  Map<String, Class<?>> getSignalDescriptors(ActivityInstance activityInstance);
+  void signal(ActivityInstance activityInstance, String signalName, Object data);
 }

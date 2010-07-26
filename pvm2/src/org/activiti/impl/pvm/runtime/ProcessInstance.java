@@ -13,6 +13,9 @@
 
 package org.activiti.impl.pvm.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.activiti.impl.pvm.process.ProcessDefinition;
 
 
@@ -29,4 +32,5 @@ public class ProcessInstance extends ScopeInstance {
     new ExecutionContext()
       .startProcessInstance(this);
   }
+
 }

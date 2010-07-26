@@ -19,7 +19,10 @@ import org.activiti.impl.pvm.runtime.ActivityInstance;
 /**
  * @author Tom Baeyens
  */
-public interface EventActivityBehaviour extends ActivityBehaviour {
+public interface Signal {
 
-  void event(ActivityInstance activityInstance);
+  String getName();
+  ActivityInstance getActivityInstance();
+  Class<?> getType();
+  
 }

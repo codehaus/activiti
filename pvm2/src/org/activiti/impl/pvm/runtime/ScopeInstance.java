@@ -13,7 +13,9 @@
 
 package org.activiti.impl.pvm.runtime;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.activiti.impl.pvm.process.Activity;
@@ -45,6 +47,32 @@ public class ScopeInstance {
   public void removeActivityInstance(ActivityInstance activityInstance) {
     activityInstances.remove(activityInstance);
     activityInstance.setParent(null);
+  }
+  
+  public List<ActivityInstance> findActivityInstances(String activityId) {
+    List<ActivityInstance> foundActivityInstances = new ArrayList<ActivityInstance>();
+    collectActivityInstances(foundActivityInstances, activityId);
+    return foundActivityInstances;
+  }
+  
+  public ActivityInstance findActivityInstance(String activityId) {
+    List<ActivityInstance> activityInstances = findActivityInstances(activityId);
+    if (activityInstances.isEmpty()) {
+      return null;
+    }
+    return activityInstances.get(0);
+  }
+
+  protected void collectActivityInstances(List<ActivityInstance> activityInstanceCollection, String activityId) {
+    if (activityId==null) {
+      throw new RuntimeException("activitId is null");
+    }
+    for (ActivityInstance activityInstance: activityInstances) {
+      if (activityId.equals(activityInstance.getActivity().getId())) {
+        activityInstanceCollection.add(activityInstance);
+      }
+      activityInstance.collectActivityInstances(activityInstanceCollection, activityId);
+    }
   }
   
   public Scope getScope() {

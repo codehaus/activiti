@@ -1,9 +1,13 @@
 package org.activiti.test.pvm;
+import java.util.Collection;
+
 import junit.framework.TestCase;
 
 import org.activiti.impl.pvm.process.ProcessDefinition;
 import org.activiti.impl.pvm.process.ProcessDefinitionBuilder;
+import org.activiti.impl.pvm.runtime.ActivityInstance;
 import org.activiti.impl.pvm.runtime.ProcessInstance;
+import org.activiti.impl.pvm.spi.Signal;
 import org.activiti.test.pvm.activities.Automatic;
 import org.activiti.test.pvm.activities.WaitState;
 
@@ -31,9 +35,17 @@ public class Pvm2Test extends TestCase {
       .startActivity("start")
         .initial()
         .behaviour(new Automatic())
-        .transition("wait")
+        .transition("one")
       .endActivity()
-      .startActivity("wait")
+      .startActivity("one")
+        .behaviour(new WaitState())
+        .transition("two")
+      .endActivity()
+      .startActivity("two")
+        .behaviour(new Automatic())
+        .transition("three")
+      .endActivity()
+      .startActivity("three")
         .behaviour(new WaitState())
       .endActivity()
     .buildProcessDefinition();
@@ -41,13 +53,12 @@ public class Pvm2Test extends TestCase {
     ProcessInstance processInstance = processDefinition.createProcessInstance();
     processInstance.start();
     
-    assertEquals("wait", 
-        processInstance
-          .getActivityInstances()
-          .iterator()
-          .next()
-          .getActivity()
-          .getName()
-    );
+    ActivityInstance activityInstance = processInstance.findActivityInstance("one");
+    assertNotNull(activityInstance);
+    
+    activityInstance.signal(null, null);
+
+    activityInstance = processInstance.findActivityInstance("three");
+    assertNotNull(activityInstance);
   }
 }

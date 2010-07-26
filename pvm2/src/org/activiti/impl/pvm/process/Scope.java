@@ -22,12 +22,13 @@ import java.util.List;
  */
 public class Scope extends EventDispatcher {
 
+  protected String id;
   protected String name;
   protected List<Activity> activities = new ArrayList<Activity>();
   
   public Activity findActivity(String activityName) {
     for (Activity activity: activities) {
-      if (activityName.equals(activity.getName())) {
+      if (activityName.equals(activity.getId())) {
         return activity;
       }
     }
@@ -48,19 +49,22 @@ public class Scope extends EventDispatcher {
   }
 
   
-  public String getName() {
-    return name;
+  public String getId() {
+    return id;
   }
-  
-  public void setName(String name) {
-    this.name = name;
+  public void setId(String name) {
+    this.id = name;
   }
-  
   public List<Activity> getActivities() {
     return activities;
   }
-  
   public void setActivities(List<Activity> activities) {
     this.activities = activities;
+  }
+  public String getName() {
+    return name;
+  }
+  public void setName(String name) {
+    this.name = name;
   }
 }
