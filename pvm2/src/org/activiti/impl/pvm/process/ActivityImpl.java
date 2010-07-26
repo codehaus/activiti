@@ -23,18 +23,18 @@ import org.activiti.impl.pvm.activity.ActivityBehaviour;
 /**
  * @author Tom Baeyens
  */
-public class Activity extends Scope {
+public class ActivityImpl extends ScopeImpl {
 
-  protected List<Transition> outgoingTransitions = new ArrayList<Transition>();
-  protected List<Transition> incomingTransitions = new ArrayList<Transition>();
+  protected List<TransitionImpl> outgoingTransitions = new ArrayList<TransitionImpl>();
+  protected List<TransitionImpl> incomingTransitions = new ArrayList<TransitionImpl>();
   protected ActivityBehaviour activityBehaviour;
-  protected Scope parent;
+  protected ScopeImpl parent;
   
-  public List<Transition> getOutgoingTransitions() {
+  public List<TransitionImpl> getOutgoingTransitions() {
     return outgoingTransitions;
   }
 
-  public void setOutgoingTransitions(List<Transition> outgoingTransitions) {
+  public void setOutgoingTransitions(List<TransitionImpl> outgoingTransitions) {
     this.outgoingTransitions = outgoingTransitions;
   }
   
@@ -46,19 +46,19 @@ public class Activity extends Scope {
     this.activityBehaviour = activityBehaviour;
   }
 
-  public Scope getParent() {
+  public ScopeImpl getParent() {
     return parent;
   }
 
-  public void setParent(Scope parent) {
+  public void setParent(ScopeImpl parent) {
     this.parent = parent;
   }
 
-  public List<Transition> getIncomingTransitions() {
+  public List<TransitionImpl> getIncomingTransitions() {
     return incomingTransitions;
   }
 
-  public void setIncomingTransitions(List<Transition> incomingTransitions) {
+  public void setIncomingTransitions(List<TransitionImpl> incomingTransitions) {
     this.incomingTransitions = incomingTransitions;
   }
 }

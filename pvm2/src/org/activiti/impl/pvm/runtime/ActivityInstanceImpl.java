@@ -13,19 +13,19 @@
 
 package org.activiti.impl.pvm.runtime;
 
-import org.activiti.impl.pvm.process.Activity;
+import org.activiti.impl.pvm.process.ActivityImpl;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ActivityInstance extends ScopeInstance {
+public class ActivityInstanceImpl extends ScopeInstanceImpl {
 
-  protected Activity activity;
-  protected ScopeInstance parent;
+  protected ActivityImpl activity;
+  protected ScopeInstanceImpl parent;
   protected ExecutionContextImpl executionContext;
   
-  public ActivityInstance(Activity activity, ScopeInstance parent) {
+  public ActivityInstanceImpl(ActivityImpl activity, ScopeInstanceImpl parent) {
     super(parent.getProcessDefinition(), activity);
     this.activity = activity;
     this.parent = parent;
@@ -36,22 +36,22 @@ public class ActivityInstance extends ScopeInstance {
   }
 
   
-  public Activity getActivity() {
+  public ActivityImpl getActivity() {
     return activity;
   }
 
   
-  public void setActivity(Activity activity) {
+  public void setActivity(ActivityImpl activity) {
     this.activity = activity;
   }
 
   
-  public ScopeInstance getParent() {
+  public ScopeInstanceImpl getParent() {
     return parent;
   }
 
   
-  public void setParent(ScopeInstance parent) {
+  public void setParent(ScopeInstanceImpl parent) {
     this.parent = parent;
   }
 

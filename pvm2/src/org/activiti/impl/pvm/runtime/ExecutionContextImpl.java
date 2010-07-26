@@ -24,10 +24,10 @@ import org.activiti.impl.pvm.activity.SignallableActivityBehaviour;
 import org.activiti.impl.pvm.event.Event;
 import org.activiti.impl.pvm.event.EventListener;
 import org.activiti.impl.pvm.event.ExecutionContext;
-import org.activiti.impl.pvm.process.Activity;
-import org.activiti.impl.pvm.process.EventDispatcher;
-import org.activiti.impl.pvm.process.Scope;
-import org.activiti.impl.pvm.process.Transition;
+import org.activiti.impl.pvm.process.ActivityImpl;
+import org.activiti.impl.pvm.process.EventDispatcherImpl;
+import org.activiti.impl.pvm.process.ScopeImpl;
+import org.activiti.impl.pvm.process.TransitionImpl;
 
 
 /**
@@ -45,9 +45,9 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   private static final AtomicOperation TRANSITION_ACTIVITY_START = new TransitionActivityStart();
   private static final AtomicOperation ACTIVITY_SIGNAL = new ActivitySignal();
   
-  protected ProcessInstance processInstance;
-  protected ActivityInstance activityInstance;
-  protected ScopeInstance scopeInstance;
+  protected ProcessInstanceImpl processInstance;
+  protected ActivityInstanceImpl activityInstance;
+  protected ScopeInstanceImpl scopeInstance;
   
   protected String eventName;
   protected List<EventListener> eventListeners;
@@ -57,18 +57,18 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   protected String signalName;
   protected Object data;
   
-  protected Transition transition;
+  protected TransitionImpl transition;
   
   protected AtomicOperation nextAtomicOperation = null;
   protected boolean isOperating;
 
-  public void startProcessInstance(ProcessInstance processInstance) {
+  public void startProcessInstance(ProcessInstanceImpl processInstance) {
     this.processInstance = processInstance;
     this.scopeInstance = processInstance;
     fireEvent(processInstance.getProcessDefinition(), Event.PROCESS_START, PROCESS_START);
   }
 
-  public void signal(ActivityInstance activityInstance, String signalName, Object data) {
+  public void signal(ActivityInstanceImpl activityInstance, String signalName, Object data) {
     this.activityInstance = activityInstance;
     this.scopeInstance = activityInstance;
     this.signalName = signalName;
@@ -77,13 +77,13 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
     perform(ACTIVITY_SIGNAL);
   }
 
-  public void take(Transition transition) {
+  public void take(TransitionImpl transition) {
     this.transition = transition;
     fireEvent(activityInstance.activity, Event.ACTIVITY_END, TRANSITION_ACTIVITY_END);
   }
   
 
-  private void fireEvent(EventDispatcher eventDispatcher, String event, AtomicOperation eventPostOperation) {
+  private void fireEvent(EventDispatcherImpl eventDispatcher, String event, AtomicOperation eventPostOperation) {
     eventListeners = eventDispatcher.getEventListeners().get(event);
     if ( (eventListeners!=null)
          && (!eventListeners.isEmpty())
@@ -139,8 +139,8 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   private static class ProcessStart implements AtomicOperation {
     @Override
     public void perform(ExecutionContextImpl executionContext) {
-      ProcessInstance processInstance = executionContext.processInstance;
-      Activity initial = processInstance.getProcessDefinition().getInitial();
+      ProcessInstanceImpl processInstance = executionContext.processInstance;
+      ActivityImpl initial = processInstance.getProcessDefinition().getInitial();
       executionContext.activityInstance = processInstance.createActivityInstance(initial);
       executionContext.fireEvent(executionContext.activityInstance.getActivity(), Event.ACTIVITY_START, ACTIVITY_START);
     }
@@ -149,7 +149,7 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   private static class ActivityStart implements AtomicOperation {
     @Override
     public void perform(ExecutionContextImpl executionContext) {
-      ActivityInstance activityInstance = executionContext.activityInstance;
+      ActivityInstanceImpl activityInstance = executionContext.activityInstance;
       activityInstance.setExecutionContext(executionContext);
       ActivityBehaviour activityBehaviour = activityInstance.getActivity().getActivityBehaviour();
       activityBehaviour.start(executionContext);
@@ -159,9 +159,9 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   private static class TransitionActivityEnd implements AtomicOperation {
     @Override
     public void perform(ExecutionContextImpl executionContext) {
-      ActivityInstance activityInstance = executionContext.activityInstance;
-      Transition transition = executionContext.transition;
-      ScopeInstance parent = activityInstance.getParent();
+      ActivityInstanceImpl activityInstance = executionContext.activityInstance;
+      TransitionImpl transition = executionContext.transition;
+      ScopeInstanceImpl parent = activityInstance.getParent();
       executionContext.scopeInstance = parent;
       parent.removeActivityInstance(activityInstance);
       executionContext.fireEvent(transition, Event.TRANSITION_TAKE, TRANSITION_TAKE);
@@ -178,7 +178,7 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   private static class TransitionActivityStart implements AtomicOperation {
     @Override
     public void perform(ExecutionContextImpl executionContext) {
-      Activity destination = executionContext.transition.getDestination();
+      ActivityImpl destination = executionContext.transition.getDestination();
       executionContext.activityInstance = executionContext.scopeInstance.createActivityInstance(destination);
       executionContext.fireEvent(destination, Event.ACTIVITY_START, ACTIVITY_START);
     }
@@ -187,7 +187,7 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   private static class ActivitySignal implements AtomicOperation {
     @Override
     public void perform(ExecutionContextImpl executionContext) {
-      ActivityInstance activityInstance = executionContext.activityInstance;
+      ActivityInstanceImpl activityInstance = executionContext.activityInstance;
       SignallableActivityBehaviour signallableActivityBehaviour = (SignallableActivityBehaviour) activityInstance.getActivity().getActivityBehaviour();
       signallableActivityBehaviour.signal(executionContext, executionContext.signalName, executionContext.data);
     }
@@ -209,15 +209,15 @@ public class ExecutionContextImpl implements ExecutionContext, ActivityExecution
   
   // activity execution context methods ///////////////////////////////////////
   
-  public List<Transition> getOutgoingTransitions() {
+  public List<TransitionImpl> getOutgoingTransitions() {
     return activityInstance.getActivity().getOutgoingTransitions();
   }
 
-  public List<Transition> getIncomingTransitions() {
+  public List<TransitionImpl> getIncomingTransitions() {
     return activityInstance.getActivity().getIncomingTransitions();
   }
 
-  public List<Activity> getActivities() {
+  public List<ActivityImpl> getActivities() {
     return activityInstance.getActivity().getActivities();
   }
 }

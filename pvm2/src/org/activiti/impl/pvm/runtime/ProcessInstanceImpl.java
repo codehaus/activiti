@@ -13,15 +13,15 @@
 
 package org.activiti.impl.pvm.runtime;
 
-import org.activiti.impl.pvm.process.ProcessDefinition;
+import org.activiti.impl.pvm.process.ProcessDefinitionImpl;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ProcessInstance extends ScopeInstance {
+public class ProcessInstanceImpl extends ScopeInstanceImpl {
   
-  public ProcessInstance(ProcessDefinition processDefinition) {
+  public ProcessInstanceImpl(ProcessDefinitionImpl processDefinition) {
     super(processDefinition, processDefinition);
   }
   

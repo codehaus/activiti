@@ -1,7 +1,7 @@
 package org.activiti.test.pvm.activities;
 import org.activiti.impl.pvm.activity.ActivityBehaviour;
 import org.activiti.impl.pvm.activity.ActivityExecutionContext;
-import org.activiti.impl.pvm.process.Transition;
+import org.activiti.impl.pvm.process.TransitionImpl;
 
 
 
@@ -25,7 +25,7 @@ public class Automatic implements ActivityBehaviour {
 
   @Override
   public void start(ActivityExecutionContext activityExecutionContext) {
-    Transition transition = activityExecutionContext.getOutgoingTransitions().get(0);
+    TransitionImpl transition = activityExecutionContext.getOutgoingTransitions().get(0);
     activityExecutionContext.take(transition);
   }
 

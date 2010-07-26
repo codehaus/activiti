@@ -19,11 +19,11 @@ package org.activiti.impl.pvm.process;
 /**
  * @author Tom Baeyens
  */
-public class Transition extends EventDispatcher {
+public class TransitionImpl extends EventDispatcherImpl {
 
   protected String name;
-  protected Activity source;
-  protected Activity destination;
+  protected ActivityImpl source;
+  protected ActivityImpl destination;
   
   public String getName() {
     return name;
@@ -35,22 +35,22 @@ public class Transition extends EventDispatcher {
   }
 
   
-  public Activity getSource() {
+  public ActivityImpl getSource() {
     return source;
   }
 
   
-  public void setSource(Activity source) {
+  public void setSource(ActivityImpl source) {
     this.source = source;
   }
 
   
-  public Activity getDestination() {
+  public ActivityImpl getDestination() {
     return destination;
   }
 
   
-  public void setDestination(Activity destination) {
+  public void setDestination(ActivityImpl destination) {
     this.destination = destination;
   }
 }

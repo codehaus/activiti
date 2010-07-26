@@ -13,25 +13,26 @@
 
 package org.activiti.impl.pvm.process;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.activiti.impl.pvm.runtime.ProcessInstanceImpl;
 
-import org.activiti.impl.pvm.event.EventListener;
 
 
 /**
  * @author Tom Baeyens
  */
-public class EventDispatcher {
+public class ProcessDefinitionImpl extends ScopeImpl {
+  
+  protected ActivityImpl initial;
 
-  protected Map<String, List<EventListener>> eventListeners = new HashMap<String, List<EventListener>>();
-
-  public Map<String, List<EventListener>> getEventListeners() {
-    return eventListeners;
+  public ProcessInstanceImpl createProcessInstance() {
+    return new ProcessInstanceImpl(this);
   }
 
-  public void setEventListeners(Map<String, List<EventListener>> eventListeners) {
-    this.eventListeners = eventListeners;
+  public ActivityImpl getInitial() {
+    return initial;
+  }
+
+  public void setInitial(ActivityImpl initial) {
+    this.initial = initial;
   }
 }

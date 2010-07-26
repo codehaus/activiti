@@ -15,8 +15,8 @@ package org.activiti.impl.pvm.activity;
 
 import java.util.List;
 
-import org.activiti.impl.pvm.process.Activity;
-import org.activiti.impl.pvm.process.Transition;
+import org.activiti.impl.pvm.process.ActivityImpl;
+import org.activiti.impl.pvm.process.TransitionImpl;
 
 
 /**
@@ -24,11 +24,11 @@ import org.activiti.impl.pvm.process.Transition;
  */
 public interface ActivityExecutionContext {
 
-  void take(Transition transition);
+  void take(TransitionImpl transition);
 
-  List<Transition> getOutgoingTransitions();
+  List<TransitionImpl> getOutgoingTransitions();
 
-  List<Transition> getIncomingTransitions();
+  List<TransitionImpl> getIncomingTransitions();
 
-  List<Activity> getActivities();
+  List<ActivityImpl> getActivities();
 }

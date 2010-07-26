@@ -21,57 +21,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.activiti.impl.pvm.process.Activity;
-import org.activiti.impl.pvm.process.ProcessDefinition;
-import org.activiti.impl.pvm.process.Scope;
+import org.activiti.impl.pvm.process.ActivityImpl;
+import org.activiti.impl.pvm.process.ProcessDefinitionImpl;
+import org.activiti.impl.pvm.process.ScopeImpl;
 
 
 
 /**
  * @author Tom Baeyens
  */
-public class ScopeInstance {
+public class ScopeInstanceImpl {
 
-  protected ProcessDefinition processDefinition;
-  protected Scope scope;
-  protected Set<ActivityInstance> activityInstances = new HashSet<ActivityInstance>();
+  protected ProcessDefinitionImpl processDefinition;
+  protected ScopeImpl scope;
+  protected Set<ActivityInstanceImpl> activityInstances = new HashSet<ActivityInstanceImpl>();
   protected Map<String, Object> variables;
 
-  public ScopeInstance(ProcessDefinition processDefinition, Scope scope) {
+  public ScopeInstanceImpl(ProcessDefinitionImpl processDefinition, ScopeImpl scope) {
     this.processDefinition = processDefinition;
     this.scope = scope;
   }
 
-  protected ActivityInstance createActivityInstance(Activity activity) {
-    ActivityInstance activityInstance = new ActivityInstance(activity, this);
+  protected ActivityInstanceImpl createActivityInstance(ActivityImpl activity) {
+    ActivityInstanceImpl activityInstance = new ActivityInstanceImpl(activity, this);
     activityInstances.add(activityInstance);
     return activityInstance;
   }
 
-  public void removeActivityInstance(ActivityInstance activityInstance) {
+  public void removeActivityInstance(ActivityInstanceImpl activityInstance) {
     activityInstances.remove(activityInstance);
     activityInstance.setParent(null);
   }
   
-  public List<ActivityInstance> findActivityInstances(String activityId) {
-    List<ActivityInstance> foundActivityInstances = new ArrayList<ActivityInstance>();
+  public List<ActivityInstanceImpl> findActivityInstances(String activityId) {
+    List<ActivityInstanceImpl> foundActivityInstances = new ArrayList<ActivityInstanceImpl>();
     collectActivityInstances(foundActivityInstances, activityId);
     return foundActivityInstances;
   }
   
-  public ActivityInstance findActivityInstance(String activityId) {
-    List<ActivityInstance> activityInstances = findActivityInstances(activityId);
+  public ActivityInstanceImpl findActivityInstance(String activityId) {
+    List<ActivityInstanceImpl> activityInstances = findActivityInstances(activityId);
     if (activityInstances.isEmpty()) {
       return null;
     }
     return activityInstances.get(0);
   }
 
-  protected void collectActivityInstances(List<ActivityInstance> activityInstanceCollection, String activityId) {
+  protected void collectActivityInstances(List<ActivityInstanceImpl> activityInstanceCollection, String activityId) {
     if (activityId==null) {
       throw new RuntimeException("activitId is null");
     }
-    for (ActivityInstance activityInstance: activityInstances) {
+    for (ActivityInstanceImpl activityInstance: activityInstances) {
       if (activityId.equals(activityInstance.getActivity().getId())) {
         activityInstanceCollection.add(activityInstance);
       }
@@ -105,32 +105,32 @@ public class ScopeInstance {
   
   // getters and setters //////////////////////////////////////////////////////
   
-  public Scope getScope() {
+  public ScopeImpl getScope() {
     return scope;
   }
 
   
-  public void setScope(Scope scope) {
+  public void setScope(ScopeImpl scope) {
     this.scope = scope;
   }
 
   
-  public Set<ActivityInstance> getActivityInstances() {
+  public Set<ActivityInstanceImpl> getActivityInstances() {
     return activityInstances;
   }
 
   
-  public void setActivityInstances(Set<ActivityInstance> activityInstances) {
+  public void setActivityInstances(Set<ActivityInstanceImpl> activityInstances) {
     this.activityInstances = activityInstances;
   }
 
   
-  public ProcessDefinition getProcessDefinition() {
+  public ProcessDefinitionImpl getProcessDefinition() {
     return processDefinition;
   }
 
   
-  public void setProcessDefinition(ProcessDefinition processDefinition) {
+  public void setProcessDefinition(ProcessDefinitionImpl processDefinition) {
     this.processDefinition = processDefinition;
   }
 }

@@ -15,7 +15,7 @@ package org.activiti.test.pvm.activities;
 
 import org.activiti.impl.pvm.activity.ActivityExecutionContext;
 import org.activiti.impl.pvm.activity.SignallableActivityBehaviour;
-import org.activiti.impl.pvm.process.Transition;
+import org.activiti.impl.pvm.process.TransitionImpl;
 
 
 /**
@@ -29,7 +29,7 @@ public class WaitState implements SignallableActivityBehaviour {
   
   @Override
   public void signal(ActivityExecutionContext activityExecutionContext, String signal, Object data) {
-    Transition transition = activityExecutionContext.getOutgoingTransitions().get(0);
+    TransitionImpl transition = activityExecutionContext.getOutgoingTransitions().get(0);
     activityExecutionContext.take(transition);
   }
 }

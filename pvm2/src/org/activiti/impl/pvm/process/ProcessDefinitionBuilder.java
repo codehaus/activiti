@@ -26,9 +26,9 @@ import org.activiti.impl.pvm.activity.ActivityBehaviour;
  */
 public class ProcessDefinitionBuilder {
 
-  protected ProcessDefinition processDefinition = new ProcessDefinition();
-  protected Stack<Scope> scopeStack = new Stack<Scope>();
-  protected Transition transition;
+  protected ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl();
+  protected Stack<ScopeImpl> scopeStack = new Stack<ScopeImpl>();
+  protected TransitionImpl transition;
   protected List<Object[]> unresolvedTransitions = new ArrayList<Object[]>();
   
   public ProcessDefinitionBuilder() {
@@ -36,7 +36,7 @@ public class ProcessDefinitionBuilder {
   }
 
   public ProcessDefinitionBuilder startActivity(String name) {
-    Activity activity = scopeStack.peek().createActivity();
+    ActivityImpl activity = scopeStack.peek().createActivity();
     activity.id = name;
     scopeStack.push(activity);
     
@@ -59,9 +59,9 @@ public class ProcessDefinitionBuilder {
   }
   
   public ProcessDefinitionBuilder transition(String destinationActivityName) {
-    Activity activity = getActivity();
+    ActivityImpl activity = getActivity();
     
-    transition = new Transition();
+    transition = new TransitionImpl();
     transition.source = activity;
     activity.outgoingTransitions.add(transition);
     
@@ -80,9 +80,9 @@ public class ProcessDefinitionBuilder {
     return this;
   }
 
-  public ProcessDefinition buildProcessDefinition() {
+  public ProcessDefinitionImpl buildProcessDefinition() {
     for (Object[] unresolvedTransition: unresolvedTransitions) {
-      Transition transition = (Transition) unresolvedTransition[0];
+      TransitionImpl transition = (TransitionImpl) unresolvedTransition[0];
       String destinationActivityName = (String) unresolvedTransition[1];
       transition.destination = processDefinition.findActivity(destinationActivityName);
       if (transition.destination == null) {
@@ -93,7 +93,7 @@ public class ProcessDefinitionBuilder {
     return processDefinition;
   }
   
-  protected Activity getActivity() {
-    return (Activity) scopeStack.peek(); 
+  protected ActivityImpl getActivity() {
+    return (ActivityImpl) scopeStack.peek(); 
   }
 }

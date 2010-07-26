@@ -20,20 +20,20 @@ import java.util.List;
 /**
  * @author Tom Baeyens
  */
-public class Scope extends EventDispatcher {
+public class ScopeImpl extends EventDispatcherImpl {
 
   protected String id;
   protected String name;
-  protected List<Activity> activities = new ArrayList<Activity>();
+  protected List<ActivityImpl> activities = new ArrayList<ActivityImpl>();
   
-  public Activity findActivity(String activityName) {
-    for (Activity activity: activities) {
+  public ActivityImpl findActivity(String activityName) {
+    for (ActivityImpl activity: activities) {
       if (activityName.equals(activity.getId())) {
         return activity;
       }
     }
-    for (Activity activity: activities) {
-      Activity nestedActivity = activity.findActivity(activityName);
+    for (ActivityImpl activity: activities) {
+      ActivityImpl nestedActivity = activity.findActivity(activityName);
       if (nestedActivity!=null) {
         return nestedActivity;
       }
@@ -41,8 +41,8 @@ public class Scope extends EventDispatcher {
     return null;
   }
 
-  public Activity createActivity() {
-    Activity activity = new Activity();
+  public ActivityImpl createActivity() {
+    ActivityImpl activity = new ActivityImpl();
     activity.setParent(this);
     activities.add(activity);
     return  activity;
@@ -55,10 +55,10 @@ public class Scope extends EventDispatcher {
   public void setId(String name) {
     this.id = name;
   }
-  public List<Activity> getActivities() {
+  public List<ActivityImpl> getActivities() {
     return activities;
   }
-  public void setActivities(List<Activity> activities) {
+  public void setActivities(List<ActivityImpl> activities) {
     this.activities = activities;
   }
   public String getName() {

@@ -1,10 +1,10 @@
 package org.activiti.test.pvm;
 import junit.framework.TestCase;
 
-import org.activiti.impl.pvm.process.ProcessDefinition;
+import org.activiti.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.impl.pvm.process.ProcessDefinitionBuilder;
-import org.activiti.impl.pvm.runtime.ActivityInstance;
-import org.activiti.impl.pvm.runtime.ProcessInstance;
+import org.activiti.impl.pvm.runtime.ActivityInstanceImpl;
+import org.activiti.impl.pvm.runtime.ProcessInstanceImpl;
 import org.activiti.test.pvm.activities.Automatic;
 import org.activiti.test.pvm.activities.WaitState;
 
@@ -28,7 +28,7 @@ import org.activiti.test.pvm.activities.WaitState;
 public class Pvm2Test extends TestCase {
 
   public void testOne() {
-    ProcessDefinition processDefinition = new ProcessDefinitionBuilder()
+    ProcessDefinitionImpl processDefinition = new ProcessDefinitionBuilder()
       .startActivity("start")
         .initial()
         .behaviour(new Automatic())
@@ -47,10 +47,10 @@ public class Pvm2Test extends TestCase {
       .endActivity()
     .buildProcessDefinition();
     
-    ProcessInstance processInstance = processDefinition.createProcessInstance();
+    ProcessInstanceImpl processInstance = processDefinition.createProcessInstance();
     processInstance.start();
     
-    ActivityInstance activityInstance = processInstance.findActivityInstance("one");
+    ActivityInstanceImpl activityInstance = processInstance.findActivityInstance("one");
     assertNotNull(activityInstance);
     
     activityInstance.signal(null, null);
