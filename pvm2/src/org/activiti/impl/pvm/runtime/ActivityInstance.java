@@ -14,7 +14,6 @@
 package org.activiti.impl.pvm.runtime;
 
 import org.activiti.impl.pvm.process.Activity;
-import org.activiti.impl.pvm.process.Transition;
 
 
 /**
@@ -30,10 +29,6 @@ public class ActivityInstance extends ScopeInstance {
     super(parent.getProcessDefinition(), activity);
     this.activity = activity;
     this.parent = parent;
-  }
-
-  public void take(Transition transition) {
-    executionContext.takeTransition(this, transition);
   }
 
   public void signal(String signalName, Object data) {

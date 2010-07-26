@@ -14,23 +14,26 @@
 package org.activiti.impl.pvm.runtime;
 
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.impl.pvm.activity.ActivityBehaviour;
+import org.activiti.impl.pvm.activity.ActivityExecutionContext;
 import org.activiti.impl.pvm.activity.SignallableActivityBehaviour;
 import org.activiti.impl.pvm.event.Event;
-import org.activiti.impl.pvm.event.EventContext;
 import org.activiti.impl.pvm.event.EventListener;
+import org.activiti.impl.pvm.event.ExecutionContext;
 import org.activiti.impl.pvm.process.Activity;
 import org.activiti.impl.pvm.process.EventDispatcher;
+import org.activiti.impl.pvm.process.Scope;
 import org.activiti.impl.pvm.process.Transition;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ExecutionContextImpl implements EventContext {
+public class ExecutionContextImpl implements ExecutionContext, ActivityExecutionContext {
 
   private static Logger log = Logger.getLogger(ExecutionContextImpl.class.getName());
 
@@ -74,8 +77,7 @@ public class ExecutionContextImpl implements EventContext {
     perform(ACTIVITY_SIGNAL);
   }
 
-  public void takeTransition(ActivityInstance activityInstance, Transition transition) {
-    this.activityInstance = activityInstance;
+  public void take(Transition transition) {
     this.transition = transition;
     fireEvent(activityInstance.activity, Event.ACTIVITY_END, TRANSITION_ACTIVITY_END);
   }
@@ -95,14 +97,6 @@ public class ExecutionContextImpl implements EventContext {
     }
   }
   
-  public void setVariable(String variableName, Object value) {
-    scopeInstance.setVariable(variableName, value);
-  }
-  
-  public Object getVariable(String variableName) {
-    return scopeInstance.getVariable(variableName);
-  }
-
   private void perform(AtomicOperation atomicOperation) {
     this.nextAtomicOperation = atomicOperation;
     if (!isOperating) {
@@ -158,7 +152,7 @@ public class ExecutionContextImpl implements EventContext {
       ActivityInstance activityInstance = executionContext.activityInstance;
       activityInstance.setExecutionContext(executionContext);
       ActivityBehaviour activityBehaviour = activityInstance.getActivity().getActivityBehaviour();
-      activityBehaviour.start(activityInstance);
+      activityBehaviour.start(executionContext);
     }
   }
 
@@ -195,11 +189,35 @@ public class ExecutionContextImpl implements EventContext {
     public void perform(ExecutionContextImpl executionContext) {
       ActivityInstance activityInstance = executionContext.activityInstance;
       SignallableActivityBehaviour signallableActivityBehaviour = (SignallableActivityBehaviour) activityInstance.getActivity().getActivityBehaviour();
-      signallableActivityBehaviour.signal(activityInstance, executionContext.signalName, executionContext.data);
+      signallableActivityBehaviour.signal(executionContext, executionContext.signalName, executionContext.data);
     }
   }
 
-  public ScopeInstance getScopeInstance() {
-    return scopeInstance;
+  // execution context methods ////////////////////////////////////////////////
+  
+  public void setVariable(String variableName, Object value) {
+    scopeInstance.setVariable(variableName, value);
+  }
+  
+  public Object getVariable(String variableName) {
+    return scopeInstance.getVariable(variableName);
+  }
+
+  public Map<String, Object> getVariables() {
+    return scopeInstance.getVariables();
+  }
+  
+  // activity execution context methods ///////////////////////////////////////
+  
+  public List<Transition> getOutgoingTransitions() {
+    return activityInstance.getActivity().getOutgoingTransitions();
+  }
+
+  public List<Transition> getIncomingTransitions() {
+    return activityInstance.getActivity().getIncomingTransitions();
+  }
+
+  public List<Activity> getActivities() {
+    return activityInstance.getActivity().getActivities();
   }
 }

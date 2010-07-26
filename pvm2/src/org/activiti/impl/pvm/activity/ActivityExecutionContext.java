@@ -1,10 +1,3 @@
-package org.activiti.test.pvm.activities;
-import org.activiti.impl.pvm.activity.ActivityBehaviour;
-import org.activiti.impl.pvm.activity.ActivityExecutionContext;
-import org.activiti.impl.pvm.process.Transition;
-
-
-
 /* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,15 +11,24 @@ import org.activiti.impl.pvm.process.Transition;
  * limitations under the License.
  */
 
+package org.activiti.impl.pvm.activity;
+
+import java.util.List;
+
+import org.activiti.impl.pvm.process.Activity;
+import org.activiti.impl.pvm.process.Transition;
+
+
 /**
  * @author Tom Baeyens
  */
-public class Automatic implements ActivityBehaviour {
+public interface ActivityExecutionContext {
 
-  @Override
-  public void start(ActivityExecutionContext activityExecutionContext) {
-    Transition transition = activityExecutionContext.getOutgoingTransitions().get(0);
-    activityExecutionContext.take(transition);
-  }
+  void take(Transition transition);
 
+  List<Transition> getOutgoingTransitions();
+
+  List<Transition> getIncomingTransitions();
+
+  List<Activity> getActivities();
 }

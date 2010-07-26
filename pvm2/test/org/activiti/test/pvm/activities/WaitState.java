@@ -13,11 +13,9 @@
 
 package org.activiti.test.pvm.activities;
 
-import java.util.Map;
-
+import org.activiti.impl.pvm.activity.ActivityExecutionContext;
 import org.activiti.impl.pvm.activity.SignallableActivityBehaviour;
 import org.activiti.impl.pvm.process.Transition;
-import org.activiti.impl.pvm.runtime.ActivityInstance;
 
 
 /**
@@ -26,17 +24,12 @@ import org.activiti.impl.pvm.runtime.ActivityInstance;
 public class WaitState implements SignallableActivityBehaviour {
 
   @Override
-  public void start(ActivityInstance activityInstance) {
+  public void start(ActivityExecutionContext activityExecutionContext) {
   }
   
   @Override
-  public Map<String, Class< ? >> getSignalDescriptors(ActivityInstance activityInstance) {
-    return null;
-  }
-
-  @Override
-  public void signal(ActivityInstance activityInstance, String signal, Object data) {
-    Transition transition = activityInstance.getActivity().getOutgoingTransitions().get(0);
-    activityInstance.take(transition);
+  public void signal(ActivityExecutionContext activityExecutionContext, String signal, Object data) {
+    Transition transition = activityExecutionContext.getOutgoingTransitions().get(0);
+    activityExecutionContext.take(transition);
   }
 }

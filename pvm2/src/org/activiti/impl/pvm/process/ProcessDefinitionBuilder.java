@@ -88,6 +88,7 @@ public class ProcessDefinitionBuilder {
       if (transition.destination == null) {
         throw new RuntimeException("destination '"+destinationActivityName+"' not found");
       }
+      transition.destination.incomingTransitions.add(transition);
     }
     return processDefinition;
   }

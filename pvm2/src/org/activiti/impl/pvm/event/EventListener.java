@@ -20,5 +20,5 @@ package org.activiti.impl.pvm.event;
  */
 public interface EventListener {
 
-  void event(EventContext eventContext);
+  void event(ExecutionContext executionContext);
 }

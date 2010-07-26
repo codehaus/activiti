@@ -13,13 +13,10 @@
 
 package org.activiti.impl.pvm.event;
 
-import org.activiti.impl.pvm.runtime.ScopeInstance;
-
 
 /**
  * @author Tom Baeyens
  */
-public interface EventContext {
+public interface ExecutionContext {
 
-  ScopeInstance getScopeInstance();
 }

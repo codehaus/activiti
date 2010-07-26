@@ -26,6 +26,7 @@ import org.activiti.impl.pvm.activity.ActivityBehaviour;
 public class Activity extends Scope {
 
   protected List<Transition> outgoingTransitions = new ArrayList<Transition>();
+  protected List<Transition> incomingTransitions = new ArrayList<Transition>();
   protected ActivityBehaviour activityBehaviour;
   protected Scope parent;
   
@@ -51,5 +52,13 @@ public class Activity extends Scope {
 
   public void setParent(Scope parent) {
     this.parent = parent;
+  }
+
+  public List<Transition> getIncomingTransitions() {
+    return incomingTransitions;
+  }
+
+  public void setIncomingTransitions(List<Transition> incomingTransitions) {
+    this.incomingTransitions = incomingTransitions;
   }
 }

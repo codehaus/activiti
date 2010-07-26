@@ -13,9 +13,6 @@
 
 package org.activiti.impl.pvm.activity;
 
-import java.util.Map;
-
-import org.activiti.impl.pvm.runtime.ActivityInstance;
 
 
 /**
@@ -23,6 +20,7 @@ import org.activiti.impl.pvm.runtime.ActivityInstance;
  */
 public interface SignallableActivityBehaviour extends ActivityBehaviour {
 
-  Map<String, Class<?>> getSignalDescriptors(ActivityInstance activityInstance);
-  void signal(ActivityInstance activityInstance, String signalName, Object data);
+  // TODO Map<String, Class<?>> getSignalDescriptors(ActivityInstance activityInstance);
+  
+  void signal(ActivityExecutionContext activityExecutionContext, String signalName, Object data);
 }

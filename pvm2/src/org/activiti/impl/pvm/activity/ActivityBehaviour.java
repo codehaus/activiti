@@ -13,7 +13,6 @@
 
 package org.activiti.impl.pvm.activity;
 
-import org.activiti.impl.pvm.runtime.ActivityInstance;
 
 
 /**
@@ -21,5 +20,5 @@ import org.activiti.impl.pvm.runtime.ActivityInstance;
  */
 public interface ActivityBehaviour {
 
-  void start(ActivityInstance activityInstance);
+  void start(ActivityExecutionContext activityExecutionContext);
 }
