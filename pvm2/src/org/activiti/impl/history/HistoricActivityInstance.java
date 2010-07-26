@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.history;
+package org.activiti.impl.history;
 
 
 /**
  * @author Tom Baeyens
  */
-public class HistoricProcessInstance {
+public class HistoricActivityInstance {
 
 }
