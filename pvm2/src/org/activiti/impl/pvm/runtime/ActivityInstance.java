@@ -15,7 +15,6 @@ package org.activiti.impl.pvm.runtime;
 
 import org.activiti.impl.pvm.process.Activity;
 import org.activiti.impl.pvm.process.Transition;
-import org.activiti.impl.pvm.spi.SignallableActivityBehaviour;
 
 
 /**
@@ -35,6 +34,10 @@ public class ActivityInstance extends ScopeInstance {
 
   public void take(Transition transition) {
     executionContext.takeTransition(this, transition);
+  }
+
+  public void signal(String signalName, Object data) {
+    new ExecutionContext().signal(this, signalName, data);
   }
 
   
@@ -65,10 +68,5 @@ public class ActivityInstance extends ScopeInstance {
   
   public void setExecutionContext(ExecutionContext executionContext) {
     this.executionContext = executionContext;
-  }
-
-  public void signal(String signalName, Object data) {
-    SignallableActivityBehaviour signallableActivityBehaviour = (SignallableActivityBehaviour) activity.getActivityBehaviour();
-    signallableActivityBehaviour.signal(this, signalName, data);
   }
 }

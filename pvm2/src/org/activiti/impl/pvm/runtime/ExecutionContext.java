@@ -24,6 +24,7 @@ import org.activiti.impl.pvm.process.Activity;
 import org.activiti.impl.pvm.process.EventDispatcher;
 import org.activiti.impl.pvm.process.Transition;
 import org.activiti.impl.pvm.spi.ActivityBehaviour;
+import org.activiti.impl.pvm.spi.SignallableActivityBehaviour;
 
 
 /**
@@ -39,15 +40,19 @@ public class ExecutionContext implements EventContext {
   private static final AtomicOperation TRANSITION_ACTIVITY_END = new TransitionActivityEnd();
   private static final AtomicOperation TRANSITION_TAKE = new TransitionTake();
   private static final AtomicOperation TRANSITION_ACTIVITY_START = new TransitionActivityStart();
+  private static final AtomicOperation ACTIVITY_SIGNAL = new ActivitySignal();
   
   protected ProcessInstance processInstance;
   protected ActivityInstance activityInstance;
   protected ScopeInstance scopeInstance;
   
-  protected String event;
+  protected String eventName;
   protected List<EventListener> eventListeners;
   protected int eventListenerIndex;
   protected AtomicOperation eventPostOperation;
+  
+  protected String signalName;
+  protected Object data;
   
   protected Transition transition;
   
@@ -56,7 +61,17 @@ public class ExecutionContext implements EventContext {
 
   public void startProcessInstance(ProcessInstance processInstance) {
     this.processInstance = processInstance;
+    this.scopeInstance = processInstance;
     fireEvent(processInstance.getProcessDefinition(), Event.PROCESS_START, PROCESS_START);
+  }
+
+  public void signal(ActivityInstance activityInstance, String signalName, Object data) {
+    this.activityInstance = activityInstance;
+    this.scopeInstance = activityInstance;
+    this.signalName = signalName;
+    this.data = data;
+    
+    perform(ACTIVITY_SIGNAL);
   }
 
   public void takeTransition(ActivityInstance activityInstance, Transition transition) {
@@ -64,6 +79,7 @@ public class ExecutionContext implements EventContext {
     this.transition = transition;
     fireEvent(activityInstance.activity, Event.ACTIVITY_END, TRANSITION_ACTIVITY_END);
   }
+  
 
   private void fireEvent(EventDispatcher eventDispatcher, String event, AtomicOperation eventPostOperation) {
     eventListeners = eventDispatcher.getEventListeners().get(event);
@@ -162,8 +178,20 @@ public class ExecutionContext implements EventContext {
     public void perform(ExecutionContext executionContext) {
       Activity destination = executionContext.transition.getDestination();
       executionContext.activityInstance = executionContext.scopeInstance.createActivityInstance(destination);
-      executionContext.scopeInstance = null;
       executionContext.fireEvent(destination, Event.ACTIVITY_START, ACTIVITY_START);
     }
+  }
+
+  private static class ActivitySignal implements AtomicOperation {
+    @Override
+    public void perform(ExecutionContext executionContext) {
+      ActivityInstance activityInstance = executionContext.activityInstance;
+      SignallableActivityBehaviour signallableActivityBehaviour = (SignallableActivityBehaviour) activityInstance.getActivity().getActivityBehaviour();
+      signallableActivityBehaviour.signal(activityInstance, executionContext.signalName, executionContext.data);
+    }
+  }
+
+  public ScopeInstance getScopeInstance() {
+    return scopeInstance;
   }
 }
