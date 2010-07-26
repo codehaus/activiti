@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.activiti.impl.pvm.activity.ActivityBehaviour;
+import org.activiti.impl.pvm.activity.SignallableActivityBehaviour;
 import org.activiti.impl.pvm.event.Event;
 import org.activiti.impl.pvm.event.EventContext;
 import org.activiti.impl.pvm.event.EventListener;
 import org.activiti.impl.pvm.process.Activity;
 import org.activiti.impl.pvm.process.EventDispatcher;
 import org.activiti.impl.pvm.process.Transition;
-import org.activiti.impl.pvm.spi.ActivityBehaviour;
-import org.activiti.impl.pvm.spi.SignallableActivityBehaviour;
 
 
 /**

@@ -15,9 +15,9 @@ package org.activiti.test.pvm.activities;
 
 import java.util.Map;
 
+import org.activiti.impl.pvm.activity.SignallableActivityBehaviour;
 import org.activiti.impl.pvm.process.Transition;
 import org.activiti.impl.pvm.runtime.ActivityInstance;
-import org.activiti.impl.pvm.spi.SignallableActivityBehaviour;
 
 
 /**

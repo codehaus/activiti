@@ -1,7 +1,7 @@
 package org.activiti.test.pvm.activities;
-import org.activiti.impl.pvm.process.Transition;
-import org.activiti.impl.pvm.runtime.ActivityInstance;
-import org.activiti.impl.pvm.spi.ActivityBehaviour;
+import org.activiti.impl.pvm.activity.ActivityBehaviour;
+import org.activiti.impl.pvm.activity.ActivityBehaviour;
+import org.activiti.impl.pvm.process.Transitionnce;
 
 
 

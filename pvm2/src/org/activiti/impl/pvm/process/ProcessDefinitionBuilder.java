@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.activiti.impl.pvm.spi.ActivityBehaviour;
+import org.activiti.impl.pvm.activity.ActivityBehaviour;
 
 
 

@@ -11,9 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.impl.pvm.spi;
-
-import java.util.Map;
+package org.activiti.impl.pvm.activity;
 
 import org.activiti.impl.pvm.runtime.ActivityInstance;
 
@@ -21,8 +19,7 @@ import org.activiti.impl.pvm.runtime.ActivityInstance;
 /**
  * @author Tom Baeyens
  */
-public interface SignallableActivityBehaviour extends ActivityBehaviour {
+public interface ActivityBehaviour {
 
-  Map<String, Class<?>> getSignalDescriptors(ActivityInstance activityInstance);
-  void signal(ActivityInstance activityInstance, String signalName, Object data);
+  void start(ActivityInstance activityInstance);
 }
