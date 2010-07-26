@@ -26,7 +26,7 @@ public class ProcessInstance extends ScopeInstance {
   }
   
   public void start() {
-    new ExecutionContext().startProcessInstance(this);
+    new ExecutionContextImpl().startProcessInstance(this);
   }
 
 }

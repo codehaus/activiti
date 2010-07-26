@@ -30,9 +30,9 @@ import org.activiti.impl.pvm.process.Transition;
 /**
  * @author Tom Baeyens
  */
-public class ExecutionContext implements EventContext {
+public class ExecutionContextImpl implements EventContext {
 
-  private static Logger log = Logger.getLogger(ExecutionContext.class.getName());
+  private static Logger log = Logger.getLogger(ExecutionContextImpl.class.getName());
 
   private static final AtomicOperation EVENTLISTENER_INVOKE = new EventListenerInvoke();
   private static final AtomicOperation PROCESS_START = new ProcessStart();
@@ -94,6 +94,14 @@ public class ExecutionContext implements EventContext {
       perform(eventPostOperation);
     }
   }
+  
+  public void setVariable(String variableName, Object value) {
+    scopeInstance.setVariable(variableName, value);
+  }
+  
+  public Object getVariable(String variableName) {
+    return scopeInstance.getVariable(variableName);
+  }
 
   private void perform(AtomicOperation atomicOperation) {
     this.nextAtomicOperation = atomicOperation;
@@ -112,12 +120,12 @@ public class ExecutionContext implements EventContext {
   }
 
   private interface AtomicOperation {
-    void perform(ExecutionContext executionContext);
+    void perform(ExecutionContextImpl executionContext);
   }
   
   private static class EventListenerInvoke implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       if (executionContext.eventListenerIndex<executionContext.eventListeners.size()) {
         EventListener eventListener = executionContext.eventListeners.get(executionContext.eventListenerIndex);
         eventListener.event(executionContext);
@@ -136,7 +144,7 @@ public class ExecutionContext implements EventContext {
   
   private static class ProcessStart implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       ProcessInstance processInstance = executionContext.processInstance;
       Activity initial = processInstance.getProcessDefinition().getInitial();
       executionContext.activityInstance = processInstance.createActivityInstance(initial);
@@ -146,7 +154,7 @@ public class ExecutionContext implements EventContext {
 
   private static class ActivityStart implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       ActivityInstance activityInstance = executionContext.activityInstance;
       activityInstance.setExecutionContext(executionContext);
       ActivityBehaviour activityBehaviour = activityInstance.getActivity().getActivityBehaviour();
@@ -156,7 +164,7 @@ public class ExecutionContext implements EventContext {
 
   private static class TransitionActivityEnd implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       ActivityInstance activityInstance = executionContext.activityInstance;
       Transition transition = executionContext.transition;
       ScopeInstance parent = activityInstance.getParent();
@@ -168,14 +176,14 @@ public class ExecutionContext implements EventContext {
 
   private static class TransitionTake implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       executionContext.fireEvent(executionContext.transition, Event.TRANSITION_TAKE, TRANSITION_ACTIVITY_START);
     }
   }
 
   private static class TransitionActivityStart implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       Activity destination = executionContext.transition.getDestination();
       executionContext.activityInstance = executionContext.scopeInstance.createActivityInstance(destination);
       executionContext.fireEvent(destination, Event.ACTIVITY_START, ACTIVITY_START);
@@ -184,7 +192,7 @@ public class ExecutionContext implements EventContext {
 
   private static class ActivitySignal implements AtomicOperation {
     @Override
-    public void perform(ExecutionContext executionContext) {
+    public void perform(ExecutionContextImpl executionContext) {
       ActivityInstance activityInstance = executionContext.activityInstance;
       SignallableActivityBehaviour signallableActivityBehaviour = (SignallableActivityBehaviour) activityInstance.getActivity().getActivityBehaviour();
       signallableActivityBehaviour.signal(activityInstance, executionContext.signalName, executionContext.data);

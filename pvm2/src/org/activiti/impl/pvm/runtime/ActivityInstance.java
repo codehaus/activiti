@@ -24,7 +24,7 @@ public class ActivityInstance extends ScopeInstance {
 
   protected Activity activity;
   protected ScopeInstance parent;
-  protected ExecutionContext executionContext;
+  protected ExecutionContextImpl executionContext;
   
   public ActivityInstance(Activity activity, ScopeInstance parent) {
     super(parent.getProcessDefinition(), activity);
@@ -37,7 +37,7 @@ public class ActivityInstance extends ScopeInstance {
   }
 
   public void signal(String signalName, Object data) {
-    new ExecutionContext().signal(this, signalName, data);
+    new ExecutionContextImpl().signal(this, signalName, data);
   }
 
   
@@ -61,12 +61,12 @@ public class ActivityInstance extends ScopeInstance {
   }
 
   
-  public ExecutionContext getExecutionContext() {
+  public ExecutionContextImpl getExecutionContext() {
     return executionContext;
   }
 
   
-  public void setExecutionContext(ExecutionContext executionContext) {
+  public void setExecutionContext(ExecutionContextImpl executionContext) {
     this.executionContext = executionContext;
   }
 }

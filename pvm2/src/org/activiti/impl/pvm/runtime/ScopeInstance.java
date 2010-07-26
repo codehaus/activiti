@@ -14,8 +14,11 @@
 package org.activiti.impl.pvm.runtime;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.activiti.impl.pvm.process.Activity;
@@ -32,6 +35,7 @@ public class ScopeInstance {
   protected ProcessDefinition processDefinition;
   protected Scope scope;
   protected Set<ActivityInstance> activityInstances = new HashSet<ActivityInstance>();
+  protected Map<String, Object> variables;
 
   public ScopeInstance(ProcessDefinition processDefinition, Scope scope) {
     this.processDefinition = processDefinition;
@@ -74,6 +78,32 @@ public class ScopeInstance {
       activityInstance.collectActivityInstances(activityInstanceCollection, activityId);
     }
   }
+  
+  // variables ////////////////////////////////////////////////////////////////
+  
+  public void setVariable(String variableName, Object value) {
+    if (variables==null) {
+      variables = new HashMap<String, Object>();
+    }
+    variables.put(variableName, value);
+  }
+
+  public Object getVariable(String variableName) {
+    if (variables==null) {
+      return null;
+    }
+    return variables.get(variableName);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> getVariables() {
+    if (variables==null) {
+      return Collections.EMPTY_MAP;
+    }
+    return variables;
+  }
+  
+  // getters and setters //////////////////////////////////////////////////////
   
   public Scope getScope() {
     return scope;
