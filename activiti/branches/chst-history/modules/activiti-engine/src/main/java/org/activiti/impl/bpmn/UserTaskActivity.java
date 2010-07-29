@@ -36,6 +36,8 @@ public class UserTaskActivity extends TaskActivity {
   }
 
   public void execute(ActivityExecution execution) throws Exception {
+    execution.fireEvent(new ActivityStartedEvent(execution.getProcessInstance(), execution.getActivity(), createActivityInstanceId(execution)));
+
     TaskImpl task = TaskImpl.createAndInsert();
     task.setExecution(execution);
 
@@ -53,6 +55,8 @@ public class UserTaskActivity extends TaskActivity {
   }
 
   public void event(ActivityExecution execution, Object event) throws Exception {
+    execution.fireEvent(new ActivityEndedEvent(execution.getProcessInstance(), execution.getActivity(), createActivityInstanceId(execution)));
+
     leave(execution);
   }
 
@@ -79,4 +83,9 @@ public class UserTaskActivity extends TaskActivity {
     return (String) expressionManager.createValueExpression(expr).getValue((ExecutionImpl) execution);
   }
 
+  private static String createActivityInstanceId(ActivityExecution execution) {
+    // TODO: this does not work for loops where the same execution is executing the one activity several times
+    // TODO: this id changes if end signal is sent be different execution as the one that started the activity
+    return execution.getId() + ":" + execution.getActivity().getId();
+  }
 }

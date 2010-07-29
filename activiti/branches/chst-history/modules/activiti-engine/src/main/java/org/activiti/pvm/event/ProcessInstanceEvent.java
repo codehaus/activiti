@@ -41,4 +41,10 @@ public interface ProcessInstanceEvent<T> extends ProcessEvent<T> {
    *         <code>null</code>)
    */
   String getActivityId();
+   
+  /**
+   * @return the id of the optional activity instance this event is related to
+   *         (might be <code>null</code>)
+   */
+  String getActivityInstanceId();
 }

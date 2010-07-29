@@ -58,10 +58,10 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     });
   }
 
-  public HistoricActivityInstance findHistoricActivityInstance(final String activityId, final String processInstanceId) {
+  public HistoricActivityInstance findHistoricActivityInstance(final String activityInstanceId, final String processInstanceId) {
     return commandExecutor.execute(new Command<HistoricActivityInstance>() {
       public HistoricActivityInstance execute(CommandContext commandContext) {
-        return commandContext.getPersistenceSession().findHistoricActivityInstance(activityId, processInstanceId);
+        return commandContext.getPersistenceSession().findHistoricActivityInstance(activityInstanceId, processInstanceId);
       }
     });
   }
@@ -93,12 +93,7 @@ public class HistoricDataServiceImpl implements HistoricDataService {
       HistoricProcessInstanceImpl historicProcessInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricProcessInstance(event.getProcessInstanceId());
 
       if (historicProcessInstance == null) {
-        String processInstanceId = event.getProcessInstanceId();
-        String processDefinitionId = event.getProcessDefinitionId();
-        Date startTime = Clock.getCurrentTime();
-        historicProcessInstance = new HistoricProcessInstanceImpl(processInstanceId, processDefinitionId, startTime);
-
-        // throw new IllegalArgumentException("No historic process instance found for process instance id '" + event.getProcessInstanceId() + "'");
+        throw new IllegalArgumentException("No historic process instance found for process instance id '" + event.getProcessInstanceId() + "'");
       }
 
       Date endTime = Clock.getCurrentTime();
@@ -113,6 +108,7 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     public void consumeEvent(ActivityStartedEvent event) {
       ensureCommandContextAvailable();
 
+      String activityInstanceId = event.getActivityInstanceId();
       String activityId = event.getActivityId();
       String activityName = event.getPayload().getName();
       String activityType = event.getPayload().getType();
@@ -120,7 +116,7 @@ public class HistoricDataServiceImpl implements HistoricDataService {
       String processDefinitionId = event.getProcessDefinitionId();
       Date startTime = Clock.getCurrentTime();
 
-      HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl(activityId, activityName, activityType, processInstanceId, processDefinitionId, startTime);
+      HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl(activityInstanceId, activityId, activityName, activityType, processInstanceId, processDefinitionId, startTime);
 
       CommandContext.getCurrentCommandContext().getPersistenceSession().saveHistoricActivityInstance(historicActivityInstance);
     }
@@ -130,19 +126,10 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     public void consumeEvent(ActivityEndedEvent event) {
       ensureCommandContextAvailable();
 
-      HistoricActivityInstanceImpl historicActivityInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricActivityInstance(event.getActivityId(), event.getProcessInstanceId());
+      HistoricActivityInstanceImpl historicActivityInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricActivityInstance(event.getActivityInstanceId(), event.getProcessInstanceId());
 
       if (historicActivityInstance == null) {
-        String activityId = event.getActivityId();
-        String activityName = event.getPayload().getName();
-        String activityType = event.getPayload().getType();
-        String processInstanceId = event.getProcessInstanceId();
-        String processDefinitionId = event.getProcessDefinitionId();
-        Date startTime = Clock.getCurrentTime();
-
-        historicActivityInstance = new HistoricActivityInstanceImpl(activityId, activityName, activityType, processInstanceId, processDefinitionId, startTime);
-
-        // throw new IllegalArgumentException("No historic activity instance found for activity id '" + event.getActivityId() + "' and process instance id '" + event.getProcessInstanceId() + "'");
+        throw new IllegalArgumentException("No historic activity instance found for activity instance id '" + event.getActivityInstanceId() + "' and process instance id '" + event.getProcessInstanceId() + "'");
       }
 
       historicActivityInstance.markEnded(Clock.getCurrentTime());

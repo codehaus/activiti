@@ -147,6 +147,7 @@ create table ACT_H_PROCINST (
 
 create table ACT_H_ACTINST (
     ID_ varchar(255) not null,
+    ACT_INST_ID_ varchar(255) not null,
     ACT_ID_ varchar(255) not null,
     ACT_NAME_ varchar(255),
     ACT_TYPE_ varchar(255) not null,
@@ -156,7 +157,7 @@ create table ACT_H_ACTINST (
     END_TIME_ datetime,
     DURATION_IN_MILLIS_ bigint,
     primary key (ID_),
-    unique (ACT_ID_, PROC_INST_ID_)
+    unique (ACT_INST_ID_, PROC_INST_ID_)
 );
 
 alter table ACT_BYTEARRAY

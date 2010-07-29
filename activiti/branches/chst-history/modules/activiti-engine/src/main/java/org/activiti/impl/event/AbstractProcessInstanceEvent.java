@@ -30,6 +30,7 @@ public abstract class AbstractProcessInstanceEvent<T> extends AbstractProcessEve
   private final String processDefinitionId;
   private final String processInstanceId;
   private final String activityId;
+  private final String activityInstanceId;
 
   /**
    * Standard constructor used to create a new process event based on the given
@@ -43,12 +44,13 @@ public abstract class AbstractProcessInstanceEvent<T> extends AbstractProcessEve
    * @param headerAttributesMap the optional map of header attributes
    * @param payload the optional payload
    */
-  protected AbstractProcessInstanceEvent(String processDefinitionId, String processInstanceId, String activityId, Map<String, Object> headerAttributesMap, T payload) {
+  protected AbstractProcessInstanceEvent(String processDefinitionId, String processInstanceId, String activityId, String activityInstanceId, Map<String, Object> headerAttributesMap, T payload) {
     super(headerAttributesMap, payload);
 
     this.processDefinitionId = processDefinitionId;
     this.processInstanceId = processInstanceId;
     this.activityId = activityId;
+    this.activityInstanceId = activityInstanceId;
   }
 
   public String getProcessDefinitionId() {
@@ -61,5 +63,9 @@ public abstract class AbstractProcessInstanceEvent<T> extends AbstractProcessEve
 
   public String getActivityId() {
     return activityId;
+  }
+
+  public String getActivityInstanceId() {
+    return activityInstanceId;
   }
 }

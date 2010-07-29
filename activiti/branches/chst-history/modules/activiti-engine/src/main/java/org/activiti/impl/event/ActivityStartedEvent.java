@@ -22,8 +22,8 @@ import org.activiti.pvm.Activity;
  */
 public class ActivityStartedEvent extends AbstractProcessInstanceEvent<Activity> {
 
-  public ActivityStartedEvent(ProcessInstance processInstance, Activity activity) {
-    super(processInstance.getProcessDefinitionId(), processInstance.getId(), activity.getId(), null, activity);
+  public ActivityStartedEvent(ProcessInstance processInstance, Activity activity, String activityInstanceId) {
+    super(processInstance.getProcessDefinitionId(), processInstance.getId(), activity.getId(), activityInstanceId, null, activity);
   }
 
 }

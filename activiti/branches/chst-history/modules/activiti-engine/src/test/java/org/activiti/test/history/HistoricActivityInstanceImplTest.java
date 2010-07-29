@@ -30,8 +30,10 @@ public class HistoricActivityInstanceImplTest {
   public void testInitializeHistoricActivityInstance() {
     Date startTime = new Date();
 
-    HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", startTime);
+    HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", startTime);
 
+    assertEquals("activityInstanceId", historicActivityInstance.getActivityInstanceId());
+    assertEquals("activityId", historicActivityInstance.getActivityId());
     assertEquals("activityName", historicActivityInstance.getActivityName());
     assertEquals("activityType", historicActivityInstance.getActivityType());
     assertEquals("processInstanceId", historicActivityInstance.getProcessInstanceId());
@@ -47,7 +49,7 @@ public class HistoricActivityInstanceImplTest {
     Date startTime = new Date();
     Date endTime = new Date(startTime.getTime() + 1234);
 
-    HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", startTime);
+    HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", startTime);
     historicActivityInstance.markEnded(endTime);
 
     assertEquals(endTime, historicActivityInstance.getEndTime());
@@ -56,44 +58,50 @@ public class HistoricActivityInstanceImplTest {
 
   @Test
   public void testMandatoryStateForHistoricProcessInstanceInitialization() {
+    assertIllegalArgumentException("activity instance id", new Runnable() {
+      public void run() {
+        new HistoricActivityInstanceImpl(null, "activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", new Date());
+      }
+    });
+
     assertIllegalArgumentException("activity id", new Runnable() {
       public void run() {
-        new HistoricActivityInstanceImpl(null, "activityName", "activityType", "processInstanceId", "processDefinitionId", new Date());
+        new HistoricActivityInstanceImpl("activityInstanceId", null, "activityName", "activityType", "processInstanceId", "processDefinitionId", new Date());
       }
     });
 
     assertIllegalArgumentException("activity type", new Runnable() {
       public void run() {
-        new HistoricActivityInstanceImpl("activityId", "activityName", null, "processInstanceId", "processDefinitionId", new Date());
+        new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", null, "processInstanceId", "processDefinitionId", new Date());
       }
     });
 
     assertIllegalArgumentException("process instance id", new Runnable() {
       public void run() {
-        new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", null, "processDefinitionId", new Date());
+        new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", null, "processDefinitionId", new Date());
       }
     });
 
     assertIllegalArgumentException("process definition id", new Runnable() {
       public void run() {
-        new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", null, new Date());
+        new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", "processInstanceId", null, new Date());
       }
     });
 
     assertIllegalArgumentException("start time", new Runnable() {
       public void run() {
-        new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", null);
+        new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", null);
       }
     });
 
-    new HistoricActivityInstanceImpl("activityId", null, "activityType", "processInstanceId", "processDefinitionId", new Date());    
+    new HistoricActivityInstanceImpl("activityInstanceId", "activityId", null, "activityType", "processInstanceId", "processDefinitionId", new Date());
   }
 
   @Test
   public void testMandatoryStateForMarkHistoricProcessInstanceEnded() {
     assertIllegalArgumentException("end time", new Runnable() {
       public void run() {
-        HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", new Date());
+        HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", new Date());
         historicActivityInstance.markEnded(null);
       }
     });
@@ -106,7 +114,7 @@ public class HistoricActivityInstanceImplTest {
         Date startTime = new Date();
         Date endTime = new Date(startTime.getTime() - 1000);
 
-        HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", startTime);
+        HistoricActivityInstanceImpl historicActivityInstance = new HistoricActivityInstanceImpl("activityInstanceId", "activityId", "activityName", "activityType", "processInstanceId", "processDefinitionId", startTime);
         historicActivityInstance.markEnded(endTime);
       }
     });

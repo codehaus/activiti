@@ -22,7 +22,7 @@ import org.activiti.ProcessInstance;
 public class ProcessInstanceEndedEvent extends AbstractProcessInstanceEvent<ProcessInstance> {
 
   public ProcessInstanceEndedEvent(ProcessInstance processInstance) {
-    super(processInstance.getProcessDefinitionId(), processInstance.getId(), null, null, processInstance);
+    super(processInstance.getProcessDefinitionId(), processInstance.getId(), null, null, null, processInstance);
   }
   
 }

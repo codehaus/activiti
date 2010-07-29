@@ -24,6 +24,6 @@ public interface HistoricDataService {
 
   HistoricProcessInstance findHistoricProcessInstance(String processInstanceId);
 
-  HistoricActivityInstance findHistoricActivityInstance(String activityId, String processInstanceId);
+  HistoricActivityInstance findHistoricActivityInstance(String activityInstanceId, String processInstanceId);
   
 }

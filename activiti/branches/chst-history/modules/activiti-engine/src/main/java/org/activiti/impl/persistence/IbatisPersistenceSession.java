@@ -638,17 +638,17 @@ public class IbatisPersistenceSession implements PersistenceSession {
     }
   }
 
-  public HistoricActivityInstanceImpl findHistoricActivityInstance(String activityId, String processInstanceId) {
+  public HistoricActivityInstanceImpl findHistoricActivityInstance(String activityInstanceId, String processInstanceId) {
     Map<String, String> parameters = new HashMap<String, String>();
-    parameters.put("activityId", activityId);
+    parameters.put("activityInstanceId", activityInstanceId);
     parameters.put("processInstanceId", processInstanceId);
 
     return (HistoricActivityInstanceImpl) sqlSession.selectOne(statement("selectHistoricActivityInstance"), parameters);
   }
 
-  public void deleteHistoricActivityInstance(String activityId, String processInstanceId) {
+  public void deleteHistoricActivityInstance(String activityInstanceId, String processInstanceId) {
     Map<String, String> parameters = new HashMap<String, String>();
-    parameters.put("activityId", activityId);
+    parameters.put("activityInstanceId", activityInstanceId);
     parameters.put("processInstanceId", processInstanceId);
 
     sqlSession.delete(statement("deleteHistoricActivityInstance"), parameters);

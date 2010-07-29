@@ -106,6 +106,7 @@ public class HistoricDataServiceImplTest {
   public void testMarkHistoricProcessInstanceEndedFailsForNonExistingHistoricProcessInstance() {
     ProcessInstance processInstance = mock(ProcessInstance.class);
     when(processInstance.getId()).thenReturn("nonExistingProcessInstanceId");
+    when(processInstance.getProcessDefinitionId()).thenReturn("processDefinitionId");
 
     fireProcessInstanceEndedEvent(processInstance);
   }
@@ -150,11 +151,12 @@ public class HistoricDataServiceImplTest {
       Date startTime = new Date();
       Clock.setCurrentTime(startTime);
 
-      fireActivityStartedEvent(processInstance, activity);
+      fireActivityStartedEvent(processInstance, activity, "activityInstanceId");
 
-      HistoricActivityInstance historicActivityInstance = historicDataService.findHistoricActivityInstance("activityId", "processInstanceId");
+      HistoricActivityInstance historicActivityInstance = historicDataService.findHistoricActivityInstance("activityInstanceId", "processInstanceId");
 
       assertNotNull(historicActivityInstance);
+      assertEquals("activityInstanceId", historicActivityInstance.getActivityInstanceId());
       assertEquals("activityId", historicActivityInstance.getActivityId());
       assertEquals("activityName", historicActivityInstance.getActivityName());
       assertEquals("activityType", historicActivityInstance.getActivityType());
@@ -167,10 +169,11 @@ public class HistoricDataServiceImplTest {
       Date endTime = new Date(startTime.getTime() + 1000);
       Clock.setCurrentTime(endTime);
 
-      fireActivityEndedEvent(processInstance, activity);
+      fireActivityEndedEvent(processInstance, activity, "activityInstanceId");
 
-      historicActivityInstance = historicDataService.findHistoricActivityInstance("activityId", "processInstanceId");
+      historicActivityInstance = historicDataService.findHistoricActivityInstance("activityInstanceId", "processInstanceId");
 
+      assertEquals("activityInstanceId", historicActivityInstance.getActivityInstanceId());      
       assertEquals("activityId", historicActivityInstance.getActivityId());
       assertEquals("activityName", historicActivityInstance.getActivityName());
       assertEquals("activityType", historicActivityInstance.getActivityType());
@@ -181,7 +184,7 @@ public class HistoricDataServiceImplTest {
       assertEquals(Long.valueOf(1000L), historicActivityInstance.getDurationInMillis());
     } finally {
       Clock.reset();
-      cleanHistoricActivityInstancesFromDatabase("activityId", "processInstanceId");
+      cleanHistoricActivityInstancesFromDatabase("activityInstanceId", "processInstanceId");
     }
   }
 
@@ -189,49 +192,49 @@ public class HistoricDataServiceImplTest {
   public void testMarkHistoricActivityInstanceEndedFailsForNonExistingHistoricActivityInstance() {
     Activity activity = mock(Activity.class);
     when(activity.getId()).thenReturn("activityId");
+    when(activity.getType()).thenReturn("activityType");
 
     ProcessInstance processInstance = mock(ProcessInstance.class);
     when(processInstance.getId()).thenReturn("processInstanceId");
+    when(processInstance.getProcessDefinitionId()).thenReturn("processDefinitionId");
 
-    fireActivityEndedEvent(processInstance, activity);
+    fireActivityEndedEvent(processInstance, activity, "activityInstanceId");
   }
 
   @Test
   public void testUnqiueConstraintsOnHistoricActivityInstance() {
     try {
       Activity activity = mock(Activity.class);
+      when(activity.getId()).thenReturn("activityId");
       when(activity.getName()).thenReturn("activityName");
       when(activity.getType()).thenReturn("activityType");
 
       ProcessInstance processInstance = mock(ProcessInstance.class);
       when(processInstance.getProcessDefinitionId()).thenReturn("processDefinitionId");
 
-      when(activity.getId()).thenReturn("activityIdOne");
       when(processInstance.getId()).thenReturn("processInstanceIdOne");
-      fireActivityStartedEvent(processInstance, activity);
+      fireActivityStartedEvent(processInstance, activity, "activityInstanceIdOne");
 
       try {
-        fireActivityStartedEvent(processInstance, activity);
+        when(processInstance.getId()).thenReturn("processInstanceIdOne");        
+        fireActivityStartedEvent(processInstance, activity, "activityInstanceIdOne");
         fail("unique key constraint violation expected");
       } catch (Exception expected) {
       }
 
-      when(activity.getId()).thenReturn("activityIdTwo");
       when(processInstance.getId()).thenReturn("processInstanceIdOne");
-      fireActivityStartedEvent(processInstance, activity);
+      fireActivityStartedEvent(processInstance, activity, "activityInstanceIdTwo");
 
-      when(activity.getId()).thenReturn("activityIdOne");
       when(processInstance.getId()).thenReturn("processInstanceIdTwo");
-      fireActivityStartedEvent(processInstance, activity);
+      fireActivityStartedEvent(processInstance, activity, "activityInstanceIdOne");
 
-      when(activity.getId()).thenReturn("activityIdTwo");
       when(processInstance.getId()).thenReturn("processInstanceIdTwo");
-      fireActivityStartedEvent(processInstance, activity);
+      fireActivityStartedEvent(processInstance, activity, "activityInstanceIdTwo");
     } finally {
-      cleanHistoricActivityInstancesFromDatabase("activityIdOne", "processInstanceIdOne");
-      cleanHistoricActivityInstancesFromDatabase("activityIdTwo", "processInstanceIdOne");
-      cleanHistoricActivityInstancesFromDatabase("activityIdOne", "processInstanceIdTwo");
-      cleanHistoricActivityInstancesFromDatabase("activityIdTwo", "processInstanceIdTwo");
+      cleanHistoricActivityInstancesFromDatabase("activityInstanceIdOne", "processInstanceIdOne");
+      cleanHistoricActivityInstancesFromDatabase("activityInstanceIdTwo", "processInstanceIdOne");
+      cleanHistoricActivityInstancesFromDatabase("activityInstanceIdOne", "processInstanceIdTwo");
+      cleanHistoricActivityInstancesFromDatabase("activityInstanceIdTwo", "processInstanceIdTwo");
     }
   }
 
@@ -253,19 +256,19 @@ public class HistoricDataServiceImplTest {
     });
   }
 
-  private void fireActivityStartedEvent(final ProcessInstance processInstance, final Activity activity) {
+  private void fireActivityStartedEvent(final ProcessInstance processInstance, final Activity activity, final String activityInstanceId) {
     deployer.getCommandExecutor().execute(new Command<Object>() {
       public Object execute(CommandContext commandContext) {
-        processEventBus.postEvent(new ActivityStartedEvent(processInstance, activity));
+        processEventBus.postEvent(new ActivityStartedEvent(processInstance, activity, activityInstanceId));
         return null;
       }
     });
   }
 
-  private void fireActivityEndedEvent(final ProcessInstance processInstance, final Activity activity) {
+  private void fireActivityEndedEvent(final ProcessInstance processInstance, final Activity activity, final String activityInstanceId) {
     deployer.getCommandExecutor().execute(new Command<Object>() {
       public Object execute(CommandContext commandContext) {
-        processEventBus.postEvent(new ActivityEndedEvent(processInstance, activity));
+        processEventBus.postEvent(new ActivityEndedEvent(processInstance, activity, activityInstanceId));
         return null;
       }
     });
@@ -281,10 +284,10 @@ public class HistoricDataServiceImplTest {
     });
   }
 
-  private void cleanHistoricActivityInstancesFromDatabase(final String activityId, final String processInstanceId) {
+  private void cleanHistoricActivityInstancesFromDatabase(final String activityInstanceId, final String processInstanceId) {
     deployer.getCommandExecutor().execute(new Command<Object>() {
       public Object execute(CommandContext commandContext) {
-        commandContext.getPersistenceSession().deleteHistoricActivityInstance(activityId, processInstanceId);
+        commandContext.getPersistenceSession().deleteHistoricActivityInstance(activityInstanceId, processInstanceId);
 
         return null;
       }

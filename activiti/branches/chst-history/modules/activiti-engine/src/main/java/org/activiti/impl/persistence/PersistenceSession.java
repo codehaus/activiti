@@ -143,6 +143,6 @@ public interface PersistenceSession extends Session {
   HistoricProcessInstanceImpl findHistoricProcessInstance(String processInstanceId);
   void deleteHistoricProcessInstance(String processInstanceId);
   void saveHistoricActivityInstance(HistoricActivityInstanceImpl historicActivityInstance);
-  HistoricActivityInstanceImpl findHistoricActivityInstance(String activityId, String processInstanceId);
-  void deleteHistoricActivityInstance(String activityId, String processInstanceId);
+  HistoricActivityInstanceImpl findHistoricActivityInstance(String activityInstanceId, String processInstanceId);
+  void deleteHistoricActivityInstance(String activityInstanceId, String processInstanceId);
   }

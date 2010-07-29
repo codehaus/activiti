@@ -27,6 +27,12 @@ public interface ActivityExecution {
   /* Process instance/activity/transition retrieval */
 
   /**
+   * returns the unique id of this activity execution
+   */
+  // TODO: only used temporarily for generating activity instance id when firing an activity instance event (to be replaced with real activity instance id once available)
+  String getId();
+  
+  /**
    * returns the current {@link ProcessInstance}.
    */
   ProcessInstance getProcessInstance();

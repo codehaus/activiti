@@ -21,6 +21,8 @@ import java.util.Date;
  */
 public interface HistoricActivityInstance {
 
+  String getActivityInstanceId();
+
   String getActivityId();
 
   String getActivityName();

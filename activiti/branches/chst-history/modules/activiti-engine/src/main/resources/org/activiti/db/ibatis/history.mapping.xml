@@ -30,6 +30,7 @@
 
     <resultMap id="historicActivityInstanceResultMap" type="org.activiti.impl.history.HistoricActivityInstanceImpl">
       <id property="id" column="ID_" jdbcType="VARCHAR" />
+      <result property="activityInstanceId" column="ACT_INST_ID_" jdbcType="VARCHAR" />
       <result property="activityId" column="ACT_ID_" jdbcType="VARCHAR" />
       <result property="activityName" column="ACT_NAME_" jdbcType="VARCHAR" />
       <result property="activityType" column="ACT_TYPE_" jdbcType="VARCHAR" />
@@ -63,6 +64,7 @@
     <insert id="insertHistoricActivityInstance" parameterType="org.activiti.impl.history.HistoricActivityInstanceImpl">
         insert into ACT_H_ACTINST (
           ID_,
+          ACT_INST_ID_,
           ACT_ID_,
           ACT_NAME_,
           ACT_TYPE_,
@@ -73,9 +75,10 @@
           DURATION_IN_MILLIS_
         ) values (
           #{id ,jdbcType=VARCHAR},
-          #{activityId ,jdbcType=VARCHAR},
-          #{activityName ,jdbcType=VARCHAR},
-          #{activityType ,jdbcType=VARCHAR},
+          #{activityInstanceId, jdbcType=VARCHAR},
+          #{activityId, jdbcType=VARCHAR},
+          #{activityName, jdbcType=VARCHAR},
+          #{activityType, jdbcType=VARCHAR},
           #{processInstanceId, jdbcType=VARCHAR},
           #{processDefinitionId, jdbcType=VARCHAR},
           #{startTime, jdbcType=TIMESTAMP},
@@ -97,6 +100,7 @@
 
     <update id="updateHistoricActivityInstance" parameterType="org.activiti.impl.history.HistoricActivityInstanceImpl">
       update ACT_H_ACTINST set
+        ACT_INST_ID_ = #{activityInstanceId, jdbcType=VARCHAR},
         ACT_ID_ = #{activityId, jdbcType=VARCHAR},
         ACT_NAME_ = #{activityName, jdbcType=VARCHAR},
         ACT_TYPE_ = #{activityType, jdbcType=VARCHAR},
@@ -113,7 +117,7 @@
     </select>
 
     <select id="selectHistoricActivityInstance" resultMap="historicActivityInstanceResultMap">
-      select * from ACT_H_ACTINST where ACT_ID_ = #{activityId} and PROC_INST_ID_ = #{processInstanceId}
+      select * from ACT_H_ACTINST where ACT_INST_ID_ = #{activityInstanceId} and PROC_INST_ID_ = #{processInstanceId}
     </select>
 
     <delete id="deleteHistoricProcessInstance">
@@ -121,7 +125,7 @@
     </delete>
 
     <delete id="deleteHistoricActivityInstance">
-      delete from ACT_H_ACTINST where ACT_ID_ = #{activityId} and PROC_INST_ID_ = #{processInstanceId}
+      delete from ACT_H_ACTINST where ACT_INST_ID_ = #{activityInstanceId} and PROC_INST_ID_ = #{processInstanceId}
     </delete>
 
 </mapper>

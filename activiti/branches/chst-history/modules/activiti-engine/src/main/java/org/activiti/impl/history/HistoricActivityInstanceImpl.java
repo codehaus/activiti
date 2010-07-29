@@ -24,6 +24,7 @@ import org.activiti.history.HistoricActivityInstance;
 public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl implements HistoricActivityInstance {
 
   private String id;
+  private String activityInstanceId;
   private String activityId;
   private String activityName;
   private String activityType;
@@ -32,9 +33,12 @@ public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl i
     // for ibatis
   }
 
-  public HistoricActivityInstanceImpl(String activityId, String activityName, String activityType, String processInstanceId, String processDefinitionId, Date startTime) {
+  public HistoricActivityInstanceImpl(String activityInstanceId, String activityId, String activityName, String activityType, String processInstanceId, String processDefinitionId, Date startTime) {
     super(processInstanceId, processDefinitionId, startTime);
 
+    if (activityInstanceId == null) {
+      throw new IllegalArgumentException("Activity instance id must not be null");
+    }
     if (activityId == null) {
       throw new IllegalArgumentException("Activity id must not be null");
     }
@@ -42,6 +46,7 @@ public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl i
       throw new IllegalArgumentException("Activity type must not be null");
     }
 
+    this.activityInstanceId = activityInstanceId;
     this.activityId = activityId;
     this.activityName = activityName;
     this.activityType = activityType;
@@ -55,9 +60,14 @@ public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl i
     this.id = id;
   }
 
+  public String getActivityInstanceId() {
+    return activityInstanceId;
+  }
+
   public String getActivityId() {
     return activityId;
   }
+
   public String getActivityName() {
     return activityName;
   }
