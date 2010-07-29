@@ -3,11 +3,15 @@
 <project name="activiti.distro" default="distro">
   
   <property file="${user.home}/.activiti/build.properties" />
-	<property name="mvn.executable" value="mvn" />
-  <property name="activiti.version" value="5.0.alpha4" /> 
+<!--	<property name="mvn.executable" value="mvn" /> -->
+  <property name="activiti.version" value="5.0.cycle-SNAPSHOT" /> 
   <property name="target.distro.root" value="target/activiti-${activiti.version}" />
 	<property name="activiti.website" value="../../activiti-website" />
   
+   <condition property="mvn.executable" value="mvn.bat" else="mvn">
+     <os family="windows"/>
+   </condition>
+
   <target name="clean">
   	<delete dir="target" />
   </target>
@@ -87,7 +91,7 @@
     </exec>
   </target>
   
-  <target name="build.userguide" unless="nodocs">
+  <target name="build.userguide" unless="nodocs" >
     <ant antfile="../userguide/build.xml" inheritall="false" />
     <mkdir dir="${target.distro.root}/docs/userguide" />
   	<copy todir="${target.distro.root}/docs/userguide">
