@@ -24,7 +24,6 @@ import org.activiti.history.HistoricProcessInstance;
 public class HistoricProcessInstanceImpl extends AbstractHistoricInstanceImpl implements HistoricProcessInstance {
 
   private String id;
-  private String endStateName;
 
   protected HistoricProcessInstanceImpl() {
     // for ibatis
@@ -40,20 +39,6 @@ public class HistoricProcessInstanceImpl extends AbstractHistoricInstanceImpl im
 
   public void setId(String id) {
     this.id = id;
-  }
-
-  public String getEndStateName() {
-    return endStateName;
-  }
-
-  public void markEnded(Date endTime, String endStateName) {
-    internalMarkEnded(endTime);
-
-    if (endStateName == null) {
-      throw new IllegalArgumentException("End state name must not be null");
-    }
-
-    this.endStateName = endStateName;
   }
 
 }

@@ -81,7 +81,6 @@ public class HistoricDataServiceImplTest {
       assertEquals(startTime, historicProcessInstance.getStartTime());
       assertNull(historicProcessInstance.getEndTime());
       assertNull(historicProcessInstance.getDurationInMillis());
-      assertNull(historicProcessInstance.getEndStateName());
 
       Date endTime = new Date(startTime.getTime() + 1000);
       Clock.setCurrentTime(endTime);
@@ -95,7 +94,6 @@ public class HistoricDataServiceImplTest {
       assertEquals(startTime, historicProcessInstance.getStartTime());
       assertEquals(endTime, historicProcessInstance.getEndTime());
       assertEquals(Long.valueOf(1000L), historicProcessInstance.getDurationInMillis());
-      assertEquals("endStateName", historicProcessInstance.getEndStateName());
     } finally {
       Clock.reset();
       cleanHistoricProcessInstancesFromDatabase("processInstanceId");

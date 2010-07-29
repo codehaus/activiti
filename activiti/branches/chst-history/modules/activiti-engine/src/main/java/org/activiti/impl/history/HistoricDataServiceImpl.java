@@ -97,8 +97,7 @@ public class HistoricDataServiceImpl implements HistoricDataService {
       }
 
       Date endTime = Clock.getCurrentTime();
-      // TODO: does end state name makes sense at all (might be multiple)
-      historicProcessInstance.markEnded(endTime, "endStateName");
+      historicProcessInstance.markEnded(endTime);
 
       CommandContext.getCurrentCommandContext().getPersistenceSession().saveHistoricProcessInstance(historicProcessInstance);
     }

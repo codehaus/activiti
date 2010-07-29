@@ -140,7 +140,6 @@ create table ACT_H_PROCINST (
     START_TIME_ datetime not null,
     END_TIME_ datetime,
     DURATION_IN_MILLIS_ bigint,
-    END_STATE_NAME_ varchar(255),
     primary key (ID_),
     unique (PROC_INST_ID_)
 );

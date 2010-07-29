@@ -31,6 +31,4 @@ public interface HistoricProcessInstance {
 
   Long getDurationInMillis();
 
-  String getEndStateName();
-
 }

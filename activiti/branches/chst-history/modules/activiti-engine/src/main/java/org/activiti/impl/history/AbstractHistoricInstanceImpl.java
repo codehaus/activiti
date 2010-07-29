@@ -67,12 +67,12 @@ public abstract class AbstractHistoricInstanceImpl {
     return durationInMillis;
   }
 
-  protected void internalMarkEnded(Date endTime) {
+  public void markEnded(Date endTime) {
     if (endTime == null) {
       throw new IllegalArgumentException("End time must not be null");
     }
     if (endTime.getTime() < startTime.getTime()) {
-      throw new IllegalArgumentException("end time must not be before start time");
+      throw new IllegalArgumentException("End time must not be before start time");
     }
 
     this.endTime = endTime;

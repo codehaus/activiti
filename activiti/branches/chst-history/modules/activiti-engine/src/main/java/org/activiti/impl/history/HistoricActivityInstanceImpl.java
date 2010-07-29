@@ -76,8 +76,4 @@ public class HistoricActivityInstanceImpl extends AbstractHistoricInstanceImpl i
     return activityType;
   }
 
-  public void markEnded(Date endTime) {
-    internalMarkEnded(endTime);
-  }
-
 }

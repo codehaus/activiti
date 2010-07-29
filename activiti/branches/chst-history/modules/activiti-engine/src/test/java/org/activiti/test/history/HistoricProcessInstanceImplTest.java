@@ -38,7 +38,6 @@ public class HistoricProcessInstanceImplTest {
 
     assertNull(historicProcessInstance.getEndTime());
     assertNull(historicProcessInstance.getDurationInMillis());
-    assertNull(historicProcessInstance.getEndStateName());
   }
 
   @Test
@@ -47,11 +46,10 @@ public class HistoricProcessInstanceImplTest {
     Date endTime = new Date(startTime.getTime() + 1234);
 
     HistoricProcessInstanceImpl historicProcessInstance = new HistoricProcessInstanceImpl("processInstanceId", "processDefinitionId", startTime);
-    historicProcessInstance.markEnded(endTime, "endState");
+    historicProcessInstance.markEnded(endTime);
 
     assertEquals(endTime, historicProcessInstance.getEndTime());
     assertEquals(Long.valueOf(1234), historicProcessInstance.getDurationInMillis());
-    assertEquals("endState", historicProcessInstance.getEndStateName());
   }
 
   @Test
@@ -80,14 +78,7 @@ public class HistoricProcessInstanceImplTest {
     assertIllegalArgumentException("end time", new Runnable() {
       public void run() {
         HistoricProcessInstanceImpl historicProcessInstance = new HistoricProcessInstanceImpl("processInstanceId", "processDefinitionId", new Date());
-        historicProcessInstance.markEnded(null, "endStateName");
-      }
-    });
-
-    assertIllegalArgumentException("end state name", new Runnable() {
-      public void run() {
-        HistoricProcessInstanceImpl historicProcessInstance = new HistoricProcessInstanceImpl("processInstanceId", "processDefinitionId", new Date());
-        historicProcessInstance.markEnded(new Date(), null);
+        historicProcessInstance.markEnded(null);
       }
     });
   }
@@ -100,7 +91,7 @@ public class HistoricProcessInstanceImplTest {
         Date endTime = new Date(startTime.getTime() - 1000);
 
         HistoricProcessInstanceImpl historicProcessInstance = new HistoricProcessInstanceImpl("processInstanceId", "processDefinitionId", startTime);
-        historicProcessInstance.markEnded(endTime, "endStateName");
+        historicProcessInstance.markEnded(endTime);
       }
     });
   }
