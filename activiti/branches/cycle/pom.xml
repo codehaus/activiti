@@ -50,6 +50,11 @@
 				<artifactId>activiti-engine</artifactId>
 				<version>${version}</version>
 			</dependency>
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-cycle</artifactId>
+                <version>${version}</version>
+            </dependency>
 			<dependency>
 				<groupId>org.apache.ant</groupId>
 				<artifactId>ant</artifactId>
@@ -154,6 +159,7 @@
 
   <modules>
     <module>modules/activiti-engine</module>
+    <module>modules/activiti-cycle</module>
   </modules>
 
 	<repositories>
@@ -225,9 +231,6 @@
         <module>modules/activiti-engine-test-api</module>
         <module>modules/activiti-engine-test-cfg</module>
 		    <module>modules/activiti-rest</module>
-		    <module>modules/activiti-webapp</module>
-		    <module>modules/activiti-probe</module>
-		    <module>modules/activiti-explorer</module>
 			</modules>
 		</profile>
 		<profile>
@@ -240,6 +243,7 @@
 				<module>modules/activiti-rest</module>
 				<module>modules/activiti-probe</module>
 				<module>modules/activiti-explorer</module>
+				<module>modules/activiti-webapp-cycle</module>
 			</modules>
 		</profile>
     <profile>
@@ -294,7 +298,22 @@
 		</developer>
 		<developer>
 			<name>Bernd Ruecker</name>
-			<organization>amunda</organization>
+			<organization>camunda</organization>
+			<url>http://camunda.com</url>
+		</developer>
+		<developer>
+			<name>Falko Menge</name>
+			<organization>camunda</organization>
+			<url>http://camunda.com</url>
+		</developer>
+		<developer>
+			<name>Nils Preusker</name>
+			<organization>camunda</organization>
+			<url>http://camunda.com</url>
+		</developer>
+		<developer>
+			<name>Christian Lipphardt</name>
+			<organization>camunda</organization>
 			<url>http://camunda.com</url>
 		</developer>
 		<developer>
