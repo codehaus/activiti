@@ -21,8 +21,8 @@ import java.util.Date;
 
 import org.activiti.HistoricDataService;
 import org.activiti.ProcessInstance;
-import org.activiti.impl.event.ActivityEndedEvent;
-import org.activiti.impl.event.ActivityStartedEvent;
+import org.activiti.impl.event.ActivityInstanceEndedEvent;
+import org.activiti.impl.event.ActivityInstanceStartedEvent;
 import org.activiti.impl.event.ProcessInstanceEndedEvent;
 import org.activiti.impl.event.ProcessInstanceStartedEvent;
 import org.activiti.impl.event.DefaultProcessEventBus;
@@ -257,7 +257,7 @@ public class HistoricDataServiceImplTest {
   private void fireActivityStartedEvent(final ProcessInstance processInstance, final Activity activity, final String activityInstanceId) {
     deployer.getCommandExecutor().execute(new Command<Object>() {
       public Object execute(CommandContext commandContext) {
-        processEventBus.postEvent(new ActivityStartedEvent(processInstance, activity, activityInstanceId));
+        processEventBus.postEvent(new ActivityInstanceStartedEvent(processInstance, activity, activityInstanceId));
         return null;
       }
     });
@@ -266,7 +266,7 @@ public class HistoricDataServiceImplTest {
   private void fireActivityEndedEvent(final ProcessInstance processInstance, final Activity activity, final String activityInstanceId) {
     deployer.getCommandExecutor().execute(new Command<Object>() {
       public Object execute(CommandContext commandContext) {
-        processEventBus.postEvent(new ActivityEndedEvent(processInstance, activity, activityInstanceId));
+        processEventBus.postEvent(new ActivityInstanceEndedEvent(processInstance, activity, activityInstanceId));
         return null;
       }
     });

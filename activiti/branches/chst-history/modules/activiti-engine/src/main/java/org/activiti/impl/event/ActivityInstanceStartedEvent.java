@@ -20,9 +20,9 @@ import org.activiti.pvm.Activity;
 /**
  * @author Christian Stettler
  */
-public class ActivityEndedEvent extends AbstractProcessInstanceEvent<Activity> {
+public class ActivityInstanceStartedEvent extends AbstractProcessInstanceEvent<Activity> {
 
-  public  ActivityEndedEvent(ProcessInstance processInstance, Activity activity, String activityInstanceId) {
+  public ActivityInstanceStartedEvent(ProcessInstance processInstance, Activity activity, String activityInstanceId) {
     super(processInstance.getProcessDefinitionId(), processInstance.getId(), activity.getId(), activityInstanceId, null, activity);
   }
 

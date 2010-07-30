@@ -13,8 +13,8 @@
 package org.activiti.impl.bpmn;
 
 import org.activiti.impl.el.ExpressionManager;
-import org.activiti.impl.event.ActivityEndedEvent;
-import org.activiti.impl.event.ActivityStartedEvent;
+import org.activiti.impl.event.ActivityInstanceEndedEvent;
+import org.activiti.impl.event.ActivityInstanceStartedEvent;
 import org.activiti.impl.execution.ExecutionImpl;
 import org.activiti.impl.task.TaskDefinition;
 import org.activiti.impl.task.TaskImpl;
@@ -36,7 +36,7 @@ public class UserTaskActivity extends TaskActivity {
   }
 
   public void execute(ActivityExecution execution) throws Exception {
-    execution.fireEvent(new ActivityStartedEvent(execution.getProcessInstance(), execution.getActivity(), createActivityInstanceId(execution)));
+    execution.fireEvent(new ActivityInstanceStartedEvent(execution.getProcessInstance(), execution.getActivity(), createActivityInstanceId(execution)));
 
     TaskImpl task = TaskImpl.createAndInsert();
     task.setExecution(execution);
@@ -55,7 +55,7 @@ public class UserTaskActivity extends TaskActivity {
   }
 
   public void event(ActivityExecution execution, Object event) throws Exception {
-    execution.fireEvent(new ActivityEndedEvent(execution.getProcessInstance(), execution.getActivity(), createActivityInstanceId(execution)));
+    execution.fireEvent(new ActivityInstanceEndedEvent(execution.getProcessInstance(), execution.getActivity(), createActivityInstanceId(execution)));
 
     leave(execution);
   }

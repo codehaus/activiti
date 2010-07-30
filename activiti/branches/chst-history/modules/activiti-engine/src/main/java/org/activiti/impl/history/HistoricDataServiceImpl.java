@@ -19,8 +19,8 @@ import java.util.Date;
 import org.activiti.HistoricDataService;
 import org.activiti.history.HistoricActivityInstance;
 import org.activiti.history.HistoricProcessInstance;
-import org.activiti.impl.event.ActivityEndedEvent;
-import org.activiti.impl.event.ActivityStartedEvent;
+import org.activiti.impl.event.ActivityInstanceEndedEvent;
+import org.activiti.impl.event.ActivityInstanceStartedEvent;
 import org.activiti.impl.event.ProcessInstanceEndedEvent;
 import org.activiti.impl.event.ProcessInstanceStartedEvent;
 import org.activiti.impl.interceptor.Command;
@@ -46,8 +46,8 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     // TODO: where/how to register historic data service with event bus?
     processEventBus.subscribe(new ProcessInstanceStartedEventConsumer(), ProcessInstanceStartedEvent.class);
     processEventBus.subscribe(new ProcessInstanceEndedEventConsumer(), ProcessInstanceEndedEvent.class);
-    processEventBus.subscribe(new ActivityStartedEventConsumer(), ActivityStartedEvent.class);
-    processEventBus.subscribe(new ActivityEndedEventConsumer(), ActivityEndedEvent.class);
+    processEventBus.subscribe(new ActivityStartedEventConsumer(), ActivityInstanceStartedEvent.class);
+    processEventBus.subscribe(new ActivityEndedEventConsumer(), ActivityInstanceEndedEvent.class);
   }
 
   public HistoricProcessInstance findHistoricProcessInstance(final String processInstanceId) {
@@ -103,8 +103,8 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     }
   }
 
-  private static class ActivityStartedEventConsumer implements ProcessEventConsumer<ActivityStartedEvent> {
-    public void consumeEvent(ActivityStartedEvent event) {
+  private static class ActivityStartedEventConsumer implements ProcessEventConsumer<ActivityInstanceStartedEvent> {
+    public void consumeEvent(ActivityInstanceStartedEvent event) {
       ensureCommandContextAvailable();
 
       String activityInstanceId = event.getActivityInstanceId();
@@ -121,8 +121,8 @@ public class HistoricDataServiceImpl implements HistoricDataService {
     }
   }
 
-  private static class ActivityEndedEventConsumer implements ProcessEventConsumer<ActivityEndedEvent> {
-    public void consumeEvent(ActivityEndedEvent event) {
+  private static class ActivityEndedEventConsumer implements ProcessEventConsumer<ActivityInstanceEndedEvent> {
+    public void consumeEvent(ActivityInstanceEndedEvent event) {
       ensureCommandContextAvailable();
 
       HistoricActivityInstanceImpl historicActivityInstance = CommandContext.getCurrentCommandContext().getPersistenceSession().findHistoricActivityInstance(event.getActivityInstanceId(), event.getProcessInstanceId());
