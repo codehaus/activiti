@@ -39,7 +39,7 @@
     		<include name="activiti-engine-*.jar"/>
     	</fileset>
     </copy>
-  	
+      	
     <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-probe.war" />
     <unzip dest="${target.distro.root}/setup/files/webapps/activiti-probe.war" 
            src="../modules/activiti-probe/target/activiti-probe-${activiti.version}.war"/>
@@ -68,6 +68,13 @@
   	<delete>
   		<fileset dir="${target.distro.root}/setup/files/webapps/activiti-rest.war/WEB-INF/lib" />
   	</delete>
+
+    <!-- Copy activiti-cycle jar to lib directory of activiti-rest -->
+    <copy todir="${target.distro.root}/setup/files/webapps/activiti-rest.war/WEB-INF/lib">
+    	<fileset dir="../modules/activiti-cycle/target">
+    		<include name="activiti-cycle-*.jar"/>
+    	</fileset>
+    </copy>
 
     <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-engine-init.war" />
     <unzip dest="${target.distro.root}/setup/files/webapps/activiti-engine-init.war" 

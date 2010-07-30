@@ -106,7 +106,7 @@
 
 	<target name="tomcat.enable.debug" if="tomcat.enable.debug">
 	  <echo>Enabling tomcat remote debugging ... </echo>
-		<replace file="${tomcat.home}/bin/catalina.sh">
+		<replace file="${tomcat.home}/bin/startup.sh">
       <replacetoken><![CDATA[
 # Licensed to the Apache Software Foundation (ASF) under one or more]]></replacetoken>
 			<replacevalue><![CDATA[
