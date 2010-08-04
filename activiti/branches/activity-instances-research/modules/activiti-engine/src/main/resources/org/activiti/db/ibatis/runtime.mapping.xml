@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+  
+<mapper namespace="org.activiti.persistence">
+  
+  <!-- PROCESS INSTANCE -->
+  
+  <insert id="insertProcessInstance" parameterType="org.activiti.engine.impl.persistence.runtime.ProcessInstanceEntity">
+    insert into ACT_RNT_PROCESSINSTANCE (ID_, REV_, PROC_DEF_ID_)
+    values (
+      #{id ,jdbcType=VARCHAR},
+      #{revision, jdbcType=VARCHAR},
+      #{processDefinitionId ,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <update id="updateProcessInstance" parameterType="org.activiti.engine.impl.persistence.runtime.ProcessInstanceEntity">
+    update ACT_RNT_PROCESSINSTANCE set
+      REV_ = #{revisionNext, jdbcType=INTEGER},
+      SUPER_ACT_INST_ID_ = #{superActivityInstanceId, jdbcType=VARCHAR}
+    where ID_ = #{id}
+      and REV_ = #{revision, jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteProcessInstance" parameterType="string">
+    delete from ACT_RNT_PROCESSINSTANCE where ID_ = #{id}
+  </delete>
+ 
+  <resultMap id="processInstanceResultMap" type="org.activiti.engine.impl.persistence.runtime.ProcessInstanceEntity">
+    <id property="id" column="ID_" jdbcType="VARCHAR" />
+    <result property="processDefinitionId" column="PROC_DEF_ID_" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="selectProcessInstanceById" parameterType="string" resultMap="processInstanceResultMap">
+    select * from ACT_RNT_PROCESSINSTANCE where ID_ = #{id}
+  </select>
+  
+  <select id="selectProcessInstanceByDynamicCriteria" parameterType="org.activiti.engine.impl.ProcessInstanceQueryImpl" resultMap="processInstanceResultMap">
+    select *
+    <include refid="selectProcessInstanceByDynamicCriteriaSql"/>
+  </select>
+  
+  <select id="selectProcessInstanceCountByDynamicCriteria" parameterType="org.activiti.engine.impl.ProcessInstanceQueryImpl" resultType="long">
+    select count(*)
+    <include refid="selectProcessInstanceByDynamicCriteriaSql"/>
+  </select>
+  
+  <sql id="selectProcessInstanceByDynamicCriteriaSql">
+    from ACT_RNT_PROCESSINSTANCE PI
+    <if test="processDefinitionKey != null">
+      inner join ACT_PROCESSDEFINITION P on PI.PROC_DEF_ID_ = PD.ID_
+    </if>
+    <where>
+      <if test="processInstanceId != null">
+        and PI.ID_ = #{processInstanceId}
+      </if>
+      <if test="processDefinitionKey != null">
+        and PD.KEY_ = #{processDefinitionKey}
+      </if>
+    </where>
+  </sql>
+
+  <!-- ACTIVITY INSTANCE -->
+  
+  <insert id="insertActivityInstance" parameterType="org.activiti.engine.impl.persistence.runtime.ActivityInstanceEntity">
+    insert into ACT_RNT_ACTIVITYINSTANCE (ID_, REV_, PROC_DEF_ID_, PROC_INST_ID_, ACTIVITY_, IS_ACTIVE_)
+    values (
+      #{id ,jdbcType=VARCHAR},
+      #{revision, jdbcType=VARCHAR},
+      #{processDefinitionId ,jdbcType=VARCHAR},
+      #{processInstanceId ,jdbcType=VARCHAR},
+      #{activityId ,jdbcType=VARCHAR},
+      #{isActive ,jdbcType=BOOLEAN}
+    )
+  </insert>
+
+  <update id="updateActivityInstance" parameterType="org.activiti.engine.impl.persistence.runtime.ActivityInstanceEntity">
+    update ACT_RNT_ACTIVITYINSTANCE set
+      REV_ = #{revisionNext, jdbcType=INTEGER},
+      ACTIVITY_ = #{activityId, jdbcType=VARCHAR}
+      IS_ACTIVE_ = #{isActive, jdbcType=BOOLEAN}
+    where ID_ = #{id}
+      and REV_ = #{revision, jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteActivityInstance" parameterType="string">
+    delete from ACT_RNT_ACTIVITYINSTANCE where ID_ = #{id}
+  </delete>
+ 
+  <resultMap id="activityInstanceResultMap" type="org.activiti.engine.impl.persistence.runtime.ActivityInstanceEntity">
+    <id property="id" column="ID_" jdbcType="VARCHAR" />
+    <result property="processDefinitionId" column="PROC_DEF_ID_" jdbcType="VARCHAR" />
+    <result property="processInstanceId" column="PROC_INST_ID_" jdbcType="VARCHAR" />
+    <result property="activityId" column="ACTIVITY_" jdbcType="VARCHAR" />
+    <result property="isActive" column="IS_ACTIVE_" jdbcType="BOOLEAN" />
+  </resultMap>
+
+  <select id="selectActivityInstanceById" parameterType="string" resultMap="activityInstanceResultMap">
+    select * from ACT_RNT_ACTIVITYINSTANCE where ID_ = #{id}
+  </select>
+  
+  <select id="selectActivityInstanceByDynamicCriteria" parameterType="map" resultMap="activityInstanceResultMap">
+    select *
+    <include refid="selectActivityInstanceByDynamicCriteriaSql"/>
+  </select>
+  
+  <select id="selectActivityInstanceCountByDynamicCriteria" parameterType="map" resultType="long">
+    select count(*)
+    <include refid="selectActivityInstanceByDynamicCriteriaSql"/>
+  </select>
+  
+  <sql id="selectActivityInstanceByDynamicCriteriaSql">
+    from ACT_RNT_ACTIVITYINSTANCE AI
+    <where>
+      <if test="processInstanceId != null">
+        and AI.PROC_INST_ID_ = #{processInstanceId}
+      </if>
+    </where>
+  </sql>
+  
+</mapper>
