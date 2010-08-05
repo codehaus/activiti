@@ -517,6 +517,14 @@ Deployment deployment = processService.newDeployment()
 	          </para>
 	        </listitem>
 	      </itemizedlist> 
+	      Note that to use an Activiti extension (ie: use something that has 'activiti:' as prefix),
+	      <emphasis role="bold">a namespace declaration is needed:</emphasis>
+	      <programlisting>
+&lt;definitions id=&quot;definitions&quot; 
+  xmlns=&quot;http://www.omg.org/spec/BPMN/20100524/MODEL&quot;
+  <emphasis role="bold">xmlns:activiti=&quot;http://activiti.org/bpmn-extensions&quot;</emphasis>
+  targetNamespace=&quot;http://www.activiti.org/bpmn2.0&quot;>	      
+	      </programlisting>
 	    </para>
 	    
 	    <para>
