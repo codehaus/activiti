@@ -334,5 +334,34 @@ public class SubProcessTest {
     deployer.getTaskService().complete(taskAfterTimer.getId());
     deployer.assertProcessEnded(pi.getId());
   }
+  
+  @Test
+  @ProcessDeclared(resources = {"SubProcessTest.testTwoNestedSubProcessesInParallelWithTimer.bpmn20.xml"})
+  public void testTwoNestedSubProcessesInParallelWithTimer2() {
+    
+    ProcessInstance pi = deployer.getProcessService().startProcessInstanceByKey("nestedParallelSubProcessesWithTimer");
+    TaskQuery taskQuery = deployer.getTaskService()
+      .createTaskQuery()
+      .processInstance(pi.getId())
+      .orderAsc(TaskQuery.PROPERTY_NAME);
+    List<Task> tasks = taskQuery.list();
+    
+    // After process start, both tasks in the subprocesses should be active
+    Task taskA = tasks.get(0);
+    Task taskB = tasks.get(1);
+    assertEquals("Task in subprocess A", taskA.getName());
+    assertEquals("Task in subprocess B", taskB.getName());
+    
+    // Completing both task should end the subprocesses
+    deployer.getTaskService().complete(taskA.getId());
+    deployer.getTaskService().complete(taskB.getId());
+    
+    Task taskAfterSubProcess = taskQuery.singleResult();
+    assertEquals("Task after subprocess", taskAfterSubProcess.getName());
+    
+    // Completing that task should end the process instance
+    deployer.getTaskService().complete(taskAfterSubProcess.getId());
+    deployer.assertProcessEnded(pi.getId());
+  }
 
 }
