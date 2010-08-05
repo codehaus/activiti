@@ -523,7 +523,8 @@ Deployment deployment = processService.newDeployment()
 &lt;definitions id=&quot;definitions&quot; 
   xmlns=&quot;http://www.omg.org/spec/BPMN/20100524/MODEL&quot;
   <emphasis role="bold">xmlns:activiti=&quot;http://activiti.org/bpmn-extensions&quot;</emphasis>
-  targetNamespace=&quot;http://www.activiti.org/bpmn2.0&quot;>	      
+  targetNamespace=&quot;http://www.activiti.org/bpmn2.0&quot;&gt;
+  ...	      
 	      </programlisting>
 	    </para>
 	    
