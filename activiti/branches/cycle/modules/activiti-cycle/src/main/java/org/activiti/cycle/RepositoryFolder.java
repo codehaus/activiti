@@ -33,7 +33,7 @@ public class RepositoryFolder extends RepositoryNode {
   
   /**
    * returns all sub folders, which are resolved by a call to the
-   * {@link RepositoryConnector} this {@link RepositoryNode} is conntected to!
+   * {@link RepositoryConnector} this {@link RepositoryNode} is connected to!
    * Please note, that this may result in an exception if the connector is not
    * linked or the repository not reachable
    */
@@ -48,7 +48,7 @@ public class RepositoryFolder extends RepositoryNode {
 
   /**
    * returns all artifacts, which are resolved by a call to the
-   * {@link RepositoryConnector} this {@link RepositoryNode} is conntected to!
+   * {@link RepositoryConnector} this {@link RepositoryNode} is connected to!
    * Please note, that this may result in an exception if the connector is not
    * linked or the repository not reachable
    */
@@ -63,12 +63,12 @@ public class RepositoryFolder extends RepositoryNode {
 
   /**
    * returns all children, which are resolved by a call to the
-   * {@link RepositoryConnector} this {@link RepositoryNode} is conntected to!
+   * {@link RepositoryConnector} this {@link RepositoryNode} is connected to!
    * Please note, that this may result in an exception if the connector is not
    * linked or the repository not reachable
    */
   public List<RepositoryNode> getChildren() {
-     // skip cache for now
+    // skip cache for now
     // if (children == null) {
       // TODO: Think about if we really want to cache here, since that raises
       // additional problems as well!
