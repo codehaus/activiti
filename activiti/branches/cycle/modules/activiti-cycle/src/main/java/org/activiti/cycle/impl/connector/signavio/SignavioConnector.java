@@ -63,6 +63,8 @@ import org.restlet.util.Series;
  */
 public class SignavioConnector implements RepositoryConnector {
 
+  private static Logger log = Logger.getLogger(SignavioConnector.class.getName());
+  
   // register Signavio stencilsets to identify file types
   public static final String SIGNAVIO_BPMN_2_0 = "http://b3mn.org/stencilset/bpmn2.0#";
   public static final String SIGNAVIO_BPMN_JBPM4 = "http://b3mn.org/stencilset/jbpm4#";
@@ -83,22 +85,15 @@ public class SignavioConnector implements RepositoryConnector {
     RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_JBPM4, EmbeddableModelProvider.class);
 
      RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0, OpenModelerAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0,
-    // CopyBpmn20ToSvnAction.class);
+    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0, CopyBpmn20ToSvnAction.class);
 
     RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4, OpenModelerAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4,
-    // CopyJpdl4ToSvnAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4,
-    // CreateJbpm4AntProject.class);
+    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4, CopyJpdl4ToSvnAction.class);
+    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4, CreateJbpm4AntProject.class);
     
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0,
-    // ShowModelViewerAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4,
-    // ShowModelViewerAction.class);
+    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0, ShowModelViewerAction.class);
+    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4, ShowModelViewerAction.class);
   }
-
-  private static Logger log = Logger.getLogger(SignavioConnector.class.getName());
 
   /**
    * Captcha ID for REST access to Signavio
@@ -109,7 +104,6 @@ public class SignavioConnector implements RepositoryConnector {
    * Security token obtained from Signavio after login for the current session
    */
   private String securityToken = "";
-  private List<Cookie> securityCookieList = new ArrayList<Cookie>();
   
   private transient Client restletClient; 
 
@@ -130,7 +124,26 @@ public class SignavioConnector implements RepositoryConnector {
     return restletClient;
   }
   
-  public Response getJsonResponse(String url) {
+  public Response sendRequest(Request request) throws IOException {
+    if (log.isLoggable(Level.INFO)) {
+      SignavioLogHelper.logHttpRequest(log, request);
+    }
+    
+    Client client = initClient();
+    Response response = client.handle(request);
+    
+    if (log.isLoggable(Level.INFO)) {
+      SignavioLogHelper.logHttpResponse(log, response);
+    }
+    
+    if (response.getStatus().isSuccess()) {
+      return response;
+    }
+      
+    throw new RepositoryException("Encountered error while retrieving response (HttpStatus: " + response.getStatus() + ", Body: " + response.getEntity().getText() + ")");
+  }
+  
+  public Response getJsonResponse(String url) throws IOException {
     Form requestHeaders = new Form();
     requestHeaders.add("token", getSecurityToken());
 
@@ -138,15 +151,10 @@ public class SignavioConnector implements RepositoryConnector {
     jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
     jsonRequest.getAttributes().put("org.restlet.http.headers", requestHeaders);
 
-    Client client = initClient();
-    return client.handle(jsonRequest);
+    return sendRequest(jsonRequest);
   }  
 
-  public boolean registerUserWithSignavio(String firstname, String lastname, String email, String password) {
-    Client client = initClient();
-
-    Reference registrationRef = new Reference(conf.getRegistrationUrl());
-
+  public boolean registerUserWithSignavio(String firstname, String lastname, String email, String password) throws IOException {
     // Create the Post Parameters for registering a new user
     Form registrationForm = new Form();
     registrationForm.add("mode", "external");
@@ -157,14 +165,8 @@ public class SignavioConnector implements RepositoryConnector {
     registrationForm.add("serverSecurityId", SERVER_SECURITY_ID);
     Representation registrationRep = registrationForm.getWebRepresentation();
 
-    Request registrationRequest = new Request(Method.POST, registrationRef, registrationRep);
-    // registrationRequest.getClientInfo().getAcceptedMediaTypes().add(new
-    // Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response registrationResponse = client.handle(registrationRequest);
-
-    if (log.isLoggable(Level.FINEST)) {
-      SignavioLogHelper.logCookieAndBody(log, registrationResponse);
-    }
+    Request registrationRequest = new Request(Method.POST, conf.getRegistrationUrl(), registrationRep);
+    Response registrationResponse = sendRequest(registrationRequest);
 
     if (registrationResponse.getStatus().equals(Status.SUCCESS_CREATED)) {
       return true;
@@ -175,44 +177,22 @@ public class SignavioConnector implements RepositoryConnector {
 
   public boolean login(String username, String password) {
     try {
-      Client client = initClient();
-
       log.info("Logging into Signavio on url: " + conf.getLoginUrl());
-
-      Reference loginRef = new Reference(conf.getLoginUrl());
 
       // Login a user
       Form loginForm = new Form();
-      // loginForm.add("mode", "external");
       loginForm.add("name", username);
       loginForm.add("password", password);
       loginForm.add("tokenonly", "true");
-      // loginForm.add("serverSecurityId", "000000");
-      // loginForm.add("remember", "on");
-      // loginForm.add("fragment", "");
       Representation loginRep = loginForm.getWebRepresentation();
+      
+      Request loginRequest = new Request(Method.POST, conf.getLoginUrl(), loginRep);
+      Response loginResponse = sendRequest(loginRequest);
+      Representation representation = loginResponse.getEntity();
+      setSecurityToken(representation.getText());
+      log.fine("SecurityToken: " + getSecurityToken());
 
-      Request loginRequest = new Request(Method.POST, loginRef, loginRep);
-      Response loginResponse = client.handle(loginRequest);
-
-      if (log.isLoggable(Level.FINEST)) {
-        Series<CookieSetting> cookieSentByServer = loginResponse.getCookieSettings();
-        for (Iterator<Entry<String, String>> it = cookieSentByServer.getValuesMap().entrySet().iterator(); it.hasNext();) {
-          Entry<String, String> cookieParam = (Entry<String, String>) it.next();
-          Cookie tempCookie = new Cookie(cookieParam.getKey(), cookieParam.getValue());
-          securityCookieList.add(tempCookie);
-        }
-      }
-
-      log.finest("SecurityCookieList: " + securityCookieList);
-      securityToken = loginResponse.getEntity().getText();
-      log.finest("SecurityToken: " + securityToken);
-
-      if (log.isLoggable(Level.FINEST)) {
-        SignavioLogHelper.logCookieAndBody(log, loginResponse);
-      }
-
-      if (securityToken != null && securityToken.length() != 0) {
+      if (getSecurityToken() != null && getSecurityToken().length() > 0) {
         return true;
       } else {
         return false;
@@ -231,19 +211,14 @@ public class SignavioConnector implements RepositoryConnector {
       SignavioLogHelper.logJSONArray(log, rootJsonArray);
     }
 
-    // find the directory of type public which contains all directories and
-    // models of this account
+    // find the directory of type public which contains all directories and models of this account
     for (int i = 0; i < rootJsonArray.length(); i++) {
       JSONObject rootObject = rootJsonArray.getJSONObject(i);
       if ("public".equals(rootObject.getJSONObject("rep").get("type"))) {
         return rootObject;
       }
     }
-
-    if (log.isLoggable(Level.FINEST)) {
-      SignavioLogHelper.logCookieAndBody(log, directoryResponse);
-    }
-
+    
     throw new RepositoryException("No directory root found in signavio repository.");
   }
 
@@ -293,8 +268,7 @@ public class SignavioConnector implements RepositoryConnector {
     fileInfo.getMetadata().setName(getValueIfExists(json, "name"));
     fileInfo.getMetadata().setVersion(getValueIfExists(json, "rev"));
 
-    // TODO: Check if that is really last author and if we can get the origiinal
-    // author
+    // TODO: Check if that is really last author and if we can get the original author
     fileInfo.getMetadata().setLastAuthor(getValueIfExists(json, "author"));
     fileInfo.getMetadata().setCreated(getDateValueIfExists(json, "created"));
     fileInfo.getMetadata().setLastChanged(getDateValueIfExists(json, "updated"));
@@ -302,8 +276,7 @@ public class SignavioConnector implements RepositoryConnector {
     String fileTypeIdentifier = json.getString("namespace");
     fileInfo.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
 
-    // relObject.getJSONObject("rep").getString("revision"); --> UUID of
-    // revision
+    // relObject.getJSONObject("rep").getString("revision"); --> UUID of revision
     // relObject.getJSONObject("rep").getString("description");
     // relObject.getJSONObject("rep").getString("comment");
     return fileInfo;
@@ -322,8 +295,7 @@ public class SignavioConnector implements RepositoryConnector {
 
   private Date getDateValueIfExists(JSONObject json, String name) throws JSONException {
     if (json.has(name)) {
-      // TODO: IMplement Date conversion, Signavio has: 2010-06-21 17:36:23
-      // +0200
+      // TODO: IMplement Date conversion, Signavio has: 2010-06-21 17:36:23 +0200
       return null;
       // return json.getString("name");
     } else {
@@ -373,12 +345,21 @@ public class SignavioConnector implements RepositoryConnector {
   }
 
   public RepositoryArtifact getArtifactDetails(String id) {
+    JsonRepresentation jsonData = null;
+    JSONObject jsonObject = null;
+    
     try {
       Response modelResponse = getJsonResponse(getModelUrl(id) + "/info");
-      JSONObject jsonObject = new JsonRepresentation(modelResponse.getEntity()).toJsonObject();      
+      jsonData = new JsonRepresentation(modelResponse.getEntity());
+      if (log.isLoggable(Level.INFO)) {
+        log.info("JsonData - (" + jsonData.getText() + ")");
+      }
+      jsonObject = jsonData.toJsonObject();
       return getArtifactInfoFromFile(id, jsonObject);
-    } catch (Exception ex) {
-      throw new RepositoryException("Exception while accessing Signavio repository", ex);
+    } catch (IOException ioe) {
+      throw new RepositoryException("IOException while accessing Signavio repository", ioe);
+    } catch (JSONException je) {
+      throw new RepositoryException("Encountered error in JSON data while accessing Signavio repository", je);
     }
   }
 
@@ -418,5 +399,20 @@ public class SignavioConnector implements RepositoryConnector {
   }
 
   public void commitPendingChanges(String comment) {
+  }
+  
+  public Response deleteModel(String url) throws IOException {
+    Form requestHeaders = new Form();
+    requestHeaders.add("token", getSecurityToken());
+
+    Request jsonRequest = new Request(Method.PUT, new Reference(url));
+    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
+    jsonRequest.getAttributes().put("org.restlet.http.headers", requestHeaders);
+
+    return sendRequest(jsonRequest);
+  }
+  
+  public Response importModel() {
+    return null;
   }
 }
