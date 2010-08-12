@@ -18,7 +18,6 @@ import org.activiti.cycle.RepositoryException;
 import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 
-
 public class PngProvider extends SignavioContentRepresentationProvider {
 
   public PngProvider() {
@@ -33,16 +32,12 @@ public class PngProvider extends SignavioContentRepresentationProvider {
 
       byte[] image = toBytes(imageData.getText());
 
-      // if (log.isLoggable(Level.FINEST)) {
-      // log.finest("PNG - byte result: " + image);
-      // }
-
       return image;
     } catch (Exception ex) {
       throw new RepositoryException("Exception while accessing Signavio repository", ex);
     }
   }
-  
+
   /**
    * for documentation (even if do not use it at the moment)
    */

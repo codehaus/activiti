@@ -8,7 +8,7 @@ import org.activiti.cycle.impl.RepositoryRegistry;
  * s. It is registered via the {@link RepositoryRegistry} and new providers can
  * be added on the fly.
  * 
- * @author ruecker
+ * @author bernd.ruecker
  */
 public abstract class ContentRepresentationProvider {
 

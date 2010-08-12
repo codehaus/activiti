@@ -45,7 +45,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     try {
       JSONArray embeddedModel = getEmbeddedModel(artifact);
       String hmtlSnippet = getHmtlSnippet(artifact, embeddedModel);
-      
+
       return toBytes(hmtlSnippet);
     } catch (Exception ex) {
       throw new RepositoryException("Exception while retrieving embeddedModel from Signavio", ex);
@@ -164,7 +164,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
 
     return jsonArray;
   }
-  
+
   public String getHmtlSnippet(RepositoryArtifact artifact, JSONArray embeddedModelJSONArray) throws JSONException {
 
     // String htmlSnippet =
@@ -199,7 +199,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
         authKey_stencilset = tempJsonObject.getString("authkey");
     }
 
-  authToken = authKey_png + "_" + authKey_json + "_" + authKey_stencilset;
+    authToken = authKey_png + "_" + authKey_json + "_" + authKey_stencilset;
 
     // An alternative algorithm for creating the authToken, if the order of
     // the JsonArray is static and doesn't change.
@@ -233,9 +233,9 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
 
     return resultHtmlSnippet;
   }
-  
+
   /**
-   * When is this method used?
+   * Use this method to cancel the sharing of the embedded model
    */
   public void deleteEmbeddedModel(RepositoryArtifact artifact) {
     try {
