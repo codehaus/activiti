@@ -280,7 +280,9 @@ public class SignavioConnector implements RepositoryConnector {
   private RepositoryArtifact getArtifactInfoFromFile(String id, JSONObject json) throws JSONException {
     RepositoryArtifact fileInfo = new RepositoryArtifact(this);
     fileInfo.setId(id);
+
     fileInfo.getMetadata().setName(SignavioJsonHelper.getValueIfExists(json, "name"));
+    // TODO: This seems not to work 100% correctly
     fileInfo.getMetadata().setVersion(SignavioJsonHelper.getValueIfExists(json, "rev"));
 
     // TODO: Check if that is really last author and if we can get the original
@@ -289,8 +291,15 @@ public class SignavioConnector implements RepositoryConnector {
     fileInfo.getMetadata().setCreated(SignavioJsonHelper.getDateValueIfExists(json, "created"));
     fileInfo.getMetadata().setLastChanged(SignavioJsonHelper.getDateValueIfExists(json, "updated"));
 
-    String fileTypeIdentifier = json.getString("namespace");
-    fileInfo.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
+    if (json.has("namespace")) {
+      // Signavio way of doing it
+      String fileTypeIdentifier = json.getString("namespace");
+      fileInfo.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
+    } else {
+      // Oryx way of doing it
+      String fileTypeIdentifier = json.getString("type");
+      fileInfo.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
+    }
 
     // relObject.getJSONObject("rep").getString("revision"); --> UUID of
     // revision

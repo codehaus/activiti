@@ -25,12 +25,16 @@ import org.activiti.cycle.impl.RepositoryRegistry;
 public class DemoConnector implements RepositoryConnector {
 
   static {
-    nodes = new ArrayList<RepositoryNode>();
-    rootNodes = new ArrayList<RepositoryNode>();
-    content = new HashMap<RepositoryNode, Map<String, byte[]>>();
+    try {
+      nodes = new ArrayList<RepositoryNode>();
+      rootNodes = new ArrayList<RepositoryNode>();
+      content = new HashMap<RepositoryNode, Map<String, byte[]>>();
 
-    registerMetaddata();
-    createDemoData();
+      registerMetaddata();
+      createDemoData();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
   }
 
   private String loggedInUser;

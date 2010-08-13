@@ -44,6 +44,10 @@ public class RepositoryArtifact extends RepositoryNode {
     super(connector);
   }
   
+  public String toString() {
+    return this.getClass().getSimpleName() + " [id=" + getId() + ";type=" + artifactType + ";metadata=" + getMetadata() + "]";
+  }  
+  
   /**
    * load Content Representation with content as byte[] included for given
    * {@link RepositoryArtifact}
@@ -104,7 +108,7 @@ public class RepositoryArtifact extends RepositoryNode {
       for (Class< ? extends ArtifactAction> clazz : artifactType.getRegisteredActions()) {
         try {
           ArtifactAction action = clazz.newInstance();
-          action.setFile(this);
+          action.setArtifact(this);
           cachedFileActions.add(action);
         } catch (Exception ex) {
           log.log(Level.SEVERE, "couldn't create file action of class " + clazz, ex);

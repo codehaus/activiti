@@ -12,47 +12,33 @@
  */
 package org.activiti.cycle.impl.connector.signavio.action;
 
-import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import org.activiti.cycle.ArtifactAction;
-import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.OpenUrlAction;
+import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnector;
 
 /**
- * TODO: Wie die URL zurueckgeben um das in der GUI zu verwursten?
+ * Action to open the signavio modeler
  * 
  * @author bernd.ruecker@camunda.com
- * @author christian.lipphardt@camunda.com
  */
-public class OpenModelerAction extends ArtifactAction {
+public class OpenModelerAction extends OpenUrlAction {
 
   @Override
-  public void execute() {
+  public String getLabel() {
+    return "open modeler";
   }
 
   @Override
-  public void execute(RepositoryNode itemInfo) {
+  public URL getUrl() {
+    try {
+      SignavioConnector signavioConnector = (SignavioConnector) getArtifact().getConnector();
+      return new URL(signavioConnector.getModelUrl(getArtifact()));
+    } catch (MalformedURLException ex) {
+      throw new RepositoryException("Error while creating URL for opening Signavio modeler", ex);
+    }
   }
-
-  @Override
-  public void execute(RepositoryNode itemInfo, Map<String, Object> param) {
-  }
-
-  @Override
-  public String getGuiRepresentation() {
-    return "OWN_WINDOW";
-  }
-
-  @Override
-  public String getGuiRepresentationUrl() {
-    SignavioConnector signavioConnector = (SignavioConnector) getFile().getConnector();
-    return signavioConnector.getModelUrl(getFile());
-    // TODO: Think about how to get this from the Signavio Connector by the API in the best way
-  }
-
-  @Override
-  public String getName() {
-    return "open modeller";
-  }
-
+  
 }
