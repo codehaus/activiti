@@ -20,8 +20,10 @@ import org.restlet.resource.DomRepresentation;
 
 public class Jpdl4Provider extends SignavioContentRepresentationProvider {
 
+  public static final String NAME = "jpdl4";
+
   public Jpdl4Provider() {
-    super("jpdl4", ContentRepresentationType.XML);
+    super(NAME, ContentRepresentationType.XML);
   }
 
   @Override

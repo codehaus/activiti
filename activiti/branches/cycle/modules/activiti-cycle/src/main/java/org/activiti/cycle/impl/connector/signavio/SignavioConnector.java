@@ -64,6 +64,8 @@ public class SignavioConnector implements RepositoryConnector {
   public static final String SIGNAVIO_BPMN_2_0 = "http://b3mn.org/stencilset/bpmn2.0#";
   public static final String SIGNAVIO_BPMN_JBPM4 = "http://b3mn.org/stencilset/jbpm4#";
 
+  public static final String BPMN_2_0_XML = "bpm2.0";
+
   static {
     // initialize associated file types
     RepositoryRegistry.registerArtifactType(new ArtifactType("Signavio BPMN 2.0", SIGNAVIO_BPMN_2_0));
@@ -383,7 +385,8 @@ public class SignavioConnector implements RepositoryConnector {
     return conf;
   }
 
-  public void createNewFile(String folderId, RepositoryArtifact file) {
+
+  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation) {
     // TODO: how to get values for jsonData, comment and description
     // createNewModel(folderId, file.getMetadata().getName(), jsonData, "", "");
   }

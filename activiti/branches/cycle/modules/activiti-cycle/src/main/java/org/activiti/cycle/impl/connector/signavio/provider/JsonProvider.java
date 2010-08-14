@@ -19,8 +19,10 @@ import org.restlet.data.Response;
 
 public class JsonProvider extends SignavioContentRepresentationProvider {
 
+  public static final String NAME = "json";
+
   public JsonProvider() {
-    super("json", ContentRepresentationType.TEXT);
+    super(NAME, ContentRepresentationType.TEXT);
   }
 
   public byte[] getContent(RepositoryArtifact artifact) {

@@ -26,5 +26,5 @@ public abstract class ParametrizedAction extends ArtifactAction {
 
   public abstract String getFormAsHtml();
 
-  public abstract void execute(Map<String, Object> parameter);
+  public abstract void execute(Map<String, Object> parameter) throws Exception;
 }

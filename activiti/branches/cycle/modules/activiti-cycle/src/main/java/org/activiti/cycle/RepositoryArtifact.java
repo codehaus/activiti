@@ -47,7 +47,11 @@ public class RepositoryArtifact extends RepositoryNode {
   public String toString() {
     return this.getClass().getSimpleName() + " [id=" + getId() + ";type=" + artifactType + ";metadata=" + getMetadata() + "]";
   }  
-  
+
+  public ContentRepresentation getContentRepresentation(String representationName) {
+    return getContentRepresentation(this, representationName);
+  }
+
   /**
    * load Content Representation with content as byte[] included for given
    * {@link RepositoryArtifact}

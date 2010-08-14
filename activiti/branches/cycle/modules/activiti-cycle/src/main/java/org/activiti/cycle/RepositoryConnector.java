@@ -75,7 +75,9 @@ public interface RepositoryConnector {
   /**
    * create a new file in the given folder
    */
-  public void createNewFile(String folderId, RepositoryArtifact file);
+  // public void createNewFile(String folderId, RepositoryArtifact file);
+  
+  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation);
 
   /**
    * deletes the given file from the folder

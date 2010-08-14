@@ -46,8 +46,8 @@ public class RestClientRepositoryConnector implements RepositoryConnector {
     return content;
   }
 
-  public void createNewFile(String folderUrl, RepositoryArtifact file) {
-    connector.createNewFile(folderUrl, file);
+  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation) {
+    connector.createNewArtifact(folderId, artifact, representation);
   }
 
   public void createNewSubFolder(String parentFolderUrl, RepositoryFolder subFolder) {

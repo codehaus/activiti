@@ -80,8 +80,8 @@ public class RepositoryFolder extends RepositoryNode {
   /**
    * create and add a new file to this folder
    */
-  public void createFile(RepositoryArtifact file) {
-    getConnector().createNewFile(getId(), file);
+  public void createArtifact(RepositoryArtifact artifact, ContentRepresentation representation) {
+    getConnector().createNewArtifact(getId(), artifact, representation);
     // getFiles().add(file);
   }
 

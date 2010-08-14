@@ -175,10 +175,6 @@ public class DemoConnector implements RepositoryConnector {
     }
   }
 
-  public void createNewFile(String folderUrl, RepositoryArtifact file) {
-    throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
-  }
-
   public void createNewSubFolder(String parentFolderUrl, RepositoryFolder subFolder) {
     throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
   }
@@ -238,5 +234,9 @@ public class DemoConnector implements RepositoryConnector {
   }
 
   public void commitPendingChanges(String comment) {
+  }
+
+  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation) {
+    throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
   }
 }

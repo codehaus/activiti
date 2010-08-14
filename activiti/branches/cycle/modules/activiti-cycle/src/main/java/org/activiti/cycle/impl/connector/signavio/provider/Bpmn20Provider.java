@@ -20,8 +20,10 @@ import org.restlet.resource.DomRepresentation;
 
 public class Bpmn20Provider extends SignavioContentRepresentationProvider {
 
+  public static final String NAME = "BPMN 2.0";
+
   public Bpmn20Provider() {
-    super("BPMN 2.0", ContentRepresentationType.XML);
+    super(NAME, ContentRepresentationType.XML);
   }
 
   public byte[] getContent(RepositoryArtifact artifact) {

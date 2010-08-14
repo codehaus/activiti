@@ -20,8 +20,10 @@ import org.restlet.resource.Representation;
 
 public class PngProvider extends SignavioContentRepresentationProvider {
 
+  public static final String NAME = "PNG";
+
   public PngProvider() {
-    super("PNG", ContentRepresentationType.IMAGE);
+    super(NAME, ContentRepresentationType.IMAGE);
   }
 
   @Override
