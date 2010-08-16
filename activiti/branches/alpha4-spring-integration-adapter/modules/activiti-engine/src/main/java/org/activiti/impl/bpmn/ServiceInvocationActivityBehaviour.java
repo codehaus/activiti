@@ -13,11 +13,9 @@
 package org.activiti.impl.bpmn;
 
 import org.activiti.ActivitiException;
-
 import org.activiti.impl.el.ActivitiValueExpression;
 import org.activiti.impl.execution.ExecutionImpl;
 import org.activiti.impl.util.ReflectUtil;
-
 import org.activiti.pvm.ActivityBehavior;
 import org.activiti.pvm.ActivityExecution;
 import org.activiti.pvm.EventActivityBehavior;
@@ -37,8 +35,7 @@ public class ServiceInvocationActivityBehaviour implements EventActivityBehavior
         this.expression = expression;
     }
 
-    public void event(ActivityExecution execution, Object event)
-        throws Exception {
+    private Object getObjectFromExpression(ActivityExecution execution) {
         // FIXME: downcast
         Object object = expression.getValue((ExecutionImpl) execution);
 
@@ -49,30 +46,28 @@ public class ServiceInvocationActivityBehaviour implements EventActivityBehavior
                 object = ReflectUtil.instantiate(className);
             }
         }
+        return object;
+    }
+
+    public void event(ActivityExecution execution, Object event)
+            throws Exception {
+        // FIXME: downcast
+        Object object = getObjectFromExpression(execution);
 
         if (object instanceof ActivityBehavior) {
-            ((EventActivityBehavior) object).event(execution, event );
+            ((EventActivityBehavior) object).event(execution, event);
         } else {
             throw new ActivitiException("Service " + object + " is used in a serviceTask, but does not" + " implement the " + ActivityBehavior.class.getCanonicalName() + " interface");
         }
     }
 
     public void execute(ActivityExecution execution) throws Exception {
-        // FIXME: downcast
-        Object object = expression.getValue((ExecutionImpl) execution);
-
-        if (object instanceof String) {
-            String className = (String) object;
-
-            if (className != null) {
-                object = ReflectUtil.instantiate(className);
-            }
-        }
+        Object object = getObjectFromExpression(execution);
 
         if (object instanceof ActivityBehavior) {
             ((ActivityBehavior) object).execute(execution);
         } else {
-            throw new ActivitiException("Service " + object + " is used in a serviceTask, but does not" + " implement the " + ActivityBehavior.class.getCanonicalName() + " interface");
+            throw new ActivitiException("Service " + object + " is used in a serviceTask, but does not" + " implement the " + EventActivityBehavior.class.getCanonicalName() + " interface");
         }
     }
 }
