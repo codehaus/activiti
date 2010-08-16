@@ -19,7 +19,11 @@ import java.util.List;
  * @author bernd.ruecker@camunda.com
  */
 public interface RepositoryConnector {
-  
+
+  /**
+   * log in given user and return true, if login was successful and false, if
+   * the user couldn't be logged in
+   */
   public boolean login(String username, String password);
 
   // /**
@@ -55,10 +59,9 @@ public interface RepositoryConnector {
    * load all details for a {@link RepositoryArtifact}.
    */
   public RepositoryArtifact getArtifactDetails(String id);
-  
+
   // where to get contentType
   public ContentRepresentation getContent(String nodeId, String representationName);
-
 
   // /**
   // * get files for the given parent folder. If parentFolder is null
@@ -75,9 +78,9 @@ public interface RepositoryConnector {
   /**
    * create a new file in the given folder
    */
-  // public void createNewFile(String folderId, RepositoryArtifact file);
-  
-  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation);
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent);
+
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent);
 
   /**
    * deletes the given file from the folder

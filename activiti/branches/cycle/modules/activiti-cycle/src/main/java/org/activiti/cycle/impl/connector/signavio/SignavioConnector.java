@@ -132,15 +132,15 @@ public class SignavioConnector implements RepositoryConnector {
   public Response sendRequest(Request request) throws IOException {
     injectSecurityToken(request);
 
-    if (log.isLoggable(Level.INFO)) {
-      SignavioLogHelper.logHttpRequest(log, Level.INFO, request);
+    if (log.isLoggable(Level.FINE)) {
+      SignavioLogHelper.logHttpRequest(log, Level.FINE, request);
     }
 
     Client client = initClient();
     Response response = client.handle(request);
 
-    if (log.isLoggable(Level.INFO)) {
-      SignavioLogHelper.logHttpResponse(log, Level.INFO, response);
+    if (log.isLoggable(Level.FINE)) {
+      SignavioLogHelper.logHttpResponse(log, Level.FINE, response);
     }
 
     if (response.getStatus().isSuccess()) {
@@ -201,18 +201,10 @@ public class SignavioConnector implements RepositoryConnector {
       Request loginRequest = new Request(Method.POST, conf.getLoginUrl(), loginRep);
       Response loginResponse = sendRequest(loginRequest);
 
-      if (loginResponse.getStatus().isSuccess()) {
-        Representation representation = loginResponse.getEntity();
-        setSecurityToken(representation.getText());
-        log.fine("SecurityToken: " + getSecurityToken());
-        // if (getSecurityToken() != null && getSecurityToken().length() > 0) {
-        // return true;
-        // }
-
-        return true;
-      }
-
-      return false;
+      Representation representation = loginResponse.getEntity();
+      setSecurityToken(representation.getText());
+      log.fine("SecurityToken: " + getSecurityToken());
+      return true;
     } catch (Exception ex) {
       throw new RepositoryException("Error during login to Signavio", ex);
     }
@@ -385,70 +377,42 @@ public class SignavioConnector implements RepositoryConnector {
     return conf;
   }
 
-
-  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation) {
-    // TODO: how to get values for jsonData, comment and description
-    // createNewModel(folderId, file.getMetadata().getName(), jsonData, "", "");
-  }
-
   public void createNewSubFolder(String parentFolderId, RepositoryFolder subFolder) {
-    Form createFolderForm = new Form();
-    createFolderForm.add("name", subFolder.getMetadata().getName());
-    createFolderForm.add("description", ""); // TODO: what should we use here?
-    createFolderForm.add("parent", "/directory/" + parentFolderId);
-    Representation createFolderRep = createFolderForm.getWebRepresentation();
-
-    Request jsonRequest = new Request(Method.POST, new Reference(conf.getDirectoryUrl()), createFolderRep);
-    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response jsonResponse = null;
-
     try {
-      jsonResponse = sendRequest(jsonRequest);
-    } catch (IOException ioe) {
-      log.log(Level.SEVERE, "IOException while sending request", ioe);
-    }
+      Form createFolderForm = new Form();
+      createFolderForm.add("name", subFolder.getMetadata().getName());
+      createFolderForm.add("description", ""); // TODO: what should we use here?
+      createFolderForm.add("parent", "/directory/" + parentFolderId);
+      Representation createFolderRep = createFolderForm.getWebRepresentation();
 
-    if (jsonResponse.getStatus().isSuccess()) {
-      return;
+      Request jsonRequest = new Request(Method.POST, new Reference(conf.getDirectoryUrl()), createFolderRep);
+      jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
+      sendRequest(jsonRequest);
+    } catch (Exception ex) {
+      throw new RepositoryException("Unable to create subFolder '" + subFolder + "' in parent folder '" + parentFolderId + "'");
     }
-
-    throw new RepositoryException("Unable to create subFolder " + subFolder);
   }
 
   public void deleteArtifact(String artifactId) {
-    Request jsonRequest = new Request(Method.DELETE, new Reference(conf.getModelUrl() + artifactId));
-    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response jsonResponse = null;
-
     try {
-      jsonResponse = sendRequest(jsonRequest);
-    } catch (IOException ioe) {
-      log.log(Level.SEVERE, "IOException while sending request", ioe);
-    }
+      Request jsonRequest = new Request(Method.DELETE, new Reference(conf.getModelUrl() + artifactId));
+      jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
 
-    if (jsonResponse.getStatus().isSuccess()) {
-      return;
+      sendRequest(jsonRequest);
+    } catch (Exception ex) {
+      throw new RepositoryException("Unable to delete model " + artifactId);
     }
-
-    throw new RepositoryException("Unable to delete model " + artifactId);
   }
 
   public void deleteSubFolder(String subFolderId) {
-    Request jsonRequest = new Request(Method.DELETE, new Reference(conf.getDirectoryUrl() + subFolderId));
-    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response jsonResponse = null;
-
     try {
-      jsonResponse = sendRequest(jsonRequest);
-    } catch (IOException ioe) {
-      log.log(Level.SEVERE, "IOException while sending request", ioe);
-    }
+      Request jsonRequest = new Request(Method.DELETE, new Reference(conf.getDirectoryUrl() + subFolderId));
+      jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
 
-    if (jsonResponse.getStatus().isSuccess()) {
-      return;
+      sendRequest(jsonRequest);
+    } catch (Exception ex) {
+      throw new RepositoryException("Unable to delete directory " + subFolderId);
     }
-
-    throw new RepositoryException("Unable to delete directory " + subFolderId);
   }
 
   public String getModelUrl(RepositoryArtifact artifact) {
@@ -462,53 +426,69 @@ public class SignavioConnector implements RepositoryConnector {
   }
 
   public void moveModel(String targetFolderId, String modelId) throws IOException {
-    Form bodyForm = new Form();
-    bodyForm.add("parent", "/directory/" + targetFolderId);
-    Representation bodyRep = bodyForm.getWebRepresentation();
+    try {
+      Form bodyForm = new Form();
+      bodyForm.add("parent", "/directory/" + targetFolderId);
+      Representation bodyRep = bodyForm.getWebRepresentation();
 
-    Request jsonRequest = new Request(Method.PUT, new Reference(conf.getModelUrl() + modelId), bodyRep);
-    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response jsonResponse = sendRequest(jsonRequest);
-
-    if (jsonResponse.getStatus().isSuccess()) {
-      return;
+      Request jsonRequest = new Request(Method.PUT, new Reference(conf.getModelUrl() + modelId), bodyRep);
+      jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
+      sendRequest(jsonRequest);
+    } catch (Exception ex) {
+      throw new RepositoryException("Unable to move model " + modelId + " to folder " + targetFolderId, ex);
     }
-
-    throw new RepositoryException("Unable to move model " + modelId + " to folder " + targetFolderId);
   }
 
   public void moveDirectory(String targetFolderId, String directoryId) throws IOException {
-    Form bodyForm = new Form();
-    bodyForm.add("parent", "/directory/" + targetFolderId);
-    Representation bodyRep = bodyForm.getWebRepresentation();
+    try {
+      Form bodyForm = new Form();
+      bodyForm.add("parent", "/directory/" + targetFolderId);
+      Representation bodyRep = bodyForm.getWebRepresentation();
 
-    Request jsonRequest = new Request(Method.PUT, new Reference(conf.getDirectoryUrl() + directoryId), bodyRep);
-    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response jsonResponse = sendRequest(jsonRequest);
-
-    if (jsonResponse.getStatus().isSuccess()) {
-      return;
+      Request jsonRequest = new Request(Method.PUT, new Reference(conf.getDirectoryUrl() + directoryId), bodyRep);
+      jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
+      sendRequest(jsonRequest);
+    } catch (Exception ex) {
+      throw new RepositoryException("Unable to move folder " + directoryId + " to directory " + targetFolderId, ex);
     }
-
-    throw new RepositoryException("Unable to move folder " + directoryId + " to directory " + targetFolderId);
   }
 
-  public void createNewModel(String parentFolderId, String name, String jsonData, String comment, String description) throws IOException {
+  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation content) {
+    // TODO: how to get values for jsonData, comment and description
+    // createNewModel(folderId, file.getMetadata().getName(), jsonData, null,
+    // null);
+
+    if (content.getName().equals(JsonProvider.NAME)) {
+      content.getContentAsString();
+    }
+  }
+
+  public void createNewModel(String parentFolderId, String name, String jsonData, String revisionComment, String description) throws IOException {
     try {
       // do this to check if jsonString is valid
       JSONObject jsonModel = new JSONObject(jsonData);
 
       Form modelForm = new Form();
-      modelForm.add("comment", comment);
-      modelForm.add("description", description);
+      // TODO: Check if this is correct, maybe we need to include an empty
+      // string
+      if (revisionComment != null) {
+        modelForm.add("comment", revisionComment);
+      }
+      if (description != null) {
+        modelForm.add("description", description);
+      }
       modelForm.add("glossary_xml", new JSONArray().toString());
+      // signavio generates a new id for POSTed models
       // modelForm.add("id", null);
       modelForm.add("json_xml", jsonModel.toString());
       modelForm.add("name", name);
       modelForm.add("namespace", "http://b3mn.org/stencilset/bpmn2.0#");
       modelForm.add("parent", "/directory/" + parentFolderId);
+      // we have to provide a SVG (even if don't have the correct one) because
+      // otherwise Signavio throws an exception in its GUI
       modelForm
-              .add("svg_xml",
+              .add(
+                      "svg_xml",
                       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:oryx=\"http://oryx-editor.org\" id=\"sid-80D82B67-3B30-4B35-A6CB-16EEE17A719F\" width=\"50\" height=\"50\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs/><g stroke=\"black\" font-family=\"Verdana, sans-serif\" font-size-adjust=\"none\" font-style=\"normal\" font-variant=\"normal\" font-weight=\"normal\" line-heigth=\"normal\" font-size=\"12\"><g class=\"stencils\" transform=\"translate(25, 25)\"><g class=\"me\"/><g class=\"children\"/><g class=\"edge\"/></g></g></svg>");
       modelForm.add("type", "BPMN 2.0");
       // modelForm.add("views", new JSONArray().toString());
@@ -516,33 +496,44 @@ public class SignavioConnector implements RepositoryConnector {
 
       Request jsonRequest = new Request(Method.POST, new Reference(conf.getModelUrl()), modelRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-      Response jsonResponse = sendRequest(jsonRequest);
-
-      if (jsonResponse.getStatus().isSuccess()) {
-        return;
-      }
-
-      throw new RepositoryException("Unable to create model");
-    } catch (JSONException je) {
-      throw new RepositoryException("Unable to create model", je);
+      sendRequest(jsonRequest);
+    } catch (Exception je) {
+      throw new RepositoryException("Unable to create model '" + name + "' in parent folder '" + parentFolderId + "'", je);
     }
   }
 
   public void restoreRevisionOfModel(String parentFolderId, String modelId, String revisionId, String comment) throws IOException {
-    Form reivisionForm = new Form();
-    reivisionForm.add("comment", comment);
-    reivisionForm.add("parent", "/directory/" + parentFolderId);
-    reivisionForm.add("revision", revisionId);
-    Representation modelRep = reivisionForm.getWebRepresentation();
+    try {
+      Form reivisionForm = new Form();
+      reivisionForm.add("comment", comment);
+      reivisionForm.add("parent", "/directory/" + parentFolderId);
+      reivisionForm.add("revision", revisionId);
+      Representation modelRep = reivisionForm.getWebRepresentation();
 
-    Request jsonRequest = new Request(Method.PUT, new Reference(conf.getModelUrl()), modelRep);
-    jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-    Response jsonResponse = sendRequest(jsonRequest);
-
-    if (jsonResponse.getStatus().isSuccess()) {
-      return;
+      Request jsonRequest = new Request(Method.PUT, new Reference(conf.getModelUrl()), modelRep);
+      jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
+      sendRequest(jsonRequest);
+    } catch (Exception je) {
+      throw new RepositoryException("Unable to restore revision '" + revisionId + "' of model '" + modelId + "' in directory '" + parentFolderId + "'", je);
     }
+  }
 
-    throw new RepositoryException("Unable to restore revision " + revisionId + " of model " + modelId + " in directory " + parentFolderId);
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  }
+
+  public String transformJsonToBpmn20Xml(String jsonData) {
+    try {
+      JSONObject json = new JSONObject(jsonData);
+
+      Form dataForm = new Form();
+      dataForm.add("data", json.toString());
+
+      Request request = new Request(Method.POST, conf.getBpmn20XmlExportServletUrl(), dataForm.getWebRepresentation());
+      Response xmlResponse = sendRequest(request);
+
+      return xmlResponse.getEntity().getText();
+    } catch (Exception ex) {
+      throw new RepositoryException("Error while transforming BPMN2_0_JSON to BPMN2_0_XML", ex);
+    }
   }
 }

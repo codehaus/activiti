@@ -22,6 +22,8 @@ import java.util.List;
  */
 public class RepositoryFolder extends RepositoryNode {
 
+  private static final long serialVersionUID = 1L;
+
   private List<RepositoryNode> children = null;
 
   public RepositoryFolder() {
@@ -30,7 +32,7 @@ public class RepositoryFolder extends RepositoryNode {
   public RepositoryFolder(RepositoryConnector connector) {
     super(connector);
   }
-  
+
   /**
    * returns all sub folders, which are resolved by a call to the
    * {@link RepositoryConnector} this {@link RepositoryNode} is connected to!
@@ -41,7 +43,7 @@ public class RepositoryFolder extends RepositoryNode {
     ArrayList<RepositoryFolder> list = new ArrayList<RepositoryFolder>();
     for (RepositoryNode node : getChildren()) {
       if (node instanceof RepositoryFolder)
-        list.add((RepositoryFolder)node);
+        list.add((RepositoryFolder) node);
     }
     return list;
   }
@@ -70,8 +72,8 @@ public class RepositoryFolder extends RepositoryNode {
   public List<RepositoryNode> getChildren() {
     // skip cache for now
     // if (children == null) {
-      // TODO: Think about if we really want to cache here, since that raises
-      // additional problems as well!
+    // TODO: Think about if we really want to cache here, since that raises
+    // additional problems as well!
     children = getConnector().getChildNodes(getId());
     // }
     return children;
@@ -80,8 +82,8 @@ public class RepositoryFolder extends RepositoryNode {
   /**
    * create and add a new file to this folder
    */
-  public void createArtifact(RepositoryArtifact artifact, ContentRepresentation representation) {
-    getConnector().createNewArtifact(getId(), artifact, representation);
+  public void createArtifact(RepositoryArtifact artifact, ContentRepresentation contentRepresentation) {
+    getConnector().createNewArtifact(getId(), artifact, contentRepresentation);
     // getFiles().add(file);
   }
 

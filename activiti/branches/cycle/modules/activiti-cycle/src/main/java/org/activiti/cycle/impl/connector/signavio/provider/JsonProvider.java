@@ -19,12 +19,17 @@ import org.restlet.data.Response;
 
 public class JsonProvider extends SignavioContentRepresentationProvider {
 
+  /**
+   * TODO: Think about the names and if we want to store them here or manage
+   * them centrally?
+   */
   public static final String NAME = "json";
 
   public JsonProvider() {
     super(NAME, ContentRepresentationType.TEXT);
   }
 
+  @Override
   public byte[] getContent(RepositoryArtifact artifact) {
     try {
       Response jsonResponse = getJsonResponse(artifact, "/json");

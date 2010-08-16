@@ -15,39 +15,42 @@ import org.activiti.cycle.RepositoryNode;
  * @author bernd.ruecker@camunda.com
  */
 public class RestClientRepositoryConnector implements RepositoryConnector {
-  
-  private String repositoryName;
 
-  private String baseUrl;
-  
-  private RepositoryConnector connector;
+  private final String repositoryName;
+
+  private final String baseUrl;
+
+  private final RepositoryConnector connector;
 
   public RestClientRepositoryConnector(String repositoryName, String baseUrl, RepositoryConnector connector) {
     this.repositoryName = repositoryName;
     this.baseUrl = baseUrl;
     this.connector = connector;
   }
-  
+
   private RepositoryNode adjustClientUrl(RepositoryNode repositoryNode) {
     repositoryNode.setClientUrl(baseUrl + repositoryName + "/" + repositoryNode.getId());
-    
+
     if (repositoryNode instanceof RepositoryArtifact) {
       List<ContentRepresentation> contentRepresentations = ((RepositoryArtifact) repositoryNode).getContentRepresentations();
       for (ContentRepresentation contentRepresentation : contentRepresentations) {
         adjustClientUrl(contentRepresentation);
       }
     }
-    
+
     return repositoryNode;
   }
-  
+
   private ContentRepresentation adjustClientUrl(ContentRepresentation content) {
     content.setClientUrl(baseUrl + repositoryName + "/" + content.getArtifact().getId() + "/content/" + content.getName());
     return content;
   }
 
-  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation) {
-    connector.createNewArtifact(folderId, artifact, representation);
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+    connector.createNewArtifact(containingFolderId, artifact, artifactContent);
+  }
+
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
   }
 
   public void createNewSubFolder(String parentFolderUrl, RepositoryFolder subFolder) {
@@ -59,7 +62,7 @@ public class RestClientRepositoryConnector implements RepositoryConnector {
   }
 
   public void deleteSubFolder(String subFolderUrl) {
-    connector.deleteSubFolder(subFolderUrl);    
+    connector.deleteSubFolder(subFolderUrl);
   }
 
   public List<RepositoryNode> getChildNodes(String parentUrl) {
@@ -69,7 +72,7 @@ public class RestClientRepositoryConnector implements RepositoryConnector {
     }
     return childNodes;
   }
-  
+
   public RepositoryArtifact getArtifactDetails(String id) {
     return (RepositoryArtifact) adjustClientUrl(connector.getArtifactDetails(id));
   }

@@ -54,6 +54,7 @@ public class DemoConnector implements RepositoryConnector {
     public TestProvider(String name, String type) {
       super(name, type);
     }
+    @Override
     public byte[] getContent(RepositoryArtifact artifact) {
       Map<String, byte[]> map = content.get(artifact);
       if (map != null) {
@@ -61,6 +62,7 @@ public class DemoConnector implements RepositoryConnector {
       }
       throw new RepositoryException("Couldn't find content representation '" + getContentRepresentationName() + "' for artifact " + artifact.getId());
     }
+    @Override
     public String toString() {
       return this.getClass().getSimpleName() + " [" + getContentRepresentationName() + "]";
     }
@@ -104,7 +106,7 @@ public class DemoConnector implements RepositoryConnector {
 
     RepositoryArtifact file1 = createArtifact("/minutes/20100701-KickOffMeeting.txt", ARTIFACT_TYPE_TEXT, "20100701-KickOffMeeting", "/minutes");
     addContentRepresentation(file1, "Text", "/org/activiti/cycle/impl/connector/demo/demo-minutes.txt"); // was
-                                                                  // http://www.apache.org/foundation/records/minutes/2008/board_minutes_2008_10_15.txt
+    // http://www.apache.org/foundation/records/minutes/2008/board_minutes_2008_10_15.txt
 
     RepositoryArtifact file2 = createArtifact("/minutes/InitialMindmap.mm", ARTIFACT_TYPE_MINDMAP, "InitialMindmap", "/minutes");
     addContentRepresentation(file2, "Image", "/org/activiti/cycle/impl/connector/demo/mindmap.jpg"); // http://www.buzan.com.au/images/EnergyMindMap_big.jpg
@@ -121,10 +123,10 @@ public class DemoConnector implements RepositoryConnector {
     RepositoryFolder folder3 = createFolder("/BPMN/Level3", "Level3", "/BPMN");
 
     RepositoryArtifact file3 = createArtifact("/BPMN/Level3/789237892374239", ARTIFACT_TYPE_BPMN_20, "InitialBpmnModel", "/BPMN/Level3");
-    addContentRepresentation(file3, "Image", "/org/activiti/cycle/impl/connector/demo/bpmn.png"); 
-            //"http://www.bpm-guide.de/wp-content/uploads/2010/07/Incident-Management-collab.png");
+    addContentRepresentation(file3, "Image", "/org/activiti/cycle/impl/connector/demo/bpmn.png");
+    // "http://www.bpm-guide.de/wp-content/uploads/2010/07/Incident-Management-collab.png");
     addContentRepresentation(file3, "XML", "/org/activiti/cycle/impl/connector/demo/engine-pool.xml");
-            //"http://www.bpm-guide.de/wp-content/uploads/2010/07/engine-pool.xml");
+    // "http://www.bpm-guide.de/wp-content/uploads/2010/07/engine-pool.xml");
 
     rootNodes.add(folder2);
     nodes.add(folder2);
@@ -155,17 +157,15 @@ public class DemoConnector implements RepositoryConnector {
       map = new HashMap<String, byte[]>();
       content.put(artifact, map);
     }
-    
-    
-    
+
     // read and set content
     try {
       ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-      
+
       // read locally instead of internet
       // InputStream in = new URL(contentSourceUrl).openStream();
       InputStream in = DemoConnector.class.getResourceAsStream(contentSourceUrl);
-      if (in==null)
+      if (in == null)
         throw new RuntimeException("resource '" + contentSourceUrl + "' not found in classpath");
       byte[] buf = new byte[512];
       int len;
@@ -245,7 +245,11 @@ public class DemoConnector implements RepositoryConnector {
   public void commitPendingChanges(String comment) {
   }
 
-  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation representation) {
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent) {
     throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
   }
+
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  }
+
 }
