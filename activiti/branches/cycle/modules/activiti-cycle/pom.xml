@@ -14,6 +14,17 @@
 		<version>5.0.cycle-SNAPSHOT</version>
 		
 	</parent>
+	
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>	
 
 	<dependencies>
 <!--
@@ -53,7 +64,7 @@
 		  <artifactId>commons-logging</artifactId>
 		</dependency>
 	</dependencies>
-
+			
 	<profiles>
 		<profile>
 			<id>distro</id>
