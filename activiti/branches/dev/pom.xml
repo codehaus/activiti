@@ -11,6 +11,7 @@
 	<version>5.0.beta1-dev-SNAPSHOT</version>
   <properties>
     <spring.framework.version>3.0.3.RELEASE</spring.framework.version>
+    <mule.version>2.2.5</mule.version>
   </properties>
 
 	<dependencyManagement>
@@ -148,6 +149,26 @@
 		  <groupId>commons-logging</groupId>
 		  <artifactId>commons-logging</artifactId>
 		  <version>1.1.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.cxf</groupId>
+		  <artifactId>cxf-rt-frontend-jaxws</artifactId>
+		  <version>2.2.7</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.mule.transports</groupId>
+		  <artifactId>mule-transport-cxf</artifactId>
+		  <version>${mule.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.mule.tests</groupId>
+		  <artifactId>mule-tests-functional</artifactId>
+		  <version>${mule.version}</version>
+		</dependency>
+		<dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-beans</artifactId>
+          <version>${spring.framework.version}</version>
 		</dependency>
     </dependencies>
   </dependencyManagement>
