@@ -29,9 +29,8 @@ public class ArtifactGet extends ActivitiWebScript {
     String artifactId = getString(req, "artifactId");
     // TODO: add service to retrieve artifacts by id
 
-    long id = Long.parseLong(artifactId);
 
-    model.put("artifact", new Artifact(id, id == 1 ? "http://jorambarrez.be/files/blog/bpmn2_sneakpeek/vacationRequest.png"
-            : "http://www.jorambarrez.be/files/blog/jbpm_43_released/jbpm_evolution.png"));
+    model.put("artifact", new Artifact(artifactId, "http://jorambarrez.be/files/blog/bpmn2_sneakpeek/vacationRequest.png"
+            /*"http://www.jorambarrez.be/files/blog/jbpm_43_released/jbpm_evolution.png"*/));
   }
 }

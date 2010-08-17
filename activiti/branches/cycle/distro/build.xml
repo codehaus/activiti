@@ -73,6 +73,7 @@
     <copy todir="${target.distro.root}/setup/files/webapps/activiti-rest.war/WEB-INF/lib">
     	<fileset dir="../modules/activiti-cycle/target">
     		<include name="activiti-cycle-*.jar"/>
+    		<include name="spring-surf-*.jar"/>
     	</fileset>
     </copy>
 

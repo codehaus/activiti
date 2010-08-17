@@ -8,7 +8,7 @@
 			Event = YAHOO.util.Event,
 			Pagination = Activiti.util.Pagination,
 			$html = Activiti.util.decodeHTML;
-	
+			
 	/**
 	 * RepoTree constructor.
 	 *
@@ -51,28 +51,43 @@
      */
     onLoadTreeSuccess: function RepoTree_RepositoryService_onLoadTreeSuccess(response, obj)
     {
+			var	me = this;
+	
       // Retrieve rest api response
       var treeNodesJson = response.json;
 
+			var loadTreeNodes = function (node, fnLoadComplete) {
+				me.services.repositoryService.loadNodeData(node, fnLoadComplete);
+			};
+
 			// instantiate the TreeView control
 	   	var tree = new YAHOO.widget.TreeView("treeDiv1", treeNodesJson);
+
+			// set the callback function to dynamically load child nodes
+			// set iconMode to 1 to use the leaf node icon when a node has no children. 
+		  tree.setDynamicLoad(loadTreeNodes, 1);
 		  tree.render();
 
 			tree.subscribe("clickEvent", this.onLabelClick, null, this);
-			
-			//Event.addListener(document.getElementById("left"), "click", this.onDivClick, null, this);
-			
-			//var oElement = document.getElementById("elementid");
-			//function fnCallback(e) { alert("click"); }
-			//YAHOO.util.Event.addListener(oElement, "click", fnCallback);
-			
 
     },
 
-		//onDivClick: function RepoTree_onDivClick (e, el)
-    //{
-    //  this.fireEvent("Activiti.event.selectDiv", el, e, true);
-    //},
+		/**
+     * TODO: see if this works and implement the adding of child nodes from the json response.
+     */
+		onLoadNodeDataSuccess: function RepoTree_RepositoryService_onLoadNodeDataSuccess(response, obj)
+    {
+      // Retrieve rest api response
+      var treeNodesJson = response.json;
+
+			for(var i = 0; i<treeNodesJson.length; i++) {
+				new YAHOO.widget.TextNode(treeNodesJson[i], obj[0], treeNodesJson[i].expanded);
+			}
+
+			// call the fnLoadComplete function that the treeView component provides to 
+			// indicate that the loading of the sub nodes was successfull.
+			obj[1]();
+    },
 
 		/**
      * Will fire a Activiti.event.selectTreeLabel event so other components may display the node

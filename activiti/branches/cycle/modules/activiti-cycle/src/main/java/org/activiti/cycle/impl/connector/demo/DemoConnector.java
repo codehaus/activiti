@@ -49,6 +49,15 @@ public class DemoConnector implements RepositoryConnector {
   public static final String ARTIFACT_TYPE_MINDMAP = "ARTIFACT_TYPE_MINDMAP";
   public static final String ARTIFACT_TYPE_BPMN_20 = "ARTIFACT_TYPE_BPMN_20";
 
+  public DemoConnector() {
+    nodes = new ArrayList<RepositoryNode>();
+    rootNodes = new ArrayList<RepositoryNode>();
+    content = new HashMap<RepositoryNode, Map<String, byte[]>>();
+
+    registerMetaddata();
+    createDemoData();
+  }
+  
   public static class TestProvider extends ContentRepresentationProvider {
 
     public TestProvider(String name, String type) {

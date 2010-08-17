@@ -1226,6 +1226,8 @@ Activiti.service.Ajax = function() {
  */
 (function()
 {
+	var that = this;
+	
   /**
    * RepositoryService constructor.
    *
@@ -1235,8 +1237,9 @@ Activiti.service.Ajax = function() {
    */
   Activiti.service.RepositoryService = function RepositoryService_constructor(callbackHandler)
   {
-    Activiti.service.RepositoryService.superclass.constructor.call(this, "Activiti.service.RepositoryService", callbackHandler);
-    return this;
+		Activiti.service.RepositoryService.superclass.constructor.call(this, "Activiti.service.RepositoryService", callbackHandler);
+    that = this;
+		return this;
   };
 
   /**
@@ -1272,6 +1275,27 @@ Activiti.service.Ajax = function() {
     loadTreeURL: function RepositoryService_loadTreeURL()
     {
       return Activiti.service.REST_PROXY_URI_RELATIVE + "repo-tree";
+    },
+
+		/**
+		 * TODO: see if this works and document it.. Also see dynamicLoad in repo-tree.js
+		 *
+		 */
+		loadNodeData: function RepositoryService_loadNodeData(node, fnLoadComplete)
+		{
+			var obj = [node, fnLoadComplete];
+			this.jsonGet(this.loadNodeURL(node.data.id), obj, "loadNodeData");
+	  },
+
+		/**
+     * Creates the GET url used to load the tree
+     *
+     * @method loadTreeURL
+     * @return {string} The url
+     */
+    loadNodeURL: function RepositoryService_loadNodeURL(nodeid)
+    {
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "repo-tree?id=" + encodeURIComponent(nodeid);
     },
 
 		/**

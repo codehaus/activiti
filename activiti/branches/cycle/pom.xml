@@ -159,7 +159,6 @@
 
   <modules>
     <module>modules/activiti-engine</module>
-    <module>modules/activiti-cycle</module>
   </modules>
 
 	<repositories>
@@ -231,6 +230,7 @@
         <module>modules/activiti-engine-test-api</module>
         <module>modules/activiti-engine-test-cfg</module>
 		    <module>modules/activiti-rest</module>
+		    <module>modules/activiti-cycle</module>
 			</modules>
 		</profile>
 		<profile>
@@ -243,6 +243,7 @@
 				<module>modules/activiti-rest</module>
 				<module>modules/activiti-probe</module>
 				<module>modules/activiti-explorer</module>
+				<module>modules/activiti-cycle</module>
 				<module>modules/activiti-webapp-cycle</module>
 			</modules>
 		</profile>
