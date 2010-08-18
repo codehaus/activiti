@@ -15,8 +15,8 @@ package org.activiti.cycle.impl.connector.signavio.provider;
 import org.activiti.cycle.ContentRepresentationType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
+import org.json.JSONObject;
 import org.restlet.data.Response;
-import org.restlet.resource.DomRepresentation;
 
 public class Bpmn20Provider extends SignavioContentRepresentationProvider {
 
@@ -28,15 +28,22 @@ public class Bpmn20Provider extends SignavioContentRepresentationProvider {
 
   public byte[] getContent(RepositoryArtifact artifact) {
     try {
-      Response jpdlResponse = getJsonResponse(artifact, "/bpmn2_0_xml");
-      DomRepresentation xmlData = jpdlResponse.getEntityAsDom();
-      String result = getXmlAsString(xmlData);
-      
+
+      // use the bpmn2_0_serialization export servlet to provide bpmn20 xml
+      Response jsonResponse = getJsonResponse(artifact, "/json");
+      JSONObject jsonData = new JSONObject(jsonResponse.getEntity().getText());
+      JSONObject bpmn20Xml = getConnector(artifact).transformJsonToBpmn20Xml(jsonData.toString());
+      String result = bpmn20Xml.getString("xml");
+      // works for signavio but not for activiti-modeler
+      // Response jpdlResponse = getJsonResponse(artifact, "/bpmn2_0_xml");
+      // DomRepresentation xmlData = jpdlResponse.getEntityAsDom();
+      // String result = getXmlAsString(xmlData);
+
       log.finest("BPMN 2.0 String: " + result);
-      
+
       return toBytes(result);
     } catch (Exception ex) {
-      throw new RepositoryException("Exception while accessing Signavio repository", ex);
+      throw new RepositoryException("Error while accessing Signavio repository", ex);
     }
   }
 

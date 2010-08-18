@@ -521,17 +521,19 @@ public class SignavioConnector implements RepositoryConnector {
   public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
   }
 
-  public String transformJsonToBpmn20Xml(String jsonData) {
+  public JSONObject transformJsonToBpmn20Xml(String jsonData) {
     try {
       JSONObject json = new JSONObject(jsonData);
 
       Form dataForm = new Form();
       dataForm.add("data", json.toString());
+      Representation jsonDataRep = dataForm.getWebRepresentation();
 
-      Request request = new Request(Method.POST, conf.getBpmn20XmlExportServletUrl(), dataForm.getWebRepresentation());
-      Response xmlResponse = sendRequest(request);
+      Request request = new Request(Method.POST, new Reference(conf.getBpmn20XmlExportServletUrl()), jsonDataRep);
+      Response jsonResponse = sendRequest(request);
+      JsonRepresentation jsonXmlRep = new JsonRepresentation(jsonResponse.getEntity());
 
-      return xmlResponse.getEntity().getText();
+      return new JSONObject(jsonXmlRep.getText());
     } catch (Exception ex) {
       throw new RepositoryException("Error while transforming BPMN2_0_JSON to BPMN2_0_XML", ex);
     }
