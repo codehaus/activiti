@@ -12,6 +12,8 @@
  */
 package org.activiti.webservice;
 
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
 /**
@@ -32,7 +34,8 @@ public interface Counter {
    * 
    * @return the count
    */
-  Integer getCount();
+  @WebResult(name="count")
+  int getCount();
 
   /**
    * Resets the counter to 0
@@ -44,7 +47,7 @@ public interface Counter {
    * 
    * @param value the value of the new counter
    */
-  void setTo(Integer value);
+  void setTo(@WebParam(name="value") int value);
 
   /**
    * Returns a formated string composed of prefix + current count + suffix
@@ -53,5 +56,6 @@ public interface Counter {
    * @param suffix the suffix
    * @return the formated string
    */
-  String prettyPrintCount(String prefix, String suffix);
+  @WebResult(name="prettyPrint")
+  String prettyPrintCount(@WebParam(name="prefix") String prefix, @WebParam(name="suffix") String suffix);
 }

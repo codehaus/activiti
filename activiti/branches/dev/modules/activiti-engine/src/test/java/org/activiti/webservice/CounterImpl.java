@@ -23,7 +23,7 @@ import javax.jws.WebService;
         serviceName = "Counter")
 public class CounterImpl implements Counter {
 
-  protected Integer count;
+  protected int count;
   
   public CounterImpl() {
     this.count = -1;
@@ -32,7 +32,7 @@ public class CounterImpl implements Counter {
   /**
    * {@inheritDoc}
    */
-  public Integer getCount() {
+  public int getCount() {
     return this.count;
   }
 
@@ -53,7 +53,7 @@ public class CounterImpl implements Counter {
   /**
    * {@inheritDoc}
    */
-  public void setTo(Integer value) {
+  public void setTo(int value) {
     this.count = value;
   }
   
