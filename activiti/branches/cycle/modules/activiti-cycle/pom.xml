@@ -12,7 +12,7 @@
 		<artifactId>activiti-root</artifactId>
 		<relativePath>../..</relativePath>
 		<version>5.0.cycle-SNAPSHOT</version>
-		
+
 	</parent>
 	
 	<build>
@@ -27,21 +27,17 @@
 	</build>	
 
 	<dependencies>
-<!--
-    <dependency>
-      <groupId>org.activiti</groupId>
-      <artifactId>activiti-pvm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.activiti</groupId>
-      <artifactId>activiti-engine</artifactId>
-    </dependency>
--->    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+		<!--
+			<dependency> <groupId>org.activiti</groupId>
+			<artifactId>activiti-pvm</artifactId> </dependency> <dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-engine</artifactId> </dependency>
+		-->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 			<scope>test</scope>
-    </dependency>
+		</dependency>
 		<dependency>
 			<groupId>org.restlet</groupId>
 			<artifactId>org.restlet</artifactId>
@@ -60,8 +56,18 @@
 		</dependency>
 		<!-- required by Apache commons httpclient, required by restlet -->
 		<dependency>
-		  <groupId>commons-logging</groupId>
-		  <artifactId>commons-logging</artifactId>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.3.1</version>
 		</dependency>
 	</dependencies>
 			
