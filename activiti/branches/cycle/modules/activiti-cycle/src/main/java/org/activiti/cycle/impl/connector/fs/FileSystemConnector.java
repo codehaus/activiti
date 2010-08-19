@@ -60,9 +60,9 @@ public class FileSystemConnector implements RepositoryConnector {
 
       for (File file : children) {
         if (file.isDirectory()) {
-          childNodes.add(getFolderInfo(getLocalPath(file.getCanonicalPath())));
+          childNodes.add(getFolderInfo(file));
         } else if (file.isFile()) {
-          childNodes.add(getArtifactInfo(getLocalPath(file.getCanonicalPath())));
+          childNodes.add(getArtifactInfo(file));
         }
       }
     } catch (IOException ioe) {
@@ -131,10 +131,8 @@ public class FileSystemConnector implements RepositoryConnector {
     // do nothing
   }
 
-  private RepositoryArtifact getArtifactInfo(String id) throws IOException {
+  private RepositoryArtifact getArtifactInfo(File file) throws IOException {
     RepositoryArtifact artifact = new RepositoryArtifact(this);
-
-    File file = new File(conf.getRootPath() + id);
 
     artifact.setId(getLocalPath(file.getCanonicalPath()));
     artifact.getMetadata().setName(file.getName());
@@ -144,10 +142,8 @@ public class FileSystemConnector implements RepositoryConnector {
     return artifact;
   }
 
-  private RepositoryFolder getFolderInfo(String id) throws IOException {
+  private RepositoryFolder getFolderInfo(File file) throws IOException {
     RepositoryFolder folder = new RepositoryFolder(this);
-
-    File file = new File(conf.getRootPath() + id);
 
     folder.setId(getLocalPath(file.getCanonicalPath()));
     folder.getMetadata().setName(file.getName());
