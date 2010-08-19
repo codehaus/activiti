@@ -13,7 +13,6 @@
 package org.activiti.rest.api.cycle;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +20,6 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.impl.RestClientRepositoryConnector;
-import org.activiti.cycle.impl.connector.demo.DemoConnector;
 import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -33,17 +30,7 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
  */
 public class TreeGet extends ActivitiWebScript {
 
-  // TODO
-  // This should be done with the HTTPSession of the web application.
-  // This static map is just a temporary HTTPSession replacement until we know
-  // how to get the HTTPSession.
-  private static Map<String, RepositoryConnector> mySession;
-
-  static {
-    if (mySession == null) {
-      mySession = new HashMap<String, RepositoryConnector>();
-    }
-  }
+  
 
   @Override
   protected void executeWebScript(WebScriptRequest req, Status status, Cache cache, Map<String, Object> model) {
@@ -58,21 +45,10 @@ public class TreeGet extends ActivitiWebScript {
 
     // RepositoryConnector conn = (RepositoryConnector)
     // session.getAttribute("conn");
-    RepositoryConnector conn = null;
-    for (String key : mySession.keySet()) {
-      if (key.equals(cuid)) {
-        conn = mySession.get(key);
-      }
-    }
-    if (conn == null) {
-      String contextPath = req.getContextPath();
-      // TODO
-      // Repository name and connector type should be determined based on a
-      // persistent settings object.
-      conn = new RestClientRepositoryConnector("demo-repo", contextPath, new DemoConnector());
-      // session.setAttribute("conn", conn); // put(cuid, conn);
-      mySession.put(cuid, conn);
-    }
+    
+    Map<String, Object> mySession = TmpSessionHandler.getSessionByUserId(cuid);
+        
+    RepositoryConnector conn = TmpSessionHandler.getRepositoryConnector(req, mySession);
 
     String id = getString(req, "id");
     List<RepositoryNode> subtree = conn.getChildNodes(id == null ? "/" : id);
@@ -90,14 +66,5 @@ public class TreeGet extends ActivitiWebScript {
 
     model.put("files", files);
     model.put("folders", folders);
-
-    // String repoUrl = req.getParameter("repourl");
-    // String un = req.getParameter("un");
-    // String pw = req.getParameter("pw");
-    //    
-    // model.put("tree", getRepoService().getChildren(repoUrl));
-    // TODO: Create a repository object that can be converted into a
-    // json string, which can be used to initialize the treeView component.
-
   }
 }

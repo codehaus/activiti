@@ -12,8 +12,15 @@
  */
 package org.activiti.rest.api.cycle;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.RepositoryArtifact;
+import org.activiti.cycle.RepositoryConnector;
 import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -26,11 +33,38 @@ public class ArtifactGet extends ActivitiWebScript {
 
   @Override
   protected void executeWebScript(WebScriptRequest req, Status status, Cache cache, Map<String, Object> model) {
+    // Retrieve the artifactId from the request
     String artifactId = getString(req, "artifactId");
-    // TODO: add service to retrieve artifacts by id
 
+    try {
+      // Retrieve session and repo connector 
+      String cuid = getCurrentUserId(req);
+      Map<String, Object> mySession = TmpSessionHandler.getSessionByUserId(cuid);
+      RepositoryConnector conn = TmpSessionHandler.getRepositoryConnector(req, mySession);
 
-    model.put("artifact", new Artifact(artifactId, "http://jorambarrez.be/files/blog/bpmn2_sneakpeek/vacationRequest.png"
-            /*"http://www.jorambarrez.be/files/blog/jbpm_43_released/jbpm_evolution.png"*/));
+      // Retrieve the artifact from the repository
+      RepositoryArtifact artifact = conn.getArtifactDetails(artifactId);
+      
+      List<ContentRepresentation> representations = new ArrayList<ContentRepresentation>(); 
+      for(ContentRepresentation representation : artifact.getContentRepresentations()) {
+        if(representation.getType().equals("txt") || representation.getType().equals("xml") ) {
+          representations.add(conn.getContent(artifact.getId(), representation.getName()));
+        }
+        if(representation.getType().equals("img")) {
+          representations.add(representation);
+          String contentUrl = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8");
+          model.put("contentUrl", contentUrl);
+        }
+      }
+      
+      model.put("artifact", artifact);
+      model.put("representations", representations);        
+      
+//              new Artifact(artifactId, contentUrl/*"http://jorambarrez.be/files/blog/bpmn2_sneakpeek/vacationRequest.png"*/
+//      /*"http://www.jorambarrez.be/files/blog/jbpm_43_released/jbpm_evolution.png"*/));
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    } 
+    
   }
 }

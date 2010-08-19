@@ -68,9 +68,9 @@
 					artifactDiv.removeChild(tabView);
 				}
 
-				// Check whether the selected node is not a folder. If not, 
-				// we can assume it is an artifact and load its data
-				if(node.children.length === 0) {
+				// Check whether the selected node is a file node. If so, 
+				// we can load its data
+				if(node.data.file) {
 					this.services.repositoryService.loadArtifact(node.data.id);
 				}
 
@@ -94,31 +94,42 @@
 
 			var tabView = new YAHOO.widget.TabView(); 
 
-			tabView.addTab( new YAHOO.widget.Tab({
-				label: 'Image',
-				content: '<div id="artifact-image"></div>',
-				active: true
-			}));
+			// Retrieve rest api response
+      var artifactJson = response.json;
 
-			tabView.addTab( new YAHOO.widget.Tab({
-				label: 'Source',
-				content: '<div id="artifact-source">\n<pre class="prettyprint lang-xml" >\n&lt;!DOCTYPE series PUBLIC "fibonacci numbers"&gt;\n&lt;series.root base="1" step="s(n-2) + s(n-1)">\n&lt;element i="0"&gt;1&lt;/element&gt;\n&lt;element i="1"&gt;1&lt;/element&gt;\n&lt;element i="2"&gt;2&lt;/element&gt;\n&lt;element i="3"&gt;3&lt;/element&gt;\n&lt;element i="4"&gt;5&lt;/element&gt;\n&lt;element i="5"&gt;8&lt;/element&gt;\n&lt;/series.root&gt;\n</pre></div>'
-			}));
+      var firstTab = true;
+			// Add a tab for each content representation from the JSON response
+			for(var i = 0; i<artifactJson.representations.length; i++) {
+				if(artifactJson.representations[i].type === "img") {
+					tabView.addTab( new YAHOO.widget.Tab({
+						label: 'Image',
+						content: "<div id=\"artifact-image\"><img id=\"" + artifactJson.id + "\" src=\"" + artifactJson.representations[i].url + "\" border=0></img></div>",
+						active: firstTab
+					}));
+					firstTab = false;
+				}	else {
+					tabView.addTab( new YAHOO.widget.Tab({
+						label: artifactJson.representations[i].name,
+						content: "<div id=\"artifact-source\">\n<pre class=\"prettyprint lang-" + artifactJson.representations[i].type + "\" >\n" + artifactJson.representations[i].content + "\n</pre></div>",
+						active: firstTab
+					}));
+					firstTab = false;
+				}			
+			}
+
+			//content: '<div id="artifact-source">\n<pre class="prettyprint lang-xml" >\n&lt;!DOCTYPE series PUBLIC "fibonacci numbers"&gt;\n&lt;series.root base="1" step="s(n-2) + s(n-1)">\n&lt;element i="0"&gt;1&lt;/element&gt;\n&lt;element i="1"&gt;1&lt;/element&gt;\n&lt;element i="2"&gt;2&lt;/element&gt;\n&lt;element i="3"&gt;3&lt;/element&gt;\n&lt;element i="4"&gt;5&lt;/element&gt;\n&lt;element i="5"&gt;8&lt;/element&gt;\n&lt;/series.root&gt;\n</pre></div>'
 
 			tabView.appendTo('artifact-div');
 
 	   	prettyPrint();
 
-      // Retrieve rest api response
-      var artifactJson = response.json;
-
-			// display the image based on the UR we retrieved.
-			var insertLocation = document.getElementById('artifact-image');
-			var img = document.createElement('IMG');
-			img.src = artifactJson.url;
-			img.id = artifactJson.id;
-			img.border = 0;
-			insertLocation.appendChild(img);
+			// display the image based on the URL we retrieved.
+			//var insertLocation = document.getElementById('artifact-image');
+			//var img = document.createElement('IMG');
+			//img.src = artifactJson.url;
+			//img.id = artifactJson.id;
+			//img.border = 0;
+			//insertLocation.appendChild(img);
 
     }
 

@@ -154,4 +154,10 @@
         parent="activitiWebScript">
   </bean>
 
+  <bean id="webscript.org.activiti.rest.api.cycle.content.get"
+        class="org.activiti.rest.api.cycle.ContentGet"
+        parent="webscript">
+  </bean>
+
+
 </beans>
