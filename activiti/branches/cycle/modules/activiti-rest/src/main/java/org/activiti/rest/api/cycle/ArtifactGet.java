@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.activiti.cycle.ContentRepresentation;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
@@ -25,6 +27,7 @@ import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest;
 
 /**
  * @author Nils Preusker
@@ -36,11 +39,11 @@ public class ArtifactGet extends ActivitiWebScript {
     // Retrieve the artifactId from the request
     String artifactId = getString(req, "artifactId");
 
-    try {
       // Retrieve session and repo connector 
       String cuid = getCurrentUserId(req);
-      Map<String, Object> mySession = TmpSessionHandler.getSessionByUserId(cuid);
-      RepositoryConnector conn = TmpSessionHandler.getRepositoryConnector(req, mySession);
+      
+      HttpSession session = ((WebScriptServletRequest)req).getHttpServletRequest().getSession(true);
+      RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
 
       // Retrieve the artifact from the repository
       RepositoryArtifact artifact = conn.getArtifactDetails(artifactId);
@@ -52,19 +55,18 @@ public class ArtifactGet extends ActivitiWebScript {
         }
         if(representation.getType().equals("img")) {
           representations.add(representation);
-          String contentUrl = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8");
+          String contentUrl;
+          try {
+            contentUrl = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8");
+          } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+          }
           model.put("contentUrl", contentUrl);
         }
       }
       
       model.put("artifact", artifact);
       model.put("representations", representations);        
-      
-//              new Artifact(artifactId, contentUrl/*"http://jorambarrez.be/files/blog/bpmn2_sneakpeek/vacationRequest.png"*/
-//      /*"http://www.jorambarrez.be/files/blog/jbpm_43_released/jbpm_evolution.png"*/));
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    } 
     
   }
 }

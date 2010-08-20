@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
@@ -24,31 +26,20 @@ import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest;
 
 /**
  * @author Nils Preusker
  */
 public class TreeGet extends ActivitiWebScript {
 
-  
-
   @Override
   protected void executeWebScript(WebScriptRequest req, Status status, Cache cache, Map<String, Object> model) {
 
-    // TODO: ServletUtil.getSession(true) currently returns null, 
-    // check whether this is normal and we first need to create 
-    // a session or whether there is a problem with the retrieval 
-    // of sessions.
-    // HttpSession session = ServletUtil.getSession(true);
-
     String cuid = getCurrentUserId(req);
 
-    // RepositoryConnector conn = (RepositoryConnector)
-    // session.getAttribute("conn");
-    
-    Map<String, Object> mySession = TmpSessionHandler.getSessionByUserId(cuid);
-        
-    RepositoryConnector conn = TmpSessionHandler.getRepositoryConnector(req, mySession);
+    HttpSession session = ((WebScriptServletRequest)req).getHttpServletRequest().getSession(true);
+    RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
 
     String id = getString(req, "id");
     List<RepositoryNode> subtree = conn.getChildNodes(id == null ? "/" : id);
