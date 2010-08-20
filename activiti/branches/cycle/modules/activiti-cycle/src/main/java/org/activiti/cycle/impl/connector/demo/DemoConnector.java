@@ -20,8 +20,8 @@ import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.UnsupportedRepositoryOpperation;
-import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
 import org.activiti.cycle.impl.RepositoryRegistry;
+import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
 
 public class DemoConnector implements RepositoryConnector {
 

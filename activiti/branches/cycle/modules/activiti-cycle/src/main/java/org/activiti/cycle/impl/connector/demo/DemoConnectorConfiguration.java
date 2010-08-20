@@ -1,7 +1,7 @@
 package org.activiti.cycle.impl.connector.demo;
 
 import org.activiti.cycle.RepositoryConnector;
-import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
 
 public class DemoConnectorConfiguration extends RepositoryConnectorConfiguration {
 

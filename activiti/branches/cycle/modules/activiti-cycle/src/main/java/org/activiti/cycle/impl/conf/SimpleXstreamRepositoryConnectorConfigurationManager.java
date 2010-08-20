@@ -1,4 +1,4 @@
-package org.activiti.cycle.impl;
+package org.activiti.cycle.impl.conf;
 
 import java.io.FileReader;
 import java.io.FileWriter;

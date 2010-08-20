@@ -13,7 +13,7 @@
 package org.activiti.cycle.impl.connector.signavio;
 
 import org.activiti.cycle.RepositoryConnector;
-import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
 
 /**
  * Object used to configure signavio connector. Candidate for Entity to save

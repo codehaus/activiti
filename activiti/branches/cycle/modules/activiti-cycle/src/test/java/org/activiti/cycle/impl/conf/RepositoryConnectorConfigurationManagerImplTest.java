@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
-import org.activiti.cycle.impl.RepositoryConnectorConfigurationManager;
-import org.activiti.cycle.impl.SimpleXstreamRepositoryConnectorConfigurationManager;
 import org.activiti.cycle.impl.connector.demo.DemoConnectorConfiguration;
 import org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnectorConfiguration;

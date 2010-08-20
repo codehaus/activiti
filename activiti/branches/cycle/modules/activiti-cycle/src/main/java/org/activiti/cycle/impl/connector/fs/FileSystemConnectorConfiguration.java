@@ -17,7 +17,7 @@ import java.io.IOException;
 
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
-import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
 
 /**
  * Object used to configure FS connector. Candidate for Entity to save config
