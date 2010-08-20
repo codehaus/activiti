@@ -14,6 +14,8 @@ package org.activiti.cycle;
 
 import java.util.List;
 
+import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+
 /**
  * 
  * @author bernd.ruecker@camunda.com
@@ -105,4 +107,14 @@ public interface RepositoryConnector {
    * shouldn't rely on a transaction behavior.
    */
   public void commitPendingChanges(String comment);
+
+  /**
+   * get the repository connector's configuration
+   */
+  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config);
+
+  /**
+   * set the repository connector's configuration
+   */
+  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration();
 }

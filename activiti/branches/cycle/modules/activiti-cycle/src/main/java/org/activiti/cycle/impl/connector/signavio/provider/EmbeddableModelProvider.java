@@ -55,7 +55,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
   public JSONArray getEmbeddedModel(RepositoryArtifact artifact) throws IOException, JSONException {
     Client client = getConnector(artifact).initClient();
 
-    Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getSignavioUrl() + "purl");
+    Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getBasePath() + "purl");
 
     // Create POST parameters
     Form embeddedModelForm = new Form();
@@ -189,14 +189,13 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
       String tempRepType = tempJsonObject.getString("type");
 
       // Getting the authKey we need
-      if (tempRepType.equals("png"))
+      if (tempRepType.equals("png")) {
         authKey_png = tempJsonObject.getString("authkey");
-
-      else if (tempRepType.equals("json"))
+      } else if (tempRepType.equals("json")) {
         authKey_json = tempJsonObject.getString("authkey");
-
-      else if (tempRepType.equals("stencilset"))
+      } else if (tempRepType.equals("stencilset")) {
         authKey_stencilset = tempJsonObject.getString("authkey");
+      }
     }
 
     authToken = authKey_png + "_" + authKey_json + "_" + authKey_stencilset;
@@ -233,7 +232,6 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
 
     return resultHtmlSnippet;
   }
-
   /**
    * Use this method to cancel the sharing of the embedded model
    */
@@ -241,7 +239,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     try {
       Client client = getConnector(artifact).initClient();
 
-      Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getSignavioUrl() + "purl/" + artifact.getId() + "/info/");
+      Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getBasePath() + "purl/" + artifact.getId() + "/info/");
 
       Request embeddedModelRequest = new Request(Method.DELETE, embeddedModelRef);
 

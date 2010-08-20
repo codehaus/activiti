@@ -13,15 +13,10 @@
 package org.activiti.cycle.impl.connector.fs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import org.activiti.cycle.RepositoryException;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
 
 /**
  * Object used to configure FS connector. Candidate for Entity to save config
@@ -29,37 +24,38 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  * 
  * @author bernd.ruecker@camunda.com
  */
-public class FileSystemConnectorConfiguration {
+public class FileSystemConnectorConfiguration extends RepositoryConnectorConfiguration {
 
-  private static final String DEFAULT_ROOT = "c:";
   /**
    * default URL
    */
-  private File rootPath = new File(DEFAULT_ROOT);
+  private File baseFilePath;
 
   // TODO?
   private String name;
 
   public FileSystemConnectorConfiguration() {
+    basePath = "c:";
+    baseFilePath = new File(basePath);
   }
 
-  public FileSystemConnectorConfiguration(String rootPath) {
-    this.rootPath = new File(rootPath);
+  public FileSystemConnectorConfiguration(String basePath) {
+    setBasePath(basePath);
   }
 
-  public String getRootPath() {
+  public String getBasePath() {
     try {
-      return rootPath.getCanonicalPath();
+      return baseFilePath.getCanonicalPath();
     } catch (IOException ioe) {
-      throw new RepositoryException("Unable to get rootPath!", ioe);
+      throw new RepositoryException("Unable to get canonical representation of basePath!", ioe);
     }
   }
 
-  public void setRootPath(String rootPath) {
-    if (rootPath != null && !rootPath.endsWith("/")) {
-      rootPath = rootPath + "/";
+  public void setBasePath(String basePath) {
+    if (basePath != null && !basePath.endsWith("/")) {
+      basePath = basePath + "/";
     }
-    this.rootPath = new File(rootPath);
+    this.baseFilePath = new File(basePath);
   }
 
   public String getName() {
@@ -68,25 +64,6 @@ public class FileSystemConnectorConfiguration {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public void readConfiguration() {
-    XStream xstream = new XStream(new DomDriver());
-    try {
-      xstream.fromXML(new FileReader(this.getClass().getSimpleName() + ".xml"));
-    } catch (FileNotFoundException fnfe) {
-      throw new RepositoryException("Unable to find configuration file '" + this.getClass().getSimpleName() + ".xml'", fnfe);
-    }
-  }
-
-  public void writeConfiguration() {
-    try {
-      XStream xstream = new XStream(new DomDriver());
-      xstream.aliasType(this.getClass().getSimpleName(), this.getClass());
-      xstream.toXML(this, new FileWriter(this.getClass().getSimpleName() + ".xml"));
-    } catch (IOException ioe) {
-      throw new RepositoryException("Unable to write configuration file '" + this.getClass().getSimpleName() + ".xml'", ioe);
-    }
   }
 
 }

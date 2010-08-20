@@ -20,6 +20,7 @@ import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.UnsupportedRepositoryOpperation;
+import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
 import org.activiti.cycle.impl.RepositoryRegistry;
 
 public class DemoConnector implements RepositoryConnector {
@@ -58,7 +59,7 @@ public class DemoConnector implements RepositoryConnector {
     registerMetaddata();
     createDemoData();    
   }
-  
+
   public static class TestProvider extends ContentRepresentationProvider {
 
     public TestProvider(String name, String type) {
@@ -175,8 +176,9 @@ public class DemoConnector implements RepositoryConnector {
       // read locally instead of internet
       // InputStream in = new URL(contentSourceUrl).openStream();
       InputStream in = DemoConnector.class.getResourceAsStream(contentSourceUrl);
-      if (in == null)
+      if (in == null) {
         throw new RuntimeException("resource '" + contentSourceUrl + "' not found in classpath");
+      }
       byte[] buf = new byte[512];
       int len;
       while (true) {
@@ -260,6 +262,13 @@ public class DemoConnector implements RepositoryConnector {
   }
 
   public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
+  }
+
+  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration() {
+    return null;
+  }
+
+  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config) {
   }
 
 }

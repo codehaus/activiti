@@ -42,8 +42,9 @@ public class RepositoryFolder extends RepositoryNode {
   public List<RepositoryFolder> getSubFolders() {
     ArrayList<RepositoryFolder> list = new ArrayList<RepositoryFolder>();
     for (RepositoryNode node : getChildren()) {
-      if (node instanceof RepositoryFolder)
+      if (node instanceof RepositoryFolder) {
         list.add((RepositoryFolder) node);
+      }
     }
     return list;
   }
@@ -57,8 +58,9 @@ public class RepositoryFolder extends RepositoryNode {
   public List<RepositoryArtifact> getArtifacts() {
     ArrayList<RepositoryArtifact> list = new ArrayList<RepositoryArtifact>();
     for (RepositoryNode node : getChildren()) {
-      if (node instanceof RepositoryArtifact)
+      if (node instanceof RepositoryArtifact) {
         list.add((RepositoryArtifact) node);
+      }
     }
     return list;
   }

@@ -26,6 +26,7 @@ import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
 import org.activiti.cycle.impl.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.signavio.action.OpenModelerAction;
 import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
@@ -113,7 +114,7 @@ public class SignavioConnector implements RepositoryConnector {
 
   private transient Client restletClient;
 
-  private final SignavioConnectorConfiguration conf;
+  private SignavioConnectorConfiguration conf;
 
   public SignavioConnector(SignavioConnectorConfiguration signavioConfiguration) {
     this.conf = signavioConfiguration;
@@ -540,5 +541,13 @@ public class SignavioConnector implements RepositoryConnector {
     } catch (Exception ex) {
       throw new RepositoryException("Error while transforming BPMN2_0_JSON to BPMN2_0_XML", ex);
     }
+  }
+
+  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration() {
+    return conf;
+  }
+
+  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config) {
+    this.conf = (SignavioConnectorConfiguration) config;
   }
 }

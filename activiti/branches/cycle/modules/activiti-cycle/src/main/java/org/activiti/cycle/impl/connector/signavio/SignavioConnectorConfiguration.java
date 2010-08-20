@@ -12,6 +12,8 @@
  */
 package org.activiti.cycle.impl.connector.signavio;
 
+import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+
 /**
  * Object used to configure signavio connector. Candidate for Entity to save
  * config later on.
@@ -20,12 +22,7 @@ package org.activiti.cycle.impl.connector.signavio;
  * 
  * @author bernd.ruecker@camunda.com
  */
-public class SignavioConnectorConfiguration {
-
-  /**
-   * default URL
-   */
-  private String signavioUrl = "http://127.0.0.1:8080/";
+public class SignavioConnectorConfiguration extends RepositoryConnectorConfiguration {
 
   // TODO?
   private String name;
@@ -46,26 +43,31 @@ public class SignavioConnectorConfiguration {
 
   public static String BPMN_20_EXPORT_SERVLET = "bpmn2_0serialization";
 
+  private String password;
+
+  private String user;
+
   public SignavioConnectorConfiguration() {
+    basePath = "http://127.0.0.1:8080/";
   }
 
   public SignavioConnectorConfiguration(String signavioUrl) {
-    setSignavioUrl(signavioUrl);
+    setBasePath(signavioUrl);
   }
 
-  public String getSignavioUrl() {
-    return signavioUrl;
+  public String getBasePath() {
+    return basePath;
+  }
+
+  public void setBasePath(String basePath) {
+    if (basePath != null && !basePath.endsWith("/")) {
+      basePath = basePath + "/";
+    }
+    this.basePath = basePath;
   }
 
   public String getSignavioBackendUrl() {
-    return getSignavioUrl() + SIGNAVIO_BACKEND_URL_SUFFIX;
-  }
-
-  public void setSignavioUrl(String signavioUrl) {
-    if (signavioUrl != null && !signavioUrl.endsWith("/")) {
-      signavioUrl = signavioUrl + "/";
-    }
-    this.signavioUrl = signavioUrl;
+    return getBasePath() + SIGNAVIO_BACKEND_URL_SUFFIX;
   }
 
   public String getDirectoryIdFromUrl(String href) {
@@ -114,6 +116,22 @@ public class SignavioConnectorConfiguration {
   }
 
   public String getBpmn20XmlExportServletUrl() {
-    return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
+    return getBasePath() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public String getUser() {
+    return user;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setUser(String user) {
+    this.user = user;
   }
 }
