@@ -1,17 +1,13 @@
 {
-  "id": "${artifact.id}",
-  "representations": [
-  <#list representations as representation>
+  "id": "${artifactId}",
+  "contentViews": [
+  <#list contentViews as contentView>
     {
-      "type": "${representation.type}",
-      "name": "${representation.name}",
-      <#if representation.contentFetched>
-      "content": "<#list representation.content as item>&#${item};</#list>"
-      <#else>
-      "url": "${contentUrl}"
-      </#if>
+      "type": "${contentView.key}",
+      "name": "${contentView.name}",
+      "content": "${contentView.value?html}"
     }
-    <#if representation_has_next>,</#if>
+    <#if contentView_has_next>,</#if>
   </#list>
   ]
 }

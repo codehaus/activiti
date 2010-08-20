@@ -16,12 +16,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.springframework.extensions.surf.util.Base64;
@@ -37,30 +37,30 @@ import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest
 public class ContentGet extends AbstractWebScript {
 
   public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-    
+
     // Retrieve the artifactId from the request
     String artifactId = req.getParameter("artifactId");
-    if(artifactId == null || artifactId.length() == 0) {
+    if (artifactId == null || artifactId.length() == 0) {
       throw new RuntimeException("Missing required parameter: artifactId");
     }
 
-    // Retrieve session and repo connector 
+    // Retrieve session and repo connector
     String cuid = getCurrentUserId(req);
-    HttpSession session = ((WebScriptServletRequest)req).getHttpServletRequest().getSession(true);
+    HttpSession session = ((WebScriptServletRequest) req).getHttpServletRequest().getSession(true);
     RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
-    
+
     // Retrieve the artifact from the repository
     RepositoryArtifact artifact = conn.getArtifactDetails(artifactId);
-    
-    List<ContentRepresentation> representations = artifact.getContentRepresentations();
-    for(ContentRepresentation representation : representations) {
-      if(representation.getType().equals("img")) {
-        byte[] content = conn.getContent(artifact.getId(), representation.getName()).getContent();
+
+    Collection<ContentRepresentationDefinition> representations = artifact.getContentRepresentationDefinitions();
+    for (ContentRepresentationDefinition representation : representations) {
+      if (representation.getType().equals("img")) {
+        byte[] content = conn.getContent(artifact.getId(), representation.getName()).asByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(content);
         streamContentImpl(req, res, in, false, new Date(0), "W/\"647-1281077702000\"", null);
       }
     }
-    
+
   }
 
   protected void streamContentImpl(WebScriptRequest req, WebScriptResponse res, InputStream in, boolean attach, Date modified, String eTag,
@@ -143,19 +143,20 @@ public class ContentGet extends AbstractWebScript {
 
   /**
    * Returns the username for the current user.
-   *
-   * @param req The webscript request
+   * 
+   * @param req
+   *          The webscript request
    * @return THe username of the current user
    */
   protected String getCurrentUserId(WebScriptRequest req) {
     String authorization = req.getHeader("Authorization");
     if (authorization != null) {
-      String [] parts = authorization.split(" ");
+      String[] parts = authorization.split(" ");
       if (parts.length == 2) {
-        return new String(Base64.decode(parts[1])).split(":")[0];        
+        return new String(Base64.decode(parts[1])).split(":")[0];
       }
     }
     return null;
   }
-  
+
 }
