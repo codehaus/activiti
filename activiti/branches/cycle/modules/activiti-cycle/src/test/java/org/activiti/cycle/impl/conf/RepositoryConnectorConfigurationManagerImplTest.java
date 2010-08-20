@@ -1,5 +1,6 @@
 package org.activiti.cycle.impl.conf;
 
+import java.io.File;
 import java.util.List;
 
 import org.activiti.cycle.RepositoryConnector;
@@ -69,7 +70,7 @@ public class RepositoryConnectorConfigurationManagerImplTest {
     // create configurations
     // repoConfManager.createRepositoryConfiguration(SignavioConnector.class,
     // "christian.lipphardt", "xxx", "http://localhost:8080/activiti-modeler/");
-    repoConfManager.createRepositoryConfiguration(FileSystemConnector.class, "christian.lipphardt", "xxx", "c:");
+    repoConfManager.createRepositoryConfiguration(FileSystemConnector.class, "christian.lipphardt", "xxx", File.listRoots()[0].toString());
 
     // persist config
     repoConfManager.persistAllRepositoryConfigurations();
