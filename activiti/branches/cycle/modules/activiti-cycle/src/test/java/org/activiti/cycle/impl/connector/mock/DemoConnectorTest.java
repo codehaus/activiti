@@ -2,9 +2,10 @@ package org.activiti.cycle.impl.connector.mock;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
@@ -62,11 +63,10 @@ public class DemoConnectorTest {
     System.out.println(folder3.getId() + " -> " + folder3.getClientUrl());
     System.out.println(file3.getId() + " -> " + file3.getClientUrl());
     
-    List<ContentRepresentation> contentRepresentations = file3.getContentRepresentations();
-    for (ContentRepresentation contentRepresentation : contentRepresentations) {
-      System.out.println(contentRepresentation.getName() + " -> " + contentRepresentation.getClientUrl() + " is loaded? "
-              + contentRepresentation.isContentFetched());
-      System.out.println("  # FETCHED CONTENT VIA API: # " + conn.getContent(file3.getId(), contentRepresentation.getName()).getContent());
+    Collection<ContentRepresentationDefinition> contentRepresentations = file3.getContentRepresentationDefinitions();
+    for (ContentRepresentationDefinition contentRepresentation : contentRepresentations) {
+      System.out.println(contentRepresentation.getName() + " -> " + contentRepresentation.getClientUrl());
+      System.out.println("  # FETCHED CONTENT VIA API: # " + conn.getContent(file3.getId(), contentRepresentation.getName()).getContentAsString());
     }  
     
 

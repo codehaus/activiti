@@ -2,7 +2,8 @@ package org.activiti.cycle.impl;
 
 import java.util.List;
 
-import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.Content;
+import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
@@ -11,6 +12,8 @@ import org.activiti.cycle.RepositoryNode;
 /**
  * Wrapper for {@link RepositoryConnector} to set client url in objects
  * correctly for REST API
+ * 
+ * TODO: REWRITE!
  * 
  * @author bernd.ruecker@camunda.com
  */
@@ -28,29 +31,45 @@ public class RestClientRepositoryConnector implements RepositoryConnector {
     this.connector = connector;
   }
 
-  private RepositoryNode adjustClientUrl(RepositoryNode repositoryNode) {
-    repositoryNode.setClientUrl(baseUrl + repositoryName + "/" + repositoryNode.getId());
+  // private RepositoryNode adjustClientUrl(RepositoryNode repositoryNode) {
+  // repositoryNode.setClientUrl(baseUrl + repositoryName + "/" +
+  // repositoryNode.getId());
+  //
+  // if (repositoryNode instanceof RepositoryArtifact) {
+  // Collection<ContentRepresentationDefinition> contentRepresentations =
+  // ((RepositoryArtifact)
+  // repositoryNode).getContentRepresentationDefinitions();
+  // for (ContentRepresentationDefinition contentRepresentation :
+  // contentRepresentations) {
+  // adjustClientUrl(contentRepresentation);
+  // }
+  // }
+  //
+  // return repositoryNode;
+  // }
+  //
+  // private ContentRepresentationDefinition
+  // adjustClientUrl(ContentRepresentationDefinition content) {
+  // content.setClientUrl(baseUrl + repositoryName + "/" +
+  // content.getContentRepresentationDefinition().getArtifact().getId() +
+  // "/content/"
+  // + content.getContentRepresentationDefinition().getName());
+  // return content;
+  // }
+  //
+  // private ContentRepresentationDefinition adjustClientUrl(Content content) {
+  // content.setClientUrl(baseUrl + repositoryName + "/" +
+  // content.getContentRepresentationDefinition().getArtifact().getId() +
+  // "/content/"
+  // + content.getContentRepresentationDefinition().getName());
+  // return content;
+  // }
 
-    if (repositoryNode instanceof RepositoryArtifact) {
-      List<ContentRepresentation> contentRepresentations = ((RepositoryArtifact) repositoryNode).getContentRepresentations();
-      for (ContentRepresentation contentRepresentation : contentRepresentations) {
-        adjustClientUrl(contentRepresentation);
-      }
-    }
-
-    return repositoryNode;
-  }
-
-  private ContentRepresentation adjustClientUrl(ContentRepresentation content) {
-    content.setClientUrl(baseUrl + repositoryName + "/" + content.getArtifact().getId() + "/content/" + content.getName());
-    return content;
-  }
-
-  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
     connector.createNewArtifact(containingFolderId, artifact, artifactContent);
   }
 
-  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
   }
 
   public void createNewSubFolder(String parentFolderUrl, RepositoryFolder subFolder) {
@@ -68,21 +87,24 @@ public class RestClientRepositoryConnector implements RepositoryConnector {
   public List<RepositoryNode> getChildNodes(String parentUrl) {
     List<RepositoryNode> childNodes = connector.getChildNodes(parentUrl);
     for (RepositoryNode repositoryNode : childNodes) {
-      adjustClientUrl(repositoryNode);
+      // adjustClientUrl(repositoryNode);
     }
     return childNodes;
   }
 
   public RepositoryArtifact getArtifactDetails(String id) {
-    return (RepositoryArtifact) adjustClientUrl(connector.getArtifactDetails(id));
+    // return (RepositoryArtifact)
+    // adjustClientUrl(connector.getArtifactDetails(id));
+    return (RepositoryArtifact) connector.getArtifactDetails(id);
   }
 
   public boolean login(String username, String password) {
     return connector.login(username, password);
   }
 
-  public ContentRepresentation getContent(String nodeId, String representationName) {
-    return adjustClientUrl(connector.getContent(nodeId, representationName));
+  public Content getContent(String nodeId, String representationName) {
+    // return adjustClientUrl(connector.getContent(nodeId, representationName));
+    return connector.getContent(nodeId, representationName);
   }
 
   public void commitPendingChanges(String comment) {

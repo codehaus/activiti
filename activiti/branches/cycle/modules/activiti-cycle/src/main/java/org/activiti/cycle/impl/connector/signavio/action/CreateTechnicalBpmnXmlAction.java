@@ -3,8 +3,7 @@ package org.activiti.cycle.impl.connector.signavio.action;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.cycle.ContentRepresentation;
-import org.activiti.cycle.ContentRepresentationType;
+import org.activiti.cycle.Content;
 import org.activiti.cycle.ParametrizedFreemakerTemplateAction;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryFolder;
@@ -49,7 +48,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   protected String getBpmn20Json() {
-    return getArtifact().getContentRepresentation(JsonProvider.NAME).getContentAsString();
+    return getArtifact().loadContent(JsonProvider.NAME).getContentAsString();
   }
 
   private String applyJsonTranfsormations(String sourceJson) {
@@ -58,11 +57,10 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   private String transformToBpmn20(String transformedJson) {
-    // TODO: How to do that?
-    // getSignavioConnector();
+    getSignavioConnector().transformJsonToBpmn20Xml(transformedJson);    
     
     // for the moment just use the untransformed version
-    return getArtifact().getContentRepresentation(Bpmn20Provider.NAME).getContentAsString();
+    return getArtifact().loadContent(Bpmn20Provider.NAME).getContentAsString();
   }
 
   public void createTargetArtifact(RepositoryFolder targetFolder, String artifactId, String bpmnXml, String artifactTypeIdentifier) {
@@ -72,12 +70,16 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
     // TODO: Check artifac types / registry
     targetArtifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
 
-    ContentRepresentation contentRepresentation = new ContentRepresentation();
-    contentRepresentation.setArtifact(targetArtifact);
-    contentRepresentation.setContent(bpmnXml);
-    contentRepresentation.setType(ContentRepresentationType.XML);
-
-    targetFolder.getConnector().createNewArtifact(targetFolder.getId(), targetArtifact, contentRepresentation);
+    Content content = new Content();
+    content.setValue(bpmnXml);
+    //    
+    // ContentRepresentationDefinition contentRepresentation = new
+    // ContentRepresentationDefinition();
+    // contentRepresentation.setArtifact(targetArtifact);
+    // contentRepresentation.setContent(bpmnXml);
+    // contentRepresentation.setType(ContentRepresentationType.XML);
+    //
+    targetFolder.getConnector().createNewArtifact(targetFolder.getId(), targetArtifact, content);
   }
   
   public String getProcessName() {

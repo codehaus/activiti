@@ -4,7 +4,7 @@ import org.activiti.cycle.impl.RepositoryRegistry;
 
 /**
  * A {@link ContentRepresentationProvider} is responsible to create
- * {@link ContentRepresentation} objects for certain {@link RepositoryArtifact}
+ * {@link ContentRepresentationDefinition} objects for certain {@link RepositoryArtifact}
  * s. It is registered via the {@link RepositoryRegistry} and new providers can
  * be added on the fly.
  * 
@@ -21,24 +21,30 @@ public abstract class ContentRepresentationProvider {
   }
   
   /**
-   * creates the {@link ContentRepresentation} object for the given artifact
+   * creates the {@link ContentRepresentationDefinition} object for the given artifact
    */
-  public ContentRepresentation createContentRepresentation(RepositoryArtifact artifact, boolean includeBinaryContent) {
-    ContentRepresentation contentRepresentation = new ContentRepresentation();
+  public ContentRepresentationDefinition createContentRepresentationDefinition(RepositoryArtifact artifact) {
+    ContentRepresentationDefinition contentRepresentation = new ContentRepresentationDefinition();
     contentRepresentation.setArtifact(artifact);
     contentRepresentation.setName(contentRepresentationName);
     contentRepresentation.setType(contentRepresentationType);
-    if (includeBinaryContent) {
-      contentRepresentation.setContent(getContent(artifact));
-      contentRepresentation.setContentFetched(true);
-    }
     return contentRepresentation;
   }
+  
+  public Content createContent(RepositoryArtifact artifact) {
+    Content c = new Content();
+    c.setContentRepresentationDefinition(createContentRepresentationDefinition(artifact));
+    c.setValue(getContent(artifact));
+    return c;
+  }  
   
   public byte[] toBytes(String result) {
     return result.getBytes();
   }  
-    
+  
+  /**
+   * TODO: Introduce Provider using Streams instead of byte[]
+   */
   public abstract byte[] getContent(RepositoryArtifact artifact);
 
   /**

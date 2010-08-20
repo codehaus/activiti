@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.Content;
+import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
@@ -76,9 +77,9 @@ public class FileSystemConnector implements RepositoryConnector {
     return null;
   }
 
-  public ContentRepresentation getContent(String nodeId, String representationName) {
+  public Content getContent(String nodeId, String representationName) {
     RepositoryArtifact artifact = getArtifactDetails(nodeId);
-    return RepositoryArtifact.getContentRepresentation(artifact, representationName);
+    return artifact.loadContent(representationName);
   }
 
   public void createNewFile(String folderId, RepositoryArtifact file) {
@@ -153,10 +154,10 @@ public class FileSystemConnector implements RepositoryConnector {
     return folder;
   }
 
-  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
   }
 
-  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
     throw new UnsupportedOperationException("FileSystemConnector does not support modifying files!");
   }
 

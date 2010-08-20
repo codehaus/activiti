@@ -15,7 +15,7 @@ import java.io.Serializable;
  * 
  * @author bernd.ruecker@camunda.com
  */
-public class ContentRepresentation implements Serializable {
+public class ContentRepresentationDefinition implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -31,20 +31,13 @@ public class ContentRepresentation implements Serializable {
   /**
    * Name of this representation, serves as a key to query the correct
    * representation and may be used by the client to show a list of possible
-   * {@link ContentRepresentation}s
+   * {@link ContentRepresentationDefinition}s
    */
 	private String name;
 	
 	private String clientUrl;
 
-	/**
-   * the true content as byte array, is not always fetched, so it maybe null!
-   */
-	private byte[] content;
-	
-	private boolean contentFetched = false;
-
-  public ContentRepresentation() {
+  public ContentRepresentationDefinition() {
   }
   
   public String getType() {
@@ -71,30 +64,6 @@ public class ContentRepresentation implements Serializable {
     this.clientUrl = clientUrl;
   }
 
-  public byte[] getContent() {
-    return content;
-  }
-  
-  public String getContentAsString() {
-    return new String(content);
-  }
-
-  public void setContent(String text) {
-    this.content = text.getBytes();
-  }
-
-  public void setContent(byte[] content) {
-    this.content = content;
-  }
-
-  public boolean isContentFetched() {
-    return contentFetched;
-  }
-
-  public void setContentFetched(boolean contentFetched) {
-    this.contentFetched = contentFetched;
-  }
-  
   public RepositoryArtifact getArtifact() {
     return artifact;
   }

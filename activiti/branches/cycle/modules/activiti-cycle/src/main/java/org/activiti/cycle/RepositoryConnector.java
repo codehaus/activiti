@@ -60,8 +60,7 @@ public interface RepositoryConnector {
    */
   public RepositoryArtifact getArtifactDetails(String id);
 
-  // where to get contentType
-  public ContentRepresentation getContent(String nodeId, String representationName);
+  public Content getContent(String nodeId, String representationName);
 
   // /**
   // * get files for the given parent folder. If parentFolder is null
@@ -78,9 +77,9 @@ public interface RepositoryConnector {
   /**
    * create a new file in the given folder
    */
-  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent);
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent);
 
-  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent);
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent);
 
   /**
    * deletes the given file from the folder

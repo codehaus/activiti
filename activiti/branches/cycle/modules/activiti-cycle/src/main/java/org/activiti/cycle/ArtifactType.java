@@ -20,7 +20,7 @@ import org.activiti.cycle.impl.RepositoryRegistry;
  * The type specifies the type of an artifact, e.g. Signavio model, jpdl process
  * model, text file, word document, ...
  * 
- * Linked to this type {@link ContentRepresentation}s for the GUI and
+ * Linked to this type {@link ContentRepresentationDefinition}s for the GUI and
  * {@link ArtifactAction}s are defined.
  * 
  * TODO: Think about hierarchy

@@ -13,7 +13,10 @@
 package org.activiti.cycle;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -31,10 +34,12 @@ public class RepositoryArtifact extends RepositoryNode {
   private ArtifactType artifactType;
   
   /**
-   * list for {@link ContentRepresentation}s, which is lazily loaded when you
+   * list for {@link ContentRepresentationDefinition}s, which is lazily loaded when you
    * first query it
    */
-  private List<ContentRepresentation> contentRepresentationList;
+  private List<ContentRepresentationDefinition> contentRepresentationDefinitionList;
+  private Map<String, ContentRepresentationProvider> contentRepresentationProviderMap;
+  
   private List<ArtifactAction> cachedFileActions;
 
   public RepositoryArtifact() {
@@ -48,57 +53,55 @@ public class RepositoryArtifact extends RepositoryNode {
     return this.getClass().getSimpleName() + " [id=" + getId() + ";type=" + artifactType + ";metadata=" + getMetadata() + "]";
   }  
 
-  public ContentRepresentation getContentRepresentation(String representationName) {
-    return getContentRepresentation(this, representationName);
-  }
-
   /**
    * load Content Representation with content as byte[] included for given
    * {@link RepositoryArtifact}
    */
-  public static ContentRepresentation getContentRepresentation(RepositoryArtifact artifact, String representationName) {
-    if (artifact.getArtifactType() != null) {
-      for (Class< ? extends ContentRepresentationProvider> providerClass : artifact.getArtifactType().getContentRepresentationProviders()) {
-        try {
-          ContentRepresentationProvider p = providerClass.newInstance();
-          if (p.getContentRepresentationName().equals(representationName)) {
-            return p.createContentRepresentation(artifact, true);
-          }
-        } catch (Exception ex) {
-          log.log(Level.SEVERE, "couldn't create content provider of class " + providerClass, ex);
-        }
-      }
+  public Content loadContent(String representationName) {
+    ContentRepresentationProvider provider = getContentRepresentationProviderMap().get(representationName);
+    if (provider == null) {
+      throw new RepositoryException("Couldn't find or load content representation '" + representationName + "' for artifact " + this);
     }
-    throw new RepositoryException("Couldn't find or load content representation '" + representationName + "' for artifact " + artifact);
+    return provider.createContent(this);
   }
 
-  public List<ContentRepresentation> getContentRepresentations() {
-    if (contentRepresentationList != null) {
-      return contentRepresentationList;
-    }
-    
+  public Collection<ContentRepresentationDefinition> getContentRepresentationDefinitions() {
+    if (contentRepresentationDefinitionList == null) {    
     // if not done already lazy load the content from the registered providers
-    contentRepresentationList = new ArrayList<ContentRepresentation>();
-    if (getArtifactType() != null) {
-      for (Class< ? extends ContentRepresentationProvider> providerClass : getArtifactType().getContentRepresentationProviders()) {
-        try {
-          ContentRepresentationProvider p = providerClass.newInstance();
-          ContentRepresentation cr = p.createContentRepresentation(this, false);
-          if (cr != null) {
-            contentRepresentationList.add(cr);
-          } else {
-            log.warning("content provider '" + p + "' created NULL instead of proper ContentRepresentation object for artifact " + this
-                    + ". Check configuration!");
-          }
+    contentRepresentationDefinitionList = new ArrayList<ContentRepresentationDefinition>();
+      for (ContentRepresentationProvider provider : getContentRepresentationProviders()) {
+        ContentRepresentationDefinition cr = provider.createContentRepresentationDefinition(this);
+        if (cr != null) {
+          contentRepresentationDefinitionList.add(cr);
+        } else {
+          log.warning("content provider '" + provider + "' created NULL instead of proper ContentRepresentation object for artifact " + this
+                  + ". Check configuration!");
         }
-        catch (Exception ex) {
-          log.log(Level.SEVERE, "couldn't create content provider of class " + providerClass, ex);
+      }
+    }    
+    return contentRepresentationDefinitionList;
+  }  
+
+  public Collection<ContentRepresentationProvider> getContentRepresentationProviders() {
+    return getContentRepresentationProviderMap().values();
+  }
+  
+  public Map<String, ContentRepresentationProvider> getContentRepresentationProviderMap() {
+    if (contentRepresentationProviderMap == null) {
+      contentRepresentationProviderMap = new HashMap<String, ContentRepresentationProvider>();
+      if (getArtifactType() != null) {
+        for (Class< ? extends ContentRepresentationProvider> providerClass : getArtifactType().getContentRepresentationProviders()) {
+          try {
+            ContentRepresentationProvider p = providerClass.newInstance();
+            contentRepresentationProviderMap.put(p.getContentRepresentationName(), p);
+          } catch (Exception ex) {
+            log.log(Level.SEVERE, "couldn't create content provider of class " + providerClass, ex);
+          }
         }
       }
     }
-    
-    return contentRepresentationList;
-  }  
+    return contentRepresentationProviderMap;
+  }
 
   public List<ArtifactAction> getActions() {
     if (cachedFileActions != null) {

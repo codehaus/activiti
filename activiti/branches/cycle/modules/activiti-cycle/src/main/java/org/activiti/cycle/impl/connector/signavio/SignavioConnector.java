@@ -19,7 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.cycle.ArtifactType;
-import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.Content;
+import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
@@ -341,9 +342,9 @@ public class SignavioConnector implements RepositoryConnector {
     }
   }
 
-  public ContentRepresentation getContent(String nodeId, String representationName) {
+  public Content getContent(String nodeId, String representationName) {
     RepositoryArtifact artifact = getArtifactDetails(nodeId);
-    return RepositoryArtifact.getContentRepresentation(artifact, representationName);
+    return artifact.loadContent(representationName);
   }
 
   public RepositoryArtifact getArtifactDetails(String id) {
@@ -453,14 +454,16 @@ public class SignavioConnector implements RepositoryConnector {
     }
   }
 
-  public void createNewArtifact(String folderId, RepositoryArtifact artifact, ContentRepresentation content) {
+  public void createNewArtifact(String folderId, RepositoryArtifact artifact, Content content) {
     // TODO: how to get values for jsonData, comment and description
     // createNewModel(folderId, file.getMetadata().getName(), jsonData, null,
     // null);
 
-    if (content.getName().equals(JsonProvider.NAME)) {
+    // TODO: Should we have a check for the content type? Is it possible to
+    // create an artifact by different types?
+    // if (content.getName().equals(JsonProvider.NAME)) {
       content.getContentAsString();
-    }
+    // }
   }
 
   public void createNewModel(String parentFolderId, String name, String jsonData, String revisionComment, String description) throws IOException {
@@ -518,7 +521,7 @@ public class SignavioConnector implements RepositoryConnector {
     }
   }
 
-  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
   }
 
   public JSONObject transformJsonToBpmn20Xml(String jsonData) {

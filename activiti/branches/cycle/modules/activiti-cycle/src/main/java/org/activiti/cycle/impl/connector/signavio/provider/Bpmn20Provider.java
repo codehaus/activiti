@@ -28,7 +28,6 @@ public class Bpmn20Provider extends SignavioContentRepresentationProvider {
 
   public byte[] getContent(RepositoryArtifact artifact) {
     try {
-
       // use the bpmn2_0_serialization export servlet to provide bpmn20 xml
       Response jsonResponse = getJsonResponse(artifact, "/json");
       JSONObject jsonData = new JSONObject(jsonResponse.getEntity().getText());

@@ -10,7 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.cycle.ArtifactType;
-import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.Content;
+import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.ContentRepresentationProvider;
 import org.activiti.cycle.ContentRepresentationType;
 import org.activiti.cycle.RepositoryArtifact;
@@ -49,13 +50,13 @@ public class DemoConnector implements RepositoryConnector {
   public static final String ARTIFACT_TYPE_MINDMAP = "ARTIFACT_TYPE_MINDMAP";
   public static final String ARTIFACT_TYPE_BPMN_20 = "ARTIFACT_TYPE_BPMN_20";
 
-  public DemoConnector() {
+  static {
     nodes = new ArrayList<RepositoryNode>();
     rootNodes = new ArrayList<RepositoryNode>();
     content = new HashMap<RepositoryNode, Map<String, byte[]>>();
 
     registerMetaddata();
-    createDemoData();
+    createDemoData();    
   }
   
   public static class TestProvider extends ContentRepresentationProvider {
@@ -247,18 +248,18 @@ public class DemoConnector implements RepositoryConnector {
     return true;
   }
 
-  public ContentRepresentation getContent(String nodeId, String representationName) {
-    return RepositoryArtifact.getContentRepresentation(getArtifactDetails(nodeId), representationName);
+  public Content getContent(String nodeId, String representationName) {
+    return getArtifactDetails(nodeId).loadContent(representationName);
   }
 
   public void commitPendingChanges(String comment) {
   }
 
-  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
     throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
   }
 
-  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentation artifactContent) {
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
   }
 
 }
