@@ -462,7 +462,7 @@ public class SignavioConnector implements RepositoryConnector {
     // TODO: Should we have a check for the content type? Is it possible to
     // create an artifact by different types?
     // if (content.getName().equals(JsonProvider.NAME)) {
-      content.getContentAsString();
+      content.asString();
     // }
   }
 

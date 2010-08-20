@@ -23,7 +23,7 @@ public class Content {
   private InputStream contentAsInputStream;
 
   
-   public byte[] getContentAsByteArray() {
+   public byte[] asByteArray() {
     if (contentAsByteArray != null) {
       return contentAsByteArray;
     } else {
@@ -31,7 +31,7 @@ public class Content {
     }
   }
 
-  public String getContentAsString() {
+  public String asString() {
     if (contentAsByteArray != null) {
       return new String(contentAsByteArray);
     } else {
