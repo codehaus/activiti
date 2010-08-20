@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * Data structure for link to content, including the URL to the content, the
- * type (see {@link ContentRepresentationType}) and a name (which is shown in
+ * type (see {@link ContentType}) and a name (which is shown in
  * the GUI).
  * 
  * The client URL should be normally set by the infrastructure, so a
@@ -18,11 +18,11 @@ import java.io.Serializable;
 public class ContentRepresentationDefinition implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	
-	private RepositoryArtifact artifact;
+
+  // private RepositoryArtifact artifact;
 
 	/**
-   * type of content as normally indicated by {@link ContentRepresentationType}
+   * type of content as normally indicated by {@link ContentType}
    * (e.g. text file, image, ...). Information for the client to render it
    * correctly.
    */
@@ -64,12 +64,12 @@ public class ContentRepresentationDefinition implements Serializable {
     this.clientUrl = clientUrl;
   }
 
-  public RepositoryArtifact getArtifact() {
-    return artifact;
-  }
-
-  public void setArtifact(RepositoryArtifact artifact) {
-    this.artifact = artifact;
-  }
+  // public RepositoryArtifact getArtifact() {
+  // return artifact;
+  // }
+  //
+  // public void setArtifact(RepositoryArtifact artifact) {
+  // this.artifact = artifact;
+  // }
 
 }

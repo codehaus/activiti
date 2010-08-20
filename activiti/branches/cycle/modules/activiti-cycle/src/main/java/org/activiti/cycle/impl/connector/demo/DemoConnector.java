@@ -13,7 +13,7 @@ import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.ContentRepresentationProvider;
-import org.activiti.cycle.ContentRepresentationType;
+import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
@@ -81,21 +81,21 @@ public class DemoConnector implements RepositoryConnector {
   public static class TestTextProvider extends TestProvider {
 
     public TestTextProvider() {
-      super("Text", ContentRepresentationType.TEXT);
+      super("Text", ContentType.TEXT);
     }
   }
 
   public static class TestImageProvider extends TestProvider {
 
     public TestImageProvider() {
-      super("Image", ContentRepresentationType.IMAGE);
+      super("Image", ContentType.IMAGE);
     }
   }
 
   public static class TestXmlProvider extends TestProvider {
 
     public TestXmlProvider() {
-      super("XML", ContentRepresentationType.XML);
+      super("XML", ContentType.XML);
     }
   }
 

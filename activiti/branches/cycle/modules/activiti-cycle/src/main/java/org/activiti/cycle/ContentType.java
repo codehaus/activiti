@@ -10,7 +10,7 @@ package org.activiti.cycle;
  * 
  * @author bernd.ruecker@camunda.com
  */
-public class ContentRepresentationType {
+public class ContentType {
 
 	public static final String IMAGE = "img";
 	public static final String XML = "xml";

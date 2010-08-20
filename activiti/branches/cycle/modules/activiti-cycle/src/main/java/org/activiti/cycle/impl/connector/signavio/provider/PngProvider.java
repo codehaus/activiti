@@ -12,7 +12,7 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
-import org.activiti.cycle.ContentRepresentationType;
+import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.restlet.data.Response;
@@ -23,7 +23,7 @@ public class PngProvider extends SignavioContentRepresentationProvider {
   public static final String NAME = "PNG";
 
   public PngProvider() {
-    super(NAME, ContentRepresentationType.IMAGE);
+    super(NAME, ContentType.IMAGE);
   }
 
   @Override

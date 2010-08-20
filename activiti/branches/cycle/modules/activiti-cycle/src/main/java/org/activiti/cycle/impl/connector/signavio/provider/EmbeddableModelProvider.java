@@ -14,7 +14,7 @@ package org.activiti.cycle.impl.connector.signavio.provider;
 
 import java.io.IOException;
 
-import org.activiti.cycle.ContentRepresentationType;
+import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.json.JSONArray;
@@ -37,7 +37,7 @@ import org.restlet.resource.Representation;
 public class EmbeddableModelProvider extends SignavioContentRepresentationProvider {
 
   public EmbeddableModelProvider() {
-    super("Embedded", ContentRepresentationType.HTML);
+    super("Embedded", ContentType.HTML);
   }
 
   @Override

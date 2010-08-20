@@ -12,7 +12,7 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
-import org.activiti.cycle.ContentRepresentationType;
+import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.restlet.data.Response;
@@ -23,7 +23,7 @@ public class Jpdl4Provider extends SignavioContentRepresentationProvider {
   public static final String NAME = "jpdl4";
 
   public Jpdl4Provider() {
-    super(NAME, ContentRepresentationType.XML);
+    super(NAME, ContentType.XML);
   }
 
   @Override

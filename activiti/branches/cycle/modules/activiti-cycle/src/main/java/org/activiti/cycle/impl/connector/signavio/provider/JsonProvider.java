@@ -12,7 +12,7 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
-import org.activiti.cycle.ContentRepresentationType;
+import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.restlet.data.Response;
@@ -26,7 +26,7 @@ public class JsonProvider extends SignavioContentRepresentationProvider {
   public static final String NAME = "json";
 
   public JsonProvider() {
-    super(NAME, ContentRepresentationType.TEXT);
+    super(NAME, ContentType.TEXT);
   }
 
   @Override

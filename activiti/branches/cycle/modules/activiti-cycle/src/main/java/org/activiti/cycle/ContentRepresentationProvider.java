@@ -25,7 +25,7 @@ public abstract class ContentRepresentationProvider {
    */
   public ContentRepresentationDefinition createContentRepresentationDefinition(RepositoryArtifact artifact) {
     ContentRepresentationDefinition contentRepresentation = new ContentRepresentationDefinition();
-    contentRepresentation.setArtifact(artifact);
+    // contentRepresentation.setArtifact(artifact);
     contentRepresentation.setName(contentRepresentationName);
     contentRepresentation.setType(contentRepresentationType);
     return contentRepresentation;
@@ -33,7 +33,7 @@ public abstract class ContentRepresentationProvider {
   
   public Content createContent(RepositoryArtifact artifact) {
     Content c = new Content();
-    c.setContentRepresentationDefinition(createContentRepresentationDefinition(artifact));
+    // c.setContentRepresentationDefinition(createContentRepresentationDefinition(artifact));
     c.setValue(getContent(artifact));
     return c;
   }  
