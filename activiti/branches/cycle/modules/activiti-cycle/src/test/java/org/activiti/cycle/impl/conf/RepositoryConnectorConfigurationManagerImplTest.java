@@ -10,7 +10,6 @@ import org.activiti.cycle.impl.connector.demo.DemoConnector;
 import org.activiti.cycle.impl.connector.demo.DemoConnectorConfiguration;
 import org.activiti.cycle.impl.connector.fs.FileSystemConnector;
 import org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration;
-import org.activiti.cycle.impl.connector.signavio.SignavioConnector;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnectorConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -50,10 +49,10 @@ public class RepositoryConnectorConfigurationManagerImplTest {
   @Test
   public void testCreateRepositoryConfiguration() {
     repoConfManager.registerRepositoryConnector(DemoConnector.class);
-    repoConfManager.registerRepositoryConnector(SignavioConnector.class);
+    // repoConfManager.registerRepositoryConnector(SignavioConnector.class);
     repoConfManager.registerRepositoryConnector(FileSystemConnector.class);
 
-    RepositoryConnectorConfiguration config = repoConfManager.createRepositoryConfiguration(SignavioConnector.class, "christian.lipphardt", "xxx",
+    RepositoryConnectorConfiguration config = repoConfManager.createRepositoryConfiguration(FileSystemConnector.class, "christian.lipphardt", "xxx",
             "http://localhost:8080");
     System.out.println(config);
 
@@ -64,11 +63,12 @@ public class RepositoryConnectorConfigurationManagerImplTest {
   public void testRepoConfigUsage() {
     // register connectors
     repoConfManager.registerRepositoryConnector(DemoConnector.class);
-    repoConfManager.registerRepositoryConnector(SignavioConnector.class);
+    // repoConfManager.registerRepositoryConnector(SignavioConnector.class);
     repoConfManager.registerRepositoryConnector(FileSystemConnector.class);
 
     // create configurations
-    repoConfManager.createRepositoryConfiguration(SignavioConnector.class, "christian.lipphardt", "xxx", "http://localhost:8080/activiti-modeler/");
+    // repoConfManager.createRepositoryConfiguration(SignavioConnector.class,
+    // "christian.lipphardt", "xxx", "http://localhost:8080/activiti-modeler/");
     repoConfManager.createRepositoryConfiguration(FileSystemConnector.class, "christian.lipphardt", "xxx", "c:");
 
     // persist config
@@ -90,7 +90,7 @@ public class RepositoryConnectorConfigurationManagerImplTest {
     // config for demo connector does not exists, what to do?
     // repoConfManager.registerRepositoryConnector(DemoConnector.class);
     RepositoryConnectorConfigurationManager repoConfManager1 = new RepositoryConnectorConfigurationManagerImpl();
-    repoConfManager1.registerRepositoryConnector(SignavioConnector.class);
+    // repoConfManager1.registerRepositoryConnector(SignavioConnector.class);
     repoConfManager1.registerRepositoryConnector(FileSystemConnector.class);
 
     // get configs from filesystem
