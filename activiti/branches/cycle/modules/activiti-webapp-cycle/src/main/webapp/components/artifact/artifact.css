@@ -16,3 +16,7 @@
 #artifact-image {
 	overflow: auto;
 }
+
+#artifact-source {
+	margin: 1.2em;
+}
