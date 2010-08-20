@@ -1,4 +1,4 @@
-package org.activiti.cycle.transform;
+package org.activiti.cycle.impl.transform;
 
 import org.json.JSONException;
 import org.json.JSONObject;

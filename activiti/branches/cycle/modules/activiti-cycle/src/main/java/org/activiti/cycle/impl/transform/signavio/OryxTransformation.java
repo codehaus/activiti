@@ -1,5 +1,6 @@
-package org.activiti.cycle.transform;
+package org.activiti.cycle.impl.transform.signavio;
 
+import org.activiti.cycle.impl.transform.JsonTransformation;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oryxeditor.server.diagram.Diagram;
