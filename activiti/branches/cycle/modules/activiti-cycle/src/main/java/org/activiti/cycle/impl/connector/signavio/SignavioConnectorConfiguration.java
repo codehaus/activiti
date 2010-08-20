@@ -12,7 +12,8 @@
  */
 package org.activiti.cycle.impl.connector.signavio;
 
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
 
 /**
  * Object used to configure signavio connector. Candidate for Entity to save
@@ -24,11 +25,10 @@ import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
  */
 public class SignavioConnectorConfiguration extends RepositoryConnectorConfiguration {
 
-  // TODO?
-  private String name;
-
   // use it or not?
   private String folderRootUrl;
+
+  private String signavioBaseUrl;
   //
 
   public static String SIGNAVIO_BACKEND_URL_SUFFIX = "p/";
@@ -48,26 +48,34 @@ public class SignavioConnectorConfiguration extends RepositoryConnectorConfigura
   private String user;
 
   public SignavioConnectorConfiguration() {
-    basePath = "http://127.0.0.1:8080/";
+    signavioBaseUrl = "http://127.0.0.1:8080/";
   }
 
   public SignavioConnectorConfiguration(String signavioUrl) {
-    setBasePath(signavioUrl);
+    signavioBaseUrl = signavioUrl;
+  }
+  
+  public SignavioConnectorConfiguration(String name, String signavioBaseUrl, String folderRootUrl, String password, String user) {
+    setName(name);
+    this.signavioBaseUrl = signavioBaseUrl;
+    this.folderRootUrl = folderRootUrl;
+    this.password = password;
+    this.user = user;
+  }  
+
+  public String getSignavioUrl() {
+    return signavioBaseUrl;
   }
 
-  public String getBasePath() {
-    return basePath;
-  }
-
-  public void setBasePath(String basePath) {
-    if (basePath != null && !basePath.endsWith("/")) {
-      basePath = basePath + "/";
+  public void setSignavioUrl(String path) {
+    if (path != null && !path.endsWith("/")) {
+      path = path + "/";
     }
-    this.basePath = basePath;
+    this.signavioBaseUrl = path;
   }
 
   public String getSignavioBackendUrl() {
-    return getBasePath() + SIGNAVIO_BACKEND_URL_SUFFIX;
+    return getSignavioUrl() + SIGNAVIO_BACKEND_URL_SUFFIX;
   }
 
   public String getDirectoryIdFromUrl(String href) {
@@ -116,7 +124,7 @@ public class SignavioConnectorConfiguration extends RepositoryConnectorConfigura
   }
 
   public String getBpmn20XmlExportServletUrl() {
-    return getBasePath() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
+    return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
   }
 
   public String getPassword() {
@@ -133,5 +141,10 @@ public class SignavioConnectorConfiguration extends RepositoryConnectorConfigura
 
   public void setUser(String user) {
     this.user = user;
+  }
+
+  @Override
+  public RepositoryConnector createConnector() {
+    return new SignavioConnector(this);
   }
 }

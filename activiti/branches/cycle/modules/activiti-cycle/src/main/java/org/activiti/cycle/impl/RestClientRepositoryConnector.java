@@ -8,7 +8,6 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
 
 /**
  * Wrapper for {@link RepositoryConnector} to set client url in objects

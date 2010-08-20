@@ -14,7 +14,7 @@ import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
 
 public class FileSystemConnector implements RepositoryConnector {
 

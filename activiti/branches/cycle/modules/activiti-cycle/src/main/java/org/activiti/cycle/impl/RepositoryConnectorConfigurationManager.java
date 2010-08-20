@@ -10,11 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.cycle.conf;
+package org.activiti.cycle.impl;
 
 import java.util.List;
-
-import org.activiti.cycle.RepositoryConnector;
 
 /**
  * This interface provides the methods to read, write and manage configuration
@@ -24,26 +22,39 @@ import org.activiti.cycle.RepositoryConnector;
  */
 public interface RepositoryConnectorConfigurationManager {
 
-  public void registerRepositoryConnector(Class< ? extends RepositoryConnector> test);
-
-  public List<Class< ? extends RepositoryConnector>> getRegisteredRepositoryConnectors();
+  // TODO: DIscuss: I wouldn't mention the repository connectors here at all,
+  // or?
+  // public void registerRepositoryConnector(Class< ? extends
+  // RepositoryConnector> test);
+  //
+  // public List<Class< ? extends RepositoryConnector>>
+  // getRegisteredRepositoryConnectors();
 
   // start crud methods
 
-  public RepositoryConnectorConfiguration createRepositoryConfiguration(Class< ? extends RepositoryConnector> repositoryConnector, String user,
-          String password, String basePath);
+  // public RepositoryConnectorConfiguration
+  // createRepositoryConfiguration(Class< ? extends RepositoryConnector>
+  // repositoryConnector, String user,
+  // String password, String basePath);
 
   public void persistRepositoryConfiguration(RepositoryConnectorConfiguration config);
 
-  public void persistAllRepositoryConfigurations();
+  // Why this? the persist should persist it immediately?
+  // Breaks CRUD/DAO, or not?
+  // public void persistAllRepositoryConfigurations();
 
   public List<RepositoryConnectorConfiguration> findAllRepositoryConfigurations();
 
-  public void removeRepositoryConfiguration(RepositoryConnectorConfiguration config);
+  public void removeRepositoryConfiguration(String name);
+
+  public RepositoryConnectorConfiguration getRepositoryConfiguration(String name);
 
   // end crud methods
 
-  public List<RepositoryConnector> createRepositoryConnectorsFromConfigurations();
+  // public List<RepositoryConnector>
+  // createRepositoryConnectorsFromConfigurations();
 
-  public RepositoryConnector createRepositoryConnectorFromConfiguration(RepositoryConnectorConfiguration repositoryConfig);
+  // public RepositoryConnector
+  // createRepositoryConnectorFromConfiguration(RepositoryConnectorConfiguration
+  // repositoryConfig);
 }

@@ -1,21 +1,13 @@
 package org.activiti.cycle.impl.connector.demo;
 
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
 
 public class DemoConnectorConfiguration extends RepositoryConnectorConfiguration {
 
-  public DemoConnectorConfiguration() {
-    basePath = "/";
-  }
-
-  public String getBasePath() {
-    return basePath;
-  }
-
-  public void setBasePath(String basePath) {
-    if (basePath != null && basePath.length() > 0) {
-      this.basePath = basePath;
-    }
+  @Override
+  public RepositoryConnector createConnector() {
+    return new DemoConnector();
   }
 
 }

@@ -15,8 +15,9 @@ package org.activiti.cycle.impl.connector.fs;
 import java.io.File;
 import java.io.IOException;
 
+import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
 
 /**
  * Object used to configure FS connector. Candidate for Entity to save config
@@ -31,13 +32,18 @@ public class FileSystemConnectorConfiguration extends RepositoryConnectorConfigu
    */
   private File baseFilePath;
 
-  // TODO?
-  private String name;
-
   public FileSystemConnectorConfiguration() {
-    basePath = "c:";
+    // TODO: This doesn't make too much sense to have a default, or? And if we
+    // should query it from the os?
+    // But I would vote to NOT have a default
+    String basePath = "c:";
     baseFilePath = new File(basePath);
   }
+  
+  public FileSystemConnectorConfiguration(String name, File baseFile) {
+    setName(name);
+    this.baseFilePath = baseFile;
+  }  
 
   public FileSystemConnectorConfiguration(String basePath) {
     setBasePath(basePath);
@@ -58,12 +64,9 @@ public class FileSystemConnectorConfiguration extends RepositoryConnectorConfigu
     this.baseFilePath = new File(basePath);
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
+  @Override
+  public RepositoryConnector createConnector() {
+    return new FileSystemConnector(this);
   }
 
 }

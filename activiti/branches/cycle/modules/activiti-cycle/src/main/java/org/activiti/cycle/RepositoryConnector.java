@@ -14,7 +14,7 @@ package org.activiti.cycle;
 
 import java.util.List;
 
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
 
 /**
  * 

@@ -55,7 +55,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
   public JSONArray getEmbeddedModel(RepositoryArtifact artifact) throws IOException, JSONException {
     Client client = getConnector(artifact).initClient();
 
-    Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getBasePath() + "purl");
+    Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getSignavioUrl() + "purl");
 
     // Create POST parameters
     Form embeddedModelForm = new Form();
@@ -239,7 +239,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     try {
       Client client = getConnector(artifact).initClient();
 
-      Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getBasePath() + "purl/" + artifact.getId() + "/info/");
+      Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getSignavioUrl() + "purl/" + artifact.getId() + "/info/");
 
       Request embeddedModelRequest = new Request(Method.DELETE, embeddedModelRef);
 

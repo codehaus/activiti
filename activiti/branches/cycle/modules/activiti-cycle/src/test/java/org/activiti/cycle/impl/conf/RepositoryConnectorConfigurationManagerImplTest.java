@@ -5,11 +5,10 @@ import java.util.List;
 
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.conf.RepositoryConnectorConfiguration;
-import org.activiti.cycle.conf.RepositoryConnectorConfigurationManager;
-import org.activiti.cycle.impl.connector.demo.DemoConnector;
+import org.activiti.cycle.impl.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.RepositoryConnectorConfigurationManager;
+import org.activiti.cycle.impl.SimpleXstreamRepositoryConnectorConfigurationManager;
 import org.activiti.cycle.impl.connector.demo.DemoConnectorConfiguration;
-import org.activiti.cycle.impl.connector.fs.FileSystemConnector;
 import org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnectorConfiguration;
 import org.junit.After;
@@ -27,7 +26,7 @@ public class RepositoryConnectorConfigurationManagerImplTest {
 
   @Before
   public void setUp() throws Exception {
-    repoConfManager = new RepositoryConnectorConfigurationManagerImpl();
+    repoConfManager = new SimpleXstreamRepositoryConnectorConfigurationManager();
   }
 
   @After
@@ -49,40 +48,39 @@ public class RepositoryConnectorConfigurationManagerImplTest {
 
   @Test
   public void testCreateRepositoryConfiguration() {
-    repoConfManager.registerRepositoryConnector(DemoConnector.class);
+    // repoConfManager.registerRepositoryConnector(DemoConnector.class);
     // repoConfManager.registerRepositoryConnector(SignavioConnector.class);
-    repoConfManager.registerRepositoryConnector(FileSystemConnector.class);
+    // repoConfManager.registerRepositoryConnector(FileSystemConnector.class);
 
-    RepositoryConnectorConfiguration config = repoConfManager.createRepositoryConfiguration(FileSystemConnector.class, "christian.lipphardt", "xxx",
-            "http://localhost:8080");
+    RepositoryConnectorConfiguration config = new SignavioConnectorConfiguration("Local Signavio", "http://localhost:8080", null, "christian.lipphardt", "xxx");
     System.out.println(config);
 
-    repoConfManager.persistAllRepositoryConfigurations();
+    repoConfManager.persistRepositoryConfiguration(config);
   }
 
   @Test
   public void testRepoConfigUsage() {
     // register connectors
-    repoConfManager.registerRepositoryConnector(DemoConnector.class);
+    // repoConfManager.registerRepositoryConnector(DemoConnector.class);
     // repoConfManager.registerRepositoryConnector(SignavioConnector.class);
-    repoConfManager.registerRepositoryConnector(FileSystemConnector.class);
+    // repoConfManager.registerRepositoryConnector(FileSystemConnector.class);
 
     // create configurations
-    // repoConfManager.createRepositoryConfiguration(SignavioConnector.class,
-    // "christian.lipphardt", "xxx", "http://localhost:8080/activiti-modeler/");
-    repoConfManager.createRepositoryConfiguration(FileSystemConnector.class, "christian.lipphardt", "xxx", File.listRoots()[0].toString());
+    repoConfManager.persistRepositoryConfiguration(
+            new SignavioConnectorConfiguration("Activiti Modeler", "http://localhost:8080/activiti-modeler/", null, "christian.lipphardt", "xxx"));
+    repoConfManager.persistRepositoryConfiguration(           
+            new FileSystemConnectorConfiguration("Hard Drive", new File("c:")));
 
-    // persist config
-    repoConfManager.persistAllRepositoryConfigurations();
-
-    // create connector instances based on configs
-    List<RepositoryConnector> connectors = repoConfManager.createRepositoryConnectorsFromConfigurations();
-
-    // use connectors
-    for (RepositoryConnector repositoryConnector : connectors) {
-      List<RepositoryNode> nodes = repositoryConnector.getChildNodes("");
-      System.out.println(repositoryConnector.getClass().getName() + ": " + nodes);
-    }
+    // // create connector instances based on configs
+    // List<RepositoryConnector> connectors =
+    // repoConfManager.createRepositoryConnectorsFromConfigurations();
+    //
+    // // use connectors
+    // for (RepositoryConnector repositoryConnector : connectors) {
+    // List<RepositoryNode> nodes = repositoryConnector.getChildNodes("");
+    // System.out.println(repositoryConnector.getClass().getName() + ": " +
+    // nodes);
+    // }
   }
 
   @Test
@@ -90,15 +88,15 @@ public class RepositoryConnectorConfigurationManagerImplTest {
     // register connectors
     // config for demo connector does not exists, what to do?
     // repoConfManager.registerRepositoryConnector(DemoConnector.class);
-    RepositoryConnectorConfigurationManager repoConfManager1 = new RepositoryConnectorConfigurationManagerImpl();
+    RepositoryConnectorConfigurationManager repoConfManager1 = new SimpleXstreamRepositoryConnectorConfigurationManager();
     // repoConfManager1.registerRepositoryConnector(SignavioConnector.class);
-    repoConfManager1.registerRepositoryConnector(FileSystemConnector.class);
+    // repoConfManager1.registerRepositoryConnector(FileSystemConnector.class);
 
     // get configs from filesystem
     List< ? extends RepositoryConnectorConfiguration> configs = repoConfManager1.findAllRepositoryConfigurations();
     for (RepositoryConnectorConfiguration config : configs) {
       System.out.println(config);
-      RepositoryConnector connector = repoConfManager1.createRepositoryConnectorFromConfiguration(config);
+      RepositoryConnector connector = config.createConnector();
       List<RepositoryNode> nodes = connector.getChildNodes("");
       System.out.println(connector.getClass().getName() + ": " + nodes);
     }
