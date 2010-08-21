@@ -46,7 +46,7 @@
   <message id="incRequestMessage" itemRef="tns:incRequestItem" />
   <message id="incResponseMessage" itemRef="tns:incResponseItem" />
   
-  <itemDefinition id="incRequestItem" structureRef="counter:inc" /><!-- QName of input type -->
-  <itemDefinition id="incResponseItem" structureRef="counter:incResponse" /><!-- QName of output type -->
+  <itemDefinition id="incRequestItem" structureRef="counter:inc" /><!-- QName of input element -->
+  <itemDefinition id="incResponseItem" structureRef="counter:incResponse" /><!-- QName of output element -->
   
 </definitions>
