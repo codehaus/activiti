@@ -55,7 +55,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
   public JSONArray getEmbeddedModel(RepositoryArtifact artifact) throws IOException, JSONException {
     Client client = getConnector(artifact).initClient();
 
-    Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getSignavioUrl() + "purl");
+    Reference embeddedModelRef = new Reference(getConnector(artifact).getConfiguration().getSignavioUrl() + "purl");
 
     // Create POST parameters
     Form embeddedModelForm = new Form();
@@ -173,7 +173,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     // Creating the JSON Object for the Snippet
     JSONObject resultJsonObject = new JSONObject();
 
-    resultJsonObject.put("url", getConnector(artifact).getSignavioConfiguration().getModelUrl() + artifact.getId());
+    resultJsonObject.put("url", getConnector(artifact).getConfiguration().getModelUrl() + artifact.getId());
     resultJsonObject.put("overflowX", "fit");
     resultJsonObject.put("overflowY", "fit");
     resultJsonObject.put("zoomSlider", true);
@@ -224,7 +224,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     // 2) + "mashup/signavio.js";
     // Letzteres um das 'p' in SERVER_URL wegzukriegen
 
-    String firstScriptTag = "<script type=\"text/javascript\" src=\"" + getConnector(artifact).getSignavioConfiguration().getMashupUrl() + "signavio.js"
+    String firstScriptTag = "<script type=\"text/javascript\" src=\"" + getConnector(artifact).getConfiguration().getMashupUrl() + "signavio.js"
             + "\"></script>";
     String secondScriptTag = "<script type=\"text/plain\">" + resultJsonObject.toString() + "</script>";
 
@@ -239,7 +239,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     try {
       Client client = getConnector(artifact).initClient();
 
-      Reference embeddedModelRef = new Reference(getConnector(artifact).getSignavioConfiguration().getSignavioUrl() + "purl/" + artifact.getId() + "/info/");
+      Reference embeddedModelRef = new Reference(getConnector(artifact).getConfiguration().getSignavioUrl() + "purl/" + artifact.getId() + "/info/");
 
       Request embeddedModelRequest = new Request(Method.DELETE, embeddedModelRef);
 

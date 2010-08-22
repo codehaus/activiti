@@ -21,7 +21,16 @@ import java.util.List;
  * 
  * @author christian.lipphardt@camunda.com
  */
-public interface RepositoryConnectorConfigurationManager {
+public interface CycleConfigurationService {
+  
+  // TODO: Add this here?
+  // public RepositoryConnector createRepositoryConnector(String
+  // configuationName);
+
+  public ConfigurationContainer getConfiguration(String name);
+  
+  public void saveConfiguration(ConfigurationContainer container);
+  
 
   // TODO: DIscuss: I wouldn't mention the repository connectors here at all,
   // or?

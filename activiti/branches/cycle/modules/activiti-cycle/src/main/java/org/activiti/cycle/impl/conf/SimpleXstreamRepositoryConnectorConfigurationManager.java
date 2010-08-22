@@ -1,5 +1,6 @@
 package org.activiti.cycle.impl.conf;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,23 +12,37 @@ import org.activiti.cycle.RepositoryException;
 import com.thoughtworks.xstream.XStream;
 
 /**
+ * VERY EASY implementation of Configuration Service to write stuff as XML on
+ * disk.
  * 
- * @author christian.lipphardt
+ * This is just used temporary until real persistence is implemented. The API
+ * <b>and the resulting XML</b> should NOT be seen as stable in the meantime.
  */
-public class SimpleXstreamRepositoryConnectorConfigurationManager implements RepositoryConnectorConfigurationManager {
+public class SimpleXstreamRepositoryConnectorConfigurationManager implements CycleConfigurationService {
 
   // TODO: Set a config dir for xstream?
-  private static final String CONFIG_DIR = "";
-  private static final String FILE_EXT = ".xml";
+  // private static final String CONFIG_DIR = "";
+  private static final String FILE_EXT = ".cycle-conf.xml";
+  
+  private XStream xStream = new XStream();
 
   // private List<Class< ? extends RepositoryConnector>>
   // registeredRepositoryConnnectors = new ArrayList<Class< ? extends
   // RepositoryConnector>>();
   // private List<RepositoryConnectorConfiguration> repoConnectorConfigurations
   // = findAllRepositoryConfigurations();
-  private List<RepositoryConnectorConfiguration> repoConnectorConfigurations = new ArrayList<RepositoryConnectorConfiguration>();
+  // private List<RepositoryConnectorConfiguration> repoConnectorConfigurations
+  // = new ArrayList<RepositoryConnectorConfiguration>();
 
   public SimpleXstreamRepositoryConnectorConfigurationManager() {
+  }
+  
+  public SimpleXstreamRepositoryConnectorConfigurationManager(File baseDir) {
+    // TODO: Do something with it!
+  }
+  
+  public XStream getXStream() {
+    return xStream;
   }
 
   // public RepositoryConnectorConfiguration
@@ -68,13 +83,7 @@ public class SimpleXstreamRepositoryConnectorConfigurationManager implements Rep
   // }
 
   public void persistRepositoryConfiguration(RepositoryConnectorConfiguration config) {
-    String configFileName = config.getName() + FILE_EXT;
-    try {
-      XStream xStream = new XStream();
-      xStream.toXML(config, new FileWriter(configFileName));
-    } catch (IOException ioe) {
-      throw new RepositoryException("Unable to persist RepositoryConnectorConfiguration '" + configFileName + "'", ioe);
-    }
+    saveObjectToFile(config.getName(), config);
   }
 
   public List<RepositoryConnectorConfiguration> findAllRepositoryConfigurations() {
@@ -83,17 +92,41 @@ public class SimpleXstreamRepositoryConnectorConfigurationManager implements Rep
   }
 
   public RepositoryConnectorConfiguration getRepositoryConfiguration(String name) {
-    String configFileName = name + FILE_EXT;
+    return (RepositoryConnectorConfiguration) loadFromFile(name);
+  }
+
+  public void removeRepositoryConfiguration(String name) {
+    new File(getFileName(name)).delete();
+  }
+  
+  public void saveObjectToFile(String name, Object o) {
+    String configFileName = getFileName(name);
     try {
-      XStream xStream = new XStream();
-      return (RepositoryConnectorConfiguration) xStream.fromXML(new FileReader(configFileName));
+      getXStream().toXML(o, new FileWriter(configFileName));
     } catch (IOException ioe) {
-      throw new RepositoryException("Unable to load RepositoryConnectorConfiguration '" + configFileName + "'", ioe);
+      throw new RepositoryException("Unable to persist '" + name + "' as XML in the file system sd file '" + configFileName + "'", ioe);
     }
   }
 
-  public void removeRepositoryConfiguration(String id) {
-    // TODO: delete from FS
+  private String getFileName(String name) {
+    return name + FILE_EXT;
+  }
+
+  public Object loadFromFile(String name) {
+    String configFileName = getFileName(name);
+    try {
+      return getXStream().fromXML(new FileReader(configFileName));
+    } catch (IOException ioe) {
+      throw new RepositoryException("Unable to load '" + name + "' as XML in the file system sd file '" + configFileName + "'", ioe);
+    }
+  }
+
+  public void saveConfiguration(ConfigurationContainer container) {
+    saveObjectToFile(container.getName(), container);
+  }
+
+  public ConfigurationContainer getConfiguration(String name) {
+    return (ConfigurationContainer) loadFromFile(name);
   }
 
   // public void persistAllRepositoryConfigurations() {

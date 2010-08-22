@@ -1,6 +1,6 @@
 package org.activiti.cycle;
 
-import org.activiti.cycle.impl.RepositoryRegistry;
+import org.activiti.cycle.impl.conf.RepositoryRegistry;
 
 /**
  * A {@link ContentRepresentationProvider} is responsible to create
@@ -34,7 +34,12 @@ public abstract class ContentRepresentationProvider {
   public Content createContent(RepositoryArtifact artifact) {
     Content c = new Content();
     // c.setContentRepresentationDefinition(createContentRepresentationDefinition(artifact));
-    c.setValue(getContent(artifact));
+    byte[] content = getContent(artifact);
+    if (content == null) {
+      throw new RepositoryException("No content created for artifact " + artifact.getId() + " ' from provider '" + getContentRepresentationName()
+              + "' (was null). Please check provider or artifact.");
+    }
+    c.setValue(content);
     return c;
   }  
   

@@ -12,38 +12,36 @@ import java.util.logging.Logger;
 import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
-import org.activiti.cycle.ContentRepresentationProvider;
-import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
-import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.UnsupportedRepositoryOpperation;
-import org.activiti.cycle.impl.RepositoryRegistry;
 import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.conf.RepositoryRegistry;
+import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
+import org.activiti.cycle.impl.connector.demo.provider.DemoImageProvider;
+import org.activiti.cycle.impl.connector.demo.provider.DemoTextProvider;
+import org.activiti.cycle.impl.connector.demo.provider.DemoXmlProvider;
 
-public class DemoConnector implements RepositoryConnector {
+public class DemoConnector extends AbstractRepositoryConnector {
 
-  static {
-    try {
-      nodes = new ArrayList<RepositoryNode>();
-      rootNodes = new ArrayList<RepositoryNode>();
-      content = new HashMap<RepositoryNode, Map<String, byte[]>>();
+  public DemoConnector(RepositoryConnectorConfiguration configuration) {
+    super(configuration);
 
-      registerMetaddata();
-      createDemoData();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
+    nodes = new ArrayList<RepositoryNode>();
+    rootNodes = new ArrayList<RepositoryNode>();
+    content = new HashMap<String, Map<String, byte[]>>();
+
+    createDemoData(); 
   }
 
   private String loggedInUser;
 
-  private static List<RepositoryNode> nodes;
-  private static List<RepositoryNode> rootNodes;
+  public static List<RepositoryNode> nodes;
+  public static List<RepositoryNode> rootNodes;
 
-  private static Map<RepositoryNode, Map<String, byte[]>> content;
+  public static Map<String, Map<String, byte[]>> content;
 
   private static Logger log = Logger.getLogger(DemoConnector.class.getName());
 
@@ -51,67 +49,19 @@ public class DemoConnector implements RepositoryConnector {
   public static final String ARTIFACT_TYPE_MINDMAP = "ARTIFACT_TYPE_MINDMAP";
   public static final String ARTIFACT_TYPE_BPMN_20 = "ARTIFACT_TYPE_BPMN_20";
 
+
   static {
-    nodes = new ArrayList<RepositoryNode>();
-    rootNodes = new ArrayList<RepositoryNode>();
-    content = new HashMap<RepositoryNode, Map<String, byte[]>>();
-
-    registerMetaddata();
-    createDemoData();    
-  }
-
-  public static class TestProvider extends ContentRepresentationProvider {
-
-    public TestProvider(String name, String type) {
-      super(name, type);
-    }
-    @Override
-    public byte[] getContent(RepositoryArtifact artifact) {
-      Map<String, byte[]> map = content.get(artifact);
-      if (map != null) {
-        return map.get(getContentRepresentationName());
-      }
-      throw new RepositoryException("Couldn't find content representation '" + getContentRepresentationName() + "' for artifact " + artifact.getId());
-    }
-    @Override
-    public String toString() {
-      return this.getClass().getSimpleName() + " [" + getContentRepresentationName() + "]";
-    }
-  }
-
-  public static class TestTextProvider extends TestProvider {
-
-    public TestTextProvider() {
-      super("Text", ContentType.TEXT);
-    }
-  }
-
-  public static class TestImageProvider extends TestProvider {
-
-    public TestImageProvider() {
-      super("Image", ContentType.IMAGE);
-    }
-  }
-
-  public static class TestXmlProvider extends TestProvider {
-
-    public TestXmlProvider() {
-      super("XML", ContentType.XML);
-    }
-  }
-
-  public static void registerMetaddata() {
     RepositoryRegistry.registerArtifactType(new ArtifactType(ARTIFACT_TYPE_TEXT, ARTIFACT_TYPE_TEXT));
     RepositoryRegistry.registerArtifactType(new ArtifactType(ARTIFACT_TYPE_MINDMAP, ARTIFACT_TYPE_MINDMAP));
     RepositoryRegistry.registerArtifactType(new ArtifactType(ARTIFACT_TYPE_BPMN_20, ARTIFACT_TYPE_BPMN_20));
 
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_TEXT, TestTextProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_MINDMAP, TestImageProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, TestImageProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, TestXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_TEXT, DemoTextProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_MINDMAP, DemoImageProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, DemoImageProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, DemoXmlProvider.class);
   }
 
-  public static void createDemoData() {
+  public void createDemoData() {
     // Folder minutes
     RepositoryFolder folder1 = createFolder("/minutes", "Meeting Minutes", "/");
 
@@ -145,16 +95,24 @@ public class DemoConnector implements RepositoryConnector {
     nodes.add(file3);
   }
 
-  private static RepositoryFolder createFolder(String id, String name, String parentPath) {
-    RepositoryFolder newFolder = new RepositoryFolder();
+  private RepositoryNode clone(RepositoryNode node) {
+    if (node instanceof RepositoryFolder) {
+      return clone((RepositoryFolder) node);
+    } else {
+      return clone((RepositoryArtifact) node);
+    }
+  }
+
+  private RepositoryFolder createFolder(String id, String name, String parentPath) {
+    RepositoryFolder newFolder = new RepositoryFolder(this);
     newFolder.setId(id);
     newFolder.getMetadata().setName(name);
     newFolder.getMetadata().setPath(parentPath);
     return newFolder;
   }
 
-  private static RepositoryArtifact createArtifact(String id, String artifactTypeIdentifier, String name, String parentPath) {
-    RepositoryArtifact newArtifact = new RepositoryArtifact();
+  private RepositoryArtifact createArtifact(String id, String artifactTypeIdentifier, String name, String parentPath) {
+    RepositoryArtifact newArtifact = new RepositoryArtifact(this);
     newArtifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
     newArtifact.setId(id);
     newArtifact.getMetadata().setName(name);
@@ -162,11 +120,41 @@ public class DemoConnector implements RepositoryConnector {
     return newArtifact;
   }
 
-  private static void addContentRepresentation(RepositoryArtifact artifact, String name, String contentSourceUrl) {
-    Map<String, byte[]> map = content.get(artifact);
+  /**
+   * In the demo connector we need to clone the objects, because we change ids
+   * later
+   * 
+   * TODO: Maybe the view connector should do the cloning? Because he causes the
+   * trouble. Can we avoid cloning in the other connectors because
+   * {@link RepositoryNode} objects are considered one time only data containes?
+   */
+  private RepositoryNode clone(RepositoryFolder folder) {
+    RepositoryFolder newFolder = new RepositoryFolder(this);
+    newFolder.setId(folder.getId());
+    newFolder.getMetadata().setName(folder.getMetadata().getName());
+    newFolder.getMetadata().setPath(folder.getMetadata().getPath());
+    return newFolder;
+  }
+
+  /**
+   * In the demo connector we need to clone the objects, because we change ids
+   * later
+   */
+  private RepositoryArtifact clone(RepositoryArtifact artifact) {
+    RepositoryArtifact newArtifact = new RepositoryArtifact(this);
+    newArtifact.setArtifactType(artifact.getArtifactType());
+    newArtifact.setId(artifact.getId());
+    newArtifact.getMetadata().setName(artifact.getMetadata().getName());
+    newArtifact.getMetadata().setPath(artifact.getMetadata().getPath());
+    return newArtifact;
+  }
+  
+
+  private void addContentRepresentation(RepositoryArtifact artifact, String name, String contentSourceUrl) {
+    Map<String, byte[]> map = content.get(artifact.getId());
     if (map == null) {
       map = new HashMap<String, byte[]>();
-      content.put(artifact, map);
+      content.put(artifact.getId(), map);
     }
 
     // read and set content
@@ -209,26 +197,25 @@ public class DemoConnector implements RepositoryConnector {
   }
 
   public List<RepositoryNode> getChildNodes(String parentUrl) {
+    ArrayList<RepositoryNode> list = new ArrayList<RepositoryNode>();
     if ("/".equals(parentUrl)) {
-      return rootNodes;
+      for (RepositoryNode node : rootNodes) {
+        list.add(clone(node));
+      }
     } else {
-      ArrayList<RepositoryNode> list = new ArrayList<RepositoryNode>();
       for (RepositoryNode node : nodes) {
         if (node.getId().startsWith(parentUrl) && !node.getId().equals(parentUrl)) {
-          String remainingUrl = node.getId().substring(parentUrl.length() + 1); // remove
-          // "/"
-          remainingUrl = remainingUrl.substring(0, remainingUrl.length() - 1); // remove
-          // /
-          // at
-          // the
-          // end
+          // remove / at the end
+          String remainingUrl = node.getId().substring(parentUrl.length() + 1);
+          remainingUrl = remainingUrl.substring(0, remainingUrl.length() - 1);
+          
           if (!remainingUrl.contains("/")) {
-            list.add(node);
+            list.add(clone(node));
           }
         }
       }
-      return list;
     }
+    return list;
   }
 
   public List<RepositoryNode> getChildNodes(String parentUrl, boolean fetchDetails) {
@@ -238,7 +225,7 @@ public class DemoConnector implements RepositoryConnector {
   public RepositoryArtifact getArtifactDetails(String id) {
     for (RepositoryNode node : nodes) {
       if (node.getId().equals(id) && node instanceof RepositoryArtifact) {
-        return (RepositoryArtifact) node;
+        return clone((RepositoryArtifact) node);
       }
     }
     throw new RepositoryException("Couldn't find node with url '" + id + "'");
@@ -262,13 +249,6 @@ public class DemoConnector implements RepositoryConnector {
   }
 
   public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
-  }
-
-  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration() {
-    return null;
-  }
-
-  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config) {
   }
 
 }

@@ -10,13 +10,12 @@ import java.util.logging.Logger;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
-import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
 
-public class FileSystemConnector implements RepositoryConnector {
+public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemConnectorConfiguration> {
 
   private static Logger log = Logger.getLogger(FileSystemConnector.class.getName());
 
@@ -31,10 +30,8 @@ public class FileSystemConnector implements RepositoryConnector {
     // action);
   }
 
-  private FileSystemConnectorConfiguration conf;
-
   public FileSystemConnector(FileSystemConnectorConfiguration conf) {
-    this.conf = conf;
+    super(conf);
   }
 
   public boolean login(String username, String password) {
@@ -52,11 +49,11 @@ public class FileSystemConnector implements RepositoryConnector {
     try {
       if (parentId == null || parentId.length() == 0) {
         // Go to root!
-        path = conf.getBasePath();
+        path = getConfiguration().getBasePath();
         children = new File(path).listFiles();
       } else {
         // Use base path!
-        path = conf.getBasePath() + parentId;
+        path = getConfiguration().getBasePath() + parentId;
         children = new File(path).listFiles();
       }
 
@@ -138,7 +135,7 @@ public class FileSystemConnector implements RepositoryConnector {
 
     artifact.setId(getLocalPath(file.getCanonicalPath()));
     artifact.getMetadata().setName(file.getName());
-    artifact.getMetadata().setPath(conf.getBasePath() + artifact.getId());
+    artifact.getMetadata().setPath(getConfiguration().getBasePath() + artifact.getId());
     artifact.getMetadata().setLastChanged(new Date(file.lastModified()));
 
     return artifact;
@@ -149,7 +146,7 @@ public class FileSystemConnector implements RepositoryConnector {
 
     folder.setId(getLocalPath(file.getCanonicalPath()));
     folder.getMetadata().setName(file.getName());
-    folder.getMetadata().setPath(conf.getBasePath() + folder.getId());
+    folder.getMetadata().setPath(getConfiguration().getBasePath() + folder.getId());
     folder.getMetadata().setLastChanged(new Date(file.lastModified()));
 
     return folder;
@@ -164,18 +161,10 @@ public class FileSystemConnector implements RepositoryConnector {
   }
 
   private String getLocalPath(String path) {
-    if (path.startsWith(conf.getBasePath())) {
-      path = path.replace(conf.getBasePath(), "");
+    if (path.startsWith(getConfiguration().getBasePath())) {
+      path = path.replace(getConfiguration().getBasePath(), "");
       return path;
     }
     throw new RepositoryException("Unable to determine local path! ('" + path + "')");
-  }
-
-  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration() {
-    return (RepositoryConnectorConfiguration) conf;
-  }
-
-  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config) {
-    this.conf = (FileSystemConnectorConfiguration) config;
   }
 }

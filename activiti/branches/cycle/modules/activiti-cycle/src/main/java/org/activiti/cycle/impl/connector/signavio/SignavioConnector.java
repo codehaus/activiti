@@ -22,12 +22,11 @@ import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
-import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.impl.RepositoryRegistry;
-import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.conf.RepositoryRegistry;
+import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
 import org.activiti.cycle.impl.connector.signavio.action.OpenModelerAction;
 import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.EmbeddableModelProvider;
@@ -58,7 +57,7 @@ import org.restlet.resource.Representation;
  * 
  * @author christian.lipphardt@camunda.com
  */
-public class SignavioConnector implements RepositoryConnector {
+public class SignavioConnector extends AbstractRepositoryConnector<SignavioConnectorConfiguration> {
 
   private static Logger log = Logger.getLogger(SignavioConnector.class.getName());
 
@@ -114,10 +113,8 @@ public class SignavioConnector implements RepositoryConnector {
 
   private transient Client restletClient;
 
-  private SignavioConnectorConfiguration conf;
-
   public SignavioConnector(SignavioConnectorConfiguration signavioConfiguration) {
-    this.conf = signavioConfiguration;
+    super(signavioConfiguration);
   }
 
   public Client initClient() {
@@ -179,7 +176,7 @@ public class SignavioConnector implements RepositoryConnector {
     registrationForm.add("serverSecurityId", SERVER_SECURITY_ID);
     Representation registrationRep = registrationForm.getWebRepresentation();
 
-    Request registrationRequest = new Request(Method.POST, conf.getRegistrationUrl(), registrationRep);
+    Request registrationRequest = new Request(Method.POST, getConfiguration().getRegistrationUrl(), registrationRep);
     Response registrationResponse = sendRequest(registrationRequest);
 
     if (registrationResponse.getStatus().equals(Status.SUCCESS_CREATED)) {
@@ -190,8 +187,10 @@ public class SignavioConnector implements RepositoryConnector {
   }
 
   public boolean login(String username, String password) {
+    // TODO: use credentials from configuration if configured there (how can we
+    // do that generically?)
     try {
-      log.info("Logging into Signavio on url: " + conf.getLoginUrl());
+      log.info("Logging into Signavio on url: " + getConfiguration().getLoginUrl());
 
       // Login a user
       Form loginForm = new Form();
@@ -200,7 +199,7 @@ public class SignavioConnector implements RepositoryConnector {
       loginForm.add("tokenonly", "true");
       Representation loginRep = loginForm.getWebRepresentation();
 
-      Request loginRequest = new Request(Method.POST, conf.getLoginUrl(), loginRep);
+      Request loginRequest = new Request(Method.POST, getConfiguration().getLoginUrl(), loginRep);
       Response loginResponse = sendRequest(loginRequest);
 
       Representation representation = loginResponse.getEntity();
@@ -213,7 +212,7 @@ public class SignavioConnector implements RepositoryConnector {
   }
 
   public JSONObject getPublicRootDirectory() throws IOException, JSONException {
-    Response directoryResponse = getJsonResponse(conf.getDirectoryUrl());
+    Response directoryResponse = getJsonResponse(getConfiguration().getDirectoryUrl());
     JsonRepresentation jsonData = new JsonRepresentation(directoryResponse.getEntity());
     JSONArray rootJsonArray = jsonData.toJsonArray();
 
@@ -259,7 +258,7 @@ public class SignavioConnector implements RepositoryConnector {
     RepositoryFolder folderInfo = new RepositoryFolder(this);
     // folderInfo.setId( directoryId );
     // TODO: Check where we get the real ID from!
-    folderInfo.setId(conf.getDirectoryIdFromUrl(href));
+    folderInfo.setId(getConfiguration().getDirectoryIdFromUrl(href));
 
     folderInfo.getMetadata().setName(directoryName);
     // TODO: Where do we get the path from?
@@ -269,7 +268,7 @@ public class SignavioConnector implements RepositoryConnector {
   }
 
   private RepositoryArtifact getArtifactInfoFromFolderLink(JSONObject json) throws JSONException {
-    String id = conf.getModelIdFromUrl(json.getString("href"));
+    String id = getConfiguration().getModelIdFromUrl(json.getString("href"));
     return getArtifactInfoFromFile(id, json.getJSONObject("rep"));
   }
 
@@ -317,7 +316,7 @@ public class SignavioConnector implements RepositoryConnector {
 
   public List<RepositoryNode> getChildNodes(String parentId) {
     try {
-      Response directoryResponse = getJsonResponse(conf.getDirectoryUrl() + parentId);
+      Response directoryResponse = getJsonResponse(getConfiguration().getDirectoryUrl() + parentId);
       JsonRepresentation jsonData = new JsonRepresentation(directoryResponse.getEntity());
       JSONArray relJsonArray = jsonData.toJsonArray();
 
@@ -375,10 +374,6 @@ public class SignavioConnector implements RepositoryConnector {
     this.securityToken = securityToken;
   }
 
-  public SignavioConnectorConfiguration getSignavioConfiguration() {
-    return conf;
-  }
-
   public void createNewSubFolder(String parentFolderId, RepositoryFolder subFolder) {
     try {
       Form createFolderForm = new Form();
@@ -387,7 +382,7 @@ public class SignavioConnector implements RepositoryConnector {
       createFolderForm.add("parent", "/directory/" + parentFolderId);
       Representation createFolderRep = createFolderForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.POST, new Reference(conf.getDirectoryUrl()), createFolderRep);
+      Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getDirectoryUrl()), createFolderRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception ex) {
@@ -397,7 +392,7 @@ public class SignavioConnector implements RepositoryConnector {
 
   public void deleteArtifact(String artifactId) {
     try {
-      Request jsonRequest = new Request(Method.DELETE, new Reference(conf.getModelUrl() + artifactId));
+      Request jsonRequest = new Request(Method.DELETE, new Reference(getConfiguration().getModelUrl() + artifactId));
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
 
       sendRequest(jsonRequest);
@@ -408,7 +403,7 @@ public class SignavioConnector implements RepositoryConnector {
 
   public void deleteSubFolder(String subFolderId) {
     try {
-      Request jsonRequest = new Request(Method.DELETE, new Reference(conf.getDirectoryUrl() + subFolderId));
+      Request jsonRequest = new Request(Method.DELETE, new Reference(getConfiguration().getDirectoryUrl() + subFolderId));
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
 
       sendRequest(jsonRequest);
@@ -421,7 +416,7 @@ public class SignavioConnector implements RepositoryConnector {
     return getModelUrl(artifact.getId());
   }
   public String getModelUrl(String artifactId) {
-    return getSignavioConfiguration().getModelUrl() + artifactId;
+    return getConfiguration().getModelUrl() + artifactId;
   }
 
   public void commitPendingChanges(String comment) {
@@ -433,7 +428,7 @@ public class SignavioConnector implements RepositoryConnector {
       bodyForm.add("parent", "/directory/" + targetFolderId);
       Representation bodyRep = bodyForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.PUT, new Reference(conf.getModelUrl() + modelId), bodyRep);
+      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getModelUrl() + modelId), bodyRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception ex) {
@@ -447,7 +442,7 @@ public class SignavioConnector implements RepositoryConnector {
       bodyForm.add("parent", "/directory/" + targetFolderId);
       Representation bodyRep = bodyForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.PUT, new Reference(conf.getDirectoryUrl() + directoryId), bodyRep);
+      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getDirectoryUrl() + directoryId), bodyRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception ex) {
@@ -498,7 +493,7 @@ public class SignavioConnector implements RepositoryConnector {
       // modelForm.add("views", new JSONArray().toString());
       Representation modelRep = modelForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.POST, new Reference(conf.getModelUrl()), modelRep);
+      Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getModelUrl()), modelRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception je) {
@@ -514,7 +509,7 @@ public class SignavioConnector implements RepositoryConnector {
       reivisionForm.add("revision", revisionId);
       Representation modelRep = reivisionForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.PUT, new Reference(conf.getModelUrl()), modelRep);
+      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getModelUrl()), modelRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception je) {
@@ -533,7 +528,7 @@ public class SignavioConnector implements RepositoryConnector {
       dataForm.add("data", json.toString());
       Representation jsonDataRep = dataForm.getWebRepresentation();
 
-      Request request = new Request(Method.POST, new Reference(conf.getBpmn20XmlExportServletUrl()), jsonDataRep);
+      Request request = new Request(Method.POST, new Reference(getConfiguration().getBpmn20XmlExportServletUrl()), jsonDataRep);
       Response jsonResponse = sendRequest(request);
       JsonRepresentation jsonXmlRep = new JsonRepresentation(jsonResponse.getEntity());
 
@@ -543,11 +538,4 @@ public class SignavioConnector implements RepositoryConnector {
     }
   }
 
-  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration() {
-    return conf;
-  }
-
-  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config) {
-    this.conf = (SignavioConnectorConfiguration) config;
-  }
 }

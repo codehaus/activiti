@@ -22,6 +22,9 @@ import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
  */
 public interface RepositoryConnector {
 
+  
+  public RepositoryConnectorConfiguration getConfiguration();
+
   /**
    * log in given user and return true, if login was successful and false, if
    * the user couldn't be logged in
@@ -108,13 +111,16 @@ public interface RepositoryConnector {
    */
   public void commitPendingChanges(String comment);
 
-  /**
-   * get the repository connector's configuration
-   */
-  public void setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration config);
-
-  /**
-   * set the repository connector's configuration
-   */
-  public RepositoryConnectorConfiguration getRepositoryConnectorConfiguration();
+  // /**
+  // * get the repository connector's configuration
+  // */
+  // public void
+  // setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration
+  // config);
+  //
+  // /**
+  // * set the repository connector's configuration
+  // */
+  // public RepositoryConnectorConfiguration
+  // getRepositoryConnectorConfiguration();
 }

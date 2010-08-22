@@ -20,6 +20,8 @@ public class Content {
   
   private byte[] contentAsByteArray;
 
+  private String contentAsString;
+
   private InputStream contentAsInputStream;
 
   
@@ -32,7 +34,9 @@ public class Content {
   }
 
   public String asString() {
-    if (contentAsByteArray != null) {
+    if (contentAsString != null) {
+      return contentAsString;
+    } else if (contentAsByteArray != null) {
       return new String(contentAsByteArray);
     } else {
       throw new RuntimeException("Not yet implemented");
@@ -40,7 +44,7 @@ public class Content {
   }
 
   public void setValue(String text) {
-    this.contentAsByteArray = text.getBytes();
+    this.contentAsString = text;
   }
 
   public void setValue(byte[] content) {

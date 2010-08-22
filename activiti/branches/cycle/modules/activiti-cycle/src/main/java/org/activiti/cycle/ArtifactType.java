@@ -14,7 +14,7 @@ package org.activiti.cycle;
 
 import java.util.List;
 
-import org.activiti.cycle.impl.RepositoryRegistry;
+import org.activiti.cycle.impl.conf.RepositoryRegistry;
 
 /**
  * The type specifies the type of an artifact, e.g. Signavio model, jpdl process

@@ -13,7 +13,7 @@
 package org.activiti.cycle.impl.connector.signavio;
 
 import org.activiti.cycle.RepositoryConnector;
-import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
+import org.activiti.cycle.impl.conf.PasswordEnabledRepositoryConnectorConfiguration;
 
 /**
  * Object used to configure signavio connector. Candidate for Entity to save
@@ -23,9 +23,9 @@ import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
  * 
  * @author bernd.ruecker@camunda.com
  */
-public class SignavioConnectorConfiguration extends RepositoryConnectorConfiguration {
+public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryConnectorConfiguration {
 
-  // use it or not?
+  // TODO: use it or not?
   private String folderRootUrl;
 
   private String signavioBaseUrl;
@@ -42,11 +42,7 @@ public class SignavioConnectorConfiguration extends RepositoryConnectorConfigura
   public static String MASHUP_URL_SUFFIX = "mashup/";
 
   public static String BPMN_20_EXPORT_SERVLET = "bpmn2_0serialization";
-
-  private String password;
-
-  private String user;
-
+  
   public SignavioConnectorConfiguration() {
     signavioBaseUrl = "http://127.0.0.1:8080/";
   }
@@ -59,8 +55,13 @@ public class SignavioConnectorConfiguration extends RepositoryConnectorConfigura
     setName(name);
     this.signavioBaseUrl = signavioBaseUrl;
     this.folderRootUrl = folderRootUrl;
-    this.password = password;
-    this.user = user;
+    setPassword(password);
+    setUser(user);
+  }  
+
+  public SignavioConnectorConfiguration(String name, String signavioBaseUrl) {
+    setName(name);
+    this.signavioBaseUrl = signavioBaseUrl;    
   }  
 
   public String getSignavioUrl() {
@@ -125,22 +126,6 @@ public class SignavioConnectorConfiguration extends RepositoryConnectorConfigura
 
   public String getBpmn20XmlExportServletUrl() {
     return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public String getUser() {
-    return user;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public void setUser(String user) {
-    this.user = user;
   }
 
   @Override

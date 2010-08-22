@@ -7,7 +7,7 @@ import org.activiti.cycle.Content;
 import org.activiti.cycle.ParametrizedFreemakerTemplateAction;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryFolder;
-import org.activiti.cycle.impl.RepositoryRegistry;
+import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnector;
 import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.JsonProvider;

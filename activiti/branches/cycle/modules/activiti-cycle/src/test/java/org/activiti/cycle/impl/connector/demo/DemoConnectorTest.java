@@ -1,4 +1,4 @@
-package org.activiti.cycle.impl.connector.mock;
+package org.activiti.cycle.impl.connector.demo;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,39 +10,45 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.impl.RestClientRepositoryConnector;
-import org.activiti.cycle.impl.connector.demo.DemoConnector;
+import org.activiti.cycle.impl.conf.ConfigurationContainer;
+import org.activiti.cycle.impl.connector.view.CustomizedViewConfiguration;
 import org.junit.Test;
 
 public class DemoConnectorTest {
 
   @Test
   public void testFirstPlay() {    
-    RepositoryConnector conn = new RestClientRepositoryConnector("demo-repo", "http://localhost:8080/activiti-cycle/", new DemoConnector());
+    // create demo connector but accessed via the customized view connector
+    ConfigurationContainer userConfiguration = new ConfigurationContainer("bernd");
+    userConfiguration.addRepositoryConnectorConfiguration(new DemoConnectorConfiguration("demo"));
+    RepositoryConnector conn = new CustomizedViewConfiguration("http://localhost:8080/activiti-cycle/", userConfiguration).createConnector();
     
     List<RepositoryNode> childNodes = conn.getChildNodes("/");
+    assertEquals(1, childNodes.size());
+    assertEquals("demo", childNodes.get(0).getId());
+
+    
+    childNodes = conn.getChildNodes("/demo/");
     assertEquals(2, childNodes.size());
 
     assertEquals(RepositoryFolder.class, childNodes.get(0).getClass());
     RepositoryFolder folder1 = (RepositoryFolder) childNodes.get(0);
-    assertEquals("/minutes", folder1.getId());
-    // TODO: Think about //
-    // assertEquals("http://localhost:8080/activiti-cycle/demo-repo//minutes",
-    // folder1.getClientUrl());
+    assertEquals("/demo/minutes", folder1.getId());
+    assertEquals("http://localhost:8080/activiti-cycle/demo/minutes", folder1.getClientUrl());
     
     assertEquals(RepositoryFolder.class, childNodes.get(1).getClass());
     RepositoryFolder folder2 = (RepositoryFolder) childNodes.get(1);
-    assertEquals("/BPMN", folder2.getId());
+    assertEquals("/demo/BPMN", folder2.getId());
     
     // check sub elements of folder 1
     childNodes = conn.getChildNodes(folder1.getId());
     assertEquals(2, childNodes.size());
 
     RepositoryArtifact file1 = (RepositoryArtifact) childNodes.get(0);
-    assertEquals("/minutes/20100701-KickOffMeeting.txt", file1.getId());
+    assertEquals("/demo/minutes/20100701-KickOffMeeting.txt", file1.getId());
 
     RepositoryArtifact file2 = (RepositoryArtifact) childNodes.get(1);
-    assertEquals("/minutes/InitialMindmap.mm", file2.getId());
+    assertEquals("/demo/minutes/InitialMindmap.mm", file2.getId());
     
 
     // check sub elements of folder 2
@@ -50,13 +56,13 @@ public class DemoConnectorTest {
     assertEquals(1, childNodes.size());
 
     RepositoryFolder folder3 = (RepositoryFolder) childNodes.get(0);
-    assertEquals("/BPMN/Level3", folder3.getId());
+    assertEquals("/demo/BPMN/Level3", folder3.getId());
 
     childNodes = conn.getChildNodes(folder3.getId());
     assertEquals(1, childNodes.size());
 
     RepositoryArtifact file3 = (RepositoryArtifact) childNodes.get(0);
-    assertEquals("/BPMN/Level3/789237892374239", file3.getId());
+    assertEquals("/demo/BPMN/Level3/789237892374239", file3.getId());
     assertEquals("InitialBpmnModel", file3.getMetadata().getName());
     assertEquals("/BPMN/Level3", file3.getMetadata().getPath());
     //
