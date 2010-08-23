@@ -156,6 +156,8 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
     ArrayList<RepositoryNode> nodes = new ArrayList<RepositoryNode>();
     for (String repoName : getRepositoryConnectors().keySet()) {
       RepositoryFolder folder = new RepositoryFolder(this);
+      folder.getMetadata().setName(repoName);
+      folder.getMetadata().setPath("/" + repoName);
       folder.setId(repoName);
       folder.setClientUrl(getClientUrl(folder));
       nodes.add(folder);
