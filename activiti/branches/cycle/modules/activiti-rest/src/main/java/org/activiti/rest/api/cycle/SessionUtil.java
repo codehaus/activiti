@@ -17,6 +17,7 @@ import java.io.File;
 import javax.servlet.http.HttpSession;
 
 import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.impl.conf.ConfigurationContainer;
 import org.activiti.cycle.impl.conf.CycleConfigurationService;
 import org.activiti.cycle.impl.conf.SimpleXstreamRepositoryConnectorConfigurationManager;
@@ -65,19 +66,21 @@ public class SessionUtil {
   public static ConfigurationContainer loadUserConfiguration(String currentUserId) {
     CycleConfigurationService cycleConfigurationService = new SimpleXstreamRepositoryConnectorConfigurationManager(configBaseDir);
 
-    ConfigurationContainer configuration = cycleConfigurationService.getConfiguration(currentUserId);
-    if (configuration == null) {
-      configuration = createDefaultDemoConfiguration();
+    ConfigurationContainer configuration;
+    try{
+      configuration = cycleConfigurationService.getConfiguration(currentUserId);
+    } catch(RepositoryException e) {
+      configuration = createDefaultDemoConfiguration(currentUserId);
       cycleConfigurationService.saveConfiguration(configuration);
     }
     return configuration;
   }
 
-  public static ConfigurationContainer createDefaultDemoConfiguration() {
-    ConfigurationContainer configuration = new ConfigurationContainer("Activiti Demo Setup");
+  public static ConfigurationContainer createDefaultDemoConfiguration(String currentUserId) {
+    ConfigurationContainer configuration = new ConfigurationContainer(currentUserId);
     configuration.addRepositoryConnectorConfiguration(new DemoConnectorConfiguration("demo"));
-    configuration.addRepositoryConnectorConfiguration(new SignavioConnectorConfiguration("signavio", "http://localhost:8080/activiti-modeler/"));
-    configuration.addRepositoryConnectorConfiguration(new FileSystemConnectorConfiguration("files", fsBaseDir));
+//    configuration.addRepositoryConnectorConfiguration(new SignavioConnectorConfiguration("signavio", "http://localhost:8080/activiti-modeler/"));
+//    configuration.addRepositoryConnectorConfiguration(new FileSystemConnectorConfiguration("files", fsBaseDir));
     return configuration;
   }
   

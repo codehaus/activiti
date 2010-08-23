@@ -69,11 +69,15 @@
   		<fileset dir="${target.distro.root}/setup/files/webapps/activiti-rest.war/WEB-INF/lib" />
   	</delete>
 
-    <!-- Copy activiti-cycle jar to lib directory of activiti-rest -->
+    <!-- Copy activiti-cycle, spring-surf and xstream jars to lib directory of activiti-rest -->
     <copy todir="${target.distro.root}/setup/files/webapps/activiti-rest.war/WEB-INF/lib">
     	<fileset dir="../modules/activiti-cycle/target">
     		<include name="activiti-cycle-*.jar"/>
     		<include name="spring-surf-*.jar"/>
+    	</fileset>
+    	<fileset dir="../modules/activiti-rest/target/activiti-rest-${activiti.version}/WEB-INF/lib/">
+    		<include name="xstream-*.jar"/>
+    		<include name="xpp3_min-*.jar"/>
     	</fileset>
     </copy>
 
