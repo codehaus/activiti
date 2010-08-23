@@ -114,7 +114,10 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
 
   protected RepositoryConnector getConnectorFromUrl(String url) {
     int index = url.indexOf("/");
-    if (index == 0) {
+    if (index == -1) {
+      // demo connector itself
+      return getRepositoryConnectors().get(url);
+    } else if (index == 0) {
       return getConnectorFromUrl(url.substring(1));
     } else {
       String repositoryName = url.substring(0, index);
@@ -124,7 +127,10 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
 
   protected String getRepositoryPartOfUrl(String url) {
     int index = url.indexOf("/");
-    if (index == 0) {
+    if (index == -1) {
+      // demo connector itself -> root folder is shown
+      return "/";
+    } else if (index == 0) {
       return getRepositoryPartOfUrl(url.substring(1));
     } else {
       return url.substring(index);
