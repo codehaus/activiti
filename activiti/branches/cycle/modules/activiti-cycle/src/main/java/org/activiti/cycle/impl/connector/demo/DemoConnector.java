@@ -3,6 +3,7 @@ package org.activiti.cycle.impl.connector.demo;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ import org.activiti.cycle.UnsupportedRepositoryOpperation;
 import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
 import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
+import org.activiti.cycle.impl.connector.demo.action.CopyArtifactAction;
+import org.activiti.cycle.impl.connector.demo.action.OpenActivitiAction;
 import org.activiti.cycle.impl.connector.demo.provider.DemoImageProvider;
 import org.activiti.cycle.impl.connector.demo.provider.DemoTextProvider;
 import org.activiti.cycle.impl.connector.demo.provider.DemoXmlProvider;
@@ -59,6 +62,16 @@ public class DemoConnector extends AbstractRepositoryConnector {
     RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_MINDMAP, DemoImageProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, DemoImageProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, DemoXmlProvider.class);
+    
+    // and register demo actions (skip Mindmap to see a difference)
+    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_TEXT, CopyArtifactAction.class);
+    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_TEXT, OpenActivitiAction.class);
+    // RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_MINDMAP,
+    // CopyArtifactAction.class);
+    // RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_MINDMAP,
+    // OpenActivitiAction.class);
+    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_BPMN_20, CopyArtifactAction.class);
+    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_BPMN_20, OpenActivitiAction.class);
   }
 
   public void createDemoData() {
@@ -120,6 +133,19 @@ public class DemoConnector extends AbstractRepositoryConnector {
     return newArtifact;
   }
 
+  public void copyArtifact(RepositoryArtifact artifact, String targetName) {
+    RepositoryArtifact copy = clone(artifact);
+    copy.setId(targetName);
+    nodes.add(copy);
+    
+    Collection<ContentRepresentationDefinition> contentRepresentationDefinitions = artifact.getContentRepresentationDefinitions();
+    for (ContentRepresentationDefinition def : contentRepresentationDefinitions) {
+      def.getName();
+      Content cont = artifact.loadContent(def.getName());
+      addContentRepresentation(copy, def.getType(), cont.asByteArray());
+    }
+  }
+
   /**
    * In the demo connector we need to clone the objects, because we change ids
    * later
@@ -128,8 +154,8 @@ public class DemoConnector extends AbstractRepositoryConnector {
    * trouble. Can we avoid cloning in the other connectors because
    * {@link RepositoryNode} objects are considered one time only data containes?
    */
-  private RepositoryNode clone(RepositoryFolder folder) {
-    RepositoryFolder newFolder = new RepositoryFolder(this);
+  public static RepositoryNode clone(RepositoryFolder folder) {
+    RepositoryFolder newFolder = new RepositoryFolder(folder.getConnector());
     newFolder.setId(folder.getId());
     newFolder.getMetadata().setName(folder.getMetadata().getName());
     newFolder.getMetadata().setPath(folder.getMetadata().getPath());
@@ -140,8 +166,8 @@ public class DemoConnector extends AbstractRepositoryConnector {
    * In the demo connector we need to clone the objects, because we change ids
    * later
    */
-  private RepositoryArtifact clone(RepositoryArtifact artifact) {
-    RepositoryArtifact newArtifact = new RepositoryArtifact(this);
+  public static RepositoryArtifact clone(RepositoryArtifact artifact) {
+    RepositoryArtifact newArtifact = new RepositoryArtifact(artifact.getConnector());
     newArtifact.setArtifactType(artifact.getArtifactType());
     newArtifact.setId(artifact.getId());
     newArtifact.getMetadata().setName(artifact.getMetadata().getName());
@@ -150,14 +176,17 @@ public class DemoConnector extends AbstractRepositoryConnector {
   }
   
 
-  private void addContentRepresentation(RepositoryArtifact artifact, String name, String contentSourceUrl) {
+  private void addContentRepresentation(RepositoryArtifact artifact, String name, byte[] byteArray) {
     Map<String, byte[]> map = content.get(artifact.getId());
     if (map == null) {
       map = new HashMap<String, byte[]>();
       content.put(artifact.getId(), map);
     }
 
-    // read and set content
+    map.put(name, byteArray);
+  }
+  
+  private void addContentRepresentation(RepositoryArtifact artifact, String name, String contentSourceUrl) {
     try {
       ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
@@ -177,12 +206,13 @@ public class DemoConnector extends AbstractRepositoryConnector {
         byteStream.write(buf, 0, len);
       }
       byteStream.close();
-      map.put(name, byteStream.toByteArray());
+      
+      addContentRepresentation(artifact, name, byteStream.toByteArray());
 
     } catch (Exception ex) {
       log.log(Level.SEVERE, "couldn't load content for artifact " + artifact + " from URL " + contentSourceUrl, ex);
     }
-  }
+  }  
 
   public void createNewSubFolder(String parentFolderUrl, RepositoryFolder subFolder) {
     throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
@@ -250,5 +280,4 @@ public class DemoConnector extends AbstractRepositoryConnector {
 
   public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {
   }
-
 }

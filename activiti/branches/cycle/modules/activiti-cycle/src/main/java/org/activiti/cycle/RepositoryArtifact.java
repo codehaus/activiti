@@ -127,6 +127,34 @@ public class RepositoryArtifact extends RepositoryNode {
 
     return cachedFileActions;
   }
+  
+  /**
+   * execute the action with the given name and the given parameters.
+   * 
+   * Only {@link ParametrizedAction}s can be executed with parameters, if you
+   * try to execute another action type, a {@link RepositoryException} class is
+   * thrown
+   */
+  public void executeAction(String name, Map<String, Object> parameters) throws Exception {
+    StringBuffer actionNames = new StringBuffer();
+    for (ArtifactAction action : getActions()) {
+      if (action.getName().equals(name)) {
+        if (action instanceof ParametrizedAction) {
+          ((ParametrizedAction) action).execute(parameters);
+          return;
+        } else {
+          throw new RepositoryException("cannot execute action '" + name + "' with parameters, because it is not a ParametrizedAction");
+        }
+      }
+      else {
+        if (actionNames.length() > 0) {
+          actionNames.append(", ");
+        }
+        actionNames.append(name);
+      }
+    }
+    throw new RepositoryException("Action '" + name + "' not found, cannot be executed. Existing actions are: " + actionNames.toString());
+  }
 
   public ArtifactType getArtifactType() {
     return artifactType;

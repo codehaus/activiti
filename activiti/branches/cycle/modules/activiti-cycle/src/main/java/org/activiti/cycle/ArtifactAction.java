@@ -31,10 +31,12 @@ public abstract class ArtifactAction {
 
   private RepositoryArtifact artifact;
 
+  private final String name = this.getClass().getName();
+
   public ArtifactAction() {
   }
-  
-  public ArtifactAction(RepositoryArtifact artifact) {
+
+  public ArtifactAction(RepositoryArtifact artifact) {    
     this.artifact = artifact;
   }
 
@@ -43,10 +45,13 @@ public abstract class ArtifactAction {
   public RepositoryArtifact getArtifact() {
     return artifact;
   }
-
   
   public void setArtifact(RepositoryArtifact artifact) {
     this.artifact = artifact;
+  }
+  
+  public String getName() {
+    return name;
   }
 
 }

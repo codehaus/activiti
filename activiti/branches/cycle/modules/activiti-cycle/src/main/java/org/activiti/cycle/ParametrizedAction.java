@@ -27,4 +27,21 @@ public abstract class ParametrizedAction extends ArtifactAction {
   public abstract String getFormAsHtml();
 
   public abstract void execute(Map<String, Object> parameter) throws Exception;
+  
+  public Object getParameter(Map<String, Object> parameters, String name, boolean required, Object defaultValue, Class expectedClass) {
+    Object value = parameters.get(name);
+    if (value == null) {
+      if (required) {
+        throw new RepositoryException("Required parameter '" + name + "' not set while executing action '" + getName() + "'");
+      } else {
+        return defaultValue;
+      }
+    }
+    if (expectedClass != null && !expectedClass.isAssignableFrom(value.getClass())) {
+      throw new RepositoryException("Parameter '" + name + "' with value '" + value + "' has wrong type " + value.getClass() + " instead of " + expectedClass
+              + " not set while executing action '" + getName() + "'");
+    }
+    return value;
+  }
+  
 }

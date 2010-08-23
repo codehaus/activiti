@@ -29,6 +29,8 @@ import org.json.JSONObject;
 public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateAction {
 
   public static final String PARAM_TARGET_FOLDER = "targetFolder";
+  public static final String PARAM_TARGET_NAME = "targetName";
+  public static final String PARAM_COMMENT = "comment";
 
   /**
    * Where do we get the transformations from? How are they registered?
@@ -51,19 +53,25 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   @Override
-  public String getFreemarkerTemplateUrl() {
-    // TODO: What to do here exactly? Who is doing the freemarker stuff?
-    return "todo.ftl";
+  public String getFormResourceName() {
+    return getDefaultFormName();
   }  
 
   @Override
-  public void execute(Map<String, Object> parameter) throws Exception {
-    RepositoryFolder targetFolder = (RepositoryFolder) parameter.get(PARAM_TARGET_FOLDER);
+  public void execute(Map<String, Object> parameters) throws Exception {
+    // TODO: Check with Nils that we get the object instead of the string in
+    // here!
+    RepositoryFolder targetFolder = (RepositoryFolder) getParameter(parameters, PARAM_TARGET_FOLDER, true, null, RepositoryFolder.class);
+    String targetName = (String) getParameter(parameters, PARAM_TARGET_NAME, false, getProcessName(), String.class);
+    String comment = (String) getParameter(parameters, PARAM_COMMENT, false, null, String.class);
     
     String sourceJson = getBpmn20Json();
     String transformedJson = applyJsonTranfsormations(sourceJson);
     String bpmnXml = transformToBpmn20(transformedJson);
-    createTargetArtifact(targetFolder, getProcessName() + ".bpmn.xml", bpmnXml, SignavioConnector.BPMN_2_0_XML);    
+    createTargetArtifact(targetFolder, targetName + ".bpmn.xml", bpmnXml, SignavioConnector.BPMN_2_0_XML);
+
+    // TODO: Think about that more, does it make sense like this?
+    targetFolder.getConnector().commitPendingChanges(comment);
   }
 
   protected String getBpmn20Json() {
