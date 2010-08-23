@@ -6,11 +6,16 @@ import java.util.Map;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ParametrizedFreemakerTemplateAction;
 import org.activiti.cycle.RepositoryArtifact;
+import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnector;
-import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.JsonProvider;
+import org.activiti.cycle.impl.transform.JsonTransformation;
+import org.activiti.cycle.impl.transform.signavio.AdjustShapeNamesTransformation;
+import org.activiti.cycle.impl.transform.signavio.BpmnPoolExtraction;
+import org.activiti.cycle.impl.transform.signavio.ExchangeSignavioUuidWithNameTransformation;
+import org.json.JSONObject;
 
 /**
  * This action creates a technical BPMN 2.0 XML for the process engines. It
@@ -30,10 +35,24 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
    * 
    * How can we extend that project specific?
    */
-  private List<Object> registeredTransformations;
+  public static List<JsonTransformation> registeredTransformations;
+  
+  static {
+     // TODO: How to register JSON-Transformations
+
+    // example with cutting out just the Engine Pool
+    addTransformation(new BpmnPoolExtraction("Engine Pool"));
+    addTransformation(new ExchangeSignavioUuidWithNameTransformation());
+    addTransformation(new AdjustShapeNamesTransformation());
+  }
+
+  public static void addTransformation(JsonTransformation transformation) {
+    registeredTransformations.add(transformation);
+  }
 
   @Override
   public String getFreemarkerTemplateUrl() {
+    // TODO: What to do here exactly? Who is doing the freemarker stuff?
     return "todo.ftl";
   }  
 
@@ -52,15 +71,21 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   private String applyJsonTranfsormations(String sourceJson) {
-    // TODO: How to register JSON-Transformations
-    return sourceJson;
+    try {
+      JSONObject jsonObject = new JSONObject(sourceJson);
+
+      for (JsonTransformation trafo : registeredTransformations) {
+        trafo.transform(jsonObject);
+      }
+
+      return jsonObject.toString();
+    } catch (Exception e) {
+      throw new RepositoryException("Exception occured while transformation of BPMN model", e);
+    }
   }
 
   private String transformToBpmn20(String transformedJson) {
-    getSignavioConnector().transformJsonToBpmn20Xml(transformedJson);    
-    
-    // for the moment just use the untransformed version
-    return getArtifact().loadContent(Bpmn20Provider.NAME).asString();
+    return getSignavioConnector().transformJsonToBpmn20Xml(transformedJson);    
   }
 
   public void createTargetArtifact(RepositoryFolder targetFolder, String artifactId, String bpmnXml, String artifactTypeIdentifier) {
@@ -72,13 +97,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
 
     Content content = new Content();
     content.setValue(bpmnXml);
-    //    
-    // ContentRepresentationDefinition contentRepresentation = new
-    // ContentRepresentationDefinition();
-    // contentRepresentation.setArtifact(targetArtifact);
-    // contentRepresentation.setContent(bpmnXml);
-    // contentRepresentation.setType(ContentRepresentationType.XML);
-    //
+
     targetFolder.getConnector().createNewArtifact(targetFolder.getId(), targetArtifact, content);
   }
   

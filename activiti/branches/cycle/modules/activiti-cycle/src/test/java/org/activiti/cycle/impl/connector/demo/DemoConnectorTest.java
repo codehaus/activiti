@@ -28,7 +28,7 @@ public class DemoConnectorTest {
     assertEquals("demo", childNodes.get(0).getId());
 
     
-    childNodes = conn.getChildNodes("/demo/");
+    childNodes = conn.getChildNodes("demo");
     assertEquals(2, childNodes.size());
 
     assertEquals(RepositoryFolder.class, childNodes.get(0).getClass());

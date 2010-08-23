@@ -29,11 +29,15 @@ public class Bpmn20Provider extends SignavioContentRepresentationProvider {
   public byte[] getContent(RepositoryArtifact artifact) {
     try {
       // use the bpmn2_0_serialization export servlet to provide bpmn20 xml
+      // by doing this, we can support different signavio versions instead of
+      // the commercial Signavio only
       Response jsonResponse = getJsonResponse(artifact, "/json");
       JSONObject jsonData = new JSONObject(jsonResponse.getEntity().getText());
-      JSONObject bpmn20Xml = getConnector(artifact).transformJsonToBpmn20Xml(jsonData.toString());
-      String result = bpmn20Xml.getString("xml");
-      // works for signavio but not for activiti-modeler
+      String result = getConnector(artifact).transformJsonToBpmn20Xml(jsonData.toString());
+      
+      // This would have been the alternative that works only for signavio but
+      // not for activiti-modeler:
+      
       // Response jpdlResponse = getJsonResponse(artifact, "/bpmn2_0_xml");
       // DomRepresentation xmlData = jpdlResponse.getEntityAsDom();
       // String result = getXmlAsString(xmlData);
