@@ -1,11 +1,12 @@
 package org.activiti.cycle.impl.connector.fs;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
@@ -17,15 +18,13 @@ import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
 
 public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemConnectorConfiguration> {
 
-  private static Logger log = Logger.getLogger(FileSystemConnector.class.getName());
-
   static {
     // RepositoryRegistry.registerArtifactType(new ArtifactType(name,
     // typeIdentifier));
-    //
+    //    
     // RepositoryRegistry.registerContentRepresentationProvider(fileTypeIdentifier,
     // provider);
-    //
+    //    
     // RepositoryRegistry.registerArtifactAction(artifactTypeIdentifier,
     // action);
   }
@@ -80,54 +79,48 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     return artifact.loadContent(representationName);
   }
 
-  public void createNewFile(String folderId, RepositoryArtifact file) {
-    File newFile = new File(folderId, file.getId());
-    try {
-      if (newFile.createNewFile()) {
-        return;
-      }
-
-      throw new RepositoryException("Unable to create file " + file + " in folder " + folderId);
-    } catch (IOException ioe) {
-      throw new RepositoryException("Unable to create file " + file + " in folder " + folderId);
-    }
-  }
-
   public void deleteArtifact(String artifactId) {
-    File fileToDelete = new File(artifactId);
-    if (fileToDelete.isFile()) {
-      if (fileToDelete.exists() && fileToDelete.isAbsolute()) {
-        if (fileToDelete.delete()) {
-          return;
-        }
-      }
+    File fileToDelete = new File(getConfiguration().getBasePath() + artifactId);
+    if (deleteFile(fileToDelete)) {
+      return;
     }
 
-    throw new RepositoryException("Unable to delete file " + artifactId);
+    throw new RepositoryException("Unable to delete file " + fileToDelete);
   }
 
   public void createNewSubFolder(String parentFolderId, RepositoryFolder subFolder) {
-    File newSubFolder = new File(new File(parentFolderId), subFolder.getId());
+    File newSubFolder = new File(new File(getConfiguration().getBasePath() + parentFolderId), subFolder.getId());
     if (!newSubFolder.mkdir()) {
       throw new RepositoryException("Unable to create subfolder " + subFolder.getId() + " in parentfolder " + parentFolderId);
     }
   }
 
   public void deleteSubFolder(String subFolderId) {
-    File subFolderToDelete = new File(subFolderId);
-    if (subFolderToDelete.isDirectory()) {
-      if (subFolderToDelete.exists() && subFolderToDelete.isAbsolute()) {
-        if (subFolderToDelete.delete()) {
-          return;
-        }
-      }
+    File subFolderToDelete = new File(getConfiguration().getBasePath() + subFolderId);
+    if (deleteFile(subFolderToDelete)) {
+      return;
     }
 
-    throw new RepositoryException("Unable to delete folder " + subFolderId);
+    throw new RepositoryException("Unable to delete folder " + subFolderToDelete);
   }
 
   public void commitPendingChanges(String comment) {
     // do nothing
+  }
+
+  // delete file or directory, even non-empty ones.
+  private boolean deleteFile(File path) {
+    if (path.exists() && path.isAbsolute()) {
+      File[] files = path.listFiles();
+      for (int i = 0; i < files.length; i++) {
+        if (files[i].isDirectory()) {
+          deleteFile(files[i]);
+        } else {
+          files[i].delete();
+        }
+      }
+    }
+    return path.delete();
   }
 
   private RepositoryArtifact getArtifactInfo(File file) throws IOException {
@@ -153,7 +146,25 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
-    throw new UnsupportedOperationException("FileSystemConnector does not support creating files!");
+    File newFile = new File(getConfiguration().getBasePath() + containingFolderId, artifact.getId());
+    BufferedOutputStream bos = null;
+
+    try {
+      if (newFile.createNewFile()) {
+        bos = new BufferedOutputStream(new FileOutputStream(newFile));
+        bos.write(artifactContent.asByteArray());
+      }
+    } catch (IOException ioe) {
+      throw new RepositoryException("Unable to create file " + artifact + " in folder " + containingFolderId);
+    } finally {
+      if (bos != null) {
+        try {
+          bos.close();
+        } catch (IOException e) {
+          throw new RepositoryException("Unable to create file " + artifact + " in folder " + containingFolderId);
+        }
+      }
+    }
   }
 
   public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {

@@ -27,23 +27,15 @@ import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
  */
 public class FileSystemConnectorConfiguration extends RepositoryConnectorConfiguration {
 
-  /**
-   * default URL
-   */
   private File baseFilePath;
 
   public FileSystemConnectorConfiguration() {
-    // TODO: This doesn't make too much sense to have a default, or? And if we
-    // should query it from the os?
-    // But I would vote to NOT have a default
-    String basePath = "c:";
-    baseFilePath = new File(basePath);
   }
-  
+
   public FileSystemConnectorConfiguration(String name, File baseFile) {
     setName(name);
     this.baseFilePath = baseFile;
-  }  
+  }
 
   public FileSystemConnectorConfiguration(String basePath) {
     setBasePath(basePath);
