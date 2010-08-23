@@ -52,8 +52,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
         children = new File(path).listFiles();
       } else {
         // Use base path!
-        path = getConfiguration().getBasePath() + parentId;
-        children = new File(path).listFiles();
+        children = getFileFromId(parentId).listFiles();
       }
 
       for (File file : children) {
@@ -71,7 +70,15 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   public RepositoryArtifact getArtifactDetails(String id) {
-    return null;
+    try {
+      return getArtifactInfo(getFileFromId(id));
+    } catch (IOException ex) {
+      throw new RepositoryException("Error while getting artifact details for artifact id '" + id + "'", ex);
+    }
+  }
+
+  private File getFileFromId(String id) {
+    return new File(getConfiguration().getBasePath() + id);
   }
 
   public Content getContent(String nodeId, String representationName) {
@@ -80,7 +87,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   public void deleteArtifact(String artifactId) {
-    File fileToDelete = new File(getConfiguration().getBasePath() + artifactId);
+    File fileToDelete = getFileFromId(artifactId);
     if (deleteFile(fileToDelete)) {
       return;
     }
@@ -89,14 +96,14 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   public void createNewSubFolder(String parentFolderId, RepositoryFolder subFolder) {
-    File newSubFolder = new File(new File(getConfiguration().getBasePath() + parentFolderId), subFolder.getId());
+    File newSubFolder = new File(getFileFromId(parentFolderId), subFolder.getId());
     if (!newSubFolder.mkdir()) {
       throw new RepositoryException("Unable to create subfolder " + subFolder.getId() + " in parentfolder " + parentFolderId);
     }
   }
 
   public void deleteSubFolder(String subFolderId) {
-    File subFolderToDelete = new File(getConfiguration().getBasePath() + subFolderId);
+    File subFolderToDelete = getFileFromId(subFolderId);
     if (deleteFile(subFolderToDelete)) {
       return;
     }
@@ -146,7 +153,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
-    File newFile = new File(getConfiguration().getBasePath() + containingFolderId, artifact.getId());
+    File newFile = new File(getFileFromId(containingFolderId), artifact.getId());
     BufferedOutputStream bos = null;
 
     try {
