@@ -18,16 +18,12 @@ import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
  * internal configuration and {@link RepositoryConnector} stuff from the client
  * (e.g. the webapp)
  * 
- * @author ruecker
+ * @author bernd.ruecker@camunda.com
  */
 public class CustomizedViewConnector extends AbstractRepositoryConnector<CustomizedViewConfiguration> {
 
-  // private final String repositoryName;
-  //
   private Map<String, RepositoryConnector> repositoryConnectors;
 
-  // private final RepositoryConnector connector;
-      
   public CustomizedViewConnector(CustomizedViewConfiguration customizedViewConfiguration) {
     super(customizedViewConfiguration);
   }
@@ -57,26 +53,42 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
     return true;
   }
 
+  /**
+   * commit pending changes in all repository connectors configured
+   */
   public void commitPendingChanges(String comment) {
-    // TODO: Check implementation
     for (RepositoryConnector connector : getRepositoryConnectors().values()) {
       connector.commitPendingChanges(comment);
     }
   }
 
+  /**
+   * get the client URL added to all {@link RepositoryNode}s for the client
+   * (based on the configured base url)
+   */
   private String getClientUrl(RepositoryNode repositoryNode) {
     return getConfiguration().getBaseUrlWithoutSlashAtTheEnd() + repositoryNode.getId(); 
   }
 
+  /**
+   * construct a unique id for an {@link RepositoryNode} by adding the connector
+   * name (since this connector maintains different repos)
+   */
   private String getIdWithRepoName(RepositoryNode repositoryNode) {
     String repositoryName = repositoryNode.getConnector().getConfiguration().getName();
     return getRepositoryPrefix(repositoryName) + repositoryNode.getId();
   }
 
+  /**
+   * return the prefix for the {@link RepositoryConnector}
+   */
   private String getRepositoryPrefix(String repositoryName) {
     return "/" + repositoryName;
   }
 
+  /**
+   * create client URL for a {@link ContentRepresentationDefinition}
+   */
   private String getClientUrl(RepositoryArtifact artifact, ContentRepresentationDefinition contentRepresentationDefinition) {
     return artifact.getClientUrl() + "/content/" + contentRepresentationDefinition.getName();
   }

@@ -1,33 +1,56 @@
 package org.activiti.cycle;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * This class encapsulates real content (text, images, ...).
  * 
- * 
  * Depending on the source or usage of the content, you may have strings, byte
  * arrays, streams, ... This class keeps track of the necessary transformations.
+ * 
+ * So best is to initialize it with what you have and retrieve what you need and
+ * don't think about it.
  * 
  * @author bernd.ruecker@camunda.com
  */
 public class Content {
-
-  // * It has a refernce to the {@link ContentRepresentationDefinition}, which
-  // knows
-  // * the type and name of the content (if needed)
-  // private ContentRepresentationDefinition contentRepresentationDefinition;
   
   private byte[] contentAsByteArray;
 
   private String contentAsString;
 
   private InputStream contentAsInputStream;
+  
+  private byte[] loadBytes(InputStream inputStream) {
+    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    try {
+      byte[] buf = new byte[512];
+      int len;
+      while (true) {
+        len = inputStream.read(buf);
+        if (len == -1) {
+          break;
+        }
+        byteStream.write(buf, 0, len);
+      }
+      byteStream.close();
+      return byteStream.toByteArray();
 
+     } catch (IOException ex) {
+      throw new RepositoryException("Couldn't load from InputStream of content, check nested exception.", ex);
+    }
+  }
   
    public byte[] asByteArray() {
     if (contentAsByteArray != null) {
       return contentAsByteArray;
+    } else if (contentAsString != null) {
+      return contentAsString.getBytes();
+    } else if (contentAsInputStream != null) {
+      return loadBytes(contentAsInputStream);
     } else {
       throw new RuntimeException("Not yet implemented");
     }
@@ -38,6 +61,20 @@ public class Content {
       return contentAsString;
     } else if (contentAsByteArray != null) {
       return new String(contentAsByteArray);
+    } else if (contentAsInputStream != null) {
+      return new String(loadBytes(contentAsInputStream));
+    } else {
+      throw new RuntimeException("Not yet implemented");
+    }
+  }
+
+  public InputStream asInputStream() {
+    if (contentAsString != null) {
+      return new ByteArrayInputStream(contentAsString.getBytes());
+    } else if (contentAsByteArray != null) {
+      return new ByteArrayInputStream(contentAsByteArray);
+    } else if (contentAsInputStream != null) {
+      return contentAsInputStream;
     } else {
       throw new RuntimeException("Not yet implemented");
     }
@@ -55,14 +92,4 @@ public class Content {
     this.contentAsInputStream = stream;
   }
 
-  // public ContentRepresentationDefinition getContentRepresentationDefinition()
-  // {
-  // return contentRepresentationDefinition;
-  // }
-  //
-  // public void
-  // setContentRepresentationDefinition(ContentRepresentationDefinition
-  // contentRepresentationDefinition) {
-  // this.contentRepresentationDefinition = contentRepresentationDefinition;
-  // }
 }
