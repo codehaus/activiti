@@ -28,9 +28,9 @@ import org.activiti.cycle.impl.connector.view.CustomizedViewConfiguration;
 public class SessionUtil {
 
   /**
-   * TODO: Use an OS independent default
+   * TODO: Check if list roots can return an empty array
    */
-  private static final File fsBaseDir = new File("c:");
+  private static final File fsBaseDir = File.listRoots()[0];
 
   /**
    * Not yet used, so can be null for the moment (but we maybe better should use
