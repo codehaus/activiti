@@ -38,7 +38,7 @@ import org.restlet.resource.Representation;
 public class EmbeddableModelProvider extends SignavioContentRepresentationProvider {
 
   public EmbeddableModelProvider() {
-    super("Embedded", ContentType.HTML);
+    super("Embedded", ContentType.HTML, false);
   }
 
   @Override

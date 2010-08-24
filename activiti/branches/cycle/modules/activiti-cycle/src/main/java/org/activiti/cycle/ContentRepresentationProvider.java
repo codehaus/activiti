@@ -16,12 +16,14 @@ public abstract class ContentRepresentationProvider {
 
   protected Logger log = Logger.getLogger(this.getClass().getName());
 
-  private String contentRepresentationName;
-  private String contentRepresentationType;
+  private final String contentRepresentationName;
+  private final String contentRepresentationType;
+  private final boolean downloadable;
 
-  public ContentRepresentationProvider(String contentRepresentationName, String contentRepresentationType) {
+  public ContentRepresentationProvider(String contentRepresentationName, String contentRepresentationType, boolean contentDownloadable) {
     this.contentRepresentationName = contentRepresentationName;
     this.contentRepresentationType = contentRepresentationType;
+    this.downloadable = contentDownloadable;
   }
 
   /**
@@ -33,6 +35,7 @@ public abstract class ContentRepresentationProvider {
     // contentRepresentation.setArtifact(artifact);
     contentRepresentation.setName(contentRepresentationName);
     contentRepresentation.setType(contentRepresentationType);
+    contentRepresentation.setDownloadable(downloadable);
     return contentRepresentation;
   }
 
@@ -61,5 +64,9 @@ public abstract class ContentRepresentationProvider {
 
   public String getContentRepresentationType() {
     return contentRepresentationType;
+  }
+  
+  public boolean isContentDownloadable() {
+    return downloadable;
   }
 }

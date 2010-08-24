@@ -31,8 +31,8 @@ import org.restlet.resource.DomRepresentation;
 
 public abstract class SignavioContentRepresentationProvider extends ContentRepresentationProvider {
 
-  public SignavioContentRepresentationProvider(String name, String type) {
-    super(name, type);
+  public SignavioContentRepresentationProvider(String name, String type, boolean downloadable) {
+    super(name, type, downloadable);
   }
 
   public SignavioConnector getConnector(RepositoryArtifact artifact) {

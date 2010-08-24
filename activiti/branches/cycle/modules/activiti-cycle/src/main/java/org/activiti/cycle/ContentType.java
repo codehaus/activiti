@@ -17,5 +17,9 @@ public class ContentType {
 	public static final String HTML = "html";
 	public static final String JAVA = "java";
   public static final String TEXT = "txt";
+  /**
+   * TODO: Value ?
+   */
+  public static final String BINARY = "binary";
 	
 }

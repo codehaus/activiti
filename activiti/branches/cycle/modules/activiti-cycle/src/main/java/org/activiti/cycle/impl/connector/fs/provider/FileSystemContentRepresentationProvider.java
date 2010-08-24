@@ -18,8 +18,8 @@ import org.activiti.cycle.impl.connector.fs.FileSystemConnector;
 
 public abstract class FileSystemContentRepresentationProvider extends ContentRepresentationProvider {
 
-  public FileSystemContentRepresentationProvider(String contentRepresentationName, String contentRepresentationType) {
-    super(contentRepresentationName, contentRepresentationType);
+  public FileSystemContentRepresentationProvider(String contentRepresentationName, String contentRepresentationType, boolean downloadable) {
+    super(contentRepresentationName, contentRepresentationType, downloadable);
   }
 
   public FileSystemConnector getConnector(RepositoryArtifact artifact) {

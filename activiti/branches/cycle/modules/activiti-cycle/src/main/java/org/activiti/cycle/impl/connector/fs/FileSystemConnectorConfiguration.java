@@ -27,14 +27,18 @@ import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
  */
 public class FileSystemConnectorConfiguration extends RepositoryConnectorConfiguration {
 
-  private File baseFilePath;
+  private String baseFilePath;
 
   public FileSystemConnectorConfiguration() {
   }
 
   public FileSystemConnectorConfiguration(String name, File baseFile) {
     setName(name);
-    this.baseFilePath = baseFile;
+    try {
+      setBasePath(baseFile.getCanonicalPath());
+    } catch (IOException ioe) {
+      throw new RepositoryException("Unable to get canonical representation of basePath for connector " + getName() + " for baseFile " + baseFile, ioe);
+    }
   }
 
   public FileSystemConnectorConfiguration(String basePath) {
@@ -42,11 +46,7 @@ public class FileSystemConnectorConfiguration extends RepositoryConnectorConfigu
   }
 
   public String getBasePath() {
-    try {
-      return baseFilePath.getCanonicalPath();
-    } catch (IOException ioe) {
-      throw new RepositoryException("Unable to get canonical representation of basePath!", ioe);
-    }
+     return baseFilePath;
   }
 
   public void setBasePath(String basePath) {
@@ -54,9 +54,9 @@ public class FileSystemConnectorConfiguration extends RepositoryConnectorConfigu
     basePath.replace("\\", "/");
     if (basePath != null && basePath.endsWith("/")) {
       // remove trailing / to have the ids starting with a slash
-      basePath = basePath.substring(basePath.length() - 1);
+      basePath = basePath.substring(0, basePath.length() - 1);
     }
-    this.baseFilePath = new File(basePath);
+    this.baseFilePath = basePath;
   }
 
   @Override

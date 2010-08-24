@@ -65,6 +65,15 @@ public class RepositoryArtifact extends RepositoryNode {
     return provider.createContent(this);
   }
 
+  public ContentRepresentationDefinition getContentRepresentationDefinition(String contentRepresentationName) {
+    for (ContentRepresentationDefinition def : getContentRepresentationDefinitions()) {
+      if (def.getName().equals(contentRepresentationName)) {
+        return def;
+      }
+    }
+    throw new RepositoryException("Couldn't find ContentRepresentationDefinition with name '" + contentRepresentationName + "'");
+  }
+  
   public Collection<ContentRepresentationDefinition> getContentRepresentationDefinitions() {
     if (contentRepresentationDefinitionList == null) {    
     // if not done already lazy load the content from the registered providers
@@ -85,7 +94,7 @@ public class RepositoryArtifact extends RepositoryNode {
   public Collection<ContentRepresentationProvider> getContentRepresentationProviders() {
     return getContentRepresentationProviderMap().values();
   }
-  
+
   public Map<String, ContentRepresentationProvider> getContentRepresentationProviderMap() {
     if (contentRepresentationProviderMap == null) {
       contentRepresentationProviderMap = new HashMap<String, ContentRepresentationProvider>();
@@ -103,7 +112,7 @@ public class RepositoryArtifact extends RepositoryNode {
     return contentRepresentationProviderMap;
   }
 
-  public List<ArtifactAction> getActions() {
+  private List<ArtifactAction> getRegisteredActions() {
     if (cachedFileActions != null) {
       return cachedFileActions;
     }
@@ -122,6 +131,8 @@ public class RepositoryArtifact extends RepositoryNode {
         }
       }
       
+      cachedFileActions.addAll(createDownloadContentActions());
+      
       log.fine("Actions for artifact '" + getId() + "' with type " + getArtifactType().getName() + " requested, returning " + cachedFileActions.size()
               + " actions.");
     } else {
@@ -132,9 +143,21 @@ public class RepositoryArtifact extends RepositoryNode {
     return cachedFileActions;
   }
   
+  public List<DownloadContentAction> createDownloadContentActions() {
+    ArrayList<DownloadContentAction> actions = new ArrayList<DownloadContentAction>();
+
+    for (ContentRepresentationProvider provider : getContentRepresentationProviders()) {
+      if (provider.isContentDownloadable()) {
+        actions.add(new DownloadContentAction(this, provider.getContentRepresentationName()));
+      }
+    }
+
+    return actions;
+  }
+  
   public List<ParametrizedAction> getParametrizedActions() {
     ArrayList<ParametrizedAction> actions = new ArrayList<ParametrizedAction>();
-    for (ArtifactAction action : getActions()) {
+    for (ArtifactAction action : getRegisteredActions()) {
       if (action instanceof ParametrizedAction) {
         actions.add((ParametrizedAction) action);
       }
@@ -144,23 +167,24 @@ public class RepositoryArtifact extends RepositoryNode {
 
   public List<OpenUrlAction> getOpenUrlActions() {
     ArrayList<OpenUrlAction> actions = new ArrayList<OpenUrlAction>();
-    for (ArtifactAction action : getActions()) {
+    for (ArtifactAction action : getRegisteredActions()) {
       if (action instanceof OpenUrlAction) {
         actions.add((OpenUrlAction) action);
       }
     }
     return actions;   
   }
+  
 
   public List<DownloadContentAction> getDownloadContentActions() {
     ArrayList<DownloadContentAction> actions = new ArrayList<DownloadContentAction>();
-    for (ArtifactAction action : getActions()) {
+    for (ArtifactAction action : getRegisteredActions()) {
       if (action instanceof DownloadContentAction) {
         actions.add((DownloadContentAction) action);
       }
     }
     return actions;
-  }
+  }  
   
   // How can we make that generic?
   // public List<ArtifactAction> getActionsOfType(Class< ? extends
@@ -184,7 +208,7 @@ public class RepositoryArtifact extends RepositoryNode {
    */
   public void executeAction(String name, Map<String, Object> parameters) throws Exception {
     StringBuffer actionNames = new StringBuffer();
-    for (ArtifactAction action : getActions()) {
+    for (ArtifactAction action : getRegisteredActions()) {
       if (action.getName().equals(name)) {
         if (action instanceof ParametrizedAction) {
           ((ParametrizedAction) action).execute(parameters);

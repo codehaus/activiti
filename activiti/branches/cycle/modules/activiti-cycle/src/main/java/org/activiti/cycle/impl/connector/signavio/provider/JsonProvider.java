@@ -27,7 +27,7 @@ public class JsonProvider extends SignavioContentRepresentationProvider {
   public static final String NAME = "json";
 
   public JsonProvider() {
-    super(NAME, ContentType.TEXT);
+    super(NAME, ContentType.TEXT, false);
   }
 
   @Override

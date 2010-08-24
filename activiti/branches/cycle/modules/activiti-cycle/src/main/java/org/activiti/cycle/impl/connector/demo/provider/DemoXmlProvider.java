@@ -5,7 +5,7 @@ import org.activiti.cycle.ContentType;
 public class DemoXmlProvider extends DemoProvider {
 
   public DemoXmlProvider() {
-    super("XML", ContentType.XML);
+    super("XML", ContentType.XML, true);
   }
 
 }

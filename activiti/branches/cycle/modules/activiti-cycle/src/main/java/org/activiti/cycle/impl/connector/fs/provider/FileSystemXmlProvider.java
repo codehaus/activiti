@@ -17,7 +17,7 @@ public class FileSystemXmlProvider extends FileSystemContentRepresentationProvid
   public static final String NAME = "Xml";
 
   public FileSystemXmlProvider() {
-    super(NAME, ContentType.XML);
+    super(NAME, ContentType.XML, true);
   }
 
   @Override

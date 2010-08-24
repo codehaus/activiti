@@ -24,7 +24,7 @@ public class Jpdl4Provider extends SignavioContentRepresentationProvider {
   public static final String NAME = "jpdl4";
 
   public Jpdl4Provider() {
-    super(NAME, ContentType.XML);
+    super(NAME, ContentType.XML, false);
   }
 
   @Override

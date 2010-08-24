@@ -35,6 +35,8 @@ public class ContentRepresentationDefinition implements Serializable {
 	
 	private String clientUrl;
 
+  private boolean downloadable;
+
   public ContentRepresentationDefinition() {
   }
   
@@ -62,12 +64,11 @@ public class ContentRepresentationDefinition implements Serializable {
     this.clientUrl = clientUrl;
   }
 
-  // public RepositoryArtifact getArtifact() {
-  // return artifact;
-  // }
-  //
-  // public void setArtifact(RepositoryArtifact artifact) {
-  // this.artifact = artifact;
-  // }
-
+  public void setDownloadable(boolean downloadable) {
+    this.downloadable = downloadable;
+  }
+  
+  public boolean isDownloadable() {
+    return downloadable;
+  }
 }

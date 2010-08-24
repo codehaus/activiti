@@ -24,7 +24,7 @@ public class Bpmn20Provider extends SignavioContentRepresentationProvider {
   public static final String NAME = "BPMN 2.0";
 
   public Bpmn20Provider() {
-    super(NAME, ContentType.XML);
+    super(NAME, ContentType.XML, true);
   }
 
   public void addValueToContent(Content content, RepositoryArtifact artifact) {

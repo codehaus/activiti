@@ -5,7 +5,7 @@ import org.activiti.cycle.ContentType;
 public class DemoImageProvider extends DemoProvider {
 
   public DemoImageProvider() {
-    super("Image", ContentType.IMAGE);
+    super("Image", ContentType.IMAGE, false);
   }
 
 }

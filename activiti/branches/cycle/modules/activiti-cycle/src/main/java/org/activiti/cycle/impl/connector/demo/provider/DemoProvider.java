@@ -10,8 +10,8 @@ import org.activiti.cycle.impl.connector.demo.DemoConnector;
 
 public class DemoProvider extends ContentRepresentationProvider {
 
-  public DemoProvider(String name, String type) {
-    super(name, type);
+  public DemoProvider(String name, String type, boolean downloadable) {
+    super(name, type, downloadable);
   }
   
   @Override

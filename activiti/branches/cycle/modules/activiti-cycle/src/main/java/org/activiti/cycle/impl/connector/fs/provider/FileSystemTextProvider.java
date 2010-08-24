@@ -16,12 +16,11 @@ public class FileSystemTextProvider extends FileSystemContentRepresentationProvi
   public static final String NAME = "Text";
 
   public FileSystemTextProvider() {
-    super(NAME, ContentType.TEXT);
+    super(NAME, ContentType.TEXT, true);
   }
 
   @Override
   public void addValueToContent(Content content, RepositoryArtifact artifact) {
-
     File file = new File(getConnector(artifact).getConfiguration().getBasePath() + artifact.getId());
     BufferedReader br = null;
     StringBuilder sb = null;

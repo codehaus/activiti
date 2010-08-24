@@ -24,7 +24,7 @@ public class PngProvider extends SignavioContentRepresentationProvider {
   public static final String NAME = "PNG";
 
   public PngProvider() {
-    super(NAME, ContentType.IMAGE);
+    super(NAME, ContentType.IMAGE, false);
   }
 
   @Override
