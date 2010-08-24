@@ -69,6 +69,10 @@
 		    <groupId>eu.medsea.mimeutil</groupId>
 		    <artifactId>mime-util</artifactId>
 		</dependency>
+		<dependency>
+		    <groupId>org.scannotation</groupId>
+		    <artifactId>scannotation</artifactId>
+		</dependency>
 		
 	</dependencies>
 			

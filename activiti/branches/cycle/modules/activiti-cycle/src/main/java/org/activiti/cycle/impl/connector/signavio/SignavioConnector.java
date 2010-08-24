@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
@@ -26,16 +25,10 @@ import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
-import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
-import org.activiti.cycle.impl.connector.signavio.action.OpenModelerAction;
-import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
-import org.activiti.cycle.impl.connector.signavio.provider.EmbeddableModelProvider;
-import org.activiti.cycle.impl.connector.signavio.provider.Jpdl4Provider;
-import org.activiti.cycle.impl.connector.signavio.provider.JsonProvider;
-import org.activiti.cycle.impl.connector.signavio.provider.PngProvider;
 import org.activiti.cycle.impl.connector.signavio.util.SignavioJsonHelper;
 import org.activiti.cycle.impl.connector.signavio.util.SignavioLogHelper;
+import org.activiti.cycle.impl.plugin.ActivitiCyclePluginRegistry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +51,7 @@ import org.restlet.resource.Representation;
  * {@link RepositoryNodeNotFoundException}
  * 
  * @author christian.lipphardt@camunda.com
+ * @author ruecker
  */
 public class SignavioConnector extends AbstractRepositoryConnector<SignavioConnectorConfiguration> {
 
@@ -68,41 +62,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   public static final String SIGNAVIO_BPMN_JBPM4 = "http://b3mn.org/stencilset/jbpm4#";
 
   public static final String BPMN_2_0_XML = "bpm2.0";
-
-  static {
-    // initialize associated file types
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Signavio BPMN 2.0", SIGNAVIO_BPMN_2_0));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Signavio BPMN for jBPM 4", SIGNAVIO_BPMN_JBPM4));
-
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_2_0, Bpmn20Provider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_2_0, JsonProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_2_0, PngProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_2_0, EmbeddableModelProvider.class);
-
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_JBPM4, JsonProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_JBPM4, Jpdl4Provider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_JBPM4, PngProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(SIGNAVIO_BPMN_JBPM4, EmbeddableModelProvider.class);
-
-    RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0, OpenModelerAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0,
-    // CopyBpmn20ToSvnAction.class);
-
-    RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4, OpenModelerAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4,
-    // CopyJpdl4ToSvnAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4,
-    // CreateJbpm4AntProject.class);
-
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_2_0,
-    // ShowModelViewerAction.class);
-    // RepositoryRegistry.registerArtifactAction(SIGNAVIO_BPMN_JBPM4,
-    // ShowModelViewerAction.class);
-
-    // TODO: Retrieve model through modellink (without /info) and dynamically
-    // initialize RepositoryRegistry with supported formats?
-  }
-
+  
   /**
    * Captcha ID for REST access to Signavio
    */
@@ -270,11 +230,11 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     if (json.has("namespace")) {
       // Signavio way of doing it
       String fileTypeIdentifier = json.getString("namespace");
-      fileInfo.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
+      fileInfo.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
     } else {
       // Oryx way of doing it
       String fileTypeIdentifier = json.getString("type");
-      fileInfo.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
+      fileInfo.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
     }
 
     // relObject.getJSONObject("rep").getString("revision"); --> UUID of

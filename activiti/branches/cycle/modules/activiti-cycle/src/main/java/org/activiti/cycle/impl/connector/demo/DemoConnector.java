@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
@@ -18,18 +17,12 @@ import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.UnsupportedRepositoryOpperation;
-import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
-import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
-import org.activiti.cycle.impl.connector.demo.action.CopyArtifactAction;
-import org.activiti.cycle.impl.connector.demo.action.OpenActivitiAction;
-import org.activiti.cycle.impl.connector.demo.provider.DemoImageProvider;
-import org.activiti.cycle.impl.connector.demo.provider.DemoTextProvider;
-import org.activiti.cycle.impl.connector.demo.provider.DemoXmlProvider;
+import org.activiti.cycle.impl.plugin.ActivitiCyclePluginRegistry;
 
-public class DemoConnector extends AbstractRepositoryConnector {
+public class DemoConnector extends AbstractRepositoryConnector<DemoConnectorConfiguration> {
 
-  public DemoConnector(RepositoryConnectorConfiguration configuration) {
+  public DemoConnector(DemoConnectorConfiguration configuration) {
     super(configuration);
 
     nodes = new ArrayList<RepositoryNode>();
@@ -51,28 +44,6 @@ public class DemoConnector extends AbstractRepositoryConnector {
   public static final String ARTIFACT_TYPE_TEXT = "ARTIFACT_TYPE_TEXT";
   public static final String ARTIFACT_TYPE_MINDMAP = "ARTIFACT_TYPE_MINDMAP";
   public static final String ARTIFACT_TYPE_BPMN_20 = "ARTIFACT_TYPE_BPMN_20";
-
-
-  static {
-    RepositoryRegistry.registerArtifactType(new ArtifactType(ARTIFACT_TYPE_TEXT, ARTIFACT_TYPE_TEXT));
-    RepositoryRegistry.registerArtifactType(new ArtifactType(ARTIFACT_TYPE_MINDMAP, ARTIFACT_TYPE_MINDMAP));
-    RepositoryRegistry.registerArtifactType(new ArtifactType(ARTIFACT_TYPE_BPMN_20, ARTIFACT_TYPE_BPMN_20));
-
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_TEXT, DemoTextProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_MINDMAP, DemoImageProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, DemoImageProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(ARTIFACT_TYPE_BPMN_20, DemoXmlProvider.class);
-    
-    // and register demo actions (skip Mindmap to see a difference)
-    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_TEXT, CopyArtifactAction.class);
-    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_TEXT, OpenActivitiAction.class);
-    // RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_MINDMAP,
-    // CopyArtifactAction.class);
-    // RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_MINDMAP,
-    // OpenActivitiAction.class);
-    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_BPMN_20, CopyArtifactAction.class);
-    RepositoryRegistry.registerArtifactAction(ARTIFACT_TYPE_BPMN_20, OpenActivitiAction.class);
-  }
 
   public void createDemoData() {
     // Folder minutes
@@ -132,7 +103,7 @@ public class DemoConnector extends AbstractRepositoryConnector {
       id = "/" + id;
     }
     RepositoryArtifact newArtifact = new RepositoryArtifact(this);
-    newArtifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
+    newArtifact.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
     newArtifact.setId(id);
     newArtifact.getMetadata().setName(name);
     newArtifact.getMetadata().setPath(parentPath);

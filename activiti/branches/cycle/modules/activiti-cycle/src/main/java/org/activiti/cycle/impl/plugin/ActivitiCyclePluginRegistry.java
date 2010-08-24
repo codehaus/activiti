@@ -10,13 +10,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.cycle.impl.conf;
+package org.activiti.cycle.impl.plugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.activiti.cycle.ArtifactAction;
 import org.activiti.cycle.ArtifactType;
@@ -28,13 +29,57 @@ import org.activiti.cycle.ContentRepresentationProvider;
  * 
  * @author bernd.ruecker@camunda.com
  */
-public class RepositoryRegistry {
+public class ActivitiCyclePluginRegistry {
 
   private static Map<String, ArtifactType> registeredArtifactTypes = new HashMap<String, ArtifactType>();
   private static Map<String, List<Class< ? extends ArtifactAction>>> registeredArtifactActions = new HashMap<String, List<Class< ? extends ArtifactAction>>>();
   private static Map<String, List<Class< ? extends ContentRepresentationProvider>>> registeredContentRepresentationProviders = new HashMap<String, List<Class< ? extends ContentRepresentationProvider>>>();
 
-  public static void registerArtifactType(ArtifactType ft) {
+  private static Boolean initialized = Boolean.FALSE;
+  
+  static {
+    loadPlugins();
+  }
+  
+  /**
+   * TODO: Think about lazy loading when requested instead of static block
+   */
+  public static void checkInitialized() {
+    if (!initialized) {
+      synchronized (initialized) {
+        if (!initialized) {
+          loadPlugins();
+          initialized = Boolean.TRUE;
+        }
+      }
+    }
+  }
+
+  private static void loadPlugins() {
+    new PluginFinder().publishAllPluginsToRegistry();
+  }
+
+  public static void addPluginDefinition(ActivitiCyclePluginDefinition definition) {
+    List<ArtifactType> list = new ArrayList<ArtifactType>();
+    definition.addDefinedArtifactTypeToList(list);
+    for (ArtifactType artifactType : list) {
+      registerArtifactType(artifactType);
+    }
+
+    Map<String, Class< ? extends ContentRepresentationProvider>> contentProviderMap = new HashMap<String, Class< ? extends ContentRepresentationProvider>>();
+    definition.addContentRepresentationProviderToMap(contentProviderMap);
+    for (Entry<String, Class< ? extends ContentRepresentationProvider>> entry : contentProviderMap.entrySet()) {
+      registerContentRepresentationProvider(entry.getKey(), entry.getValue());
+    }
+
+    Map<String, Class< ? extends ArtifactAction>> actionMap = new HashMap<String, Class< ? extends ArtifactAction>>();
+    definition.addArtifactActionToMap(actionMap);
+    for (Entry<String, Class< ? extends ArtifactAction>> entry : actionMap.entrySet()) {
+      registerArtifactAction(entry.getKey(), entry.getValue());
+    }
+  }
+
+  private static void registerArtifactType(ArtifactType ft) {
     registeredArtifactTypes.put(ft.getTypeIdentifier(), ft);
   }
 
@@ -46,7 +91,7 @@ public class RepositoryRegistry {
     return registeredArtifactTypes.get(fileTypeIdentifier);
   }
 
-  public static void registerContentRepresentationProvider(String fileTypeIdentifier, Class< ? extends ContentRepresentationProvider> provider) {
+  private static void registerContentRepresentationProvider(String fileTypeIdentifier, Class< ? extends ContentRepresentationProvider> provider) {
     if (registeredContentRepresentationProviders.containsKey(fileTypeIdentifier)) {
       registeredContentRepresentationProviders.get(fileTypeIdentifier).add(provider);
     } else {
@@ -56,7 +101,7 @@ public class RepositoryRegistry {
     }
   }
 
-  public static void registerArtifactAction(String artifactTypeIdentifier, Class< ? extends ArtifactAction> action) {
+  private static void registerArtifactAction(String artifactTypeIdentifier, Class< ? extends ArtifactAction> action) {
     if (registeredArtifactActions.containsKey(artifactTypeIdentifier)) {
       registeredArtifactActions.get(artifactTypeIdentifier).add(action);
     } else {
@@ -81,17 +126,5 @@ public class RepositoryRegistry {
       return new ArrayList<Class< ? extends ContentRepresentationProvider>>();
     }
   }
-
-  // public static ContentRepresentationProvider getContentLinkProvider(String
-  // fileTypeName, String providerName) {
-  // for (ContentRepresentationProvider provder :
-  // getContentRepresentationProviders(fileTypeName)) {
-  // if (provder.getName().equals(providerName)) {
-  // return provder;
-  // }
-  // }
-  // throw new RepositoryException("Couldn't find content provider '" +
-  // providerName + "' for filetype '" + fileTypeName + "'");
-  // }
 
 }

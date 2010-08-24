@@ -2,13 +2,13 @@ package org.activiti.cycle;
 
 import java.util.logging.Logger;
 
-import org.activiti.cycle.impl.conf.RepositoryRegistry;
+import org.activiti.cycle.impl.plugin.ActivitiCyclePluginRegistry;
 
 /**
  * A {@link ContentRepresentationProvider} is responsible to create
  * {@link ContentRepresentationDefinition} objects for certain
  * {@link RepositoryArtifact} s. It is registered via the
- * {@link RepositoryRegistry} and new providers can be added on the fly.
+ * {@link ActivitiCyclePluginRegistry} and new providers can be added on the fly.
  * 
  * @author bernd.ruecker
  */

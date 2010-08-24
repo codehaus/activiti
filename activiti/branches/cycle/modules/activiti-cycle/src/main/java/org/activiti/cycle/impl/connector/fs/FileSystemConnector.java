@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
@@ -16,11 +15,8 @@ import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
-import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
-import org.activiti.cycle.impl.connector.fs.provider.FileSystemBinaryProvider;
-import org.activiti.cycle.impl.connector.fs.provider.FileSystemTextProvider;
-import org.activiti.cycle.impl.connector.fs.provider.FileSystemXmlProvider;
+import org.activiti.cycle.impl.plugin.ActivitiCyclePluginRegistry;
 
 import eu.medsea.mimeutil.MimeUtil;
 
@@ -40,34 +36,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   public static final String MS_PP = "ppt";
   public static final String MS_PP_X = "pptx";
   public static final String PDF = "pdf";
-
-  static {
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Bpmn 2.0 Xml", BPMN_20_XML));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Xml", XML));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Text", TEXT));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Word", MS_WORD));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Word X", MS_WORD_X));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Powerpoint", MS_PP));
-    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Powerpoint X", MS_PP_X));
-
-    RepositoryRegistry.registerContentRepresentationProvider(BPMN_20_XML, FileSystemXmlProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(XML, FileSystemXmlProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(TEXT, FileSystemTextProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD, FileSystemBinaryProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD_X, FileSystemBinaryProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_PP, FileSystemBinaryProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_PP_X, FileSystemBinaryProvider.class);
-
-    // RepositoryRegistry.registerArtifactAction(MS_WORD,
-    // DownloadContentAction.class);
-    // RepositoryRegistry.registerArtifactAction(MS_WORD_X,
-    // DownloadContentAction.class);
-    // RepositoryRegistry.registerArtifactAction(MS_PP,
-    // DownloadContentAction.class);
-    // RepositoryRegistry.registerArtifactAction(MS_PP_X,
-    // DownloadContentAction.class);
-  }
-
+  
   public FileSystemConnector(FileSystemConnectorConfiguration conf) {
     super(conf);
   }
@@ -180,7 +149,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     // FIXME: Better way to check for mimetypes or file extensions.
     // See http://www.rgagnon.com/javadetails/java-0487.html or Alfresco Remote
     // Api (org.alfresco.repo.content.MimetypeMap)
-    artifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(getMimeType(file)));
+    artifact.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(getMimeType(file)));
 
     return artifact;
   }
@@ -239,7 +208,11 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   private String getLocalPath(String path) {
-    if (path.startsWith(getConfiguration().getBasePath())) {
+    if ("".equals(getConfiguration().getBasePath())) {
+      // if root is configured in Unix ("/" without trailing slash = "")
+      return path;
+    }
+    else if (path.startsWith(getConfiguration().getBasePath())) {
       path = path.replace(getConfiguration().getBasePath(), "");
       // replace windows style slashes
       path = path.replace("\\", "/");

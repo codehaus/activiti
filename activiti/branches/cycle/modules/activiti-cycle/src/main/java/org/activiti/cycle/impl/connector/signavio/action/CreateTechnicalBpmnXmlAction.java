@@ -8,9 +8,9 @@ import org.activiti.cycle.ParametrizedFreemakerTemplateAction;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
-import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnector;
 import org.activiti.cycle.impl.connector.signavio.provider.JsonProvider;
+import org.activiti.cycle.impl.plugin.ActivitiCyclePluginRegistry;
 import org.activiti.cycle.impl.transform.JsonTransformation;
 import org.activiti.cycle.impl.transform.signavio.AdjustShapeNamesTransformation;
 import org.activiti.cycle.impl.transform.signavio.BpmnPoolExtraction;
@@ -101,7 +101,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
     // TODO: Check naming policy
     targetArtifact.setId(artifactId);
     // TODO: Check artifac types / registry
-    targetArtifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
+    targetArtifact.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
 
     Content content = new Content();
     content.setValue(bpmnXml);
