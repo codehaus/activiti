@@ -250,6 +250,10 @@ public class DemoConnector extends AbstractRepositoryConnector {
           }
         }
       }
+      if (list.size() == 0) {
+        throw new RepositoryNodeNotFoundException(RepositoryNodeNotFoundException.createChildrenNotFoundMessage(getConfiguration().getName(),
+                RepositoryFolder.class, parentUrl));
+      }
     }
     return list;
   }
