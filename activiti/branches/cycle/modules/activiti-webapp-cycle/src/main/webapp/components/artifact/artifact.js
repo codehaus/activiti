@@ -97,7 +97,72 @@
 			}
 			tabView.appendTo('artifact-div');
 	   	prettyPrint();
-    }
+
+			var tabView = YAHOO.util.Selector.query('div', 'artifact-div', true);
+
+			// Add a dropdown for the actions			
+			if(artifactJson.actions.length > 0) {
+				var actionsDropdown = document.createElement("select");
+				actionsDropdown.setAttribute('name', "Actions");
+				var option = document.createElement("option");
+				option.appendChild(document.createTextNode("Avaliable actions..."));
+				actionsDropdown.appendChild(option);
+				for(var i = 0; i<artifactJson.actions.length; i++) {
+					option = document.createElement("option");
+					option.setAttribute('value', artifactJson.actions[i].label);
+					var link = document.createElement('a');
+					link.setAttribute('href', 'http://google.com?id=123');
+					link.appendChild(document.createTextNode(artifactJson.actions[i].label));
+					option.appendChild(link);
+		  		actionsDropdown.appendChild(option);
+					YAHOO.util.Event.addListener(option, "click", this.onExecuteActionClick);
+				}
+				tabView.appendChild(actionsDropdown);
+			}
+			if(artifactJson.links.length > 0) {
+				var linksDiv = document.createElement("div");
+				linksDiv.setAttribute('id', "artifact-actions-links");
+				linksDiv.appendChild(document.createTextNode("Links: "));
+				for(var i=0; i<artifactJson.links.length; i++) {
+					var link = document.createElement("a");
+					link.setAttribute('href', artifactJson.links[i].url);
+					link.setAttribute('title', artifactJson.links[i].label);
+					link.setAttribute('target', "blank");
+					link.appendChild(document.createTextNode(artifactJson.links[i].label));
+					linksDiv.appendChild(link);
+					if(i > artifactJson.links.length) {
+						linksDiv.appendChild(document.createTextNode(" | "));
+					}
+				}
+				tabView.appendChild(linksDiv);
+			}
+			// Add download links if available
+			if(artifactJson.lownloads.length > 0) {
+				var downloadsDiv = document.createElement("div");
+				downloadsDiv.setAttribute('id', "artifact-actions-downloads");
+				downloadsDiv.appendChild(document.createTextNode("Downloads: "));
+				for(var i=0; i<artifactJson.links.length; i++) {
+					var link = document.createElement("a");
+					link.setAttribute('href', artifactJson.links[i].url);
+					link.setAttribute('title', artifactJson.links[i].label);
+					link.setAttribute('target', "blank");
+					link.appendChild(document.createTextNode(artifactJson.links[i].label));
+					downloadsDiv.appendChild(link);
+					if(i > artifactJson.links.length) {
+						downloadsDiv.appendChild(document.createTextNode(" | "));
+					}
+				}
+				tabView.appendChild(downloadsDiv);
+			}
+    },
+
+		onExecuteActionClick: function Artifact_onExecuteActionClick(e)
+		{
+			var id = this.value;
+			
+			
+			//YAHOO.util.Event.preventDefault(e)
+		} 
 
 	});
 

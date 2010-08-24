@@ -22,6 +22,7 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -38,11 +39,16 @@ public class TreeGet extends ActivitiWebScript {
 
     String cuid = getCurrentUserId(req);
 
-    HttpSession session = ((WebScriptServletRequest)req).getHttpServletRequest().getSession(true);
+    HttpSession session = ((WebScriptServletRequest) req).getHttpServletRequest().getSession(true);
     RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
 
     String id = getString(req, "id");
-    List<RepositoryNode> subtree = conn.getChildNodes(id == null ? "/" : id);
+    List<RepositoryNode> subtree = new ArrayList<RepositoryNode>();
+    try {
+      subtree = conn.getChildNodes(id == null ? "/" : id);
+    } catch (RepositoryNodeNotFoundException e) {
+      // nothing to do here...
+    }
 
     List<RepositoryArtifact> files = new ArrayList<RepositoryArtifact>();
     List<RepositoryFolder> folders = new ArrayList<RepositoryFolder>();

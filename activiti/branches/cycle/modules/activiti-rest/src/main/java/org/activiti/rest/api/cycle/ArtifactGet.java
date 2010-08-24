@@ -47,24 +47,27 @@ public class ArtifactGet extends ActivitiWebScript {
     RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
 
     // Retrieve the artifact from the repository
-    RepositoryArtifact artifact = conn.getArtifactDetails(artifactId);
+    RepositoryArtifact artifact = conn.getRepositoryArtifact(artifactId);
 
     List<ContentView> contentViews = new ArrayList<ContentView>();
     for (ContentRepresentationDefinition representation : artifact.getContentRepresentationDefinitions()) {
       try {
-        String value = "";
         if (representation.getType().equals("txt") || representation.getType().equals("xml")) {
-          value = conn.getContent(artifactId, representation.getName()).asString();
-          contentViews.add(new ContentView(representation.getType(), representation.getName(), value));
+          String content = conn.getContent(artifactId, representation.getName()).asString();
+          contentViews.add(new ContentView(representation.getType(), representation.getName(), content));
         } else if (representation.getType().equals("img")) {
-          value = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8");
-          contentViews.add(new ContentView(representation.getType(), representation.getName(), value));
+          String url = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8");
+          contentViews.add(new ContentView(representation.getType(), representation.getName(), url));
         }
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);
       }
     }
 
+    model.put("actions", artifact.getParametrizedActions()); // label, name
+    model.put("downloads", artifact.getDownloadContentActions()); // name, label, definition.name, definition.type;
+    model.put("links", artifact.getOpenUrlActions()); // label, name, url
+    
     model.put("artifactId", artifact.getId());
     model.put("contentViews", contentViews);
 

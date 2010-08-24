@@ -50,7 +50,7 @@ public class ContentGet extends AbstractWebScript {
     RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
 
     // Retrieve the artifact from the repository
-    RepositoryArtifact artifact = conn.getArtifactDetails(artifactId);
+    RepositoryArtifact artifact = conn.getRepositoryArtifact(artifactId);
 
     Collection<ContentRepresentationDefinition> representations = artifact.getContentRepresentationDefinitions();
     for (ContentRepresentationDefinition representation : representations) {

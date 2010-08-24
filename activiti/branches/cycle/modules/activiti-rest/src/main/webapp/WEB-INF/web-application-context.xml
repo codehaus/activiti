@@ -159,5 +159,9 @@
         parent="webscript">
   </bean>
 
+  <bean id="webscript.org.activiti.rest.api.cycle.artifact-action-form.get"
+        class="org.activiti.rest.api.cycle.ArtifactActionFormGet"
+        parent="activitiWebScript">
+  </bean>
 
 </beans>
