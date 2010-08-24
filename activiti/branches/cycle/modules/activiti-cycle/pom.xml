@@ -61,14 +61,15 @@
 		</dependency>
 		<!-- required for Activiti Cycle file system connector -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<!-- required for Activiti Cycle file system connector -->
-		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
 		</dependency>
+		<!-- required for mimetype lookup -->
+		<dependency>
+		    <groupId>eu.medsea.mimeutil</groupId>
+		    <artifactId>mime-util</artifactId>
+		</dependency>
+		
 	</dependencies>
 			
 	<profiles>

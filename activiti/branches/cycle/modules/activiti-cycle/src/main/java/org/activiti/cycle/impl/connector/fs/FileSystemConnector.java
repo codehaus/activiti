@@ -4,10 +4,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
@@ -15,7 +18,12 @@ import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
+import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
+import org.activiti.cycle.impl.connector.fs.provider.FileSystemTextProvider;
+import org.activiti.cycle.impl.connector.fs.provider.FileSystemXmlProvider;
+
+import eu.medsea.mimeutil.MimeUtil;
 
 /**
  * TODO: Use correct {@link RepositoryNodeNotFoundException}.
@@ -24,15 +32,47 @@ import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
  */
 public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemConnectorConfiguration> {
 
+  private static final FileNameMap FILE_NAME_MAP;
+
+  public static final String BPMN_20_XML = "bpmn20.xml";
+  public static final String TEXT = "text/plain";
+  public static final String XML = "application/xml";
+  public static final String MS_WORD = "doc";
+  public static final String MS_WORD_X = "docx";
+  public static final String MS_PP = "ppt";
+  public static final String MS_PP_X = "pptx";
+  public static final String PDF = "application/pdf";
+
   static {
-    // RepositoryRegistry.registerArtifactType(new ArtifactType(name,
-    // typeIdentifier));
-    //    
-    // RepositoryRegistry.registerContentRepresentationProvider(fileTypeIdentifier,
-    // provider);
-    //    
-    // RepositoryRegistry.registerArtifactAction(artifactTypeIdentifier,
-    // action);
+    FILE_NAME_MAP = URLConnection.getFileNameMap();
+
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Bpmn 2.0 Xml", BPMN_20_XML));
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Xml", XML));
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Text", TEXT));
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Word", MS_WORD));
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Word X", MS_WORD_X));
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Powerpoint", MS_PP));
+    RepositoryRegistry.registerArtifactType(new ArtifactType("Ms Powerpoint X", MS_PP_X));
+
+    RepositoryRegistry.registerContentRepresentationProvider(BPMN_20_XML, FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(XML, FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(TEXT, FileSystemTextProvider.class);
+    // RepositoryRegistry.registerContentRepresentationProvider(MS_WORD,
+    // FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD_X, FileSystemTextProvider.class);
+    // RepositoryRegistry.registerContentRepresentationProvider(MS_PP,
+    // FileSystemXmlProvider.class);
+    // RepositoryRegistry.registerContentRepresentationProvider(MS_PP_X,
+    // FileSystemXmlProvider.class);
+
+    // RepositoryRegistry.registerArtifactAction(MS_WORD,
+    // DownloadContentAction.class);
+    // RepositoryRegistry.registerArtifactAction(MS_WORD_X,
+    // DownloadContentAction.class);
+    // RepositoryRegistry.registerArtifactAction(MS_PP,
+    // DownloadContentAction.class);
+    // RepositoryRegistry.registerArtifactAction(MS_PP_X,
+    // DownloadContentAction.class);
   }
 
   public FileSystemConnector(FileSystemConnectorConfiguration conf) {
@@ -69,8 +109,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
         }
       }
     } catch (Exception ex) {
-      throw new RepositoryNodeNotFoundException(RepositoryNodeNotFoundException.createChildrenNotFoundMessage(getConfiguration().getName(), RepositoryFolder.class,
-              parentId), ex);
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryFolder.class, parentId, ex);
     }
 
     return childNodes;
@@ -145,7 +184,28 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     artifact.getMetadata().setPath(getConfiguration().getBasePath() + artifact.getId());
     artifact.getMetadata().setLastChanged(new Date(file.lastModified()));
 
+    // FIXME: Better way to check for mimetypes or file extensions.
+    // See http://www.rgagnon.com/javadetails/java-0487.html or Alfresco Remote
+    // Api (org.alfresco.repo.content.MimetypeMap)
+    artifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(getMimeType(file)));
+
     return artifact;
+  }
+
+  /**
+   * TODO: Find a better way for mimetype, related to issue above. Version below
+   * return whole string after first dot
+   */
+  private String getMimeType(File file) {
+    String extension = MimeUtil.getExtension(file);
+
+    return extension;
+
+    // MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
+    // MimeType m =
+    // MimeUtil.getMostSpecificMimeType(MimeUtil.getMimeTypes(file));
+    // MimeUtil.unregisterMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
+
   }
 
   private RepositoryFolder getFolderInfo(File file) throws IOException {
