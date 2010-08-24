@@ -3,6 +3,7 @@ package org.activiti.cycle.impl.connector.demo.action;
 import java.util.Map;
 
 import org.activiti.cycle.ParametrizedFreemakerTemplateAction;
+import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.impl.connector.demo.DemoConnector;
 
 /**
@@ -32,12 +33,16 @@ public class CopyArtifactAction extends ParametrizedFreemakerTemplateAction {
   }
   
   private void copyArtifact(String targetName) {
-    // Skip API usage here, since the content handling doesn't behave like other
-    // artifacts
-    // copy.getConnector().createNewArtifact(getArtifact().getMetadata().getPath(),
-    // copy, getArtifact().loadContent(representationName));
-
-    ((DemoConnector) getArtifact().getConnector()).copyArtifact(getArtifact(), targetName);
+    String path = getArtifact().getId().substring(0, getArtifact().getId().lastIndexOf("/") - 1);
+    RepositoryArtifact copy = DemoConnector.clone(getArtifact());
+    if (targetName.endsWith("/")) {
+      copy.setId(path + targetName);
+    } else {
+      copy.setId(path + "/" + targetName);
+    }
+    
+    String representatioName = getArtifact().getArtifactType().getContentRepresentationProviders().get(0).getName();
+    copy.getConnector().createNewArtifact(path, copy, getArtifact().loadContent(representatioName));
   }
 
   @Override

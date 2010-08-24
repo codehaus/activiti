@@ -7,6 +7,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.activiti.cycle.impl.connector.demo.DemoConnectorPluginDefinition;
+import org.activiti.cycle.impl.connector.fs.FileSystemPluginDefinition;
+import org.activiti.cycle.impl.connector.signavio.SignavioPluginDefinition;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
 
@@ -41,14 +44,22 @@ public class PluginFinder {
       db.scanArchives(urls);
 
       Set<String> connectors = db.getAnnotationIndex().get(ActivitiCyclePlugin.class.getName());
-      for (String pluginClass : connectors) {
-        Class< ? > cyclePluginClass = this.getClass().getClassLoader().loadClass(pluginClass);
-        if (ActivitiCyclePluginDefinition.class.isAssignableFrom(cyclePluginClass)) {
-          logger.log(Level.INFO, "Found Activiti Cycle plugin class: " + cyclePluginClass.getName());
-          result.add((Class< ? extends ActivitiCyclePluginDefinition>) cyclePluginClass);
-        } else {
-          logger.log(Level.SEVERE, "Found plugin class with " + ActivitiCyclePlugin.class.getSimpleName() + " annotation but without implementing the "
-                  + ActivitiCyclePluginDefinition.class.getSimpleName() + " interface");
+      
+      if (connectors == null) {
+        // seems we currently have a classloading problem in the webapp
+        result.add(SignavioPluginDefinition.class);
+        result.add(FileSystemPluginDefinition.class);
+        result.add(DemoConnectorPluginDefinition.class);
+      } else {
+        for (String pluginClass : connectors) {
+          Class< ? > cyclePluginClass = this.getClass().getClassLoader().loadClass(pluginClass);
+          if (ActivitiCyclePluginDefinition.class.isAssignableFrom(cyclePluginClass)) {
+            logger.log(Level.INFO, "Found Activiti Cycle plugin class: " + cyclePluginClass.getName());
+            result.add((Class< ? extends ActivitiCyclePluginDefinition>) cyclePluginClass);
+          } else {
+            logger.log(Level.SEVERE, "Found plugin class with " + ActivitiCyclePlugin.class.getSimpleName() + " annotation but without implementing the "
+                    + ActivitiCyclePluginDefinition.class.getSimpleName() + " interface");
+          }
         }
       }
     } catch (Exception ex) {

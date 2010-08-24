@@ -82,6 +82,7 @@
     		<include name="org.restlet*.jar"/>
     		<include name="mime-util-*.jar"/>
     		<include name="slf4j-api-*.jar"/>
+    		<include name="slf4j-jdk14-*.jar"/>
     		<include name="scannotation-*.jar"/>
     		<include name="javassist-*.jar"/>
     	</fileset>
