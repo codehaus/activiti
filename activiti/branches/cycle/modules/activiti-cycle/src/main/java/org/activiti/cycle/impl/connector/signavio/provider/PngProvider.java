@@ -12,6 +12,7 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
+import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
@@ -27,14 +28,12 @@ public class PngProvider extends SignavioContentRepresentationProvider {
   }
 
   @Override
-  public byte[] getContent(RepositoryArtifact artifact) {
+  public void addValueToContent(Content content, RepositoryArtifact artifact) {
     try {
       Response pngResponse = getJsonResponse(artifact, "/png");
       Representation imageData = pngResponse.getEntity();
 
-      byte[] image = toBytes(imageData.getText());
-
-      return image;
+      content.setValue(imageData.getText());
     } catch (Exception ex) {
       throw new RepositoryException("Exception while accessing Signavio repository", ex);
     }

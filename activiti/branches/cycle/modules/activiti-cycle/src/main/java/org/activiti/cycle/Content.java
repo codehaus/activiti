@@ -79,6 +79,10 @@ public class Content {
       throw new RuntimeException("Not yet implemented");
     }
   }
+  
+  public boolean isNull() {
+    return (contentAsString == null && contentAsByteArray == null && contentAsInputStream == null);
+  }
 
   public void setValue(String text) {
     this.contentAsString = text;

@@ -14,6 +14,7 @@ package org.activiti.cycle.impl.connector.signavio.provider;
 
 import java.io.IOException;
 
+import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
@@ -41,12 +42,11 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
   }
 
   @Override
-  public byte[] getContent(RepositoryArtifact artifact) {
+  public void addValueToContent(Content content, RepositoryArtifact artifact) {
     try {
       JSONArray embeddedModel = getEmbeddedModel(artifact);
       String hmtlSnippet = getHmtlSnippet(artifact, embeddedModel);
-
-      return toBytes(hmtlSnippet);
+      content.setValue(hmtlSnippet);
     } catch (Exception ex) {
       throw new RepositoryException("Exception while retrieving embeddedModel from Signavio", ex);
     }

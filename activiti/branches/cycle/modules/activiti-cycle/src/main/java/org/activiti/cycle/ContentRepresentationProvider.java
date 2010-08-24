@@ -31,27 +31,20 @@ public abstract class ContentRepresentationProvider {
     return contentRepresentation;
   }
   
+  public abstract void addValueToContent(Content content, RepositoryArtifact artifact);
+
   public Content createContent(RepositoryArtifact artifact) {
     Content c = new Content();
-    // c.setContentRepresentationDefinition(createContentRepresentationDefinition(artifact));
-    byte[] content = getContent(artifact);
-    if (content == null) {
+
+    addValueToContent(c, artifact);
+    if (c.isNull()) {
       throw new RepositoryException("No content created for artifact " + artifact.getId() + " ' from provider '" + getContentRepresentationName()
               + "' (was null). Please check provider or artifact.");
     }
-    c.setValue(content);
+
     return c;
   }  
   
-  public byte[] toBytes(String result) {
-    return result.getBytes();
-  }  
-  
-  /**
-   * TODO: Introduce Provider using Streams instead of byte[]
-   */
-  public abstract byte[] getContent(RepositoryArtifact artifact);
-
   /**
    * key for name in properties for GUI
    * 

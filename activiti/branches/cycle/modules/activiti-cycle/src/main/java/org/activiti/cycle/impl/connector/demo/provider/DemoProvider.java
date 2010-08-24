@@ -2,6 +2,7 @@ package org.activiti.cycle.impl.connector.demo.provider;
 
 import java.util.Map;
 
+import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationProvider;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
@@ -14,17 +15,17 @@ public class DemoProvider extends ContentRepresentationProvider {
   }
   
   @Override
-  public byte[] getContent(RepositoryArtifact artifact) {
-    Map<String, byte[]> map = DemoConnector.content.get(artifact.getId());
-    if (map != null) {
-      return map.get(getContentRepresentationName());
-    }
-    throw new RepositoryException("Couldn't find content representation '" + getContentRepresentationName() + "' for artifact " + artifact.getId());
-  }
-  
-  @Override
   public String toString() {
     return this.getClass().getSimpleName() + " [" + getContentRepresentationName() + "]";
+  }
+
+  @Override
+  public void addValueToContent(Content content, RepositoryArtifact artifact) {
+    Map<String, byte[]> map = DemoConnector.content.get(artifact.getId());
+    if (map != null) {
+      content.setValue(map.get(getContentRepresentationName()));
+    }
+    throw new RepositoryException("Couldn't find content representation '" + getContentRepresentationName() + "' for artifact " + artifact.getId());
   }
 
 }

@@ -12,6 +12,7 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
+import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
@@ -30,11 +31,11 @@ public class JsonProvider extends SignavioContentRepresentationProvider {
   }
 
   @Override
-  public byte[] getContent(RepositoryArtifact artifact) {
+  public void addValueToContent(Content content, RepositoryArtifact artifact) {
     try {
       Response jsonResponse = getJsonResponse(artifact, "/json");
       String jsonString = jsonResponse.getEntity().getText();
-      return toBytes(jsonString);
+      content.setValue(jsonString);
     } catch (Exception ex) {
       throw new RepositoryException("Error while accessing Signavio repository", ex);
     }

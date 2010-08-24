@@ -12,6 +12,7 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
+import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
@@ -26,7 +27,7 @@ public class Bpmn20Provider extends SignavioContentRepresentationProvider {
     super(NAME, ContentType.XML);
   }
 
-  public byte[] getContent(RepositoryArtifact artifact) {
+  public void addValueToContent(Content content, RepositoryArtifact artifact) {
     try {
       // use the bpmn2_0_serialization export servlet to provide bpmn20 xml
       // by doing this, we can support different signavio versions instead of
@@ -44,7 +45,7 @@ public class Bpmn20Provider extends SignavioContentRepresentationProvider {
 
       log.finest("BPMN 2.0 String: " + result);
 
-      return toBytes(result);
+      content.setValue(result);
     } catch (Exception ex) {
       throw new RepositoryException("Error while accessing Signavio repository", ex);
     }
