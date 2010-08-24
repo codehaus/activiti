@@ -47,7 +47,7 @@ public interface RepositoryConnector {
    * get all child nodes of a node with the given url, independent if the
    * children are folders or artifacts. No details are prefetched as default.
    */
-  public List<RepositoryNode> getChildNodes(String parentId);
+  public List<RepositoryNode> getChildNodes(String parentId) throws RepositoryNodeNotFoundException;
 
   // /**
   // * get all child nodes of a node with the given url, independent if the
@@ -63,9 +63,9 @@ public interface RepositoryConnector {
   /**
    * load all details for a {@link RepositoryArtifact}.
    */
-  public RepositoryArtifact getArtifactDetails(String id);
+  public RepositoryArtifact getRepositoryArtifact(String id) throws RepositoryNodeNotFoundException;
 
-  public Content getContent(String nodeId, String representationName);
+  public Content getContent(String nodeId, String representationName) throws RepositoryNodeNotFoundException;
 
   // /**
   // * get files for the given parent folder. If parentFolder is null
@@ -82,26 +82,26 @@ public interface RepositoryConnector {
   /**
    * create a new file in the given folder
    */
-  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent);
+  public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) throws RepositoryNodeNotFoundException;
 
-  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent);
+  public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) throws RepositoryNodeNotFoundException;
 
   /**
    * deletes the given file from the folder
    */
-  public void deleteArtifact(String artifactId);
+  public void deleteArtifact(String artifactId) throws RepositoryNodeNotFoundException;
 
   /**
    * create a new subfolder in the given folder
    */
-  public void createNewSubFolder(String parentFolderId, RepositoryFolder subFolder);
+  public void createNewSubFolder(String parentFolderId, RepositoryFolder subFolder) throws RepositoryNodeNotFoundException;
 
   /**
    * deletes the given subfolder of the parent folder.
    * 
    * TODO: Think about if we need the parent folder as argument of this API
    */
-  public void deleteSubFolder(String subFolderId);
+  public void deleteSubFolder(String subFolderId) throws RepositoryNodeNotFoundException;
 
   /**
    * Some connectors support commit (like SVN), so all pending changes must be

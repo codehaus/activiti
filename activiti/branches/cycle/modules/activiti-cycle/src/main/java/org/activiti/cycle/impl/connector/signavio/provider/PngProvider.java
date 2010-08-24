@@ -44,7 +44,7 @@ public class PngProvider extends SignavioContentRepresentationProvider {
    * for documentation (even if do not use it at the moment)
    */
   public String getModelAsPngUrl(RepositoryArtifact fileInfo) {
-    return getConnector(fileInfo).getConfiguration().getModelUrl() + fileInfo.getId() + "/png?token=" + getConnector(fileInfo).getSecurityToken();
+    return getConnector(fileInfo).getConfiguration().getModelUrl(fileInfo.getId()) + "/png?token=" + getConnector(fileInfo).getSecurityToken();
   }
 
 }

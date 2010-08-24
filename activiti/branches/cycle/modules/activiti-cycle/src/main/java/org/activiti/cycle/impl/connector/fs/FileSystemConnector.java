@@ -14,8 +14,14 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
 
+/**
+ * TODO: Use correct {@link RepositoryNodeNotFoundException}.
+ * 
+ * @author ruecker
+ */
 public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemConnectorConfiguration> {
 
   static {
@@ -46,7 +52,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     List<RepositoryNode> childNodes = new ArrayList<RepositoryNode>();
 
     try {
-      if (parentId == null || parentId.length() == 0) {
+      if (parentId == null || parentId.length() == 0 || "/".equals(parentId)) {
         // Go to root!
         path = getConfiguration().getBasePath();
         children = new File(path).listFiles();
@@ -62,18 +68,18 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
           childNodes.add(getArtifactInfo(file));
         }
       }
-    } catch (IOException ioe) {
-      throw new RepositoryException("Error while getting childNodes from path '" + path + "'", ioe);
+    } catch (Exception ex) {
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryFolder.class, parentId, ex);
     }
 
     return childNodes;
   }
 
-  public RepositoryArtifact getArtifactDetails(String id) {
+  public RepositoryArtifact getRepositoryArtifact(String id) {
     try {
       return getArtifactInfo(getFileFromId(id));
     } catch (IOException ex) {
-      throw new RepositoryException("Error while getting artifact details for artifact id '" + id + "'", ex);
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryArtifact.class, id, ex);
     }
   }
 
@@ -82,7 +88,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   }
 
   public Content getContent(String nodeId, String representationName) {
-    RepositoryArtifact artifact = getArtifactDetails(nodeId);
+    RepositoryArtifact artifact = getRepositoryArtifact(nodeId);
     return artifact.loadContent(representationName);
   }
 
@@ -181,6 +187,8 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   private String getLocalPath(String path) {
     if (path.startsWith(getConfiguration().getBasePath())) {
       path = path.replace(getConfiguration().getBasePath(), "");
+      // replace windows style slashes
+      path = path.replace("\\", "/");
       return path;
     }
     throw new RepositoryException("Unable to determine local path! ('" + path + "')");

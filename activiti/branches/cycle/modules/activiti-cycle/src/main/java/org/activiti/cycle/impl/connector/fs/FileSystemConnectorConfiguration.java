@@ -50,8 +50,11 @@ public class FileSystemConnectorConfiguration extends RepositoryConnectorConfigu
   }
 
   public void setBasePath(String basePath) {
-    if (basePath != null && !basePath.endsWith("/")) {
-      basePath = basePath + "/";
+    // exchange it from windows to Java sytle
+    basePath.replace("\\", "/");
+    if (basePath != null && basePath.endsWith("/")) {
+      // remove trailing / to have the ids starting with a slash
+      basePath = basePath.substring(basePath.length() - 1);
     }
     this.baseFilePath = new File(basePath);
   }

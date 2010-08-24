@@ -25,6 +25,7 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
 import org.activiti.cycle.impl.connector.signavio.action.OpenModelerAction;
@@ -53,11 +54,14 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.resource.Representation;
 
 /**
- * TODO: refactor to differentiate between enterprise and os signavio.
+ * TODO: Check correct Exceptions to be thrown (use
+ * {@link RepositoryNodeNotFoundException}
  * 
  * @author christian.lipphardt@camunda.com
  */
 public class SignavioConnector extends AbstractRepositoryConnector<SignavioConnectorConfiguration> {
+  
+  
 
   private static Logger log = Logger.getLogger(SignavioConnector.class.getName());
 
@@ -211,27 +215,6 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     }
   }
 
-  public JSONObject getPublicRootDirectory() throws IOException, JSONException {
-    Response directoryResponse = getJsonResponse(getConfiguration().getDirectoryUrl());
-    JsonRepresentation jsonData = new JsonRepresentation(directoryResponse.getEntity());
-    JSONArray rootJsonArray = jsonData.toJsonArray();
-
-    if (log.isLoggable(Level.FINEST)) {
-      SignavioLogHelper.logJSONArray(log, Level.FINEST, rootJsonArray);
-    }
-
-    // find the directory of type public which contains all directories and
-    // models of this account
-    for (int i = 0; i < rootJsonArray.length(); i++) {
-      JSONObject rootObject = rootJsonArray.getJSONObject(i);
-      if ("public".equals(rootObject.getJSONObject("rep").get("type"))) {
-        return rootObject;
-      }
-    }
-
-    throw new RepositoryException("No directory root found in signavio repository.");
-  }
-
   private RepositoryFolder getFolderInfo(JSONObject jsonDirectoryObject) throws JSONException {
     if (!"dir".equals(jsonDirectoryObject.getString("rel"))) {
       // TODO: Think about that!
@@ -306,17 +289,9 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     // factory which produces the concrete actions?
   }
 
-  public RepositoryFolder getRootFolder() {
-    try {
-      return getFolderInfo(getPublicRootDirectory());
-    } catch (Exception e) {
-      throw new RepositoryException("Error while accessing the Signavio Repository", e);
-    }
-  }
-
   public List<RepositoryNode> getChildNodes(String parentId) {
     try {
-      Response directoryResponse = getJsonResponse(getConfiguration().getDirectoryUrl() + parentId);
+      Response directoryResponse = getJsonResponse(getConfiguration().getDirectoryUrl(parentId));
       JsonRepresentation jsonData = new JsonRepresentation(directoryResponse.getEntity());
       JSONArray relJsonArray = jsonData.toJsonArray();
 
@@ -338,31 +313,29 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       }
       return nodes;
     } catch (Exception ex) {
-      throw new RepositoryException("Exception while accessing Signavio repository", ex);
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryFolder.class, parentId, ex);
     }
   }
 
   public Content getContent(String nodeId, String representationName) {
-    RepositoryArtifact artifact = getArtifactDetails(nodeId);
+    RepositoryArtifact artifact = getRepositoryArtifact(nodeId);
     return artifact.loadContent(representationName);
   }
 
-  public RepositoryArtifact getArtifactDetails(String id) {
+  public RepositoryArtifact getRepositoryArtifact(String id) {
     JsonRepresentation jsonData = null;
     JSONObject jsonObject = null;
 
     try {
-      Response modelResponse = getJsonResponse(getModelUrl(id) + "/info");
+      Response modelResponse = getJsonResponse(getConfiguration().getModelUrl(id) + "/info");
       jsonData = new JsonRepresentation(modelResponse.getEntity());
       if (log.isLoggable(Level.FINE)) {
         log.fine("JsonData - (" + jsonData.getText() + ")");
       }
       jsonObject = jsonData.toJsonObject();
       return getArtifactInfoFromFile(id, jsonObject);
-    } catch (IOException ioe) {
-      throw new RepositoryException("IOException while accessing Signavio repository", ioe);
-    } catch (JSONException je) {
-      throw new RepositoryException("Encountered error in JSON data while accessing Signavio repository", je);
+    } catch (Exception ex) {
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryArtifact.class, id, ex);
     }
   }
 
@@ -382,41 +355,45 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       createFolderForm.add("parent", "/directory/" + parentFolderId);
       Representation createFolderRep = createFolderForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getDirectoryUrl()), createFolderRep);
+      Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getDirectoryRootUrl()), createFolderRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception ex) {
+      // throw new RepositoryNodeNotFoundException(getConfiguration().getName(),
+      // RepositoryArtifact.class, id);
+
       throw new RepositoryException("Unable to create subFolder '" + subFolder + "' in parent folder '" + parentFolderId + "'");
     }
   }
 
   public void deleteArtifact(String artifactId) {
     try {
-      Request jsonRequest = new Request(Method.DELETE, new Reference(getConfiguration().getModelUrl() + artifactId));
+      Request jsonRequest = new Request(Method.DELETE, new Reference(getConfiguration().getModelUrl(artifactId)));
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
 
       sendRequest(jsonRequest);
     } catch (Exception ex) {
+      // throw new RepositoryNodeNotFoundException(getConfiguration().getName(),
+      // RepositoryArtifact.class, id);
       throw new RepositoryException("Unable to delete model " + artifactId);
     }
   }
 
   public void deleteSubFolder(String subFolderId) {
     try {
-      Request jsonRequest = new Request(Method.DELETE, new Reference(getConfiguration().getDirectoryUrl() + subFolderId));
+      Request jsonRequest = new Request(Method.DELETE, new Reference(getConfiguration().getDirectoryUrl(subFolderId)));
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
 
       sendRequest(jsonRequest);
     } catch (Exception ex) {
+      // throw new RepositoryNodeNotFoundException(getConfiguration().getName(),
+      // RepositoryArtifact.class, id);
       throw new RepositoryException("Unable to delete directory " + subFolderId);
     }
   }
 
   public String getModelUrl(RepositoryArtifact artifact) {
-    return getModelUrl(artifact.getId());
-  }
-  public String getModelUrl(String artifactId) {
-    return getConfiguration().getModelUrl() + artifactId;
+    return getConfiguration().getModelUrl(artifact.getId());
   }
 
   public void commitPendingChanges(String comment) {
@@ -428,10 +405,12 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       bodyForm.add("parent", "/directory/" + targetFolderId);
       Representation bodyRep = bodyForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getModelUrl() + modelId), bodyRep);
+      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getModelUrl(modelId)), bodyRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception ex) {
+      // throw new RepositoryNodeNotFoundException(getConfiguration().getName(),
+      // RepositoryArtifact.class, id);
       throw new RepositoryException("Unable to move model " + modelId + " to folder " + targetFolderId, ex);
     }
   }
@@ -442,15 +421,18 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       bodyForm.add("parent", "/directory/" + targetFolderId);
       Representation bodyRep = bodyForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getDirectoryUrl() + directoryId), bodyRep);
+      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getDirectoryUrl(directoryId)), bodyRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception ex) {
+      // throw new RepositoryNodeNotFoundException(getConfiguration().getName(),
+      // RepositoryArtifact.class, id);
       throw new RepositoryException("Unable to move folder " + directoryId + " to directory " + targetFolderId, ex);
     }
   }
 
   public void createNewArtifact(String folderId, RepositoryArtifact artifact, Content content) {
+    throw new RepositoryException("not yet implemented");
     // TODO: how to get values for jsonData, comment and description
     // createNewModel(folderId, file.getMetadata().getName(), jsonData, null,
     // null);
@@ -458,7 +440,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     // TODO: Should we have a check for the content type? Is it possible to
     // create an artifact by different types?
     // if (content.getName().equals(JsonProvider.NAME)) {
-      content.asString();
+    // content.asString();
     // }
   }
 
@@ -493,7 +475,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       // modelForm.add("views", new JSONArray().toString());
       Representation modelRep = modelForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getModelUrl()), modelRep);
+      Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getModelRootUrl()), modelRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception je) {
@@ -509,7 +491,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       reivisionForm.add("revision", revisionId);
       Representation modelRep = reivisionForm.getWebRepresentation();
 
-      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getModelUrl()), modelRep);
+      Request jsonRequest = new Request(Method.PUT, new Reference(getConfiguration().getModelUrl(modelId)), modelRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
     } catch (Exception je) {

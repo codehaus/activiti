@@ -9,6 +9,7 @@ import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
@@ -67,7 +68,7 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
    * (based on the configured base url)
    */
   private String getClientUrl(RepositoryNode repositoryNode) {
-    return getConfiguration().getBaseUrlWithoutSlashAtTheEnd() + repositoryNode.getId(); 
+    return getConfiguration().getBaseUrl() + repositoryNode.getId(); 
   }
 
   /**
@@ -76,7 +77,12 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
    */
   private String getIdWithRepoName(RepositoryNode repositoryNode) {
     String repositoryName = repositoryNode.getConnector().getConfiguration().getName();
-    return getRepositoryPrefix(repositoryName) + repositoryNode.getId();
+    if (!repositoryNode.getId().startsWith("/")) {
+      throw new RepositoryException("RepositoryNode id doesn't start with a slash, which is copnsidered invalid: '" + repositoryNode.getId()
+              + "' in repository '" + repositoryName + "'");
+    } else {
+      return getRepositoryPrefix(repositoryName) + repositoryNode.getId();
+    }
   }
 
   /**
@@ -97,7 +103,7 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
   /**
    * add repository name in config to URL
    */
-  private RepositoryNode adjust(RepositoryNode repositoryNode) {
+  private RepositoryNode adjust(RepositoryNode repositoryNode) {   
     repositoryNode.setId(getIdWithRepoName(repositoryNode));
     repositoryNode.setClientUrl(getClientUrl(repositoryNode));
 
@@ -109,19 +115,31 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
                 getClientUrl(artifact, contentRepresentationDefinition));
       }
     }
+
+    // and change the connector (last operation to not influence id generating)
+    repositoryNode.overwriteConnector(this);
+
     return repositoryNode;
   }
 
   protected RepositoryConnector getConnectorFromUrl(String url) {
+    RepositoryConnector connector = null;
+    
     int index = url.indexOf("/");
     if (index == -1) {
       // demo connector itself
-      return getRepositoryConnectors().get(url);
+      connector = getRepositoryConnectors().get(url);
     } else if (index == 0) {
-      return getConnectorFromUrl(url.substring(1));
+      connector = getConnectorFromUrl(url.substring(1));
     } else {
       String repositoryName = url.substring(0, index);
-      return getRepositoryConnectors().get(repositoryName);
+      connector = getRepositoryConnectors().get(repositoryName);
+    }
+    
+    if (connector == null) {
+      throw new RepositoryException("Couldn't find any RepositoryConnector for url '" + url + "'");
+    } else {
+      return connector;
     }
   }
 
@@ -171,8 +189,8 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
     return nodes;
   }
 
-  public RepositoryArtifact getArtifactDetails(String id) {
-    RepositoryArtifact repositoryArtifact = getConnectorFromUrl(id).getArtifactDetails(
+  public RepositoryArtifact getRepositoryArtifact(String id) {
+    RepositoryArtifact repositoryArtifact = getConnectorFromUrl(id).getRepositoryArtifact(
             getRepositoryPartOfUrl(id));
     adjust(repositoryArtifact);
     return repositoryArtifact;

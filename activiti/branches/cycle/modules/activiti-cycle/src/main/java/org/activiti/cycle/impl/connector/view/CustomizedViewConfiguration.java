@@ -21,7 +21,11 @@ public class CustomizedViewConfiguration extends RepositoryConnectorConfiguratio
    *          later on)
    */
   public CustomizedViewConfiguration(String baseUrl, ConfigurationContainer configuration) {
-    this.baseUrl = baseUrl;
+    if (baseUrl.endsWith("/")) {
+      this.baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+    } else {
+      this.baseUrl = baseUrl;
+    }
     this.configuration = configuration;
   }
 
@@ -34,13 +38,14 @@ public class CustomizedViewConfiguration extends RepositoryConnectorConfiguratio
     return baseUrl;
   }
 
-  public String getBaseUrlWithoutSlashAtTheEnd() {
-    if (baseUrl.endsWith("/")) {
-      return baseUrl.substring(0, baseUrl.length() - 1);
-    } else {
-      return baseUrl;
-    }
-  }
+  // public String getBaseUrlWithoutSlashAtTheEnd() {
+  // if (baseUrl.endsWith("/")) {
+  // return baseUrl.substring(0, baseUrl.length() - 1);
+  // } else {
+  // return baseUrl;
+  // }
+  // }
+  
   public ConfigurationContainer getConfigurationContainer() {
     return configuration;
   }

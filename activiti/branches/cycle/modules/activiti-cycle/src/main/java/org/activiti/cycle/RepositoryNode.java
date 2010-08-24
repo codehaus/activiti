@@ -78,6 +78,10 @@ public class RepositoryNode implements Serializable {
     }
     return connector;
   }
+  
+  public void overwriteConnector(RepositoryConnector connector) {
+    this.connector = connector;
+  }
 
   @Override
   public String toString() {

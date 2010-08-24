@@ -14,9 +14,9 @@ import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
-import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.UnsupportedRepositoryOpperation;
 import org.activiti.cycle.impl.conf.RepositoryConnectorConfiguration;
 import org.activiti.cycle.impl.conf.RepositoryRegistry;
@@ -117,6 +117,9 @@ public class DemoConnector extends AbstractRepositoryConnector {
   }
 
   private RepositoryFolder createFolder(String id, String name, String parentPath) {
+    if (!id.startsWith("/")) {
+      id = "/" + id;
+    }
     RepositoryFolder newFolder = new RepositoryFolder(this);
     newFolder.setId(id);
     newFolder.getMetadata().setName(name);
@@ -125,6 +128,9 @@ public class DemoConnector extends AbstractRepositoryConnector {
   }
 
   private RepositoryArtifact createArtifact(String id, String artifactTypeIdentifier, String name, String parentPath) {
+    if (!id.startsWith("/")) {
+      id = "/" + id;
+    }
     RepositoryArtifact newArtifact = new RepositoryArtifact(this);
     newArtifact.setArtifactType(RepositoryRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
     newArtifact.setId(id);
@@ -252,13 +258,13 @@ public class DemoConnector extends AbstractRepositoryConnector {
     return getChildNodes(parentUrl);
   }
 
-  public RepositoryArtifact getArtifactDetails(String id) {
+  public RepositoryArtifact getRepositoryArtifact(String id) {
     for (RepositoryNode node : nodes) {
       if (node.getId().equals(id) && node instanceof RepositoryArtifact) {
         return clone((RepositoryArtifact) node);
       }
     }
-    throw new RepositoryException("Couldn't find node with url '" + id + "'");
+    throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryArtifact.class, id);
   }
 
   public boolean login(String username, String password) {
@@ -268,7 +274,7 @@ public class DemoConnector extends AbstractRepositoryConnector {
   }
 
   public Content getContent(String nodeId, String representationName) {
-    return getArtifactDetails(nodeId).loadContent(representationName);
+    return getRepositoryArtifact(nodeId).loadContent(representationName);
   }
 
   public void commitPendingChanges(String comment) {

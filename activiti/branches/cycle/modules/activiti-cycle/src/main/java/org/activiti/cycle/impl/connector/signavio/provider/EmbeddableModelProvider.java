@@ -173,7 +173,7 @@ public class EmbeddableModelProvider extends SignavioContentRepresentationProvid
     // Creating the JSON Object for the Snippet
     JSONObject resultJsonObject = new JSONObject();
 
-    resultJsonObject.put("url", getConnector(artifact).getConfiguration().getModelUrl() + artifact.getId());
+    resultJsonObject.put("url", getConnector(artifact).getConfiguration().getModelUrl(artifact.getId()));
     resultJsonObject.put("overflowX", "fit");
     resultJsonObject.put("overflowY", "fit");
     resultJsonObject.put("zoomSlider", true);

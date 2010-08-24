@@ -19,7 +19,7 @@ import org.activiti.cycle.impl.conf.PasswordEnabledRepositoryConnectorConfigurat
  * Object used to configure signavio connector. Candidate for Entity to save
  * config later on.
  * 
- * ALL url's have a trailing "/"!
+ * The Signavio URL has a trailing "/", the URL-SUFFIXES TODO: CHECK
  * 
  * @author bernd.ruecker@camunda.com
  */
@@ -37,8 +37,8 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   public static String LOGIN_URL_SUFFIX = "login/";
   public static String EDITOR_URL_SUFFIX = "editor/";
   public static String EXPLORER_URL_SUFFIX = "explorer/";
-  public static String MODEL_URL_SUFFIX = "model/";
-  public static String DIRECTORY_URL_SUFFIX = "directory/";
+  public static String MODEL_URL_SUFFIX = "model";
+  public static String DIRECTORY_URL_SUFFIX = "directory";
   public static String MASHUP_URL_SUFFIX = "mashup/";
 
   public static String BPMN_20_EXPORT_SERVLET = "bpmn2_0serialization";
@@ -95,6 +95,16 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
     // TODO: Check implementation!
     return href.replaceAll(baseUrl, "");
   }
+  
+  public String getModelUrl(String id) {
+    // Change to MODEL_URL_SUFFIX
+    return getSignavioBackendUrl() + MODEL_URL_SUFFIX + id;
+  }
+
+  public String getDirectoryUrl(String id) {
+    // Change to DIRECTORY_URL_SUFFIX
+    return getSignavioBackendUrl() + DIRECTORY_URL_SUFFIX + id;
+  }
 
   public String getRegistrationUrl() {
     return getSignavioBackendUrl() + REGISTRATION_URL_SUFFIX;
@@ -111,13 +121,16 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   public String getExplorerUrl() {
     return getSignavioBackendUrl() + EXPLORER_URL_SUFFIX;
   }
-
-  public String getModelUrl() {
-    return getSignavioBackendUrl() + MODEL_URL_SUFFIX;
+  
+  /**
+   * TODO: Rename?
+   */
+  public String getModelRootUrl() {
+    return getSignavioBackendUrl() + MODEL_URL_SUFFIX + "/";
   }
 
-  public String getDirectoryUrl() {
-    return getSignavioBackendUrl() + DIRECTORY_URL_SUFFIX;
+  public String getDirectoryRootUrl() {
+    return getSignavioBackendUrl() + DIRECTORY_URL_SUFFIX + "/";
   }
 
   public String getMashupUrl() {

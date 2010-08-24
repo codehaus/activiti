@@ -2,6 +2,7 @@ package org.activiti.cycle.impl.connector.demo;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -11,7 +12,10 @@ import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.impl.conf.ConfigurationContainer;
+import org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration;
+import org.activiti.cycle.impl.connector.signavio.SignavioConnectorConfiguration;
 import org.activiti.cycle.impl.connector.view.CustomizedViewConfiguration;
+import org.activiti.cycle.impl.util.RepositoryLogHelper;
 import org.junit.Test;
 
 public class DemoConnectorTest {
@@ -75,8 +79,19 @@ public class DemoConnectorTest {
       System.out.println(contentRepresentation.getName() + " -> " + contentRepresentation.getClientUrl());
       System.out.println("  # FETCHED CONTENT VIA API: # " + conn.getContent(file3.getId(), contentRepresentation.getName()).asString());
     }  
-    
+  }
 
+  // @Test
+  public void testPlay() {
+
+    ConfigurationContainer configuration = new ConfigurationContainer("bernd");
+    configuration.addRepositoryConnectorConfiguration(new DemoConnectorConfiguration("demo"));
+    configuration.addRepositoryConnectorConfiguration(new SignavioConnectorConfiguration("signavio", "http://localhost:8080/activiti-modeler/"));
+    configuration.addRepositoryConnectorConfiguration(new FileSystemConnectorConfiguration("files", new File("C:/temp")));
     
+    RepositoryConnector conn = new CustomizedViewConfiguration("http://localhost:8080/activiti-cycle/", configuration).createConnector();
+    
+    RepositoryLogHelper.printNodes(conn.getChildNodes("/"));
+
   }
 }
