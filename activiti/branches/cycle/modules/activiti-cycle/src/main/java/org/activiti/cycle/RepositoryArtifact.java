@@ -128,6 +128,49 @@ public class RepositoryArtifact extends RepositoryNode {
     return cachedFileActions;
   }
   
+  public List<ParametrizedAction> getParametrizedActions() {
+    ArrayList<ParametrizedAction> actions = new ArrayList<ParametrizedAction>();
+    for (ArtifactAction action : getActions()) {
+      if (action instanceof ParametrizedAction) {
+        actions.add((ParametrizedAction) action);
+      }
+    }
+    return actions;
+  }
+
+  public List<OpenUrlAction> getOpenUrlActions() {
+    ArrayList<OpenUrlAction> actions = new ArrayList<OpenUrlAction>();
+    for (ArtifactAction action : getActions()) {
+      if (action instanceof OpenUrlAction) {
+        actions.add((OpenUrlAction) action);
+      }
+    }
+    return actions;   
+  }
+
+  public List<DownloadContentAction> getDownloadContentActions() {
+    ArrayList<DownloadContentAction> actions = new ArrayList<DownloadContentAction>();
+    for (ArtifactAction action : getActions()) {
+      if (action instanceof DownloadContentAction) {
+        actions.add((DownloadContentAction) action);
+      }
+    }
+    return actions;
+  }
+  
+  // How can we make that generic?
+  // public List<ArtifactAction> getActionsOfType(Class< ? extends
+  // ArtifactAction> actionClass) {
+  // ArrayList<ArtifactAction> actions = new ArrayList<ArtifactAction>();
+  // for (ArtifactAction action : getActions()) {
+  // if (actionClass.isAssignableFrom(action.getClass())) {
+  // actions.add(action);
+  // }
+  // }
+  // return actions;
+  // }
+
+  
   /**
    * execute the action with the given name and the given parameters.
    * 
