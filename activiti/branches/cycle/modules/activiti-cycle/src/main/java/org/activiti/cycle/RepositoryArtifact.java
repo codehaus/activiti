@@ -121,9 +121,13 @@ public class RepositoryArtifact extends RepositoryNode {
           log.log(Level.SEVERE, "couldn't create file action of class " + clazz, ex);
         }
       }
+      
+      log.fine("Actions for artifact '" + getId() + "' with type " + getArtifactType().getName() + " requested, returning " + cachedFileActions.size()
+              + " actions.");
+    } else {
+      log.fine("No artifact type set for artifact '" + getId() + "'. Don't return any actions.");      
     }
 
-    log.fine("Actions for file type " + getArtifactType().getName() + " requested, returning " + cachedFileActions.size() + " actions.");
 
     return cachedFileActions;
   }
