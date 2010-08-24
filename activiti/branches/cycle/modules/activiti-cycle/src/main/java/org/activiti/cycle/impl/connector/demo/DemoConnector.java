@@ -256,7 +256,9 @@ public class DemoConnector extends AbstractRepositoryConnector<DemoConnectorConf
   }
 
   public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
-    throw new UnsupportedRepositoryOpperation("unsupported by demo connector");
+    nodes.add(artifact);
+    // TODO: How do we now what we get?
+    addContentRepresentation(artifact, ARTIFACT_TYPE_TEXT, artifactContent.asByteArray());
   }
 
   public void modifyArtifact(RepositoryArtifact artifact, ContentRepresentationDefinition artifactContent) {

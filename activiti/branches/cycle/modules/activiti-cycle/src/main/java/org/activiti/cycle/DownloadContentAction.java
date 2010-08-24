@@ -16,6 +16,9 @@ public class DownloadContentAction extends ArtifactAction {
   public DownloadContentAction(RepositoryArtifact artifact, String contentRepresentationName) {
     super(artifact);
     this.definiton = artifact.getContentRepresentationDefinition(contentRepresentationName);
+    if (definiton == null) {
+      throw new RepositoryException("Couldn't find content representation definition '" + contentRepresentationName + "' for artifact " + artifact);
+    }
   }
 
   
