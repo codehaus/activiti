@@ -69,7 +69,8 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
         }
       }
     } catch (Exception ex) {
-      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryFolder.class, parentId, ex);
+      throw new RepositoryNodeNotFoundException(RepositoryNodeNotFoundException.createChildrenNotFoundMessage(getConfiguration().getName(), RepositoryFolder.class,
+              parentId), ex);
     }
 
     return childNodes;
