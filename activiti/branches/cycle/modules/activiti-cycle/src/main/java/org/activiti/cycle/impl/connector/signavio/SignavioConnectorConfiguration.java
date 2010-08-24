@@ -97,13 +97,23 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   }
   
   public String getModelUrl(String id) {
-    // Change to MODEL_URL_SUFFIX
-    return getSignavioBackendUrl() + MODEL_URL_SUFFIX + id;
+    if (id.startsWith("/")) {
+      // this is how it should be now
+      return getSignavioBackendUrl() + MODEL_URL_SUFFIX + id;
+    } else {
+      // this is how it was in ancient times
+      return getSignavioBackendUrl() + MODEL_URL_SUFFIX + "/" + id;
+    }
   }
 
   public String getDirectoryUrl(String id) {
-    // Change to DIRECTORY_URL_SUFFIX
-    return getSignavioBackendUrl() + DIRECTORY_URL_SUFFIX + id;
+    if (id.startsWith("/")) {
+      // this is how it should be now
+      return getSignavioBackendUrl() + DIRECTORY_URL_SUFFIX + id;
+    } else {
+      // this is how it was in ancient times
+      return getSignavioBackendUrl() + DIRECTORY_URL_SUFFIX + "/" + id;
+    }
   }
 
   public String getRegistrationUrl() {
