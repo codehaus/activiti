@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.activiti.cycle.ArtifactAction;
 import org.activiti.cycle.ArtifactType;
@@ -66,16 +65,16 @@ public class ActivitiCyclePluginRegistry {
       registerArtifactType(artifactType);
     }
 
-    Map<String, Class< ? extends ContentRepresentationProvider>> contentProviderMap = new HashMap<String, Class< ? extends ContentRepresentationProvider>>();
-    definition.addContentRepresentationProviderToMap(contentProviderMap);
-    for (Entry<String, Class< ? extends ContentRepresentationProvider>> entry : contentProviderMap.entrySet()) {
-      registerContentRepresentationProvider(entry.getKey(), entry.getValue());
+    List<DefinitionEntry<Class< ? extends ContentRepresentationProvider>>> contentProviders = new ArrayList<DefinitionEntry<Class< ? extends ContentRepresentationProvider>>>();
+    definition.addContentRepresentationProviderToMap(contentProviders);
+    for (DefinitionEntry<Class< ? extends ContentRepresentationProvider>> definitionEntry : contentProviders) {
+      registerContentRepresentationProvider(definitionEntry.getKey(), definitionEntry.getValue());      
     }
 
-    Map<String, Class< ? extends ArtifactAction>> actionMap = new HashMap<String, Class< ? extends ArtifactAction>>();
+    List<DefinitionEntry<Class< ? extends ArtifactAction>>> actionMap = new ArrayList<DefinitionEntry<Class< ? extends ArtifactAction>>>();
     definition.addArtifactActionToMap(actionMap);
-    for (Entry<String, Class< ? extends ArtifactAction>> entry : actionMap.entrySet()) {
-      registerArtifactAction(entry.getKey(), entry.getValue());
+    for (DefinitionEntry<Class< ? extends ArtifactAction>> definitionEntry : actionMap) {
+      registerArtifactAction(definitionEntry.getKey(), definitionEntry.getValue());
     }
   }
 

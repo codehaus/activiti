@@ -1,7 +1,6 @@
 package org.activiti.cycle.impl.plugin;
 
 import java.util.List;
-import java.util.Map;
 
 import org.activiti.cycle.ArtifactAction;
 import org.activiti.cycle.ArtifactType;
@@ -17,7 +16,7 @@ public interface ActivitiCyclePluginDefinition {
   
   public void addDefinedArtifactTypeToList(List<ArtifactType> list);
 
-  public void addContentRepresentationProviderToMap(Map<String, Class< ? extends ContentRepresentationProvider>> contentProviderMap);
+  public void addContentRepresentationProviderToMap(List<DefinitionEntry<Class< ? extends ContentRepresentationProvider>>> contentProviderMap);
 
-  public void addArtifactActionToMap(Map<String, Class< ? extends ArtifactAction>> actionMap);
+  public void addArtifactActionToMap(List<DefinitionEntry<Class< ? extends ArtifactAction>>> actionMap);
 }

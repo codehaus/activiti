@@ -144,6 +144,10 @@ public class RepositoryArtifact extends RepositoryNode {
   }
   
   public List<DownloadContentAction> createDownloadContentActions() {
+    // TODO: Think about a better handling of initialization of providers and representation definitions
+    // For the moment just query the list beforehand to make sure it is initialized
+    getContentRepresentationDefinitions();
+    
     ArrayList<DownloadContentAction> actions = new ArrayList<DownloadContentAction>();
 
     for (ContentRepresentationProvider provider : getContentRepresentationProviders()) {
@@ -221,7 +225,7 @@ public class RepositoryArtifact extends RepositoryNode {
         if (actionNames.length() > 0) {
           actionNames.append(", ");
         }
-        actionNames.append(name);
+        actionNames.append(action.getName());
       }
     }
     throw new RepositoryException("Action '" + name + "' not found, cannot be executed. Existing actions are: " + actionNames.toString());
