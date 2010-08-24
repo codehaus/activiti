@@ -24,6 +24,7 @@ public class DemoProvider extends ContentRepresentationProvider {
     Map<String, byte[]> map = DemoConnector.content.get(artifact.getId());
     if (map != null) {
       content.setValue(map.get(getContentRepresentationName()));
+      return;
     }
     throw new RepositoryException("Couldn't find content representation '" + getContentRepresentationName() + "' for artifact " + artifact.getId());
   }
