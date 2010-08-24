@@ -14,7 +14,6 @@ package org.activiti.cycle.impl.connector.signavio.provider;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.logging.Logger;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -32,8 +31,6 @@ import org.restlet.resource.DomRepresentation;
 
 public abstract class SignavioContentRepresentationProvider extends ContentRepresentationProvider {
 
-  protected Logger log = Logger.getLogger(this.getClass().getName());
-
   public SignavioContentRepresentationProvider(String name, String type) {
     super(name, type);
   }
@@ -41,15 +38,15 @@ public abstract class SignavioContentRepresentationProvider extends ContentRepre
   public SignavioConnector getConnector(RepositoryArtifact artifact) {
     return (SignavioConnector) artifact.getConnector();
   }
-  
+
   public Response getJsonResponse(RepositoryArtifact artifact, String urlSuffix) throws IOException {
     SignavioConnector connector = getConnector(artifact);
     String url = connector.getModelUrl(artifact) + urlSuffix;
     return connector.getJsonResponse(url);
   }
 
-  public String getXmlAsString(DomRepresentation xmlData) throws TransformerFactoryConfigurationError, TransformerConfigurationException,
-          TransformerException, IOException {
+  public String getXmlAsString(DomRepresentation xmlData) throws TransformerFactoryConfigurationError, TransformerConfigurationException, TransformerException,
+          IOException {
     StringWriter stringWriter = new StringWriter();
     StreamResult streamResult = new StreamResult(stringWriter);
     TransformerFactory transformerFactory = TransformerFactory.newInstance();

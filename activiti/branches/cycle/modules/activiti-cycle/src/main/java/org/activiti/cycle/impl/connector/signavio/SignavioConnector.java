@@ -60,8 +60,6 @@ import org.restlet.resource.Representation;
  * @author christian.lipphardt@camunda.com
  */
 public class SignavioConnector extends AbstractRepositoryConnector<SignavioConnectorConfiguration> {
-  
-  
 
   private static Logger log = Logger.getLogger(SignavioConnector.class.getName());
 
@@ -432,16 +430,13 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   }
 
   public void createNewArtifact(String folderId, RepositoryArtifact artifact, Content content) {
-    throw new RepositoryException("not yet implemented");
-    // TODO: how to get values for jsonData, comment and description
-    // createNewModel(folderId, file.getMetadata().getName(), jsonData, null,
-    // null);
-
     // TODO: Should we have a check for the content type? Is it possible to
     // create an artifact by different types?
-    // if (content.getName().equals(JsonProvider.NAME)) {
-    // content.asString();
-    // }
+    try {
+      createNewModel(folderId, artifact.getMetadata().getName(), content.asString(), null, null);
+    } catch (IOException ioe) {
+      throw new RepositoryException("Unable to create new model '" + artifact.getMetadata().getName() + "' in folder '" + folderId + "'", ioe);
+    }
   }
 
   public void createNewModel(String parentFolderId, String name, String jsonData, String revisionComment, String description) throws IOException {
@@ -512,10 +507,10 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
 
       Request request = new Request(Method.POST, new Reference(getConfiguration().getBpmn20XmlExportServletUrl()), jsonDataRep);
       Response jsonResponse = sendRequest(request);
-      
+
       // "xml" is just one entry in the returned JSON map
       return new JSONObject(jsonResponse.getEntity().getText()).getString("xml");
-      
+
     } catch (Exception ex) {
       throw new RepositoryException("Error while transforming BPMN2_0_JSON to BPMN2_0_XML", ex);
     }
