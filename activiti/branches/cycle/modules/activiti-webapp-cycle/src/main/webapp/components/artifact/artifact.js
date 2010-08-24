@@ -102,26 +102,24 @@
 
 			// Add a dropdown for the actions			
 			if(artifactJson.actions.length > 0) {
+				var actionsDiv = document.createElement("div");
+				actionsDiv.setAttribute('id', "artifact-actions");
+				actionsDiv.appendChild(document.createTextNode("Actions: "));
 				var actionsDropdown = document.createElement("select");
 				actionsDropdown.setAttribute('name', "Actions");
-				var option = document.createElement("option");
-				option.appendChild(document.createTextNode("Avaliable actions..."));
-				actionsDropdown.appendChild(option);
 				for(var i = 0; i<artifactJson.actions.length; i++) {
 					option = document.createElement("option");
-					option.setAttribute('value', artifactJson.actions[i].label);
-					var link = document.createElement('a');
-					link.setAttribute('href', 'http://google.com?id=123');
-					link.appendChild(document.createTextNode(artifactJson.actions[i].label));
-					option.appendChild(link);
+					option.setAttribute('value', artifactJson.id + ";" + artifactJson.actions[i].name);
+					option.appendChild(document.createTextNode(artifactJson.actions[i].label));
 		  		actionsDropdown.appendChild(option);
 					YAHOO.util.Event.addListener(option, "click", this.onExecuteActionClick);
 				}
-				tabView.appendChild(actionsDropdown);
+				actionsDiv.appendChild(actionsDropdown);
+				tabView.appendChild(actionsDiv);
 			}
 			if(artifactJson.links.length > 0) {
 				var linksDiv = document.createElement("div");
-				linksDiv.setAttribute('id', "artifact-actions-links");
+				linksDiv.setAttribute('id', "artifact-links");
 				linksDiv.appendChild(document.createTextNode("Links: "));
 				for(var i=0; i<artifactJson.links.length; i++) {
 					var link = document.createElement("a");
@@ -137,9 +135,9 @@
 				tabView.appendChild(linksDiv);
 			}
 			// Add download links if available
-			if(artifactJson.lownloads.length > 0) {
+			if(artifactJson.downloads.length > 0) {
 				var downloadsDiv = document.createElement("div");
-				downloadsDiv.setAttribute('id', "artifact-actions-downloads");
+				downloadsDiv.setAttribute('id', "artifact-downloads");
 				downloadsDiv.appendChild(document.createTextNode("Downloads: "));
 				for(var i=0; i<artifactJson.links.length; i++) {
 					var link = document.createElement("a");
@@ -158,10 +156,15 @@
 
 		onExecuteActionClick: function Artifact_onExecuteActionClick(e)
 		{
-			var id = this.value;
+
+			var artifactId = this.value.split(";")[0];
+			var actionName = this.value.split(";")[1];
 			
 			
-			//YAHOO.util.Event.preventDefault(e)
+			new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", artifactId, actionName);
+			YAHOO.util.Event.preventDefault(e)
+			
+			
 		} 
 
 	});

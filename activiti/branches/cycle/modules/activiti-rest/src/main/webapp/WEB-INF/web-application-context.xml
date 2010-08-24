@@ -164,4 +164,9 @@
         parent="activitiWebScript">
   </bean>
 
+  <bean id="webscript.org.activiti.rest.api.cycle.action-execution.put"
+        class="org.activiti.rest.api.cycle.ActionExecutionPut"
+        parent="activitiWebScript">
+  </bean>
+
 </beans>

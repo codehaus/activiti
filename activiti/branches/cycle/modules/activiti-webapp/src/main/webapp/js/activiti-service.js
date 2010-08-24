@@ -1320,7 +1320,29 @@ Activiti.service.Ajax = function() {
     loadArtifactURL: function RepositoryService_loadArtifactURL(artifactid)
     {
       return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact?artifactId=" + encodeURIComponent(artifactid);
-    }
+    },
+
+		// TODO: doc
+    loadArtifactActionForm: function RepositoryService_loadArtifactActionForm(artifactId, artifactActionName, obj)
+    {
+		  this.jsonGet(this.loadArtifactActionFormURL(artifactId, artifactActionName), obj, "loadArtifactActionForm");
+    },
+
+		// TODO: doc
+    loadArtifactActionFormURL: function RepositoryService_loadArtifactActionFormURL(artifactId, artifactActionName)
+    {
+			return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action-form?artifactId=" + encodeURIComponent(artifactId) + "&actionName=" + encodeURIComponent(artifactActionName);
+    },
+
+		executeArtifactAction: function RepositoryService_executeArtifactAction(artifactId, artifactActionName, variables, obj)
+		{
+			this.jsonPut(this.executeArtifactFormURL(artifactId, artifactActionName), variables, obj, "executeArtifactAction");
+		},
+		
+		executeArtifactFormURL: function RepositoryService_executeArtifactFormURL(artifactId, artifactActionName)
+		{
+			return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action?artifactId=" + encodeURIComponent(artifactId) + "&actionName=" + encodeURIComponent(artifactActionName);
+		}
 
   });
 })();

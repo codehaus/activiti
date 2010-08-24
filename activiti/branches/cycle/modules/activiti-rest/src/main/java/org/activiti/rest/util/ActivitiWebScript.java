@@ -445,6 +445,9 @@ public class ActivitiWebScript extends DeclarativeWebScript {
             else if (type.equals("User")) {
               value = jsonBody.getString(key);
             }
+            else if (type.equals("String")) {
+              value = jsonBody.getString(key);
+            }
             else {
               throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter '" + keyPair[0] + "' is of unknown type '" + type + "'");
             }
