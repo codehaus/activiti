@@ -24,6 +24,13 @@ public abstract class ParametrizedAction extends ArtifactAction {
     super(artifact);
   }
 
+  /**
+   * returns html form for the action parameters as String. Returns null if no
+   * form is needed
+   * 
+   * TODO: Think about Actions without parameters (Return null or create own
+   * superclass)
+   */
   public abstract String getFormAsHtml();
 
   public abstract void execute(Map<String, Object> parameter) throws Exception;

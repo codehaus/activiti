@@ -31,6 +31,9 @@ public abstract class ParametrizedFreemakerTemplateAction extends ParametrizedAc
   public String getFormAsHtml() {
     try {
       String resourceName = getFormResourceName();
+      if (resourceName == null) {
+        return null;
+      }
       InputStream is = this.getClass().getResourceAsStream(resourceName);
       BufferedReader reader = new BufferedReader(new InputStreamReader(is));
       StringBuilder sb = new StringBuilder();

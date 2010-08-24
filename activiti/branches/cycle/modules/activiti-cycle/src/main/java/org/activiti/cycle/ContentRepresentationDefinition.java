@@ -19,19 +19,17 @@ public class ContentRepresentationDefinition implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-  // private RepositoryArtifact artifact;
-
 	/**
    * type of content as normally indicated by {@link ContentType}
    * (e.g. text file, image, ...). Information for the client to render it
    * correctly.
    */
-  private String type;
-	
+  private String mimeType;
+
   /**
-   * Name of this representation, serves as a key to query the correct
-   * representation and may be used by the client to show a list of possible
-   * {@link ContentRepresentationDefinition}s
+   * Name of this representation, serves as a <b>unique key</b> to query the
+   * correct representation and may be used by the client to show a list of
+   * possible {@link ContentRepresentationDefinition}s
    */
 	private String name;
 	
@@ -41,11 +39,11 @@ public class ContentRepresentationDefinition implements Serializable {
   }
   
   public String getType() {
-    return type;
+    return mimeType;
   }
 
   public void setType(String type) {
-    this.type = type;
+    this.mimeType = type;
   }
 
   public String getName() {
