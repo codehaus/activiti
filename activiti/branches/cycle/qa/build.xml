@@ -10,7 +10,10 @@
   <property name="windows.browser" value="C:/Program Files/Mozilla Firefox/firefox.exe" />
   <property name="linux.browser" value="firefox" />
   <property name="tomcat.home" value="${activiti.home}/apps/apache-tomcat-${tomcat.version}" />
-  <property name="mvn.executable" value="mvn" />
+  
+  <condition property="mvn.executable" value="mvn.bat" else="mvn">
+     <os family="windows"/>
+  </condition>  
   
   <target name="pre.commit.check">
     <exec executable="${mvn.executable}" dir="..">
@@ -127,7 +130,7 @@ Then run test.demo.setup to make it get placed inside your tomcat server." unles
             username="activiti"
             password="activiti"
             path="/activiti-${webapp.redeploy.module}"
-            war="file://${basedir}/../modules/activiti-webapp-${webapp.redeploy.module}/target/activiti-webapp-${webapp.redeploy.module}-${activiti.version}.war"/>
+            war="${basedir}/../modules/activiti-webapp-${webapp.redeploy.module}/target/activiti-webapp-${webapp.redeploy.module}-${activiti.version}.war"/>
   </target>
 
 
