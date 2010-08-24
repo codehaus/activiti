@@ -81,6 +81,9 @@
     		<include name="com.noelios.restlet*.jar"/>
     		<include name="org.restlet*.jar"/>
     		<include name="mime-util-*.jar"/>
+    		<include name="slf4j-api-*.jar"/>
+    		<include name="scannotation-*.jar"/>
+    		<include name="javassist-*.jar"/>
     	</fileset>
     </copy>
 
