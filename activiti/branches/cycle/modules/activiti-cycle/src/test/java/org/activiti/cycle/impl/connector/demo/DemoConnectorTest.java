@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.activiti.cycle.ContentRepresentationDefinition;
 import org.activiti.cycle.RepositoryArtifact;
@@ -12,6 +14,7 @@ import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.impl.conf.ConfigurationContainer;
+import org.activiti.cycle.impl.connector.demo.action.CopyArtifactAction;
 import org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnectorConfiguration;
 import org.activiti.cycle.impl.connector.view.CustomizedViewConfiguration;
@@ -21,7 +24,7 @@ import org.junit.Test;
 public class DemoConnectorTest {
 
   @Test
-  public void testFirstPlay() {    
+  public void testFirstPlay() throws Exception {    
     // create demo connector but accessed via the customized view connector
     ConfigurationContainer userConfiguration = new ConfigurationContainer("bernd");
     userConfiguration.addRepositoryConnectorConfiguration(new DemoConnectorConfiguration("demo"));
@@ -78,7 +81,20 @@ public class DemoConnectorTest {
     for (ContentRepresentationDefinition contentRepresentation : contentRepresentations) {
       System.out.println(contentRepresentation.getName() + " -> " + contentRepresentation.getClientUrl());
       System.out.println("  # FETCHED CONTENT VIA API: # " + conn.getContent(file3.getId(), contentRepresentation.getName()).asString());
-    }  
+    }
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("targetName", "xxx.txt");
+    parameters.put("copyCount", 2);
+    file1.executeAction(CopyArtifactAction.class.getName(), parameters);
+    
+    childNodes = conn.getChildNodes(folder1.getId());
+    assertEquals(4, childNodes.size());
+
+    assertEquals("/demo/minutes/20100701-KickOffMeeting.txt", childNodes.get(0).getId());
+    assertEquals("/demo/minutes/InitialMindmap.mm", childNodes.get(1).getId());
+    // assertEquals("/demo/minutes/xxx.txt2", childNodes.get(2).getId());
+    // assertEquals("/demo/minutes/xxx.txt1", childNodes.get(3).getId());
   }
 
   // @Test

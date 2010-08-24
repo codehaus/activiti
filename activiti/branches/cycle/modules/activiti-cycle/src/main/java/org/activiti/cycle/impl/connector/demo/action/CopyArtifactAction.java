@@ -33,7 +33,7 @@ public class CopyArtifactAction extends ParametrizedFreemakerTemplateAction {
   }
   
   private void copyArtifact(String targetName) {
-    String path = getArtifact().getId().substring(0, getArtifact().getId().lastIndexOf("/") - 1);
+    String path = getArtifact().getId().substring(0, getArtifact().getId().lastIndexOf("/"));
     RepositoryArtifact copy = DemoConnector.clone(getArtifact());
     if (targetName.endsWith("/")) {
       copy.setId(path + targetName);
