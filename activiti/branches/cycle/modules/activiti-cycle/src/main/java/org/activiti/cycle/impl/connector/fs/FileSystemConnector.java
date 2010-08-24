@@ -18,6 +18,7 @@ import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.impl.conf.RepositoryRegistry;
 import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
+import org.activiti.cycle.impl.connector.fs.provider.FileSystemBinaryProvider;
 import org.activiti.cycle.impl.connector.fs.provider.FileSystemTextProvider;
 import org.activiti.cycle.impl.connector.fs.provider.FileSystemXmlProvider;
 
@@ -52,10 +53,10 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     RepositoryRegistry.registerContentRepresentationProvider(BPMN_20_XML, FileSystemXmlProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(XML, FileSystemXmlProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(TEXT, FileSystemTextProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD, FileSystemXmlProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD_X, FileSystemTextProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_PP, FileSystemXmlProvider.class);
-    RepositoryRegistry.registerContentRepresentationProvider(MS_PP_X, FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD, FileSystemBinaryProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD_X, FileSystemBinaryProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_PP, FileSystemBinaryProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_PP_X, FileSystemBinaryProvider.class);
 
     // RepositoryRegistry.registerArtifactAction(MS_WORD,
     // DownloadContentAction.class);
