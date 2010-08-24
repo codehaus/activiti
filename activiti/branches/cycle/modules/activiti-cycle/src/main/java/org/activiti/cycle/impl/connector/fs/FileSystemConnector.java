@@ -4,8 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.FileNameMap;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,20 +30,17 @@ import eu.medsea.mimeutil.MimeUtil;
  */
 public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemConnectorConfiguration> {
 
-  private static final FileNameMap FILE_NAME_MAP;
-
   public static final String BPMN_20_XML = "bpmn20.xml";
-  public static final String TEXT = "text/plain";
-  public static final String XML = "application/xml";
+  public static final String ORYX_XML = "oryx.xml";
+  public static final String TEXT = "txt";
+  public static final String XML = "xml";
   public static final String MS_WORD = "doc";
   public static final String MS_WORD_X = "docx";
   public static final String MS_PP = "ppt";
   public static final String MS_PP_X = "pptx";
-  public static final String PDF = "application/pdf";
+  public static final String PDF = "pdf";
 
   static {
-    FILE_NAME_MAP = URLConnection.getFileNameMap();
-
     RepositoryRegistry.registerArtifactType(new ArtifactType("Bpmn 2.0 Xml", BPMN_20_XML));
     RepositoryRegistry.registerArtifactType(new ArtifactType("Xml", XML));
     RepositoryRegistry.registerArtifactType(new ArtifactType("Text", TEXT));
@@ -57,13 +52,10 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     RepositoryRegistry.registerContentRepresentationProvider(BPMN_20_XML, FileSystemXmlProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(XML, FileSystemXmlProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(TEXT, FileSystemTextProvider.class);
-    // RepositoryRegistry.registerContentRepresentationProvider(MS_WORD,
-    // FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_WORD, FileSystemXmlProvider.class);
     RepositoryRegistry.registerContentRepresentationProvider(MS_WORD_X, FileSystemTextProvider.class);
-    // RepositoryRegistry.registerContentRepresentationProvider(MS_PP,
-    // FileSystemXmlProvider.class);
-    // RepositoryRegistry.registerContentRepresentationProvider(MS_PP_X,
-    // FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_PP, FileSystemXmlProvider.class);
+    RepositoryRegistry.registerContentRepresentationProvider(MS_PP_X, FileSystemXmlProvider.class);
 
     // RepositoryRegistry.registerArtifactAction(MS_WORD,
     // DownloadContentAction.class);
