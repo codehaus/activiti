@@ -12,12 +12,13 @@
  */
 package org.activiti.cycle.impl.connector.signavio.provider;
 
+import java.io.InputStream;
+import java.net.URL;
+
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
-import org.restlet.data.Response;
-import org.restlet.resource.Representation;
 
 public class PngProvider extends SignavioContentRepresentationProvider {
 
@@ -30,10 +31,10 @@ public class PngProvider extends SignavioContentRepresentationProvider {
   @Override
   public void addValueToContent(Content content, RepositoryArtifact artifact) {
     try {
-      Response pngResponse = getJsonResponse(artifact, "/png");
-      Representation imageData = pngResponse.getEntity();
+      String modelAsPngUrl = getModelAsPngUrl(artifact);
+      InputStream is = new URL(modelAsPngUrl).openStream();
 
-      content.setValue(imageData.getText());
+      content.setValue(is);
     } catch (Exception ex) {
       throw new RepositoryException("Exception while accessing Signavio repository", ex);
     }
