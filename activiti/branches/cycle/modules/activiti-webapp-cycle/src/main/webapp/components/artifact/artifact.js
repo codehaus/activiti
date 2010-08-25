@@ -89,7 +89,7 @@
 				}	else {
 					tabView.addTab( new YAHOO.widget.Tab({
 						label: artifactJson.contentViews[i].name,
-						content: "<div id=\"artifact-source\">\n<div class=\"prettyprint lang-" + artifactJson.contentViews[i].type + "\" >\n" + artifactJson.contentViews[i].content + "\n</div></div>",
+						content: "<div id=\"artifact-source\">\n<pre class=\"prettyprint lang-" + artifactJson.contentViews[i].type + "\" >\n" + artifactJson.contentViews[i].content + "\n</pre></div>",
 						active: firstTab
 					}));
 					firstTab = false;
