@@ -19,13 +19,15 @@ public class ActionExecutionPut extends ActivitiWebScript {
 
     String artifactId = getMandatoryString(req, "artifactId");
     String actionName = getMandatoryString(req, "actionName");
-    ActivitiWebScriptBody body = getBody(req);
-    Map<String, Object> variables = getFormVariables(body);
+    
     String cuid = getCurrentUserId(req);
-  
+    
     HttpSession session = ((WebScriptServletRequest) req).getHttpServletRequest().getSession(true);
     RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
-
+    
+    ActivitiWebScriptBody body = getBody(req);
+    Map<String, Object> variables = getFormVariables(body, conn);
+    
     // Retrieve the artifact from the repository
     RepositoryArtifact artifact = conn.getRepositoryArtifact(artifactId);
 

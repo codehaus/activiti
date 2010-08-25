@@ -829,7 +829,7 @@ Activiti.service.Ajax = function() {
         else if (YAHOO.lang.isFunction(this.callbackHandler["on" + suffix])) {
           result = this.callbackHandler["on" + suffix].call(this.callbackHandler, response, obj.responseObj);
         }
-        Activiti.service.Ajax.displaySuccessMessage(this.name + "." + obj.methodName + suffix, response);
+ 				Activiti.service.Ajax["display" + suffix + "Message"].call(Activiti.service.Ajax, this.name + "." + obj.methodName + suffix, response);
       }
       if (result == false) {
         // The callback explicitly told the service NOT to dispatch an event

@@ -142,9 +142,9 @@
 				for(var i=0; i<artifactJson.downloads.length; i++) {
 					var link = document.createElement("a");
 					link.setAttribute('href', artifactJson.downloads[i].url);
-					link.setAttribute('title', artifactJson.downloads[i].label);
+					link.setAttribute('title', artifactJson.downloads[i].label + " (" + artifactJson.downloads[i].type + ")");
 					link.setAttribute('target', "blank");
-					link.appendChild(document.createTextNode(artifactJson.downloads[i].label));
+					link.appendChild(document.createTextNode(artifactJson.downloads[i].label + " (" + artifactJson.downloads[i].type + ")"));
 					downloadsDiv.appendChild(link);
 					if(i > artifactJson.downloads.length) {
 						downloadsDiv.appendChild(document.createTextNode(" | "));

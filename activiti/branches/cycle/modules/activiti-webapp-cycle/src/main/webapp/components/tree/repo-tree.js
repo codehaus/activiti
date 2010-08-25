@@ -58,6 +58,7 @@
 
 			var loadTreeNodes = function (node, fnLoadComplete) {
 				me.services.repositoryService.loadNodeData(node, fnLoadComplete);
+				timeout: 7000
 			};
 
 			// instantiate the TreeView control

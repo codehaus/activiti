@@ -15,16 +15,20 @@ package org.activiti.rest.api.cycle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpSession;
 
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest;
 
@@ -33,6 +37,8 @@ import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest
  */
 public class TreeGet extends ActivitiWebScript {
 
+  private static Logger log = Logger.getLogger(TreeGet.class.getName());
+  
   @Override
   protected void executeWebScript(WebScriptRequest req, Status status, Cache cache, Map<String, Object> model) {
 
@@ -45,7 +51,12 @@ public class TreeGet extends ActivitiWebScript {
     boolean folder = Boolean.parseBoolean(getString(req, "folder"));
     List<RepositoryNode> subtree = new ArrayList<RepositoryNode>();
     if(folder) {
-      subtree = conn.getChildNodes(id);
+      try{
+        subtree = conn.getChildNodes(id);
+      } catch(RepositoryException e) {
+        log.log(Level.SEVERE, e.getMessage(),e);
+        throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "exception.message");
+      }
     }
 
     List<RepositoryArtifact> files = new ArrayList<RepositoryArtifact>();

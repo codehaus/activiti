@@ -12,7 +12,6 @@
  */
 package org.activiti.rest.api.cycle;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -22,6 +21,7 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 
 import org.activiti.cycle.ContentRepresentationDefinition;
+import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.springframework.extensions.surf.util.Base64;
@@ -60,40 +60,48 @@ public class ContentGet extends AbstractWebScript {
     Collection<ContentRepresentationDefinition> representations = artifact.getContentRepresentationDefinitions();
     for (ContentRepresentationDefinition representation : representations) {
       if (representation.getType().equals(contentType)) {
-          // TODO: use input stream...
-          byte[] content = conn.getContent(artifact.getId(), representation.getName()).asByteArray();
-          ByteArrayInputStream in = new ByteArrayInputStream(content);
-          // TODO: what is a good way to determine the etag? Just using a fake one here... 
 
-          // assuming we want to create an attachment for binary data... 
-          streamContentImpl(req, res, in, contentType.startsWith("application/") ? true : false, new Date(0), "W/\"647-1281077702000\"", null);
+        // assuming we want to create an attachment for binary data...
+        boolean attach = contentType.startsWith("application/") ? true : false;
+        String attachmentFileName = null;
+        if(attach) {
+          attachmentFileName = artifact.getMetadata().getName();
+
+          if(contentType.equals(ContentType.XML)) {
+            attachmentFileName += ".xml";
+          } else if(contentType.equals(ContentType.JSON)) {
+            attachmentFileName += ".json";
+          } else if(contentType.equals(ContentType.TEXT)) {
+            attachmentFileName += ".txt";
+          } else if(contentType.equals(ContentType.PDF)) {
+            attachmentFileName += ".pdf";
+          } else if(contentType.equals(ContentType.MS_EXCEL)) {
+            attachmentFileName += ".xls";
+          } else if(contentType.equals(ContentType.MS_POWERPOINT)) {
+            attachmentFileName += ".ppt";
+          } else if(contentType.equals(ContentType.MS_WORD)) {
+            attachmentFileName += ".doc";
+          }
+          
+        }
+        
+        // TODO: what is a good way to determine the etag? Using a fake one...
+        streamContentImpl(req, res, conn.getContent(artifact.getId(), representation.getName()).asInputStream(), attach, new Date(0),
+                "W/\"647-1281077702000\"", attachmentFileName, contentType);
       }
     }
 
   }
-
   protected void streamContentImpl(WebScriptRequest req, WebScriptResponse res, InputStream in, boolean attach, Date modified, String eTag,
-          String attachFileName) throws IOException {
+          String attachFileName, String mimetype) throws IOException {
     setAttachment(res, attach, attachFileName);
 
-    // establish mimetype
-    String mimetype = "image/png"; // TODO: create a mimetype map and
-    // a utility to determine the
-    // mimetypes
-    // String extensionPath = req.getExtensionPath();
-    // if (mimetype == null || mimetype.length() == 0) {
-    // int extIndex = extensionPath.lastIndexOf('.');
-    // if (extIndex != -1) {
-    // String ext = extensionPath.substring(extIndex + 1);
-    // }
-    // }
-
-    // set mimetype for the content and the character encoding + length for the
-    // stream
     res.setContentType(mimetype);
-    // res.setContentEncoding(reader.getEncoding());
+    // TODO: determine encoding and set it on the response
+    // res.setContentEncoding(...);
 
-    // res.setHeader("Content-Length", Long.toString(reader.getSize()));
+    // TODO: determine the content length...
+    // res.setHeader("Content-Length", ...);
 
     // set caching
     Cache cache = new Cache();
@@ -112,17 +120,9 @@ public class ContentGet extends AbstractWebScript {
       byte[] buffer = new byte[0xFFFF];
       for (int len; (len = in.read(buffer)) != -1;)
         res.getOutputStream().write(buffer, 0, len);
-    } catch (SocketException e1) {
-      // the client cut the connection - our mission was accomplished apart from
-      // a little error message
-      // if (logger.isInfoEnabled())
-      // logger.info("Client aborted stream read:\n\tcontent: " + reader);
+    } catch (SocketException e) {
+      // TODO: client cut the connection, log the message?
     }
-    // catch (ContentIOException e2)
-    // {
-    // if (logger.isInfoEnabled())
-    // logger.info("Client aborted stream read:\n\tcontent: " + reader);
-    // }
   }
 
   /**
@@ -136,8 +136,6 @@ public class ContentGet extends AbstractWebScript {
     if (attach == true) {
       String headerValue = "attachment";
       if (attachFileName != null && attachFileName.length() > 0) {
-        // if (logger.isDebugEnabled())
-        // logger.debug("Attaching content using filename: " + attachFileName);
 
         headerValue += "; filename=" + attachFileName;
       }
@@ -153,9 +151,8 @@ public class ContentGet extends AbstractWebScript {
   /**
    * Returns the username for the current user.
    * 
-   * @param req
-   *          The webscript request
-   * @return THe username of the current user
+   * @param req The webscript request
+   * @return The username of the current user
    */
   protected String getCurrentUserId(WebScriptRequest req) {
     String authorization = req.getHeader("Authorization");
