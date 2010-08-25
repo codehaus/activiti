@@ -38,7 +38,7 @@ import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest
 public class TreeGet extends ActivitiWebScript {
 
   private static Logger log = Logger.getLogger(TreeGet.class.getName());
-  
+
   @Override
   protected void executeWebScript(WebScriptRequest req, Status status, Cache cache, Map<String, Object> model) {
 
@@ -50,12 +50,15 @@ public class TreeGet extends ActivitiWebScript {
     String id = getString(req, "id");
     boolean folder = Boolean.parseBoolean(getString(req, "folder"));
     List<RepositoryNode> subtree = new ArrayList<RepositoryNode>();
-    if(folder) {
-      try{
+    if (folder) {
+      try {
         subtree = conn.getChildNodes(id);
-      } catch(RepositoryException e) {
-        log.log(Level.SEVERE, e.getMessage(),e);
-        throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "exception.message");
+      } catch (RepositoryException e) {
+        log.log(Level.SEVERE, e.getMessage(), e);
+        // TODO: how can we let the user know what went wrong without breaking the tree?
+        // throwing a HTTP 500 here will cause the tree to load the node for ever. 
+        // throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
+        // "exception.message");
       }
     }
 

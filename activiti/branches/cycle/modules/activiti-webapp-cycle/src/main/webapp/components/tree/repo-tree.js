@@ -58,7 +58,8 @@
 
 			var loadTreeNodes = function (node, fnLoadComplete) {
 				me.services.repositoryService.loadNodeData(node, fnLoadComplete);
-				timeout: 7000
+				// TODO: see if there is a way to define a timeout even if the server returns a HTTP 500 status
+				//timeout: 7000
 			};
 
 			// instantiate the TreeView control
@@ -70,7 +71,6 @@
 		  tree.render();
 
 			tree.subscribe("clickEvent", this.onLabelClick, null, this);
-
     },
 
 		/**

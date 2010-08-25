@@ -63,23 +63,25 @@ public class ContentGet extends AbstractWebScript {
 
         // assuming we want to create an attachment for binary data...
         boolean attach = contentType.startsWith("application/") ? true : false;
+        
+        // TODO: This code should become obsolete when the connectors store the file names properly with suffix.
         String attachmentFileName = null;
         if(attach) {
           attachmentFileName = artifact.getMetadata().getName();
 
-          if(contentType.equals(ContentType.XML)) {
+          if(contentType.equals(ContentType.XML) && !attachmentFileName.endsWith(".xml")) {
             attachmentFileName += ".xml";
-          } else if(contentType.equals(ContentType.JSON)) {
+          } else if(contentType.equals(ContentType.JSON) && !attachmentFileName.endsWith(".json")) {
             attachmentFileName += ".json";
-          } else if(contentType.equals(ContentType.TEXT)) {
+          } else if(contentType.equals(ContentType.TEXT) && !attachmentFileName.endsWith(".txt")) {
             attachmentFileName += ".txt";
-          } else if(contentType.equals(ContentType.PDF)) {
+          } else if(contentType.equals(ContentType.PDF) && !attachmentFileName.endsWith(".pdf")) {
             attachmentFileName += ".pdf";
-          } else if(contentType.equals(ContentType.MS_EXCEL)) {
+          } else if(contentType.equals(ContentType.MS_EXCEL) && !attachmentFileName.endsWith(".xls")) {
             attachmentFileName += ".xls";
-          } else if(contentType.equals(ContentType.MS_POWERPOINT)) {
+          } else if(contentType.equals(ContentType.MS_POWERPOINT) && !attachmentFileName.endsWith(".ppt")) {
             attachmentFileName += ".ppt";
-          } else if(contentType.equals(ContentType.MS_WORD)) {
+          } else if(contentType.equals(ContentType.MS_WORD) && !attachmentFileName.endsWith(".doc")) {
             attachmentFileName += ".doc";
           }
           

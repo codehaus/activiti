@@ -109,7 +109,7 @@
 				actionsDropdown.setAttribute('name', "Actions");
 				for(var i = 0; i<artifactJson.actions.length; i++) {
 					option = document.createElement("option");
-					option.setAttribute('value', artifactJson.id + ";" + artifactJson.actions[i].name);
+					option.setAttribute('value', artifactJson.id + "#TOKEN#" + artifactJson.actions[i].name);
 					option.appendChild(document.createTextNode(artifactJson.actions[i].label));
 		  		actionsDropdown.appendChild(option);
 					YAHOO.util.Event.addListener(option, "click", this.onExecuteActionClick);
@@ -157,8 +157,8 @@
 		onExecuteActionClick: function Artifact_onExecuteActionClick(e)
 		{
 
-			var artifactId = this.value.split(";")[0];
-			var actionName = this.value.split(";")[1];
+			var artifactId = this.value.split("#TOKEN#")[0];
+			var actionName = this.value.split("#TOKEN#")[1];
 			
 			
 			new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", artifactId, actionName);
