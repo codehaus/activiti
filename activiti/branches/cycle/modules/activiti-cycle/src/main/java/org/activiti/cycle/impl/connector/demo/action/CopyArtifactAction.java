@@ -28,11 +28,11 @@ public class CopyArtifactAction extends ParametrizedFreemakerTemplateAction {
       copyArtifact(targetName);
     }
     for (int i = 0; i < count; i++) {
-      copyArtifact(targetName + count);
+      copyArtifact(targetName + i);
     }
   }
   
-  private void copyArtifact(String targetName) {
+  private void copyArtifact(String targetName) {    
     String path = getArtifact().getId().substring(0, getArtifact().getId().lastIndexOf("/"));
     RepositoryArtifact copy = DemoConnector.clone(getArtifact());
     if (targetName.endsWith("/")) {
@@ -41,10 +41,10 @@ public class CopyArtifactAction extends ParametrizedFreemakerTemplateAction {
       copy.setId(path + "/" + targetName);
     }
     copy.getMetadata().setName(targetName);
-    // copy.overwriteConnector(getOriginalArtifactConnector());
+    copy.overwriteConnector(getOriginalArtifactConnector());
     
     String representatioName = getArtifact().getContentRepresentationProviders().iterator().next().getContentRepresentationName();
-    copy.getConnector().createNewArtifact(path, copy, getArtifact().getConnector().getContent(getArtifact().getId(), representatioName));
+    getArtifact().getConnector().createNewArtifact(path, copy, getArtifact().getConnector().getContent(getArtifact().getId(), representatioName));
   }
 
   @Override

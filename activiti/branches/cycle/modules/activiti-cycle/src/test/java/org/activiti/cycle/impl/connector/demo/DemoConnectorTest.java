@@ -88,13 +88,16 @@ public class DemoConnectorTest {
     parameters.put("copyCount", 2);
     file1.executeAction(CopyArtifactAction.class.getName(), parameters);
     
+    List<RepositoryNode> nodes = DemoConnector.nodes;
     childNodes = conn.getChildNodes(folder1.getId());
     assertEquals(4, childNodes.size());
 
     assertEquals("/demo/minutes/20100701-KickOffMeeting.txt", childNodes.get(0).getId());
     assertEquals("/demo/minutes/InitialMindmap.mm", childNodes.get(1).getId());
-    // assertEquals("/demo/minutes/xxx.txt2", childNodes.get(2).getId());
-    // assertEquals("/demo/minutes/xxx.txt1", childNodes.get(3).getId());
+    assertEquals("/demo/minutes/xxx.txt0", childNodes.get(2).getId());
+    assertEquals("xxx.txt0", childNodes.get(2).getMetadata().getName());
+    assertEquals("/demo/minutes/xxx.txt1", childNodes.get(3).getId());
+    assertEquals("xxx.txt1", childNodes.get(3).getMetadata().getName());
   }
 
   // @Test
