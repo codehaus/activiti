@@ -19,7 +19,10 @@
   <property name="tomcat.filename" value="apache-tomcat-${tomcat.version}.zip" /> 
   <property name="tomcat.download.url" value="${apache.mirror.url}tomcat/tomcat-6/v${tomcat.version}/bin/${tomcat.filename}" />    
 
+<!--
+  Use as long the beta1 is not released:
 	<property name="activiti.modeler.download.url" value="http://activiti.org/downloads/activiti-modeler-5.0.alpha4.war" />
+	-->
 	<property name="activiti.modeler.download.url" value="http://activiti.org/downloads/activiti-modeler-${activiti.version}.war" />
   <available property="is.activiti.modeler.available" file="${activiti.home}/setup/build/activiti-modeler-${activiti.version}.war" />
   <property name="activiti.modeler.repository.home" value="${activiti.home}/apps/activiti-model-repository" />

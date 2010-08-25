@@ -7,6 +7,7 @@ import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.ContentRepresentationProvider;
 import org.activiti.cycle.impl.connector.signavio.action.CreateTechnicalBpmnXmlAction;
 import org.activiti.cycle.impl.connector.signavio.action.OpenModelerAction;
+import org.activiti.cycle.impl.connector.signavio.provider.ActivitiCompliantBpmn20Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.Jpdl4Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.JsonProvider;
@@ -25,14 +26,20 @@ public class SignavioPluginDefinition implements ActivitiCyclePluginDefinition {
   }
 
   public void addContentRepresentationProviderToMap(List<DefinitionEntry<Class< ? extends ContentRepresentationProvider>>> contentProviderMap) {
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0,
+            JsonProvider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0,
+            Bpmn20Provider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0,
+            ActivitiCompliantBpmn20Provider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0, PngProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0, Bpmn20Provider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0, JsonProvider.class));
 
     // TODO: Refactor, this is weird, we have the type name, type type, then we
     // register that for the type type?
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.ORYX_TYPE_ATTRIBUTE_FOR_BPMN_20,
             PngProvider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.ORYX_TYPE_ATTRIBUTE_FOR_BPMN_20,
+            ActivitiCompliantBpmn20Provider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.ORYX_TYPE_ATTRIBUTE_FOR_BPMN_20,
             Bpmn20Provider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.ORYX_TYPE_ATTRIBUTE_FOR_BPMN_20,

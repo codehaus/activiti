@@ -70,6 +70,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
     String sourceJson = getBpmn20Json();
     String transformedJson = applyJsonTranfsormations(sourceJson);
     String bpmnXml = transformToBpmn20(transformedJson);
+    bpmnXml = new RemedyTemporarySignavioIncompatibilityTransformation().transformBpmn20Xml(bpmnXml);    
     createTargetArtifact(targetFolder, targetName + ".bpmn.xml", bpmnXml, SignavioConnector.BPMN_2_0_XML);
 
     // TODO: Think about that more, does it make sense like this?
@@ -105,8 +106,6 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
     targetArtifact.setId(artifactId);
     // TODO: Check artifac types / registry
     targetArtifact.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
-
-    bpmnXml = new RemedyTemporarySignavioIncompatibilityTransformation().transformBpmn20Xml(bpmnXml);
 
     Content content = new Content();
     content.setValue(bpmnXml);
