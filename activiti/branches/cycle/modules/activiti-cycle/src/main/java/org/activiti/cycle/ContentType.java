@@ -15,7 +15,7 @@ public class ContentType {
 	public static final String PNG = "image/png";
   public static final String GIF = "image/gif";
   public static final String JPEG = "image/jpeg"; // or use "image/jpeg;charset=ISO-8859-1" ?
-	public static final String XML = "xml";
+  public static final String XML = "application/xml";
 	public static final String HTML = "text/html";
   public static final String TEXT = "text/plain";
   public static final String PDF = "application/pdf";
