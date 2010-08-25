@@ -5,8 +5,9 @@ import java.util.List;
 import org.activiti.cycle.ArtifactAction;
 import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.ContentRepresentationProvider;
-import org.activiti.cycle.impl.connector.fs.provider.FileSystemBinaryProvider;
+import org.activiti.cycle.impl.connector.fs.provider.FileSystemPowerpointProvider;
 import org.activiti.cycle.impl.connector.fs.provider.FileSystemTextProvider;
+import org.activiti.cycle.impl.connector.fs.provider.FileSystemWordProvider;
 import org.activiti.cycle.impl.connector.fs.provider.FileSystemXmlProvider;
 import org.activiti.cycle.impl.plugin.ActivitiCyclePlugin;
 import org.activiti.cycle.impl.plugin.ActivitiCyclePluginDefinition;
@@ -29,10 +30,12 @@ public class FileSystemPluginDefinition implements ActivitiCyclePluginDefinition
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.BPMN_20_XML, FileSystemXmlProvider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.XML, FileSystemXmlProvider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.TEXT, FileSystemTextProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_WORD, FileSystemBinaryProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_WORD_X, FileSystemBinaryProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_PP, FileSystemBinaryProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_PP_X, FileSystemBinaryProvider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_WORD, FileSystemWordProvider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_WORD_X, FileSystemWordProvider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_PP, FileSystemPowerpointProvider.class));
+    // TODO: Own mimetype ?
+    contentProviderMap
+            .add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(FileSystemConnector.MS_PP_X, FileSystemPowerpointProvider.class));
   }
 
   public void addArtifactActionToMap(List<DefinitionEntry<Class< ? extends ArtifactAction>>> actionMap) {

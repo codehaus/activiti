@@ -12,14 +12,16 @@ package org.activiti.cycle;
  */
 public class ContentType {
 
-	public static final String IMAGE = "img";
+	public static final String PNG = "image/png";
+  public static final String GIF = "image/gif";
+  public static final String JPEG = "image/jpeg"; // or use "image/jpeg;charset=ISO-8859-1" ?
 	public static final String XML = "xml";
-	public static final String HTML = "html";
-	public static final String JAVA = "java";
-  public static final String TEXT = "txt";
-  /**
-   * TODO: Value ?
-   */
-  public static final String BINARY = "binary";
-	
+	public static final String HTML = "text/html";
+  public static final String TEXT = "text/plain";
+  public static final String PDF = "application/pdf";
+  public static final String JSON = "application/json;charset=UTF-8";
+  public static final String MS_WORD = "application/msword";
+  public static final String MS_POWERPOINT = "application/powerpoint";
+  public static final String MS_EXCEL = "application/excel";
+
 }

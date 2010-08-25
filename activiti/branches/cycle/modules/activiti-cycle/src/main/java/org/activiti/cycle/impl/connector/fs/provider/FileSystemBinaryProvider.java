@@ -6,17 +6,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.activiti.cycle.Content;
-import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.impl.util.IoUtils;
 
+/**
+ * TODO: This is a bit unhandy, think about refactoring that stuff to not need
+ * different classes for it
+ * 
+ * @author ruecker
+ */
 public class FileSystemBinaryProvider extends FileSystemContentRepresentationProvider {
 
-  public static final String NAME = "Binary";
-
-  public FileSystemBinaryProvider() {
-    super(NAME, ContentType.BINARY, true);
+  public FileSystemBinaryProvider(String name, String mimeType) {
+    super(name, mimeType, true);
   }
 
   @Override
