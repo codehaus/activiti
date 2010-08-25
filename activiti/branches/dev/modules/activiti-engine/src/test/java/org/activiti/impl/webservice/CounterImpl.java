@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.webservice;
+package org.activiti.impl.webservice;
 
 import javax.jws.WebService;
 
@@ -19,7 +19,7 @@ import javax.jws.WebService;
  * 
  * @author Esteban Robles Luna
  */
-@WebService(endpointInterface = "org.activiti.webservice.Counter",
+@WebService(endpointInterface = "org.activiti.impl.webservice.Counter",
         serviceName = "Counter")
 public class CounterImpl implements Counter {
 

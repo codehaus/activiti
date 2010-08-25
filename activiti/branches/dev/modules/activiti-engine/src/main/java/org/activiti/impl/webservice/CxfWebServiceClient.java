@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.webservice;
+package org.activiti.impl.webservice;
 
 import org.apache.commons.lang.Validate;
 import org.apache.cxf.endpoint.Client;

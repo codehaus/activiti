@@ -10,8 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.webservice;
+package org.activiti.impl.webservice;
 
+import org.activiti.impl.webservice.SyncWebServiceClient;
 import org.mule.tck.FunctionalTestCase;
 
 /**
@@ -32,7 +33,7 @@ public abstract class AbstractSyncWebServiceClientIntegrationTest extends Functi
   
   @Override
   protected String getConfigResources() {
-    return "org/activiti/webservice/mule-cxf-webservice-config.xml";
+    return "org/activiti/impl/webservice/mule-cxf-webservice-config.xml";
   }
 
   protected abstract SyncWebServiceClient getClient();

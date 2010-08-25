@@ -18,9 +18,9 @@ import java.util.List;
 import org.activiti.ActivitiException;
 import org.activiti.impl.bpmn.transformers.Identity;
 import org.activiti.impl.bpmn.transformers.Transformer;
+import org.activiti.impl.webservice.CxfWebServiceClient;
+import org.activiti.impl.webservice.SyncWebServiceClient;
 import org.activiti.pvm.ActivityExecution;
-import org.activiti.webservice.CxfWebServiceClient;
-import org.activiti.webservice.SyncWebServiceClient;
 import org.apache.commons.lang.Validate;
 
 

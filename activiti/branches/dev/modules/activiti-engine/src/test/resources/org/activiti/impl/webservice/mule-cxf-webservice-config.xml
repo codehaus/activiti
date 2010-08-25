@@ -13,7 +13,7 @@
 				<inbound-endpoint address="cxf:http://localhost:63081/counter" />
 			</inbound>
 			<component>
-				<singleton-object class="org.activiti.webservice.CounterImpl" />
+				<singleton-object class="org.activiti.impl.webservice.CounterImpl" />
 			</component>
 		</service>
 	</model>

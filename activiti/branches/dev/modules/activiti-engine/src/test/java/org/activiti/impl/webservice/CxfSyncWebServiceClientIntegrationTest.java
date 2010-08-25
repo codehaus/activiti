@@ -10,23 +10,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.webservice;
+package org.activiti.impl.webservice;
 
+import org.activiti.impl.webservice.CxfWebServiceClient;
+import org.activiti.impl.webservice.SyncWebServiceClient;
 
 /**
- * A dynamic web service client that allows to perform synchronous calls
- * to a specific web service.
+ * An integration test for the CxfWebServiceClient sync case
  * 
  * @author Esteban Robles Luna
  */
-public interface SyncWebServiceClient {
+public class CxfSyncWebServiceClientIntegrationTest extends AbstractSyncWebServiceClientIntegrationTest {
 
-  /**
-   * Synchronously invoke a web service method with some arguments. 
-   * 
-   * @param methodName a not null method name
-   * @param arguments a not null list of arguments
-   * @return the result of invoking the method of the web service
-   */
-  Object[] send(String methodName, Object[] arguments) throws Exception;
+  @Override
+  protected SyncWebServiceClient getClient() {
+    return new CxfWebServiceClient("http://localhost:63081/counter?wsdl");
+  }
 }
