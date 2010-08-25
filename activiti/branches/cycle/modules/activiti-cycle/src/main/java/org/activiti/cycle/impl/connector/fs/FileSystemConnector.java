@@ -185,7 +185,12 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
   private RepositoryFolder getFolderInfo(File file) throws IOException {
     RepositoryFolder folder = new RepositoryFolder(this);
 
-    folder.setId(getLocalPath(file.getCanonicalPath()));
+    String id = getLocalPath(file.getCanonicalPath());
+    if ("".equals(id)) {
+      // root folder is again a special case
+      id = "/";
+    }
+    folder.setId(id);
     folder.getMetadata().setName(file.getName());
     folder.getMetadata().setPath(getConfiguration().getBasePath() + folder.getId());
     folder.getMetadata().setLastChanged(new Date(file.lastModified()));
@@ -219,7 +224,7 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     throw new UnsupportedOperationException("FileSystemConnector does not support modifying files!");
   }
 
-  private String getLocalPath(String path) {
+  private String getLocalPath(String path) {    
     if ("".equals(getConfiguration().getBasePath())) {
       // if root is configured in Unix ("/" without trailing slash = "")
       return path;

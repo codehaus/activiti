@@ -36,7 +36,7 @@ public abstract class SignavioContentRepresentationProvider extends ContentRepre
   }
 
   public SignavioConnector getConnector(RepositoryArtifact artifact) {
-    return (SignavioConnector) artifact.getConnector();
+    return (SignavioConnector) artifact.getOriginalConnector();
   }
 
   public Response getJsonResponse(RepositoryArtifact artifact, String urlSuffix) throws IOException {

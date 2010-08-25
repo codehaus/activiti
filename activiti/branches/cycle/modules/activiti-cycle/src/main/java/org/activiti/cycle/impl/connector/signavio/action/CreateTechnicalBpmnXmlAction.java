@@ -77,7 +77,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   protected String getBpmn20Json() {
-    return getArtifact().loadContent(JsonProvider.NAME).asString();
+    return getArtifact().getConnector().getContent(getArtifact().getId(), JsonProvider.NAME).asString();
   }
 
   private String applyJsonTranfsormations(String sourceJson) {
@@ -100,6 +100,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
 
   public void createTargetArtifact(RepositoryFolder targetFolder, String artifactId, String bpmnXml, String artifactTypeIdentifier) {
     RepositoryArtifact targetArtifact = new RepositoryArtifact(targetFolder.getConnector());
+    
     // TODO: Check naming policy
     targetArtifact.setId(artifactId);
     // TODO: Check artifac types / registry
@@ -118,7 +119,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   public SignavioConnector getSignavioConnector() {
-    return (SignavioConnector) getOriginalArtifactConnector();
+    return (SignavioConnector) getArtifact().getOriginalConnector();
   }
   
   @Override

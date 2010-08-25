@@ -23,7 +23,7 @@ public abstract class FileSystemContentRepresentationProvider extends ContentRep
   }
 
   public FileSystemConnector getConnector(RepositoryArtifact artifact) {
-    return (FileSystemConnector) artifact.getConnector();
+    return (FileSystemConnector) artifact.getOriginalConnector();
   }
 
   @Override

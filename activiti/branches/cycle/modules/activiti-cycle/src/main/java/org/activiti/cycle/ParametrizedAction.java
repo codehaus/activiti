@@ -37,7 +37,7 @@ public abstract class ParametrizedAction extends ArtifactAction {
   
   public Object getParameter(Map<String, Object> parameters, String name, boolean required, Object defaultValue, Class expectedClass) {
     Object value = parameters.get(name);
-    if (value == null) {
+    if (value == null || (value instanceof String && ((String) value).length() == 0)) {
       if (required) {
         throw new RepositoryException("Required parameter '" + name + "' not set while executing action '" + getName() + "'");
       } else {

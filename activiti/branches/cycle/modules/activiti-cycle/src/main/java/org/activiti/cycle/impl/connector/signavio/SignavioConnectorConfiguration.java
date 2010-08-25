@@ -113,6 +113,23 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
       return getSignavioBackendUrl() + MODEL_URL_SUFFIX + "/" + id;
     }
   }
+  
+  // TODO: CARE about correct encoding of ID! But wasn't that easy and need some
+  // serious thinking
+  // try {
+  // if (id.startsWith("/")) {
+  // id = id.substring(1);
+  // }
+  // // TODO: Check encoding on other places!
+  // String encodedId = URLEncoder.encode(id, "UTF-8");
+  // // this is how it should be now
+  // return getSignavioBackendUrl() + MODEL_URL_SUFFIX + "/" + encodedId;
+  // } catch (UnsupportedEncodingException ex) {
+  // throw new
+  // IllegalStateException("Unexpected excpetion while encoding the URL to UTF-8 for model id '"
+  // + id + "'", ex);
+  // }
+
 
   public String getDirectoryUrl(String id) {
     if (id.startsWith("/")) {

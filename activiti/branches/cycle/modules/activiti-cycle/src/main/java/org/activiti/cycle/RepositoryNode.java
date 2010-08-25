@@ -16,6 +16,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.activiti.cycle.impl.connector.view.CustomizedViewConnector;
+
 /**
  * Superclass for the composite of folders and files. Holds a reference to the
  * API used to query sub folders and files in order to enable lazy loading of
@@ -65,11 +67,14 @@ public class RepositoryNode implements Serializable {
 
   private transient RepositoryConnector connector;
 
+  private transient RepositoryConnector originalConnector;
+
   public RepositoryNode() {
   }
 
   public RepositoryNode(RepositoryConnector connector) {
     this.connector = connector;
+    originalConnector = connector;
   }
 
   public RepositoryConnector getConnector() {
@@ -81,6 +86,7 @@ public class RepositoryNode implements Serializable {
   
   public void overwriteConnector(RepositoryConnector connector) {
     this.connector = connector;
+    // do NOT overwrite the original one
   }
 
   @Override
@@ -114,5 +120,20 @@ public class RepositoryNode implements Serializable {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  /**
+   * get the {@link RepositoryConnector} associated with that
+   * {@link ArtifactAction}. It is remembered seperately, because maybe the
+   * connector is changed in the {@link RepositoryArtifact} e.g. to the
+   * {@link CustomizedViewConnector}, but an action often needs to operate on
+   * the original connector
+   */
+  public RepositoryConnector getOriginalConnector() {
+    return originalConnector;
+  }
+
+  public void setOriginalConnector(RepositoryConnector originalConnector) {
+    this.originalConnector = originalConnector;
   }
 }
