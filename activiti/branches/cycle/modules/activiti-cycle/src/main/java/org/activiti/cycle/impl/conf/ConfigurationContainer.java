@@ -1,11 +1,10 @@
 package org.activiti.cycle.impl.conf;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.RepositoryException;
 
 /**
  * rename?
@@ -61,16 +60,51 @@ public class ConfigurationContainer {
     return connectors;
   }
   
-  public Map<String, RepositoryConnector> getConnectorMap() {
-    HashMap<String, RepositoryConnector> connectors = new HashMap<String, RepositoryConnector>();
-    
+  // don't provide a map, you loose the ordering!
+  // public Map<String, RepositoryConnector> getConnectorMap() {
+  // HashMap<String, RepositoryConnector> connectors = new HashMap<String,
+  // RepositoryConnector>();
+  //    
+  // for (RepositoryConnectorConfiguration conf : getConnectorConfigurations())
+  // {
+  // connectors.put(conf.getName(), conf.createConnector());
+  // }
+  //
+  // return connectors;
+  // }
+
+  public List<RepositoryConnector> getConnectorList() {
+    List<RepositoryConnector> connectors = new ArrayList<RepositoryConnector>();
+
     for (RepositoryConnectorConfiguration conf : getConnectorConfigurations()) {
-      connectors.put(conf.getName(), conf.createConnector());
+      connectors.add(conf.createConnector());
     }
 
     return connectors;
   }
-  
+
+  public RepositoryConnector getConnector(String name) {
+    for (RepositoryConnectorConfiguration conf : getConnectorConfigurations()) {
+      if (conf.getName().equals(name)) {
+        return conf.createConnector();
+      }
+    }
+    throw new RepositoryException("Couldn't find Repository Connector Configuration with name '" + name + "'");
+  }
+
+  // TODO: keep the stuff locally?
+  // private void initConnectors() {
+  // HashMap<String, RepositoryConnector> connectors = new HashMap<String,
+  // RepositoryConnector>();
+  //    
+  // for (RepositoryConnectorConfiguration conf : getConnectorConfigurations())
+  // {
+  // connectors.put(conf.getName(), conf.createConnector());
+  // }
+  //
+  // return connectors;
+  // }
+
   public List<ConfigurationContainer> getParentContainers() {
     return parentContainers;
   }

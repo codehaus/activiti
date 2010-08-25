@@ -27,7 +27,7 @@ public class FileSystemConnectorTest {
   public void initialize() throws IOException {
     userConfiguration = new ConfigurationContainer("christian");
     userConfiguration.addRepositoryConnectorConfiguration(new FileSystemConnectorConfiguration("filesystem", new File(File.listRoots()[0].getCanonicalPath())));
-    conn = userConfiguration.getConnectorMap().get("filesystem");
+    conn = userConfiguration.getConnector("filesystem");
   }
   @After
   public void cleanUp() {

@@ -149,8 +149,11 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   }
 
   public boolean login(String username, String password) {
-    // TODO: use credentials from configuration if configured there (how can we
-    // do that generically?)
+    if (getConfiguration().isCredentialsSaved()) {
+      // TODO: Should we do that more generically?
+      username = getConfiguration().getUser();
+      password = getConfiguration().getPassword();      
+    }
     try {
       log.info("Logging into Signavio on url: " + getConfiguration().getLoginUrl());
 

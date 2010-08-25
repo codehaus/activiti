@@ -23,7 +23,8 @@ import org.activiti.cycle.impl.connector.AbstractRepositoryConnector;
  */
 public class CustomizedViewConnector extends AbstractRepositoryConnector<CustomizedViewConfiguration> {
 
-  private Map<String, RepositoryConnector> repositoryConnectors;
+  private List<RepositoryConnector> repositoryConnectors;
+  private Map<String, RepositoryConnector> repositoryConnectorMap;
 
   public CustomizedViewConnector(CustomizedViewConfiguration customizedViewConfiguration) {
     super(customizedViewConfiguration);
@@ -33,13 +34,23 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
    * Get a map with all {@link RepositoryConnector}s created lazily and the name
    * of the connector as key for the map.
    */
-  private Map<String, RepositoryConnector> getRepositoryConnectors() {
+  private List<RepositoryConnector> getRepositoryConnectors() {
     if (repositoryConnectors == null) {
-      repositoryConnectors = getConfiguration().getConfigurationContainer().getConnectorMap();
+      repositoryConnectors = getConfiguration().getConfigurationContainer().getConnectorList();
     }
     return repositoryConnectors;
   }
 
+
+  private RepositoryConnector getRepositoryConnector(String name) {
+    for (RepositoryConnector connector : getRepositoryConnectors()) {
+      if (connector.getConfiguration().getName().equals(name)) {
+        return connector;
+      }
+    }
+    throw new RepositoryException("Couldn't find Repository Connector with name '" + name + "'");
+  }
+  
   /**
    * login into all repositories configured (if no username and password was
    * provided by the configuration already).
@@ -48,7 +59,7 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
    * login?
    */
   public boolean login(String username, String password) {
-    for (RepositoryConnector connector : getRepositoryConnectors().values()) {
+    for (RepositoryConnector connector : getRepositoryConnectors()) {
       connector.login(username, password);
     }
     return true;
@@ -58,7 +69,7 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
    * commit pending changes in all repository connectors configured
    */
   public void commitPendingChanges(String comment) {
-    for (RepositoryConnector connector : getRepositoryConnectors().values()) {
+    for (RepositoryConnector connector : getRepositoryConnectors()) {
       connector.commitPendingChanges(comment);
     }
   }
@@ -128,12 +139,12 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
     int index = url.indexOf("/");
     if (index == -1) {
       // demo connector itself
-      connector = getRepositoryConnectors().get(url);
+      connector = getRepositoryConnector(url);
     } else if (index == 0) {
       connector = getConnectorFromUrl(url.substring(1));
     } else {
       String repositoryName = url.substring(0, index);
-      connector = getRepositoryConnectors().get(repositoryName);
+      connector = getRepositoryConnector(repositoryName);
     }
     
     if (connector == null) {
@@ -178,7 +189,8 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
 
   public List<RepositoryNode> getRepoRootFolders() {
     ArrayList<RepositoryNode> nodes = new ArrayList<RepositoryNode>();
-    for (String repoName : getRepositoryConnectors().keySet()) {
+    for (RepositoryConnector connector : getRepositoryConnectors()) {
+      String repoName = connector.getConfiguration().getName();
       RepositoryFolder folder = new RepositoryFolder(this);
       folder.getMetadata().setName(repoName);
       folder.getMetadata().setPath("/" + repoName);
