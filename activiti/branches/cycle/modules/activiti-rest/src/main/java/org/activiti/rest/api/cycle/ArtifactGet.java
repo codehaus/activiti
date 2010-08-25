@@ -21,9 +21,12 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.activiti.cycle.ContentRepresentationDefinition;
+import org.activiti.cycle.ContentType;
+import org.activiti.cycle.DownloadContentAction;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.rest.api.cycle.dto.ContentView;
+import org.activiti.rest.api.cycle.dto.DownloadActionView;
 import org.activiti.rest.util.ActivitiWebScript;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -52,22 +55,39 @@ public class ArtifactGet extends ActivitiWebScript {
     List<ContentView> contentViews = new ArrayList<ContentView>();
     for (ContentRepresentationDefinition representation : artifact.getContentRepresentationDefinitions()) {
       try {
-        if (representation.getType().equals("txt") || representation.getType().equals("xml")) {
+        if (representation.getType().equals(ContentType.TEXT) || representation.getType().equals(ContentType.XML) || representation.getType().equals(ContentType.HTML)) {
           String content = conn.getContent(artifactId, representation.getName()).asString();
           contentViews.add(new ContentView(representation.getType(), representation.getName(), content));
-        } else if (representation.getType().equals("img")) {
-          String url = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8");
+        } else if (representation.getType().startsWith("image/")) {
+          String url = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8") + "&content-type=" + URLEncoder.encode(representation.getType(), "UTF-8");
           contentViews.add(new ContentView(representation.getType(), representation.getName(), url));
         }
       } catch (UnsupportedEncodingException e) {
+        // should never be reached as long as we use UTF-8, which is valid in
+        // java on all platforms
         throw new RuntimeException(e);
       }
     }
 
     model.put("actions", artifact.getParametrizedActions()); // label, name
-    model.put("downloads", artifact.getDownloadContentActions()); // name, label, definition.name, definition.type;
+
+    // Create downloadContentView DTOs
+    List<DownloadActionView> downloads = new ArrayList<DownloadActionView>();
+    for (DownloadContentAction action : artifact.getDownloadContentActions()) {
+      try {
+        String url = req.getServerPath() + req.getContextPath() + "/service/content?artifactId=" + URLEncoder.encode(artifactId, "UTF-8") + "&content-type="
+                + URLEncoder.encode(action.getDefiniton().getType(), "UTF-8");
+        downloads.add(new DownloadActionView(action.getLabel(), url, action.getDefiniton().getType()));
+      } catch (UnsupportedEncodingException e) {
+        // should never be reached as long as we use UTF-8, which is valid in
+        // java on all platforms
+        throw new RuntimeException(e);
+      }
+    }
+    model.put("downloads", downloads);
+
     model.put("links", artifact.getOpenUrlActions()); // label, name, url
-    
+
     model.put("artifactId", artifact.getId());
     model.put("contentViews", contentViews);
 

@@ -79,7 +79,7 @@
       var firstTab = true;
 			// Add a tab for each content representation from the JSON response
 			for(var i = 0; i<artifactJson.contentViews.length; i++) {
-				if(artifactJson.contentViews[i].type === "img") {
+				if(artifactJson.contentViews[i].type.indexOf("image") != -1) {
 					tabView.addTab( new YAHOO.widget.Tab({
 						label: 'Image',
 						content: "<div id=\"artifact-image\"><img id=\"" + artifactJson.id + "\" src=\"" + artifactJson.contentViews[i].content + "\" border=0></img></div>",
@@ -140,14 +140,13 @@
 				downloadsDiv.setAttribute('id', "artifact-downloads");
 				downloadsDiv.appendChild(document.createTextNode("Downloads: "));
 				for(var i=0; i<artifactJson.downloads.length; i++) {
-					//var link = document.createElement("a");
-					//link.setAttribute('href', artifactJson.links[i].url);
-					//link.setAttribute('title', artifactJson.links[i].label);
-					//link.setAttribute('target', "blank");
-					//link.appendChild(document.createTextNode(artifactJson.links[i].label));
-					//downloadsDiv.appendChild(link);
-					downloadsDiv.appendChild(document.createTextNode(artifactJson.downloads[i].label));
-					if(i > artifactJson.links.length) {
+					var link = document.createElement("a");
+					link.setAttribute('href', artifactJson.downloads[i].url);
+					link.setAttribute('title', artifactJson.downloads[i].label);
+					link.setAttribute('target', "blank");
+					link.appendChild(document.createTextNode(artifactJson.downloads[i].label));
+					downloadsDiv.appendChild(link);
+					if(i > artifactJson.downloads.length) {
 						downloadsDiv.appendChild(document.createTextNode(" | "));
 					}
 				}

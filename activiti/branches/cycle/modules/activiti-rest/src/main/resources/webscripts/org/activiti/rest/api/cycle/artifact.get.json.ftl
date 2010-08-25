@@ -21,9 +21,10 @@
   ],
   "downloads": [
   <#list downloads as download>
-    { 
-      "name": "${download.name}",
-      "label": "${download.label}"
+    {
+      "label": "${download.label}",
+      "url": "${download.url}",
+      "type": "${download.type}"
     }
     <#if download_has_next>,</#if>
   </#list>

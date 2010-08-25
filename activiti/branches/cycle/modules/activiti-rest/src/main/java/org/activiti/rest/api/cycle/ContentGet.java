@@ -43,6 +43,11 @@ public class ContentGet extends AbstractWebScript {
     if (artifactId == null || artifactId.length() == 0) {
       throw new RuntimeException("Missing required parameter: artifactId");
     }
+    String contentType = req.getParameter("content-type");
+    if (artifactId == null || artifactId.length() == 0) {
+      throw new RuntimeException("Missing required parameter: content-type");
+    }
+    // TODO: add check for supported content types
 
     // Retrieve session and repo connector
     String cuid = getCurrentUserId(req);
@@ -54,10 +59,14 @@ public class ContentGet extends AbstractWebScript {
 
     Collection<ContentRepresentationDefinition> representations = artifact.getContentRepresentationDefinitions();
     for (ContentRepresentationDefinition representation : representations) {
-      if (representation.getType().equals("img")) {
-        byte[] content = conn.getContent(artifact.getId(), representation.getName()).asByteArray();
-        ByteArrayInputStream in = new ByteArrayInputStream(content);
-        streamContentImpl(req, res, in, false, new Date(0), "W/\"647-1281077702000\"", null);
+      if (representation.getType().equals(contentType)) {
+          // TODO: use input stream...
+          byte[] content = conn.getContent(artifact.getId(), representation.getName()).asByteArray();
+          ByteArrayInputStream in = new ByteArrayInputStream(content);
+          // TODO: what is a good way to determine the etag? Just using a fake one here... 
+
+          // assuming we want to create an attachment for binary data... 
+          streamContentImpl(req, res, in, contentType.startsWith("application/") ? true : false, new Date(0), "W/\"647-1281077702000\"", null);
       }
     }
 
