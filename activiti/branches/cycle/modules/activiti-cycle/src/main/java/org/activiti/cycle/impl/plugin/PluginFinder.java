@@ -7,11 +7,14 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
+
 import org.activiti.cycle.impl.connector.demo.DemoConnectorPluginDefinition;
 import org.activiti.cycle.impl.connector.fs.FileSystemPluginDefinition;
 import org.activiti.cycle.impl.connector.signavio.SignavioPluginDefinition;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
+import org.scannotation.WarUrlFinder;
 
 /**
  * Finder for Activiti Cycle Plugins based on finding annotations. The <a href=
@@ -23,6 +26,11 @@ import org.scannotation.ClasspathUrlFinder;
 public class PluginFinder {
   
   protected Logger logger = Logger.getLogger(this.getClass().getName());
+  
+  /**
+   * Servlet context is needed in wars to access classpath
+   */
+  private static ServletContext servletContext = null;
 
   /**
    * main method to find all existing plugins in the classpath and register them
@@ -34,19 +42,38 @@ public class PluginFinder {
     
     publishDefinitionsToRegistry(definitions);
   }
+
+  /**
+   * Register the {@link ServletContext} on the {@link PluginFinder}, needed if
+   * cycle runs in a Webapp, because there classpath must be retrieved from it
+   * and cannot be easily retrieved in another way.
+   */
+  public static void registerServletContext(ServletContext ctx) {
+    servletContext = ctx;
+  }
   
   @SuppressWarnings("unchecked")
   private List<Class< ? extends ActivitiCyclePluginDefinition>> findPluginDefinitionClasses() {
     List<Class<? extends ActivitiCyclePluginDefinition>> result = new ArrayList<Class<? extends ActivitiCyclePluginDefinition>>();
     try {
-      URL[] urls = ClasspathUrlFinder.findClassPaths();
       AnnotationDB db = new AnnotationDB();
+      URL[] urls = null;
+      if (servletContext == null) {
+        urls = ClasspathUrlFinder.findClassPaths();
+        logger.log(Level.INFO, "Activiti Cycle Plugin finder uses normal classpath");
+      } else {
+        urls = WarUrlFinder.findWebInfLibClasspaths(servletContext);
+        // TODO: Check if we have to include findWebInfClassesPath as well
+      }
       db.scanArchives(urls);
 
       Set<String> connectors = db.getAnnotationIndex().get(ActivitiCyclePlugin.class.getName());
       
       if (connectors == null) {
-        // seems we currently have a classloading problem in the webapp
+        // seems we currently have a classloading problem in the webapp (or
+        // other environments?)
+        logger.log(Level.WARNING, "Couldn't find any Cycle Plugin in the (used " + (servletContext == null ? "normal classpath" : "servlet context classpath")
+                + "), use default plugins");
         result.add(SignavioPluginDefinition.class);
         result.add(FileSystemPluginDefinition.class);
         result.add(DemoConnectorPluginDefinition.class);

@@ -35,29 +35,49 @@ public class ActivitiCyclePluginRegistry {
   private static Map<String, List<Class< ? extends ContentRepresentationProvider>>> registeredContentRepresentationProviders = new HashMap<String, List<Class< ? extends ContentRepresentationProvider>>>();
 
   private static Boolean initialized = Boolean.FALSE;
-  
-  static {
-    loadPlugins();
-  }
-  
+
   /**
-   * TODO: Think about lazy loading when requested instead of static block
+   * Lazy load Plugin configuration
    */
   public static void checkInitialized() {
     if (!initialized) {
       synchronized (initialized) {
         if (!initialized) {
-          loadPlugins();
+          new PluginFinder().publishAllPluginsToRegistry();
           initialized = Boolean.TRUE;
         }
       }
     }
   }
-
-  private static void loadPlugins() {
-    new PluginFinder().publishAllPluginsToRegistry();
+  
+  public static Collection<String> getArtifactTypeIdentifiers() {
+    checkInitialized();
+    return registeredArtifactTypes.keySet();
   }
 
+  public static ArtifactType getArtifactTypeByIdentifier(String fileTypeIdentifier) {
+    checkInitialized();
+    return registeredArtifactTypes.get(fileTypeIdentifier);
+  }
+
+  public static List<Class< ? extends ArtifactAction>> getArtifactAction(String artifactTypeName) {
+    checkInitialized();
+    if (registeredArtifactActions.containsKey(artifactTypeName)) {
+      return registeredArtifactActions.get(artifactTypeName);
+    } else {
+      return new ArrayList<Class< ? extends ArtifactAction>>();
+    }
+  }
+
+  public static List<Class< ? extends ContentRepresentationProvider>> getContentRepresentationProviders(String fileTypeName) {
+    checkInitialized();
+    if (registeredContentRepresentationProviders.containsKey(fileTypeName)) {
+      return registeredContentRepresentationProviders.get(fileTypeName);
+    } else {
+      return new ArrayList<Class< ? extends ContentRepresentationProvider>>();
+    }
+  }
+  
   public static void addPluginDefinition(ActivitiCyclePluginDefinition definition) {
     List<ArtifactType> list = new ArrayList<ArtifactType>();
     definition.addDefinedArtifactTypeToList(list);
@@ -82,14 +102,6 @@ public class ActivitiCyclePluginRegistry {
     registeredArtifactTypes.put(ft.getTypeIdentifier(), ft);
   }
 
-  public static Collection<String> getArtifactTypeIdentifiers() {
-    return registeredArtifactTypes.keySet();
-  }
-
-  public static ArtifactType getArtifactTypeByIdentifier(String fileTypeIdentifier) {
-    return registeredArtifactTypes.get(fileTypeIdentifier);
-  }
-
   private static void registerContentRepresentationProvider(String fileTypeIdentifier, Class< ? extends ContentRepresentationProvider> provider) {
     if (registeredContentRepresentationProviders.containsKey(fileTypeIdentifier)) {
       registeredContentRepresentationProviders.get(fileTypeIdentifier).add(provider);
@@ -107,22 +119,6 @@ public class ActivitiCyclePluginRegistry {
       ArrayList<Class< ? extends ArtifactAction>> list = new ArrayList<Class< ? extends ArtifactAction>>();
       list.add(action);
       registeredArtifactActions.put(artifactTypeIdentifier, list);
-    }
-  }
-
-  public static List<Class< ? extends ArtifactAction>> getArtifactAction(String artifactTypeName) {
-    if (registeredArtifactActions.containsKey(artifactTypeName)) {
-      return registeredArtifactActions.get(artifactTypeName);
-    } else {
-      return new ArrayList<Class< ? extends ArtifactAction>>();
-    }
-  }
-
-  public static List<Class< ? extends ContentRepresentationProvider>> getContentRepresentationProviders(String fileTypeName) {
-    if (registeredContentRepresentationProviders.containsKey(fileTypeName)) {
-      return registeredContentRepresentationProviders.get(fileTypeName);
-    } else {
-      return new ArrayList<Class< ? extends ContentRepresentationProvider>>();
     }
   }
 

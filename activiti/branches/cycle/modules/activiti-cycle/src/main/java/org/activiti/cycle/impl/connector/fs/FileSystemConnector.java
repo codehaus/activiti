@@ -56,7 +56,9 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     try {
       if (parentId == null || parentId.length() == 0 || "/".equals(parentId)) {
         // Go to root!
-        path = getConfiguration().getBasePath();
+        // we need a trailing slash because otherwise it is considered to be a
+        // relative path if you just provider "" on unix or "c:" on windows
+        path = getConfiguration().getBasePath() + "/";
         children = new File(path).listFiles();
       } else {
         // Use base path!
@@ -68,6 +70,8 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
           childNodes.add(getFolderInfo(file));
         } else if (file.isFile()) {
           childNodes.add(getArtifactInfo(file));
+        } else {
+          throw new IllegalStateException("File '" + file + "' is neither a directory nor a file.");
         }
       }
     } catch (Exception ex) {

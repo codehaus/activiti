@@ -45,6 +45,12 @@ public class FileSystemConnectorConfiguration extends RepositoryConnectorConfigu
     setBasePath(basePath);
   }
 
+  /**
+   * return configured base path for file system connector. The path is ALWAYS
+   * without a trailing "/". Be aware that this may make problems on the root
+   * level of the file system ("/" on Unix, "C:/" on Windows, because this leads
+   * to "" and "c:", which both are considered to be relative paths
+   */
   public String getBasePath() {
     baseFilePath = normalizePath(baseFilePath);
     return baseFilePath;

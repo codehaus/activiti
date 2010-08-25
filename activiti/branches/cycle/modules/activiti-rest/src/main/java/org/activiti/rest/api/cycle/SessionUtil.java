@@ -25,6 +25,7 @@ import org.activiti.cycle.impl.connector.demo.DemoConnectorConfiguration;
 import org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration;
 import org.activiti.cycle.impl.connector.signavio.SignavioConnectorConfiguration;
 import org.activiti.cycle.impl.connector.view.CustomizedViewConfiguration;
+import org.activiti.cycle.impl.plugin.PluginFinder;
 
 public class SessionUtil {
 
@@ -43,6 +44,8 @@ public class SessionUtil {
     String key = currentUserId + "_connector";
     RepositoryConnector connector = (RepositoryConnector) session.getAttribute(key);
     if (connector == null) {
+      PluginFinder.registerServletContext(session.getServletContext());
+      
       String contextPath = session.getServletContext().getContextPath();
 
       ConfigurationContainer configuration = loadUserConfiguration(currentUserId);

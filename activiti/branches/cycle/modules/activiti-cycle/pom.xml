@@ -77,7 +77,12 @@
 		    <groupId>org.scannotation</groupId>
 		    <artifactId>scannotation</artifactId>
 		</dependency>
-		
+		<!-- required to access ServletContext needed for PluginFinder in web context -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>		
 	</dependencies>
 			
 	<profiles>
