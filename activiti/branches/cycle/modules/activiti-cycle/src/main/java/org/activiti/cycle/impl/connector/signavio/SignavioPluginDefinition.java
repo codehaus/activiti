@@ -5,6 +5,7 @@ import java.util.List;
 import org.activiti.cycle.ArtifactAction;
 import org.activiti.cycle.ArtifactType;
 import org.activiti.cycle.ContentRepresentationProvider;
+import org.activiti.cycle.impl.connector.signavio.action.CreateTechnicalBpmnXmlAction;
 import org.activiti.cycle.impl.connector.signavio.action.OpenModelerAction;
 import org.activiti.cycle.impl.connector.signavio.provider.Bpmn20Provider;
 import org.activiti.cycle.impl.connector.signavio.provider.Jpdl4Provider;
@@ -23,19 +24,18 @@ public class SignavioPluginDefinition implements ActivitiCyclePluginDefinition {
   }
 
   public void addContentRepresentationProviderToMap(List<DefinitionEntry<Class< ? extends ContentRepresentationProvider>>> contentProviderMap) {
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_2_0, Bpmn20Provider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_2_0, PngProvider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_2_0, Bpmn20Provider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_2_0, JsonProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_2_0, PngProvider.class));
     // Embedebale Model still has problems in the OSS version (usable there at
     // all?)
     // contentProviderMap.add(new DefinitionEntry<Class< ? extends
     // ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_2_0,
     // EmbeddableModelProvider.class));
 
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4, JsonProvider.class));
-    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4, Jpdl4Provider.class));
     contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4, PngProvider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4, Jpdl4Provider.class));
+    contentProviderMap.add(new DefinitionEntry<Class< ? extends ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4, JsonProvider.class));
     // contentProviderMap.add(new DefinitionEntry<Class< ? extends
     // ContentRepresentationProvider>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4,
     // EmbeddableModelProvider.class));
@@ -43,6 +43,8 @@ public class SignavioPluginDefinition implements ActivitiCyclePluginDefinition {
 
   public void addArtifactActionToMap(List<DefinitionEntry<Class< ? extends ArtifactAction>>> actionMap) {
     actionMap.add(new DefinitionEntry<Class< ? extends ArtifactAction>>(SignavioConnector.SIGNAVIO_BPMN_2_0, OpenModelerAction.class));
+    actionMap.add(new DefinitionEntry<Class< ? extends ArtifactAction>>(SignavioConnector.SIGNAVIO_BPMN_2_0, CreateTechnicalBpmnXmlAction.class));
+    
     actionMap.add(new DefinitionEntry<Class< ? extends ArtifactAction>>(SignavioConnector.SIGNAVIO_BPMN_JBPM4, OpenModelerAction.class));
 
     // TODO: Retrieve model through modellink (without /info) and dynamically

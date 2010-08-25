@@ -16,6 +16,7 @@ import org.activiti.cycle.impl.transform.JsonTransformation;
 import org.activiti.cycle.impl.transform.signavio.AdjustShapeNamesTransformation;
 import org.activiti.cycle.impl.transform.signavio.BpmnPoolExtraction;
 import org.activiti.cycle.impl.transform.signavio.ExchangeSignavioUuidWithNameTransformation;
+import org.activiti.cycle.impl.transform.signavio.RemedyTemporarySignavioIncompatibilityTransformation;
 import org.json.JSONObject;
 
 /**
@@ -103,6 +104,8 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
     targetArtifact.setId(artifactId);
     // TODO: Check artifac types / registry
     targetArtifact.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(artifactTypeIdentifier));
+
+    bpmnXml = new RemedyTemporarySignavioIncompatibilityTransformation().transformBpmn20Xml(bpmnXml);
 
     Content content = new Content();
     content.setValue(bpmnXml);

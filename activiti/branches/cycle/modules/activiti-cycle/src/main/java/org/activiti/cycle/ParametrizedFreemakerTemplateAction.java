@@ -1,7 +1,6 @@
 package org.activiti.cycle;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -25,7 +24,7 @@ public abstract class ParametrizedFreemakerTemplateAction extends ParametrizedAc
    * class name + ".html" in the same package as the class
    */
   public String getDefaultFormName() {
-    return this.getClass().getName().replace(".", "/") + ".html";
+    return "/" + this.getClass().getName().replace(".", "/") + ".html";
   }
 
   public String getFormAsHtml() {
@@ -35,6 +34,9 @@ public abstract class ParametrizedFreemakerTemplateAction extends ParametrizedAc
         return null;
       }
       InputStream is = this.getClass().getResourceAsStream(resourceName);
+      if (is == null) {
+        throw new RepositoryException("HTML form for action " + this.getClass() + " from template '" + getFormResourceName() + "' doesn't exist in classpath");
+      }
       BufferedReader reader = new BufferedReader(new InputStreamReader(is));
       StringBuilder sb = new StringBuilder();
       String line = null;
@@ -44,7 +46,7 @@ public abstract class ParametrizedFreemakerTemplateAction extends ParametrizedAc
       is.close();
 
       return sb.toString();
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       throw new RepositoryException("Exception while creating HTML form for action " + this.getClass() + " from form template '" + getFormResourceName() + "'",
               ex);
     }

@@ -48,8 +48,8 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   public static String DIRECTORY_URL_SUFFIX = "directory";
   public static String MASHUP_URL_SUFFIX = "mashup/";
 
-  public static String BPMN_20_EXPORT_SERVLET = "bpmn2_0serialization";
-  public static String BPMN_20_IMPORT_SERVLET = "bpmn2_0deserialization";
+  public static String BPMN_20_EXPORT_SERVLET = "editor/bpmn2_0serialization";
+  public static String BPMN_20_IMPORT_SERVLET = "editor/bpmn2_0deserialization";
 
   public SignavioConnectorConfiguration() {
     signavioBaseUrl = "http://127.0.0.1:8080/";
@@ -162,11 +162,11 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   }
 
   public String getBpmn20XmlExportServletUrl() {
-    return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
+    return getSignavioUrl() + BPMN_20_EXPORT_SERVLET;
   }
 
   public String getBpmn20XmlImportServletUrl() {
-    return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_IMPORT_SERVLET;
+    return getSignavioUrl() + BPMN_20_IMPORT_SERVLET;
   }
 
   @Override
