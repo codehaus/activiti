@@ -131,7 +131,7 @@ public class DemoConnector extends AbstractRepositoryConnector<DemoConnectorConf
    * trouble. Can we avoid cloning in the other connectors because
    * {@link RepositoryNode} objects are considered one time only data containes?
    */
-  public static RepositoryNode clone(RepositoryFolder folder) {
+  public static RepositoryFolder clone(RepositoryFolder folder) {
     RepositoryFolder newFolder = new RepositoryFolder(folder.getConnector());
     newFolder.setId(folder.getId());
     newFolder.getMetadata().setName(folder.getMetadata().getName());
@@ -241,6 +241,15 @@ public class DemoConnector extends AbstractRepositoryConnector<DemoConnectorConf
     }
     throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryArtifact.class, id);
   }
+  
+  public RepositoryFolder getRepositoryFolder(String id) {
+    for (RepositoryNode node : nodes) {
+      if (node.getId().equals(id) && node instanceof RepositoryFolder) {
+        return clone((RepositoryFolder) node);
+      }
+    }
+    throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryFolder.class, id);
+  }  
 
   public boolean login(String username, String password) {
     log.fine("login called with user " + username + " and password " + password);

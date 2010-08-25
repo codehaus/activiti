@@ -42,6 +42,8 @@ public interface RepositoryConnector {
    */
   public RepositoryArtifact getRepositoryArtifact(String id) throws RepositoryNodeNotFoundException;
 
+  public RepositoryFolder getRepositoryFolder(String id) throws RepositoryNodeNotFoundException;
+
   // TODO: Think about getRepositoryNode method which returns the node
   // independent of the type, but currentlyx this is a problem with the Signavio
   // Connector where we have to know what we want to query

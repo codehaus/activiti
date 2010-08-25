@@ -89,6 +89,14 @@ public class FileSystemConnector extends AbstractRepositoryConnector<FileSystemC
     }
   }
 
+  public RepositoryFolder getRepositoryFolder(String id) {
+    try {
+      return getFolderInfo(getFileFromId(id));
+    } catch (IOException ex) {
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryFolder.class, id, ex);
+    }
+  }
+
   private File getFileFromId(String id) {
     return new File(getConfiguration().getBasePath() + id);
   }

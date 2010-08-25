@@ -217,6 +217,12 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
     return repositoryArtifact;
   }
 
+  public RepositoryFolder getRepositoryFolder(String id) {
+    RepositoryFolder repositoryFolder = getConnectorFromUrl(id).getRepositoryFolder(getRepositoryPartOfUrl(id));
+    adjust(repositoryFolder);
+    return repositoryFolder;
+  }
+
   // public RepositoryNode getRepositoryNode(String id) {
   // RepositoryNode repositoryNode =
   // getConnectorFromUrl(id).getRepositoryNode(getRepositoryPartOfUrl(id));

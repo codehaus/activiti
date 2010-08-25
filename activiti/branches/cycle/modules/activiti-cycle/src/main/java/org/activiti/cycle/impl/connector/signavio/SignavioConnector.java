@@ -287,6 +287,17 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     return artifact.loadContent(representationName);
   }
 
+  public RepositoryFolder getRepositoryFolder(String id) {
+    try {
+      Response directoryResponse = getJsonResponse(getConfiguration().getDirectoryUrl(id));
+      JsonRepresentation jsonData = new JsonRepresentation(directoryResponse.getEntity());
+      JSONObject jsonObject = jsonData.toJsonObject();
+      return getFolderInfo(jsonObject);
+    } catch (Exception ex) {
+      throw new RepositoryNodeNotFoundException(getConfiguration().getName(), RepositoryArtifact.class, id, ex);
+    }
+  }
+
   public RepositoryArtifact getRepositoryArtifact(String id) {
     JsonRepresentation jsonData = null;
     JSONObject jsonObject = null;
