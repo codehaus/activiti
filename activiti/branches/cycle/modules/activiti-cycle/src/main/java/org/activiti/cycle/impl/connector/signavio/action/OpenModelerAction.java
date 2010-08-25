@@ -42,7 +42,7 @@ public class OpenModelerAction extends OpenUrlAction {
     // maybe changed one.
     // Now it is really time to rethink the Action creation and id overwriting
     // mechanism
-    modelUrl = ((SignavioConnectorConfiguration) getOriginalArtifactConnector().getConfiguration()).getModelUrl(artifact.getId());
+    modelUrl = ((SignavioConnectorConfiguration) getOriginalArtifactConnector().getConfiguration()).getEditorUrl(artifact.getId());
   }
 
   @Override

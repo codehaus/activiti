@@ -42,7 +42,7 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
 
   public static String REGISTRATION_URL_SUFFIX = "register/";
   public static String LOGIN_URL_SUFFIX = "login/";
-  public static String EDITOR_URL_SUFFIX = "editor/";
+  public static String EDITOR_URL_SUFFIX = "editor?id=";
   public static String EXPLORER_URL_SUFFIX = "explorer/";
   public static String MODEL_URL_SUFFIX = "model";
   public static String DIRECTORY_URL_SUFFIX = "directory";
@@ -132,8 +132,14 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
     return getSignavioBackendUrl() + LOGIN_URL_SUFFIX;
   }
 
-  public String getEditorUrl() {
-    return getSignavioBackendUrl() + EDITOR_URL_SUFFIX;
+  public String getEditorUrl(String id) {
+    if (id.startsWith("/")) {
+      // this is how it should be now
+      return getSignavioBackendUrl() + EDITOR_URL_SUFFIX + id.substring(1);
+    } else {
+      // this is how it was in ancient times
+      return getSignavioBackendUrl() + EDITOR_URL_SUFFIX + id;
+    }
   }
 
   public String getExplorerUrl() {
