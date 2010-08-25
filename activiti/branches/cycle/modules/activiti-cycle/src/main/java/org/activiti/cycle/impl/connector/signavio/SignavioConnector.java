@@ -58,10 +58,11 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   private static Logger log = Logger.getLogger(SignavioConnector.class.getName());
 
   // register Signavio stencilsets to identify file types
-  public static final String SIGNAVIO_BPMN_2_0 = "http://b3mn.org/stencilset/bpmn2.0#";
-  public static final String SIGNAVIO_BPMN_JBPM4 = "http://b3mn.org/stencilset/jbpm4#";
+  public static final String SIGNAVIO_NAMESPACE_FOR_BPMN_2_0 = "http://b3mn.org/stencilset/bpmn2.0#";
+  public static final String SIGNAVIO_NAMESPACE_FOR_BPMN_JBPM4 = "http://b3mn.org/stencilset/jbpm4#";
 
   public static final String BPMN_2_0_XML = "bpm2.0";
+  public static final String ORYX_TYPE_ATTRIBUTE_FOR_BPMN_20 = "BPMN 2.0";
 
   /**
    * Captcha ID for REST access to Signavio
@@ -235,11 +236,11 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     fileInfo.getMetadata().setLastChanged(SignavioJsonHelper.getDateValueIfExists(json, "updated"));
 
     if (json.has("namespace")) {
-      // Signavio way of doing it
+      // Commercial Signavio way of doing it
       String fileTypeIdentifier = json.getString("namespace");
       fileInfo.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
     } else {
-      // Oryx way of doing it
+      // Oryx/Signavio OSS = Activiti Modeler way of doing it
       String fileTypeIdentifier = json.getString("type");
       fileInfo.setArtifactType(ActivitiCyclePluginRegistry.getArtifactTypeByIdentifier(fileTypeIdentifier));
     }
