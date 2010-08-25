@@ -13,7 +13,6 @@ import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.impl.conf.ConfigurationContainer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class FileSystemConnectorTest {
@@ -26,7 +25,7 @@ public class FileSystemConnectorTest {
   @Before
   public void initialize() throws IOException {
     userConfiguration = new ConfigurationContainer("christian");
-    userConfiguration.addRepositoryConnectorConfiguration(new FileSystemConnectorConfiguration("filesystem", new File(File.listRoots()[0].getCanonicalPath())));
+    userConfiguration.addRepositoryConnectorConfiguration(new FileSystemConnectorConfiguration("filesystem", new File("c:/temp/test")));
     conn = userConfiguration.getConnector("filesystem");
   }
   @After
@@ -35,7 +34,6 @@ public class FileSystemConnectorTest {
     conn = null;
   }
 
-  @Ignore
   @Test
   public void testFileSystemConnector() {
     List<RepositoryNode> nodes = conn.getChildNodes("");

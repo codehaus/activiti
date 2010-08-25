@@ -284,7 +284,7 @@ public class ActivitiWebScript extends DeclarativeWebScript {
    * @throws WebScriptException if mandatory is true and value is null or empty
    */
   protected String checkString(String value, String param, boolean mandatory) {
-    if (value != null && value.isEmpty()) {
+    if (value != null && value.length() == 0) {
       value = null;
     }
     return (String) checkObject(value, param, mandatory);
