@@ -43,11 +43,10 @@ public class TreeGet extends ActivitiWebScript {
     RepositoryConnector conn = SessionUtil.getRepositoryConnector(cuid, session);
 
     String id = getString(req, "id");
+    boolean folder = Boolean.parseBoolean(getString(req, "folder"));
     List<RepositoryNode> subtree = new ArrayList<RepositoryNode>();
-    try {
-      subtree = conn.getChildNodes(id == null ? "/" : id);
-    } catch (RepositoryNodeNotFoundException e) {
-      // nothing to do here...
+    if(folder) {
+      subtree = conn.getChildNodes(id);
     }
 
     List<RepositoryArtifact> files = new ArrayList<RepositoryArtifact>();

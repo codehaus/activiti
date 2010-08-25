@@ -23,9 +23,7 @@
   <#list downloads as download>
     { 
       "name": "${download.name}",
-      "label": "${download.label}",
-      "representation": "${download.definition.name}",
-      "mimetype": "${download.definition.type}"
+      "label": "${download.label}"
     }
     <#if download_has_next>,</#if>
   </#list>

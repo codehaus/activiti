@@ -89,7 +89,7 @@
 				}	else {
 					tabView.addTab( new YAHOO.widget.Tab({
 						label: artifactJson.contentViews[i].name,
-						content: "<div id=\"artifact-source\">\n<pre class=\"prettyprint lang-" + artifactJson.contentViews[i].type + "\" >\n" + artifactJson.contentViews[i].content + "\n</pre></div>",
+						content: "<div id=\"artifact-source\">\n<div class=\"prettyprint lang-" + artifactJson.contentViews[i].type + "\" >\n" + artifactJson.contentViews[i].content + "\n</div></div>",
 						active: firstTab
 					}));
 					firstTab = false;
@@ -139,13 +139,14 @@
 				var downloadsDiv = document.createElement("div");
 				downloadsDiv.setAttribute('id', "artifact-downloads");
 				downloadsDiv.appendChild(document.createTextNode("Downloads: "));
-				for(var i=0; i<artifactJson.links.length; i++) {
-					var link = document.createElement("a");
-					link.setAttribute('href', artifactJson.links[i].url);
-					link.setAttribute('title', artifactJson.links[i].label);
-					link.setAttribute('target', "blank");
-					link.appendChild(document.createTextNode(artifactJson.links[i].label));
-					downloadsDiv.appendChild(link);
+				for(var i=0; i<artifactJson.downloads.length; i++) {
+					//var link = document.createElement("a");
+					//link.setAttribute('href', artifactJson.links[i].url);
+					//link.setAttribute('title', artifactJson.links[i].label);
+					//link.setAttribute('target', "blank");
+					//link.appendChild(document.createTextNode(artifactJson.links[i].label));
+					//downloadsDiv.appendChild(link);
+					downloadsDiv.appendChild(document.createTextNode(artifactJson.downloads[i].label));
 					if(i > artifactJson.links.length) {
 						downloadsDiv.appendChild(document.createTextNode(" | "));
 					}
