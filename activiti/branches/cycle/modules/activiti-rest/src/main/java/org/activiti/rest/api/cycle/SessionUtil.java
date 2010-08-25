@@ -51,6 +51,9 @@ public class SessionUtil {
       ConfigurationContainer configuration = loadUserConfiguration(currentUserId);
       connector = new CustomizedViewConfiguration(contextPath, configuration).createConnector();
       
+      // TODO: Correct user / password handling
+      connector.login(currentUserId, currentUserId);
+      
       session.setAttribute(key, connector);      
     }
     return connector;

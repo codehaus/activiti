@@ -149,6 +149,10 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   }
 
   public boolean login(String username, String password) {
+    if (!getConfiguration().isLoginRequired()) {
+      // skip login if configured to do so
+      return true;
+    }
     if (getConfiguration().isCredentialsSaved()) {
       // TODO: Should we do that more generically?
       username = getConfiguration().getUser();
@@ -172,7 +176,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       log.fine("SecurityToken: " + getSecurityToken());
       return true;
     } catch (Exception ex) {
-      throw new RepositoryException("Error during login to Signavio", ex);
+      throw new RepositoryException("Error during login to connector '" + getConfiguration().getName() + "'", ex);
     }
   }
 

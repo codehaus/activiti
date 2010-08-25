@@ -29,6 +29,13 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   private String folderRootUrl;
 
   private String signavioBaseUrl;
+
+  /**
+   * indicates if the {@link SignavioConnector}needs to login into Signavio,
+   * which is the case for the enterprise/saas version of Signavio, but not the
+   * OSS version (where trying to login leads to an exception)
+   */
+  private boolean loginRequired = false;
   //
 
   public static String SIGNAVIO_BACKEND_URL_SUFFIX = "p/";
@@ -154,5 +161,14 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   @Override
   public RepositoryConnector createConnector() {
     return new SignavioConnector(this);
+  }
+
+  
+  public boolean isLoginRequired() {
+    return loginRequired;
+  }
+
+  public void setLoginRequired(boolean loginRequired) {
+    this.loginRequired = loginRequired;
   }
 }

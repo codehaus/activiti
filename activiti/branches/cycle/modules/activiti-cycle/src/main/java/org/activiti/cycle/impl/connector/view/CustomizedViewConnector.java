@@ -207,7 +207,14 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
     adjust(repositoryArtifact);
     return repositoryArtifact;
   }
-  
+
+  // public RepositoryNode getRepositoryNode(String id) {
+  // RepositoryNode repositoryNode =
+  // getConnectorFromUrl(id).getRepositoryNode(getRepositoryPartOfUrl(id));
+  // adjust(repositoryNode);
+  // return repositoryNode;
+  // }
+
   public void createNewArtifact(String containingFolderId, RepositoryArtifact artifact, Content artifactContent) {
     // TODO: Do we have to change artifact id? I think yes
     artifact.setId(getRepositoryPartOfUrl(artifact.getId()));

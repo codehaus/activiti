@@ -31,53 +31,29 @@ public interface RepositoryConnector {
    */
   public boolean login(String username, String password);
 
-  // /**
-  // * get Root folder
-  // */
-  // public RepositoryFolder getRootFolders();
-
-  // /**
-  // * Get child folders for the given parent folder. If parentFolder is null
-  // * sub folders for the root folder are returned.
-  // */
-  // public List<RepositoryFolder> getChildFolders(RepositoryFolder
-  // parentFolder);
-
   /**
    * get all child nodes of a node with the given url, independent if the
    * children are folders or artifacts. No details are prefetched as default.
    */
   public List<RepositoryNode> getChildNodes(String parentId) throws RepositoryNodeNotFoundException;
-
-  // /**
-  // * get all child nodes of a node with the given url, independent if the
-  // * children are folders or artifacts.
-  // *
-  // * With fetch details the client can indicate, that all details should be
-  // * fetched, default should be false or let the repository decide if that can
-  // * be done efficiently
-  // */
-  // public List<RepositoryNode> getChildNodes(String parentId, boolean
-  // fetchDetails);
-
+  
   /**
-   * load all details for a {@link RepositoryArtifact}.
+   * load the {@link RepositoryArtifact} including details
    */
   public RepositoryArtifact getRepositoryArtifact(String id) throws RepositoryNodeNotFoundException;
 
+  // TODO: Think about getRepositoryNode method which returns the node
+  // independent of the type, but currentlyx this is a problem with the Signavio
+  // Connector where we have to know what we want to query
+  
+  // /**
+  // * load a {@link RepositoryNode} independent if it is a
+  // * {@link RepositoryArtifact} or {@link RepositoryFolder}
+  // */
+  // public RepositoryNode getRepositoryNode(String id) throws
+  // RepositoryNodeNotFoundException;
+
   public Content getContent(String nodeId, String representationName) throws RepositoryNodeNotFoundException;
-
-  // /**
-  // * get files for the given parent folder. If parentFolder is null
-  // * files for the root folder are returned.
-  // */
-  // public List<FileInfo> getFiles(FolderInfo parentFolder);
-
-  // /**
-  // * load sub folders and files for the given folder and add them to the
-  // * {@link RepositoryFolder} object, which is returned again.
-  // */
-  // public RepositoryFolder loadChildren(RepositoryFolder folder);
 
   /**
    * create a new file in the given folder
@@ -110,17 +86,4 @@ public interface RepositoryConnector {
    * shouldn't rely on a transaction behavior.
    */
   public void commitPendingChanges(String comment);
-
-  // /**
-  // * get the repository connector's configuration
-  // */
-  // public void
-  // setRepositoryConnectorConfiguration(RepositoryConnectorConfiguration
-  // config);
-  //
-  // /**
-  // * set the repository connector's configuration
-  // */
-  // public RepositoryConnectorConfiguration
-  // getRepositoryConnectorConfiguration();
 }

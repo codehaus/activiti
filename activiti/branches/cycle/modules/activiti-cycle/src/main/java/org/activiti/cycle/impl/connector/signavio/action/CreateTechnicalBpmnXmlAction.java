@@ -1,5 +1,6 @@
 package org.activiti.cycle.impl.connector.signavio.action;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
    * 
    * How can we extend that project specific?
    */
-  public static List<JsonTransformation> registeredTransformations;
+  public static List<JsonTransformation> registeredTransformations = new ArrayList<JsonTransformation>();
   
   static {
      // TODO: How to register JSON-Transformations
