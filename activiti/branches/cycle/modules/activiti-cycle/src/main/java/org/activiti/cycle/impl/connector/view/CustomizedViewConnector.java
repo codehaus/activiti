@@ -114,12 +114,18 @@ public class CustomizedViewConnector extends AbstractRepositoryConnector<Customi
   /**
    * add repository name in config to URL
    */
-  private RepositoryNode adjust(RepositoryNode repositoryNode) {   
+  private RepositoryNode adjust(RepositoryNode repositoryNode) {
     repositoryNode.setId(getIdWithRepoName(repositoryNode));
     repositoryNode.setClientUrl(getClientUrl(repositoryNode));
 
     if (repositoryNode instanceof RepositoryArtifact) { 
       RepositoryArtifact artifact = (RepositoryArtifact) repositoryNode;
+
+      // TODO: This is a bit hacky to set the right connector on the actions
+      // BEFORE the connector is changed
+      // Now is the time to rethink the action generation mechanism!
+      artifact.initializeActions();
+      
       Collection<ContentRepresentationDefinition> contentRepresentationDefinitions = artifact.getContentRepresentationDefinitions();
       for (ContentRepresentationDefinition contentRepresentationDefinition : contentRepresentationDefinitions) {
         contentRepresentationDefinition.setClientUrl(

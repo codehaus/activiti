@@ -14,6 +14,8 @@ package org.activiti.cycle;
 
 import java.util.logging.Logger;
 
+import org.activiti.cycle.impl.connector.view.CustomizedViewConnector;
+
 /**
  * The file action defines an action you can execute upon a file / artifact
  * normally depending on the {@link ArtifactType}.
@@ -30,6 +32,7 @@ public abstract class ArtifactAction {
   protected static Logger log = Logger.getLogger(ArtifactAction.class.getName());
 
   private RepositoryArtifact artifact;
+  private RepositoryConnector originalArtifactConnector;
 
   private final String name = this.getClass().getName();
 
@@ -37,17 +40,29 @@ public abstract class ArtifactAction {
   }
 
   public ArtifactAction(RepositoryArtifact artifact) {    
-    this.artifact = artifact;
+    setArtifact(artifact);
   }
 
   public abstract String getLabel();
-  
-  public RepositoryArtifact getArtifact() {
+
+   public RepositoryArtifact getArtifact() {
     return artifact;
   }
   
   public void setArtifact(RepositoryArtifact artifact) {
     this.artifact = artifact;
+    this.originalArtifactConnector = artifact.getConnector();
+  }
+  
+  /**
+   * get the {@link RepositoryConnector} associated with that
+   * {@link ArtifactAction}. It is remembered seperately, because maybe the
+   * connector is changed in the {@link RepositoryArtifact} e.g. to the
+   * {@link CustomizedViewConnector}, but an action often needs to operate on
+   * the original connector
+   */
+  public RepositoryConnector getOriginalArtifactConnector() {
+    return originalArtifactConnector;
   }
   
   public String getName() {

@@ -115,7 +115,7 @@ public class CreateTechnicalBpmnXmlAction extends ParametrizedFreemakerTemplateA
   }
 
   public SignavioConnector getSignavioConnector() {
-    return (SignavioConnector) getArtifact().getConnector();
+    return (SignavioConnector) getOriginalArtifactConnector();
   }
   
   @Override

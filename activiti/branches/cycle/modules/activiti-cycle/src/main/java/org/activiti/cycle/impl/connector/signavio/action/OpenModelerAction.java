@@ -34,7 +34,7 @@ public class OpenModelerAction extends OpenUrlAction {
   @Override
   public URL getUrl() {
     try {
-      SignavioConnector signavioConnector = (SignavioConnector) getArtifact().getConnector();
+      SignavioConnector signavioConnector = (SignavioConnector) getOriginalArtifactConnector();
       return new URL(signavioConnector.getModelUrl(getArtifact()));
     } catch (MalformedURLException ex) {
       throw new RepositoryException("Error while creating URL for opening Signavio modeler", ex);

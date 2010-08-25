@@ -40,6 +40,8 @@ public class CopyArtifactAction extends ParametrizedFreemakerTemplateAction {
     } else {
       copy.setId(path + "/" + targetName);
     }
+    copy.getMetadata().setName(targetName);
+    // copy.overwriteConnector(getOriginalArtifactConnector());
     
     String representatioName = getArtifact().getContentRepresentationProviders().iterator().next().getContentRepresentationName();
     copy.getConnector().createNewArtifact(path, copy, getArtifact().getConnector().getContent(getArtifact().getId(), representatioName));

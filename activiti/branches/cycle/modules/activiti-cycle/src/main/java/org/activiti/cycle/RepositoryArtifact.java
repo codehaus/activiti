@@ -112,11 +112,7 @@ public class RepositoryArtifact extends RepositoryNode {
     return contentRepresentationProviderMap;
   }
 
-  private List<ArtifactAction> getRegisteredActions() {
-    if (cachedFileActions != null) {
-      return cachedFileActions;
-    }
-    
+  public void initializeActions() {
     cachedFileActions = new ArrayList<ArtifactAction>();
     if (getArtifactType() != null) {
       cachedFileActions = new ArrayList<ArtifactAction>();
@@ -138,7 +134,13 @@ public class RepositoryArtifact extends RepositoryNode {
     } else {
       log.fine("No artifact type set for artifact '" + getId() + "'. Don't return any actions.");      
     }
+    
+  }
 
+  private List<ArtifactAction> getRegisteredActions() {
+    if (cachedFileActions == null) {
+      initializeActions();
+    }
 
     return cachedFileActions;
   }
