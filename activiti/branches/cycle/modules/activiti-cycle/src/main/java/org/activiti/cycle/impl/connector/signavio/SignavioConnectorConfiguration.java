@@ -49,7 +49,8 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   public static String MASHUP_URL_SUFFIX = "mashup/";
 
   public static String BPMN_20_EXPORT_SERVLET = "bpmn2_0serialization";
-  
+  public static String BPMN_20_IMPORT_SERVLET = "bpmn2_0deserialization";
+
   public SignavioConnectorConfiguration() {
     signavioBaseUrl = "http://127.0.0.1:8080/";
   }
@@ -57,19 +58,19 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   public SignavioConnectorConfiguration(String signavioUrl) {
     signavioBaseUrl = signavioUrl;
   }
-  
+
   public SignavioConnectorConfiguration(String name, String signavioBaseUrl, String folderRootUrl, String password, String user) {
     setName(name);
     this.signavioBaseUrl = signavioBaseUrl;
     this.folderRootUrl = folderRootUrl;
     setPassword(password);
     setUser(user);
-  }  
+  }
 
   public SignavioConnectorConfiguration(String name, String signavioBaseUrl) {
     setName(name);
-    this.signavioBaseUrl = signavioBaseUrl;    
-  }  
+    this.signavioBaseUrl = signavioBaseUrl;
+  }
 
   public String getSignavioUrl() {
     return signavioBaseUrl;
@@ -102,7 +103,7 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
     // TODO: Check implementation!
     return href.replaceAll(baseUrl, "");
   }
-  
+
   public String getModelUrl(String id) {
     if (id.startsWith("/")) {
       // this is how it should be now
@@ -138,7 +139,7 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
   public String getExplorerUrl() {
     return getSignavioBackendUrl() + EXPLORER_URL_SUFFIX;
   }
-  
+
   /**
    * TODO: Rename?
    */
@@ -158,12 +159,15 @@ public class SignavioConnectorConfiguration extends PasswordEnabledRepositoryCon
     return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_EXPORT_SERVLET;
   }
 
+  public String getBpmn20XmlImportServletUrl() {
+    return getSignavioUrl() + EDITOR_URL_SUFFIX + BPMN_20_IMPORT_SERVLET;
+  }
+
   @Override
   public RepositoryConnector createConnector() {
     return new SignavioConnector(this);
   }
 
-  
   public boolean isLoginRequired() {
     return loginRequired;
   }

@@ -62,7 +62,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   public static final String SIGNAVIO_BPMN_JBPM4 = "http://b3mn.org/stencilset/jbpm4#";
 
   public static final String BPMN_2_0_XML = "bpm2.0";
-  
+
   /**
    * Captcha ID for REST access to Signavio
    */
@@ -156,7 +156,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     if (getConfiguration().isCredentialsSaved()) {
       // TODO: Should we do that more generically?
       username = getConfiguration().getUser();
-      password = getConfiguration().getPassword();      
+      password = getConfiguration().getPassword();
     }
     try {
       log.info("Logging into Signavio on url: " + getConfiguration().getLoginUrl());
@@ -483,4 +483,24 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     }
   }
 
+  /**
+   * FIXME: unfinished but maybe it works... method accepts a xml String and
+   * returns the json representation
+   */
+  public String transformBpmn20XmltoJson(String xmlData) {
+    try {
+      Form dataForm = new Form();
+      dataForm.add("data", xmlData);
+      Representation xmlDataRep = dataForm.getWebRepresentation();
+
+      Request request = new Request(Method.POST, new Reference(getConfiguration().getBpmn20XmlImportServletUrl()), xmlDataRep);
+      request.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
+      Response jsonResponse = sendRequest(request);
+
+      return new JSONObject(jsonResponse.getEntity().getText()).toString();
+
+    } catch (Exception ex) {
+      throw new RepositoryException("Error while transforming BPMN2_0_XML to BPMN2_0_JSON", ex);
+    }
+  }
 }
