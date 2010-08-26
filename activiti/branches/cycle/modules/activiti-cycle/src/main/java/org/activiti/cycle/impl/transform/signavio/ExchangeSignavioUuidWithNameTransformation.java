@@ -1,6 +1,7 @@
 package org.activiti.cycle.impl.transform.signavio;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.oryxeditor.server.diagram.Diagram;
@@ -19,11 +20,18 @@ public class ExchangeSignavioUuidWithNameTransformation extends OryxTransformati
   @Override
   public Diagram transform(Diagram diagram) {
     Map<String, String> nameMapping = new HashMap<String, String>();
-    Map<String, String> idMapping = new HashMap<String, String>();
 
-    for (Shape shape : diagram.getShapes()) {
+    adjustShapeNames(diagram.getShapes(), nameMapping);
+
+    return diagram;
+  }
+
+  private void adjustShapeNames(List<Shape> shapes, Map<String, String> nameMapping) {
+    for (Shape shape : shapes) {      
       // TODO: Check which exact stencil sets we need to change
-      if (shape.getStencil() != null && TASK_NAME.equals(shape.getStencil().getId())) {
+      if (shape.getProperty("name") != null && shape.getProperty("name").length() > 0) {
+        // shape.getStencil()!= null &&/
+        // TASK_NAME.equals(shape.getStencil().getId())
         String taskName = shape.getProperty("name");
         String id = shape.getResourceId();
         String newName = adjustNamesForEngine(taskName);
@@ -37,12 +45,10 @@ public class ExchangeSignavioUuidWithNameTransformation extends OryxTransformati
         }
 
         nameMapping.put(taskName, newName);
-        idMapping.put(id, taskName);
         shape.setResourceId(newName);
       }
+      adjustShapeNames(shape.getChildShapes(), nameMapping);
     }
-
-    return diagram;
   }
 
   /**

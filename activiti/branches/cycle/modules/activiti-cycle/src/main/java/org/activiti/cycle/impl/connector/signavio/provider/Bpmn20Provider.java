@@ -21,7 +21,7 @@ import org.restlet.data.Response;
 
 public class Bpmn20Provider extends SignavioContentRepresentationProvider {
 
-  public static final String NAME = "BPMN 2.0";
+  public static final String NAME = "Raw BPMN 2.0";
 
   public Bpmn20Provider() {
     super(NAME, ContentType.XML, true);

@@ -16,13 +16,16 @@ import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
+import org.activiti.cycle.impl.transform.signavio.AdjustShapeNamesTransformation;
+import org.activiti.cycle.impl.transform.signavio.BpmnPoolExtraction;
+import org.activiti.cycle.impl.transform.signavio.ExchangeSignavioUuidWithNameTransformation;
 import org.activiti.cycle.impl.transform.signavio.RemedyTemporarySignavioIncompatibilityTransformation;
 import org.json.JSONObject;
 import org.restlet.data.Response;
 
 public class ActivitiCompliantBpmn20Provider extends SignavioContentRepresentationProvider {
 
-  public static final String NAME = "Activiti Compliant BPMN 2.0";
+  public static final String NAME = "Developer Friendly BPMN 2.0";
 
   public ActivitiCompliantBpmn20Provider() {
     super(NAME, ContentType.XML, true);
@@ -35,7 +38,13 @@ public class ActivitiCompliantBpmn20Provider extends SignavioContentRepresentati
       // the commercial Signavio only
       Response jsonResponse = getJsonResponse(artifact, "/json");
       JSONObject jsonData = new JSONObject(jsonResponse.getEntity().getText());
+
+      jsonData = new BpmnPoolExtraction("Engine Pool").transform(jsonData);
+      jsonData = new AdjustShapeNamesTransformation().transform(jsonData);
+      jsonData = new ExchangeSignavioUuidWithNameTransformation().transform(jsonData);
+
       String bpmnXml = getConnector(artifact).transformJsonToBpmn20Xml(jsonData.toString());
+      
       bpmnXml = new RemedyTemporarySignavioIncompatibilityTransformation().transformBpmn20Xml(bpmnXml);
 
       
