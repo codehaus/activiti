@@ -251,14 +251,18 @@ JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8787
     <unzip dest="${tomcat.home}/webapps/activiti-probe" src="${activiti.home}/setup/build/activiti-probe.war" />
   </target>
 
-	<target name="deploy.activiti.cycle.into.tomcat" depends="build.webapp.activiti.cycle">
+	<target name="deploy.activiti.cycle.into.tomcat" depends="build.webapp.activiti.cycle">		
 		<mkdir dir="${tomcat.home}/webapps/activiti-cycle" />
   	<unzip dest="${tomcat.home}/webapps/activiti-cycle" src="${activiti.home}/setup/build/activiti-cycle.war" />
-		<!-- unzip bpmn 20 example models into activiti-modeler dir -->
-		<unzip dest="${activiti.modeler.repository.home}" src="files/examples/examples.zip" />
 		
-		<property name="cycle.workspace" location="${activiti.home}/apps/${cycle.base.file.path}"/>
+		<!-- unzip bpmn 20 example models into activiti-modeler dir -->
+		<unzip dest="${activiti.modeler.repository.home}" src="files/examples/modeler-examples.zip" />
+		
+		<!-- unzip eclipse  example models into workspace dir -->
+		<property name="cycle.workspace" location="${activiti.home}/apps/${cycle.workspace.file.path}"/>
 		<mkdir dir="${cycle.workspace}" />
+		<unzip dest="${cycle.workspace}" src="files/examples/eclipse-projects.zip" />
+
 		<copy todir="${tomcat.home}/bin" overwrite="true">
 		   <fileset dir="files/cfg.cycle" includes="*.cycle-conf.xml" />
 		</copy>
