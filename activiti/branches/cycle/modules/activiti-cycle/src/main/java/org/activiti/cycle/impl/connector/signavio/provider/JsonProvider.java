@@ -16,6 +16,7 @@ import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
+import org.json.JSONObject;
 import org.restlet.data.Response;
 
 public class JsonProvider extends SignavioContentRepresentationProvider {
@@ -34,8 +35,10 @@ public class JsonProvider extends SignavioContentRepresentationProvider {
   public void addValueToContent(Content content, RepositoryArtifact artifact) {
     try {
       Response jsonResponse = getJsonResponse(artifact, "/json");
+      
       String jsonString = jsonResponse.getEntity().getText();
-      content.setValue(jsonString);
+      JSONObject jsonObj = new JSONObject(jsonString);
+      content.setValue(jsonObj.toString(2));
     } catch (Exception ex) {
       throw new RepositoryException("Error while accessing Signavio repository", ex);
     }

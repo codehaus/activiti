@@ -5,7 +5,7 @@
     {
       "type": "${contentView.key}",
       "name": "${contentView.name}",
-      "content": "${contentView.value?html}"
+      "content": <#escape x as jsonUtils.encodeJSONString(x)> "${contentView.value?html}" </#escape>
     }
     <#if contentView_has_next>,</#if>
   </#list>
