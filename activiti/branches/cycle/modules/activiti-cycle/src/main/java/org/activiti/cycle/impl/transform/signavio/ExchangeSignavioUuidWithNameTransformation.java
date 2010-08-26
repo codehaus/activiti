@@ -29,23 +29,30 @@ public class ExchangeSignavioUuidWithNameTransformation extends OryxTransformati
   private void adjustShapeNames(List<Shape> shapes, Set<String> existingNames) {
     for (Shape shape : shapes) {      
       // TODO: Check which exact stencil sets we need to change
+      String name = null;
+      
       if (shape.getProperty("name") != null && shape.getProperty("name").length() > 0) {
         // shape.getStencil()!= null &&/
         // TASK_NAME.equals(shape.getStencil().getId())
-        String taskName = shape.getProperty("name");
-        String newName = adjustNamesForEngine(taskName);
+        name = shape.getProperty("name");
 
-        if (existingNames.contains(newName)) {
-          int counter = 1;
-          while (existingNames.contains(newName + "_" + counter)) {
-            counter++;
-          }
-          newName = newName + "_" + counter;
-        }
-
-        existingNames.add(newName);
-        shape.setResourceId(newName);
+      } else {
+        name = shape.getStencilId();
       }
+
+      String newName = adjustNamesForEngine(name);
+
+      if (existingNames.contains(newName)) {
+        int counter = 1;
+        while (existingNames.contains(newName + "_" + counter)) {
+          counter++;
+        }
+        newName = newName + "_" + counter;
+      }
+
+      existingNames.add(newName);
+      shape.setResourceId(newName);
+      
       adjustShapeNames(shape.getChildShapes(), existingNames);
     }
   }
