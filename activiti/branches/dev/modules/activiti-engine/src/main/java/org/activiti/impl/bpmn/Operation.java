@@ -15,9 +15,6 @@ package org.activiti.impl.bpmn;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
-
-
 /**
  * An Operation is part of an {@link BpmnInterface} and it defines Messages that are consumed and
  * (optionally) produced when the Operation is called.
@@ -54,12 +51,10 @@ public class Operation {
   }
   
   public void addInArgument(String argument) {
-    Validate.notNull(argument);
     this.inArguments.add(argument);
   }
 
   public void addOutArgument(String argument) {
-    Validate.notNull(argument);
     this.outArguments.add(argument);
   }
   

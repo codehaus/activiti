@@ -12,7 +12,6 @@
  */
 package org.activiti.impl.webservice;
 
-import org.apache.commons.lang.Validate;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 
@@ -27,8 +26,6 @@ public class CxfWebServiceClient implements SyncWebServiceClient {
   protected Client client;
   
   public CxfWebServiceClient(String wsdl) {
-    Validate.notNull(wsdl);
-    
     JaxWsDynamicClientFactory dcf = JaxWsDynamicClientFactory.newInstance();
     this.client = dcf.createClient(wsdl);
   }
@@ -37,9 +34,6 @@ public class CxfWebServiceClient implements SyncWebServiceClient {
    * {@inheritDoc}}
    */
   public Object[] send(String methodName, Object[] arguments) throws Exception {
-    Validate.notNull(methodName);
-    Validate.notNull(arguments);
-    
     return client.invoke(methodName, arguments);
   }
 }

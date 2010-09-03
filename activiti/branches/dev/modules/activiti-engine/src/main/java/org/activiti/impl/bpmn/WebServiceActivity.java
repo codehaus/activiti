@@ -21,7 +21,6 @@ import org.activiti.impl.bpmn.transformers.Transformer;
 import org.activiti.impl.webservice.CxfWebServiceClient;
 import org.activiti.impl.webservice.SyncWebServiceClient;
 import org.activiti.pvm.ActivityExecution;
-import org.apache.commons.lang.Validate;
 
 
 /**
@@ -44,9 +43,6 @@ public class WebServiceActivity extends BpmnActivity {
   }
   
   public WebServiceActivity(SyncWebServiceClient client, Operation operation) {
-    Validate.notNull(operation);
-    Validate.notNull(client);
-    
     this.client = client;
     this.operation = operation;
     this.inTransformers = new ArrayList<Transformer>();
@@ -82,12 +78,10 @@ public class WebServiceActivity extends BpmnActivity {
   }
 
   public void addInTransformer(Transformer transformer) {
-    Validate.notNull(transformer);
     this.inTransformers.add(transformer);
   }
 
   public void addOutTransformer(Transformer transformer) {
-    Validate.notNull(transformer);
     this.outTransformers.add(transformer);
   }
   
