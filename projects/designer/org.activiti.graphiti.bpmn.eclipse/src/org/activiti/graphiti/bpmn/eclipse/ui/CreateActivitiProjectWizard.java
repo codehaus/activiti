@@ -10,15 +10,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
-public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
-
-	private static final String JAVACORE_NATURE_ID = JavaCore.NATURE_ID;
-	private static final String ACTIVITI_NATURE_ID = ActivitiProjectNature.NATURE_ID;
+public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {	
 
 	@Override
 	public boolean performFinish() {
@@ -31,14 +30,15 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 
 			IProjectDescription description = newProject.getDescription();
 			String[] newNatures = new String[2];
-			newNatures[0] = JAVACORE_NATURE_ID;
-			newNatures[1] = ACTIVITI_NATURE_ID;
+			newNatures[0] = JavaCore.NATURE_ID;
+			newNatures[1] = ActivitiProjectNature.NATURE_ID;
 			description.setNatureIds(newNatures);
 			newProject.setDescription(description, null);
-
+			
 			IJavaProject javaProject = JavaCore.create(newProject);
 
 			createSourceFolders(newProject);
+			createOutputLocation(javaProject);
 
 			IClasspathEntry[] entries = createClasspathEntries(javaProject);
 
@@ -56,9 +56,12 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 		IPath srcPath2 = javaProject.getPath().append("src/main/resources");
 		IPath srcPath3 = javaProject.getPath().append("src/test/java");
 		IPath srcPath4 = javaProject.getPath().append("src/test/resources");
-
-		IClasspathEntry[] entries = { JavaCore.newSourceEntry(srcPath1), JavaCore.newSourceEntry(srcPath2),
-				JavaCore.newSourceEntry(srcPath3), JavaCore.newSourceEntry(srcPath4) };
+		
+		IPath[] javaPath = new IPath[] { new Path("**/*.java") };
+		IPath testOutputLocation = javaProject.getPath().append("target/test-classes");	
+		
+		IClasspathEntry[] entries = { JavaCore.newSourceEntry(srcPath1, javaPath, null, null), JavaCore.newSourceEntry(srcPath2, javaPath),
+				JavaCore.newSourceEntry(srcPath3, javaPath, null, testOutputLocation), JavaCore.newSourceEntry(srcPath4, javaPath, testOutputLocation) };
 
 		return entries;
 	}
@@ -79,5 +82,11 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 			IFolder sourceFolder = project.getFolder(folder);
 			sourceFolder.create(false, true, null);
 		}
+	}
+		
+	private void createOutputLocation(IJavaProject javaProject) throws JavaModelException {
+		
+		IPath targetPath = javaProject.getPath().append("target/classes");
+		javaProject.setOutputLocation(targetPath, null);
 	}
 }
