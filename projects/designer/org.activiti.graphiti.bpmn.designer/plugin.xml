@@ -88,27 +88,9 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.activiti.graphiti.bpmn.designer.runner.ProcessRunnerGenerator"
+            defaultHandler="org.activiti.graphiti.bpmn.designer.runner.GenerateRunnerHandler"
             id="org.activiti.graphiti.bpmn.designer.generateProcessRunner"
             name="GenerateProcessRunner">
-      </command>
-      <command
-            defaultHandler="org.activiti.graphiti.bpmn.designer.preferences.SetPreferences"
-            description="Sets the initial values of Preferences"
-            id="org.activiti.graphiti.bpmn.designer.setPreferences"
-            name="SetPreferences">
-      </command>
-      <command
-            defaultHandler="org.activiti.graphiti.bpmn.designer.preferences.DeletePreferences"
-            description="Deletes the values of Preferences"
-            id="org.activiti.graphiti.bpmn.designer.deletePreferences"
-            name="DeletePreferences">
-      </command>
-      <command
-            defaultHandler="org.activiti.graphiti.bpmn.designer.preferences.ShowPreferences"
-            description="Displays the values of Preferences"
-            id="org.activiti.graphiti.bpmn.designer.showPreferences"
-            name="ShowPreferences">
       </command>
    </extension>
    <extension
@@ -116,7 +98,7 @@
       <page
             class="org.activiti.graphiti.bpmn.designer.preferences.ActivitiPreferencePage"
             id="org.activiti.graphiti.bpmn.designer.preferences"
-            name="ActivitiPreferences">
+            name="Activiti">
       </page>
    </extension>
 </plugin>

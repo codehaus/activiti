@@ -24,6 +24,8 @@ public class ActivitiPreferencePage extends FieldEditorPreferencePage implements
 		IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
 		setPreferenceStore(prefStore);
 		setDescription("Set the location of your Activiti install base.");
+		String test = prefStore.getString("PATH");
+		System.out.println("Val = " + test);
 	}
 }
 
