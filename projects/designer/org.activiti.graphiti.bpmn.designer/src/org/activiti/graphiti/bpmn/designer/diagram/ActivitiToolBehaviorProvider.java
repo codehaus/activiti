@@ -10,7 +10,6 @@ import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.features.ICreateConnectionFeature;
 import org.eclipse.graphiti.features.ICreateFeature;
 import org.eclipse.graphiti.features.IFeatureProvider;
-import org.eclipse.graphiti.features.context.IContext;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.impl.CreateConnectionContext;
@@ -33,8 +32,8 @@ import org.eclipse.graphiti.tb.DefaultToolBehaviorProvider;
 import org.eclipse.graphiti.tb.IContextButtonEntry;
 import org.eclipse.graphiti.tb.IContextButtonPadData;
 import org.eclipse.graphiti.tb.IContextMenuEntry;
-import org.eclipse.graphiti.tb.IRenderingDecorator;
-import org.eclipse.graphiti.tb.ImageRenderingDecorator;
+import org.eclipse.graphiti.tb.IDecorator;
+import org.eclipse.graphiti.tb.ImageDecorator;
 
 public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
@@ -43,8 +42,8 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	}
 
 	@Override
-	public IContextButtonPadData getContextButtonPadData(IPictogramElementContext context) {
-		IContextButtonPadData data = super.getContextButtonPadData(context);
+	public IContextButtonPadData getContextButtonPad(IPictogramElementContext context) {
+		IContextButtonPadData data = super.getContextButtonPad(context);
 		PictogramElement pe = context.getPictogramElement();
 
 		// 1. set the generic context buttons
@@ -94,7 +93,7 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	}
 
 	@Override
-	public IContextMenuEntry[] getContextMenu(IContext context) {
+	public IContextMenuEntry[] getContextMenu(ICustomContext context) {
 		
 		// create a sub-menu for all custom features
 		ContextMenuEntry subMenu = new ContextMenuEntry(null, context);
@@ -125,11 +124,11 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	}
 
 	@Override
-	public IPaletteCompartmentEntry[] getPaletteCompartments() {
+	public IPaletteCompartmentEntry[] getPalette() {
 		List<IPaletteCompartmentEntry> ret = new ArrayList<IPaletteCompartmentEntry>();
 
 		// add compartments from super class
-		IPaletteCompartmentEntry[] superCompartments = super.getPaletteCompartments();
+		IPaletteCompartmentEntry[] superCompartments = super.getPalette();
 		for (int i = 0; i < superCompartments.length; i++)
 			ret.add(superCompartments[i]);
 
@@ -164,18 +163,18 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	}
 	
 	@Override
-	public IRenderingDecorator[] getRenderingDecorators(PictogramElement pe) {
+	public IDecorator[] getDecorators(PictogramElement pe) {
 		IFeatureProvider featureProvider = getFeatureProvider();
 		Object bo = featureProvider.getBusinessObjectForPictogramElement(pe);
 		if (bo instanceof StartEvent) {
 			StartEvent startEvent = (StartEvent) bo;
 			if(startEvent.getOutgoing().size() != 1) {
-				IRenderingDecorator imageRenderingDecorator = new ImageRenderingDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
+				IDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
 				imageRenderingDecorator.setMessage("A start event should have exactly one outgoing sequence flow"); //$NON-NLS-1$
-				return new IRenderingDecorator[] { imageRenderingDecorator };
+				return new IDecorator[] { imageRenderingDecorator };
 			}
 		}
 
-		return super.getRenderingDecorators(pe);
+		return super.getDecorators(pe);
 	}
 }
