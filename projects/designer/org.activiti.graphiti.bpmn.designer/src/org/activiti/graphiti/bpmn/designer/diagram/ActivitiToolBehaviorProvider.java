@@ -11,6 +11,7 @@ import org.eclipse.graphiti.features.ICreateConnectionFeature;
 import org.eclipse.graphiti.features.ICreateFeature;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
+import org.eclipse.graphiti.features.context.IDoubleClickContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.impl.CreateConnectionContext;
 import org.eclipse.graphiti.features.context.impl.CustomContext;
@@ -40,6 +41,16 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	public ActivitiToolBehaviorProvider(IDiagramTypeProvider dtp) {
 		super(dtp);
 	}
+	
+	@Override
+    public ICustomFeature getDoubleClickFeature(IDoubleClickContext context) {
+        ICustomFeature customFeature =
+            new ExpandCollapseSubProcessFeature(getFeatureProvider());
+        if (customFeature.canExecute(context)) {
+            return customFeature;
+        }
+        return super.getDoubleClickFeature(context);
+    }
 
 	@Override
 	public IContextButtonPadData getContextButtonPad(IPictogramElementContext context) {

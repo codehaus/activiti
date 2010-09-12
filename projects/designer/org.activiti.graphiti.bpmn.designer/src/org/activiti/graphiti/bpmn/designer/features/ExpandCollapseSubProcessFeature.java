@@ -1,5 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
+import org.eclipse.bpmn2.impl.SubProcessImpl;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
@@ -22,8 +24,7 @@ public class ExpandCollapseSubProcessFeature extends AbstractCustomFeature {
 
 	@Override
 	public boolean canExecute(ICustomContext context) {
-		//TODO
-		return true;
+		return ActivitiUiUtil.contextPertainsToBusinessObject(context, SubProcessImpl.class);
 	}
 
 	public void execute(ICustomContext context) {
