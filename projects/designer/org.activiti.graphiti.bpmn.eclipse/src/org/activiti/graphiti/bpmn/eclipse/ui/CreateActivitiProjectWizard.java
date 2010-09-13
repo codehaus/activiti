@@ -15,9 +15,10 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
-public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {	
+public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 
 	@Override
 	public boolean performFinish() {
@@ -34,7 +35,7 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 			newNatures[1] = ActivitiProjectNature.NATURE_ID;
 			description.setNatureIds(newNatures);
 			newProject.setDescription(description, null);
-			
+
 			IJavaProject javaProject = JavaCore.create(newProject);
 
 			createSourceFolders(newProject);
@@ -56,12 +57,13 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 		IPath srcPath2 = javaProject.getPath().append("src/main/resources");
 		IPath srcPath3 = javaProject.getPath().append("src/test/java");
 		IPath srcPath4 = javaProject.getPath().append("src/test/resources");
-		
+
 		IPath[] javaPath = new IPath[] { new Path("**/*.java") };
-		IPath testOutputLocation = javaProject.getPath().append("target/test-classes");	
+		IPath testOutputLocation = javaProject.getPath().append("target/test-classes");
 		
 		IClasspathEntry[] entries = { JavaCore.newSourceEntry(srcPath1, javaPath, null, null), JavaCore.newSourceEntry(srcPath2, javaPath),
-				JavaCore.newSourceEntry(srcPath3, javaPath, null, testOutputLocation), JavaCore.newSourceEntry(srcPath4, javaPath, testOutputLocation) };
+				JavaCore.newSourceEntry(srcPath3, javaPath, null, testOutputLocation),
+				JavaCore.newSourceEntry(srcPath4, javaPath, testOutputLocation), JavaRuntime.getDefaultJREContainerEntry()};
 
 		return entries;
 	}
@@ -82,11 +84,12 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 			IFolder sourceFolder = project.getFolder(folder);
 			sourceFolder.create(false, true, null);
 		}
-	}
-		
+	} 
+
 	private void createOutputLocation(IJavaProject javaProject) throws JavaModelException {
-		
+
 		IPath targetPath = javaProject.getPath().append("target/classes");
 		javaProject.setOutputLocation(targetPath, null);
 	}
+
 }
