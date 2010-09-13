@@ -126,13 +126,7 @@ public class BpmnXMLExport {
 	        xtw.writeStartElement("userTask");
 	        xtw.writeAttribute("id", userTask.getId());
 	        xtw.writeAttribute("name", userTask.getName());
-	        xtw.writeStartElement("potentialOwner");
-	        xtw.writeStartElement("resourceAssignmentExpression");
-	        xtw.writeStartElement("formalExpression");
-	        xtw.writeCharacters("management");
-	        xtw.writeEndElement();
-	        xtw.writeEndElement();
-	        xtw.writeEndElement();
+	        xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "assignee", userTask.getAssignee());
 	        
 	        // end UserTask element
 	        xtw.writeEndElement();
@@ -143,9 +137,9 @@ public class BpmnXMLExport {
 	        xtw.writeStartElement("scriptTask");
 	        xtw.writeAttribute("id", scriptTask.getId());
 	        xtw.writeAttribute("name", scriptTask.getName());
-	        xtw.writeAttribute("scriptFormat", "groovy");
+	        xtw.writeAttribute("scriptFormat", scriptTask.getScriptFormat());
 	        xtw.writeStartElement("script");
-	        xtw.writeCData("test script");
+	        xtw.writeCData(scriptTask.getScript());
 	        xtw.writeEndElement();
 	        
 	        // end ScriptTask element

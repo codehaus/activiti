@@ -32,7 +32,7 @@ public class SaveBpmnModelFeature extends AbstractCustomFeature {
 			URI uri = getDiagram().eResource().getURI();
 			uri = uri.trimFragment();
 			uri = uri.trimFileExtension();
-			uri = uri.appendFileExtension("model");
+			uri = uri.appendFileExtension("bpmn20.xml");
 			BpmnXMLExport.createBpmnFile(uri, getDiagram().eResource().getContents());
 		} catch(Exception e) {
 			e.printStackTrace();

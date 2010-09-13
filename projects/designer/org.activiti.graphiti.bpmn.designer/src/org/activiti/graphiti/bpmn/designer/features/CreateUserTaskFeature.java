@@ -1,5 +1,6 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -30,6 +31,11 @@ public class CreateUserTaskFeature extends AbstractCreateBPMNFeature {
 		
 		addGraphicalRepresentation(context, newUserTask);
 		return new Object[] { newUserTask };
+	}
+	
+	@Override
+	public String getCreateImageId() {
+		return ActivitiImageProvider.IMG_USERTASK;
 	}
 	
 	@Override

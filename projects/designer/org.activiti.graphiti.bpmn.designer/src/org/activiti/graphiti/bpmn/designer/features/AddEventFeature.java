@@ -1,5 +1,6 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.activiti.graphiti.bpmn.designer.util.StyleUtil;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.Event;
@@ -20,10 +21,6 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddEventFeature extends AbstractAddShapeFeature {
-
-	// the additional size of the invisible rectangle at the right border
-	// (this also equals the half width of the anchor to paint there)
-	public static final int INVISIBLE_CIRCLE_RIGHT = 6;
 
 	public AddEventFeature(IFeatureProvider fp) {
 		super(fp);
@@ -50,7 +47,7 @@ public class AddEventFeature extends AbstractAddShapeFeature {
 			final Ellipse invisibleCircle = gaService.createEllipse(containerShape);
 			invisibleCircle.setFilled(false);
 			invisibleCircle.setLineVisible(false);
-			gaService.setLocationAndSize(invisibleCircle, context.getX(), context.getY(), width + INVISIBLE_CIRCLE_RIGHT, height);
+			gaService.setLocationAndSize(invisibleCircle, context.getX(), context.getY(), width, height);
 
 			// create and set visible circle inside invisible circle
 			circle = gaService.createEllipse(invisibleCircle);
@@ -103,23 +100,10 @@ public class AddEventFeature extends AbstractAddShapeFeature {
 			// create an additional box relative anchor at middle-right
 			final BoxRelativeAnchor boxAnchor = peCreateService.createBoxRelativeAnchor(containerShape);
 			boxAnchor.setRelativeWidth(1.0);
-			boxAnchor.setRelativeHeight(0.51); // Use golden section
-			// anchor references visible rectangle instead of invisible
-			// rectangle
+			boxAnchor.setRelativeHeight(0.51);
 			boxAnchor.setReferencedGraphicsAlgorithm(circle);
-			// assign a graphics algorithm for the box relative anchor
-			// final Rectangle boxRect = gaService.createEllipse(boxAnchor);
-			final Ellipse ellipse = gaService.createEllipse(boxAnchor);
-			ellipse.setFilled(true);
-			// anchor is located on the right border of the visible rectangle
-			// and touches the border of the invisible rectangle
-			final int w = INVISIBLE_CIRCLE_RIGHT;
-			gaService.setLocationAndSize(ellipse, -w, -w, 2 * w, 2 * w);
-			// final Color c = gaService.manageColor(getDiagram(),
-			// IColorConstant.DARK_BLUE);
-			// boxRect.setBackground(c);
-			ellipse.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
-			// call the layout feature
+			final Ellipse ellipse = ActivitiUiUtil.createInvisibleEllipse(boxAnchor, gaService);
+			gaService.setLocationAndSize(ellipse, 0, 0, 0, 0);
 		}
 		layoutPictogramElement(containerShape);
 

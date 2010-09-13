@@ -5,11 +5,18 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.features.context.ICustomContext;
+import org.eclipse.graphiti.mm.GraphicsAlgorithmContainer;
+import org.eclipse.graphiti.mm.algorithms.AlgorithmsFactory;
+import org.eclipse.graphiti.mm.algorithms.Ellipse;
+import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.services.IGaService;
 
 public class ActivitiUiUtil {
 	
 	public static void runModelChange(final Runnable runnable,
             final TransactionalEditingDomain editingDomain, final String label) {
+		
         editingDomain.getCommandStack().execute(new RecordingCommand(editingDomain, label) {
             protected void doExecute() {
                 runnable.run();
@@ -30,4 +37,21 @@ public class ActivitiUiUtil {
 		return result;
     }
 
+	public static Ellipse createInvisibleEllipse(GraphicsAlgorithmContainer gaContainer, IGaService gaService) {
+		Ellipse ret = AlgorithmsFactory.eINSTANCE.createEllipse();
+		ret.setX(0);
+		ret.setY(0);
+		ret.setWidth(0);
+		ret.setHeight(0);
+		ret.setFilled(false);
+		ret.setLineVisible(false);
+		if (gaContainer instanceof PictogramElement) {
+			PictogramElement pe = (PictogramElement) gaContainer;
+			pe.setGraphicsAlgorithm(ret);
+		} else if (gaContainer instanceof GraphicsAlgorithm) {
+			GraphicsAlgorithm parentGa = (GraphicsAlgorithm) gaContainer;
+			parentGa.getGraphicsAlgorithmChildren().add(ret);
+		}
+		return ret;
+	}
 }

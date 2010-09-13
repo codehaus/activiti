@@ -1,5 +1,6 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.SequenceFlow;
@@ -87,6 +88,11 @@ public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeatu
 		source.getOutgoing().add(sequenceFlow);
 		target.getIncoming().add(sequenceFlow);
 		return sequenceFlow;
+	}
+	
+	@Override
+	public String getCreateImageId() {
+		return ActivitiImageProvider.IMG_EREFERENCE;
 	}
 	
 	@Override

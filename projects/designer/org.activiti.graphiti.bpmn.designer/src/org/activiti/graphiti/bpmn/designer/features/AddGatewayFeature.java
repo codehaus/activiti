@@ -1,5 +1,6 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.activiti.graphiti.bpmn.designer.util.StyleUtil;
 import org.eclipse.bpmn2.Gateway;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -18,10 +19,6 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddGatewayFeature extends AbstractAddShapeFeature {
-
-	// the additional size of the invisible rectangle at the right border
-	// (this also equals the half width of the anchor to paint there)
-	public static final int INVISIBLE_SQUARE_MIDDLE = 6;
 
 	public AddGatewayFeature(IFeatureProvider fp) {
 		super(fp);
@@ -49,7 +46,7 @@ public class AddGatewayFeature extends AbstractAddShapeFeature {
 			final Polygon invisiblePolygon = gaService.createPolygon(containerShape, xy);
 			invisiblePolygon.setFilled(false);
 			invisiblePolygon.setLineVisible(false);
-			gaService.setLocationAndSize(invisiblePolygon, context.getX(), context.getY(), width, height + INVISIBLE_SQUARE_MIDDLE);
+			gaService.setLocationAndSize(invisiblePolygon, context.getX(), context.getY(), width, height);
 
 			// create and set visible circle inside invisible circle
 			polygon = gaService.createPolygon(invisiblePolygon, xy);
@@ -87,37 +84,23 @@ public class AddGatewayFeature extends AbstractAddShapeFeature {
 		{
 			// add a chopbox anchor to the shape
 			peCreateService.createChopboxAnchor(containerShape);
-			// create an additional box relative anchor at middle-right
 			final BoxRelativeAnchor boxAnchor = peCreateService.createBoxRelativeAnchor(containerShape);
 			boxAnchor.setRelativeWidth(0.51);
-			boxAnchor.setRelativeHeight(0.10); // Use golden section
-			// anchor references visible rectangle instead of invisible
-			// rectangle
+			boxAnchor.setRelativeHeight(0.10);
 			boxAnchor.setReferencedGraphicsAlgorithm(polygon);
-			// assign a graphics algorithm for the box relative anchor
-			final Ellipse ellipse = gaService.createEllipse(boxAnchor);
-			ellipse.setFilled(true);
-			final int w = INVISIBLE_SQUARE_MIDDLE;
-			gaService.setLocationAndSize(ellipse, -w, -w, 2 * w, 2 * w);
-			ellipse.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+			final Ellipse ellipse = ActivitiUiUtil.createInvisibleEllipse(boxAnchor, gaService);
+			gaService.setLocationAndSize(ellipse, 0, 0, 0, 0);
 		}
 
 		{
 			// add a another chopbox anchor to the shape
 			peCreateService.createChopboxAnchor(containerShape);
-			// create an additional box relative anchor at middle-right
 			final BoxRelativeAnchor boxAnchor2 = peCreateService.createBoxRelativeAnchor(containerShape);
 			boxAnchor2.setRelativeWidth(0.51);
-			boxAnchor2.setRelativeHeight(0.93); // Use golden section
-			// anchor references visible rectangle instead of invisible
-			// rectangle
+			boxAnchor2.setRelativeHeight(0.93);
 			boxAnchor2.setReferencedGraphicsAlgorithm(polygon);
-			// assign a graphics algorithm for the box relative anchor
-			final Ellipse ellipse2 = gaService.createEllipse(boxAnchor2);
-			ellipse2.setFilled(true);
-			final int w2 = INVISIBLE_SQUARE_MIDDLE;
-			gaService.setLocationAndSize(ellipse2, -w2, -w2, 2 * w2, 2 * w2);
-			ellipse2.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+			final Ellipse ellipse = ActivitiUiUtil.createInvisibleEllipse(boxAnchor2, gaService);
+			gaService.setLocationAndSize(ellipse, 0, 0, 0, 0);
 		}
 
 		// call the layout feature

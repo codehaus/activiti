@@ -1,6 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
 import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
+import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.activiti.graphiti.bpmn.designer.util.StyleUtil;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
@@ -24,10 +25,6 @@ import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddSubProcessFeature extends AbstractAddShapeFeature {
 	
-	// the additional size of the invisible rectangle at the right border
-	// (this also equals the half width of the anchor to paint there)
-	public static final int INVISIBLE_RECT_RIGHT = 6;
-
 	public AddSubProcessFeature(IFeatureProvider fp) {
 		super(fp);
 	}
@@ -55,7 +52,7 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 			// create invisible outer rectangle expanded by
 			// the width needed for the anchor
 			final Rectangle invisibleRectangle = gaService.createInvisibleRectangle(containerShape);
-			gaService.setLocationAndSize(invisibleRectangle, context.getX(), context.getY(), width + INVISIBLE_RECT_RIGHT, height);
+			gaService.setLocationAndSize(invisibleRectangle, context.getX(), context.getY(), width, height);
 
 			// create and set visible rectangle inside invisible rectangle
 			roundedRectangle = gaService.createRoundedRectangle(invisibleRectangle, 5, 5);
@@ -116,18 +113,12 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 		// add a chopbox anchor to the shape
 		peCreateService.createChopboxAnchor(containerShape);
 
-		// create an additional box relative anchor at middle-right
 		final BoxRelativeAnchor boxAnchor = peCreateService.createBoxRelativeAnchor(containerShape);
 		boxAnchor.setRelativeWidth(1.0);
-		boxAnchor.setRelativeHeight(0.51); // Use golden section
-		// anchor references visible rectangle instead of invisible rectangle
+		boxAnchor.setRelativeHeight(0.51);
 		boxAnchor.setReferencedGraphicsAlgorithm(roundedRectangle);
-		final Ellipse ellipse = gaService.createEllipse(boxAnchor);
-		ellipse.setFilled(true);
-		final int w = INVISIBLE_RECT_RIGHT;
-		gaService.setLocationAndSize(ellipse, -w, -w, 2 * w, 2 * w);
-		ellipse.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
-		// call the layout feature
+		final Ellipse ellipse = ActivitiUiUtil.createInvisibleEllipse(boxAnchor, gaService);
+		gaService.setLocationAndSize(ellipse, 0, 0, 0, 0);
 		layoutPictogramElement(containerShape);
 
 		return containerShape;

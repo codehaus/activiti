@@ -1,5 +1,6 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -31,6 +32,11 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 		// do the add
 		addGraphicalRepresentation(context, newServiceTask);
 		return new Object[] { newServiceTask };
+	}
+	
+	@Override
+	public String getCreateImageId() {
+		return ActivitiImageProvider.IMG_SERVICETASK;
 	}
 
 	@Override
