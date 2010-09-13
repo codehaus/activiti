@@ -6,7 +6,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -14,7 +13,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 public class GenerateRunnerHandler extends AbstractHandler {
 
-	private static final String BPMN_FILENAME_SUFFIX = "bpmn2.xml";
+	private static final String BPMN_FILENAME_SUFFIX = "bpmn20.xml";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
