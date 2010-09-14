@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="Activiti BPMN Designer Update Site" url="TODO">
+      Activiti BPMN Designer Update Site
+   </description>
+   <feature url="features/org.activiti.graphiti.bpmn.feature_1.0.0.qualifier.jar" id="org.activiti.graphiti.bpmn.feature" version="1.0.0.qualifier">
+      <category name="designer"/>
+   </feature>
+   <category-def name="designer" label="Activiti BPMN Designer">
+      <description>
+         Activiti BPMN Designer
+      </description>
+   </category-def>
+</site>

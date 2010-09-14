@@ -1,0 +1,2 @@
+* Activiti styling;
+* Build tool to auto-generate including applying XSL;
