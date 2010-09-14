@@ -61,6 +61,12 @@
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
+               class="org.activiti.graphiti.bpmn.designer.property.PropertyServiceTaskSection"
+               filter="org.activiti.graphiti.bpmn.designer.property.PropertyServiceTaskFilter"
+               id="org.activiti.graphiti.bpmn.designer.propertyTab.servicetask"
+               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+         </propertySection>
+         <propertySection
                class="org.activiti.graphiti.bpmn.designer.property.PropertyUserTaskSection"
                filter="org.activiti.graphiti.bpmn.designer.property.PropertyUserTaskFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.usertask"
