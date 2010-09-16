@@ -27,8 +27,6 @@ public class CreateStartEventFeature extends AbstractCreateBPMNFeature {
 		startEvent.setName("Start");
 		
 		getDiagram().eResource().getContents().add(startEvent);
-
-		// do the add
 		addGraphicalRepresentation(context, startEvent);
 		
 		// return newly created business object(s)

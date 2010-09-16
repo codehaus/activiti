@@ -55,6 +55,12 @@
       <propertySections
             contributorId="BPMNdiagram.PropertyContributor">
          <propertySection
+               class="org.activiti.graphiti.bpmn.designer.property.PropertyDiagramSection"
+               filter="org.activiti.graphiti.bpmn.designer.property.PropertyDiagramFilter"
+               id="org.activiti.graphiti.bpmn.designer.propertyTab.diagram"
+               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+         </propertySection>
+         <propertySection
                class="org.activiti.graphiti.bpmn.designer.property.PropertyScriptTaskSection"
                filter="org.activiti.graphiti.bpmn.designer.property.PropertyScriptTaskFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.scripttask"

@@ -9,6 +9,7 @@ import org.eclipse.graphiti.mm.GraphicsAlgorithmContainer;
 import org.eclipse.graphiti.mm.algorithms.AlgorithmsFactory;
 import org.eclipse.graphiti.mm.algorithms.Ellipse;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.IGaService;
 
@@ -53,5 +54,14 @@ public class ActivitiUiUtil {
 			parentGa.getGraphicsAlgorithmChildren().add(ret);
 		}
 		return ret;
+	}
+	
+	public static org.eclipse.bpmn2.Process getProcessObject(Diagram diagram) {
+		for(EObject eObject: diagram.eResource().getContents()) {
+			if(eObject instanceof org.eclipse.bpmn2.Process) {
+				return (org.eclipse.bpmn2.Process) eObject;
+			}
+		}
+		return null;
 	}
 }
