@@ -1,6 +1,10 @@
 package org.activiti.graphiti.bpmn.designer.runner;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -27,9 +31,9 @@ public class TestRunnerClassGenerator {
 		boolean junitAdded = false;
 		boolean activitiLibAdded = false;
 		for(IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-			if(cpEntry.getPath().equals(BuildPathSupport.getJUnit4ClasspathEntry())) {
+			if(cpEntry.equals(BuildPathSupport.getJUnit4ClasspathEntry())) {
 				junitAdded = true;
-			} else if(cpEntry.equals(ACTIVITI_JARS)) {
+			} else if(cpEntry.getPath().equals(ACTIVITI_JARS)) {
 				activitiLibAdded = true;
 			}
 		}
@@ -56,6 +60,17 @@ public class TestRunnerClassGenerator {
 
 		IPackageFragment pack = srcRoot.createPackageFragment(
 				"org.activiti.graphiti.bpmn.designer.runner", false, null);
+
+		ICompilationUnit cu = pack.createCompilationUnit("ProcessRunner.java",
+				createTestClass(bpmnResource, pack), false, null);
+		
+		IFolder testResourceFolder = project.getFolder("src").getFolder("test").getFolder("resources");
+		IFile propertiesFile = testResourceFolder.getFile("activiti.properties");
+		InputStream source = new ByteArrayInputStream(createPropertyFile().getBytes()); 
+		propertiesFile.create(source, true, null);
+	}
+	
+	private static String createTestClass(IResource bpmnResource, IPackageFragment pack) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("package " + pack.getElementName() + ";\n\n");
 		buffer.append("import static org.junit.Assert.*;\n");
@@ -74,7 +89,7 @@ public class TestRunnerClassGenerator {
 		buffer.append("\t\tRuntimeService runtimeService = processEngine.getRuntimeService();\n");
 		buffer.append("\t\tRepositoryService repositoryService = processEngine.getRepositoryService();\n");
 		buffer.append("\t\trepositoryService.createDeployment()\n");
-		buffer.append("\t\t\t\t.addClasspathResource(\"" + bpmnResource.getName() + "\")\n");
+		buffer.append("\t\t\t\t.addClasspathResource(\"diagrams/" + bpmnResource.getName() + "\")\n");
 		buffer.append("\t\t\t\t.deploy();\n");
 		buffer.append("\t\tProcessInstance processInstance = runtimeService.startProcessInstanceByKey(\"helloworld\");\n");
 		buffer.append("\t\tassertNotNull(processInstance.getId());\n");
@@ -82,9 +97,20 @@ public class TestRunnerClassGenerator {
 		buffer.append("\t\t\t\t+ processInstance.getProcessDefinitionId());\n");
 		buffer.append("\t}\n");
 		buffer.append("}");
-
-		ICompilationUnit cu = pack.createCompilationUnit("ProcessRunner.java",
-				buffer.toString(), false, null);
+		return buffer.toString();
+	}
+	
+	private static String createPropertyFile() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("database=h2\n");
+		buffer.append("jdbc.driver=org.h2.Driver\n");
+		buffer.append("jdbc.url=jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000\n");
+		buffer.append("jdbc.username=sa\n");
+		buffer.append("jdbc.password=\n");
+		buffer.append("db.schema.strategy=create-drop\n");
+		buffer.append("jdbc.password=\n");
+		buffer.append("job.executor.auto.activate=off\n");
+		return buffer.toString();
 	}
 
 }
