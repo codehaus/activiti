@@ -47,10 +47,11 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 		implementationNameText.setEnabled(false);
 		implementationNameText.setLayoutData(data);
 
-		classSelectButton = factory.createButton(composite, "...", SWT.PUSH);
+		classSelectButton = factory.createButton(composite, "Select class", SWT.PUSH);
 		data = new FormData();
-		data.left = new FormAttachment(implementationNameText, 5);
-		data.right = new FormAttachment(100, 15);
+		data.left = new FormAttachment(implementationNameText, 0);
+		data.right = new FormAttachment(78, 0);
+		data.top = new FormAttachment(implementationNameText, -2, SWT.TOP);
 		classSelectButton.setLayoutData(data);
 		classSelectButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent evt) {
@@ -94,7 +95,7 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 			}
 		});
 
-		CLabel expressionLabel = factory.createCLabel(composite, "Implemenation class:"); //$NON-NLS-1$
+		CLabel expressionLabel = factory.createCLabel(composite, "Service class:"); //$NON-NLS-1$
 		data = new FormData();
 		data.left = new FormAttachment(0, 0);
 		data.right = new FormAttachment(implementationNameText, -HSPACE);

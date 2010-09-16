@@ -17,6 +17,7 @@ package org.activiti.graphiti.bpmn.designer.property;
 
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.Documentation;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.graphiti.ui.platform.GFPropertySection;
@@ -36,6 +37,7 @@ public class PropertyDiagramSection extends GFPropertySection implements ITabbed
 
 	private Text idText;
 	private Text nameText;
+	private Text documentationText;
 
 	@Override
 	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
@@ -74,6 +76,21 @@ public class PropertyDiagramSection extends GFPropertySection implements ITabbed
 		data.right = new FormAttachment(nameText, -HSPACE);
 		data.top = new FormAttachment(nameText, 0, SWT.CENTER);
 		valueLabel.setLayoutData(data);
+		
+		documentationText = factory.createText(composite, "", SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL); //$NON-NLS-1$
+		data = new FormData(SWT.DEFAULT, 100);
+		data.left = new FormAttachment(0, 120);
+		data.right = new FormAttachment(100, 0);
+		data.top = new FormAttachment(nameText, VSPACE);
+		documentationText.setLayoutData(data);
+		documentationText.addFocusListener(listener);
+
+		CLabel documentationLabel = factory.createCLabel(composite, "Documentation:"); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 0);
+		data.right = new FormAttachment(documentationText, -HSPACE);
+		data.top = new FormAttachment(documentationText, 0, SWT.CENTER);
+		documentationLabel.setLayoutData(data);
 	}
 
 	@Override
@@ -89,16 +106,22 @@ public class PropertyDiagramSection extends GFPropertySection implements ITabbed
 					org.eclipse.bpmn2.Process process = Bpmn2Factory.eINSTANCE.createProcess();
 					process.setId("helloworld");
 					process.setName("helloworld");
+					Documentation documentation = Bpmn2Factory.eINSTANCE.createDocumentation();
+					documentation.setId("documentation_process");
+					documentation.setText("");
+					process.getDocumentation().add(documentation);
 					
 					getDiagram().eResource().getContents().add(process);
 					idText.setText(process.getId());
 					nameText.setText(process.getName());
+					documentationText.setText(documentation.getText());
 				}
 			}, editingDomain, "Model Update");
 		} else {
 			idText.setText(process.getId());
 			nameText.setText(process.getName());
 			nameText.addFocusListener(listener);
+			documentationText.setText(process.getDocumentation().get(0).getText());
 		}
 	}
 
@@ -122,6 +145,10 @@ public class PropertyDiagramSection extends GFPropertySection implements ITabbed
 						process.setName(name);
 						idText.setText(name);
 						process.setId(name);
+					}
+					String documentation = documentationText.getText();
+					if (documentation != null) {
+						process.getDocumentation().get(0).setText(documentation);
 					}
 				}
 			}, editingDomain, "Model Update");
