@@ -1132,6 +1132,24 @@ public interface Bpmn2Factory extends EFactory {
 	UserTask createUserTask();
 
 	/**
+	 * Returns a new object of class '<em>Candidate User</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Candidate User</em>'.
+	 * @generated
+	 */
+	CandidateUser createCandidateUser();
+
+	/**
+	 * Returns a new object of class '<em>Candidate Group</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Candidate Group</em>'.
+	 * @generated
+	 */
+	CandidateGroup createCandidateGroup();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

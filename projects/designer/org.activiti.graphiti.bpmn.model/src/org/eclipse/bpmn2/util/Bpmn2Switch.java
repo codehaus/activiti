@@ -31,6 +31,8 @@ import org.eclipse.bpmn2.CallChoreography;
 import org.eclipse.bpmn2.CallConversation;
 import org.eclipse.bpmn2.CallableElement;
 import org.eclipse.bpmn2.CancelEventDefinition;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.CatchEvent;
 import org.eclipse.bpmn2.Category;
 import org.eclipse.bpmn2.CategoryValue;
@@ -1886,6 +1888,24 @@ public class Bpmn2Switch<T> {
 				result = caseFlowElement(userTask);
 			if (result == null)
 				result = caseBaseElement(userTask);
+			if (result == null)
+				result = defaultCase(theEObject);
+			return result;
+		}
+		case Bpmn2Package.CANDIDATE_USER: {
+			CandidateUser candidateUser = (CandidateUser) theEObject;
+			T result = caseCandidateUser(candidateUser);
+			if (result == null)
+				result = caseBaseElement(candidateUser);
+			if (result == null)
+				result = defaultCase(theEObject);
+			return result;
+		}
+		case Bpmn2Package.CANDIDATE_GROUP: {
+			CandidateGroup candidateGroup = (CandidateGroup) theEObject;
+			T result = caseCandidateGroup(candidateGroup);
+			if (result == null)
+				result = caseBaseElement(candidateGroup);
 			if (result == null)
 				result = defaultCase(theEObject);
 			return result;
@@ -3966,6 +3986,36 @@ public class Bpmn2Switch<T> {
 	 * @generated
 	 */
 	public T caseUserTask(UserTask object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Candidate User</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Candidate User</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseCandidateUser(CandidateUser object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Candidate Group</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Candidate Group</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseCandidateGroup(CandidateGroup object) {
 		return null;
 	}
 

@@ -1034,6 +1034,20 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	private EClass candidateUserEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass candidateGroupEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	private EEnum adHocOrderingEEnum = null;
 
 	/**
@@ -7302,14 +7316,78 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 	public EAttribute getUserTask_Implementation() {
 		return (EAttribute) getUserTask().getEStructuralFeatures().get(1);
 	}
-	
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated NOT
+	 * @generated
 	 */
 	public EAttribute getUserTask_Assignee() {
 		return (EAttribute) getUserTask().getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getUserTask_CandidateUsers() {
+		return (EReference) getUserTask().getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getUserTask_CandidateGroups() {
+		return (EReference) getUserTask().getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getCandidateUser() {
+		if (candidateUserEClass == null) {
+			candidateUserEClass = (EClass) EPackage.Registry.INSTANCE
+					.getEPackage(Bpmn2Package.eNS_URI).getEClassifiers()
+					.get(147);
+		}
+		return candidateUserEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCandidateUser_User() {
+		return (EAttribute) getCandidateUser().getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getCandidateGroup() {
+		if (candidateGroupEClass == null) {
+			candidateGroupEClass = (EClass) EPackage.Registry.INSTANCE
+					.getEPackage(Bpmn2Package.eNS_URI).getEClassifiers()
+					.get(148);
+		}
+		return candidateGroupEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCandidateGroup_Group() {
+		return (EAttribute) getCandidateGroup().getEStructuralFeatures().get(0);
 	}
 
 	/**

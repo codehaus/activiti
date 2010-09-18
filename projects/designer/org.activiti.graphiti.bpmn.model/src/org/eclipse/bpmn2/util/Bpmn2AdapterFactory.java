@@ -29,6 +29,8 @@ import org.eclipse.bpmn2.CallChoreography;
 import org.eclipse.bpmn2.CallConversation;
 import org.eclipse.bpmn2.CallableElement;
 import org.eclipse.bpmn2.CancelEventDefinition;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.CatchEvent;
 import org.eclipse.bpmn2.Category;
 import org.eclipse.bpmn2.CategoryValue;
@@ -919,6 +921,16 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		@Override
 		public Adapter caseUserTask(UserTask object) {
 			return createUserTaskAdapter();
+		}
+
+		@Override
+		public Adapter caseCandidateUser(CandidateUser object) {
+			return createCandidateUserAdapter();
+		}
+
+		@Override
+		public Adapter caseCandidateGroup(CandidateGroup object) {
+			return createCandidateGroupAdapter();
 		}
 
 		@Override
@@ -2869,6 +2881,34 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createUserTaskAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.eclipse.bpmn2.CandidateUser <em>Candidate User</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.eclipse.bpmn2.CandidateUser
+	 * @generated
+	 */
+	public Adapter createCandidateUserAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.eclipse.bpmn2.CandidateGroup <em>Candidate Group</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.eclipse.bpmn2.CandidateGroup
+	 * @generated
+	 */
+	public Adapter createCandidateGroupAdapter() {
 		return null;
 	}
 

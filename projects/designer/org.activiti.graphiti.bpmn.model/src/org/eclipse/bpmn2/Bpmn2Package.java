@@ -16720,8 +16720,33 @@ public interface Bpmn2Package extends EPackage {
 	 * @ordered
 	 */
 	int USER_TASK__IMPLEMENTATION = TASK_FEATURE_COUNT + 1;
-	
+
+	/**
+	 * The feature id for the '<em><b>Assignee</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
 	int USER_TASK__ASSIGNEE = TASK_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Candidate Users</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int USER_TASK__CANDIDATE_USERS = TASK_FEATURE_COUNT + 3;
+
+	/**
+	 * The feature id for the '<em><b>Candidate Groups</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int USER_TASK__CANDIDATE_GROUPS = TASK_FEATURE_COUNT + 4;
 
 	/**
 	 * The number of structural features of the '<em>User Task</em>' class.
@@ -16730,7 +16755,135 @@ public interface Bpmn2Package extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int USER_TASK_FEATURE_COUNT = TASK_FEATURE_COUNT + 3;
+	int USER_TASK_FEATURE_COUNT = TASK_FEATURE_COUNT + 5;
+
+	/**
+	 * The meta object id for the '{@link org.eclipse.bpmn2.impl.CandidateUserImpl <em>Candidate User</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.eclipse.bpmn2.impl.CandidateUserImpl
+	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getCandidateUser()
+	 * @generated
+	 */
+	int CANDIDATE_USER = 138;
+
+	/**
+	 * The feature id for the '<em><b>Extension Values</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_USER__EXTENSION_VALUES = BASE_ELEMENT__EXTENSION_VALUES;
+
+	/**
+	 * The feature id for the '<em><b>Documentation</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_USER__DOCUMENTATION = BASE_ELEMENT__DOCUMENTATION;
+
+	/**
+	 * The feature id for the '<em><b>Extension Definitions</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_USER__EXTENSION_DEFINITIONS = BASE_ELEMENT__EXTENSION_DEFINITIONS;
+
+	/**
+	 * The feature id for the '<em><b>Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_USER__ID = BASE_ELEMENT__ID;
+
+	/**
+	 * The feature id for the '<em><b>User</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_USER__USER = BASE_ELEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Candidate User</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_USER_FEATURE_COUNT = BASE_ELEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link org.eclipse.bpmn2.impl.CandidateGroupImpl <em>Candidate Group</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.eclipse.bpmn2.impl.CandidateGroupImpl
+	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getCandidateGroup()
+	 * @generated
+	 */
+	int CANDIDATE_GROUP = 139;
+
+	/**
+	 * The feature id for the '<em><b>Extension Values</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_GROUP__EXTENSION_VALUES = BASE_ELEMENT__EXTENSION_VALUES;
+
+	/**
+	 * The feature id for the '<em><b>Documentation</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_GROUP__DOCUMENTATION = BASE_ELEMENT__DOCUMENTATION;
+
+	/**
+	 * The feature id for the '<em><b>Extension Definitions</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_GROUP__EXTENSION_DEFINITIONS = BASE_ELEMENT__EXTENSION_DEFINITIONS;
+
+	/**
+	 * The feature id for the '<em><b>Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_GROUP__ID = BASE_ELEMENT__ID;
+
+	/**
+	 * The feature id for the '<em><b>Group</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_GROUP__GROUP = BASE_ELEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Candidate Group</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CANDIDATE_GROUP_FEATURE_COUNT = BASE_ELEMENT_FEATURE_COUNT + 1;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.AdHocOrdering <em>Ad Hoc Ordering</em>}' enum.
@@ -16740,7 +16893,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getAdHocOrdering()
 	 * @generated
 	 */
-	int AD_HOC_ORDERING = 138;
+	int AD_HOC_ORDERING = 140;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.AssociationDirection <em>Association Direction</em>}' enum.
@@ -16750,7 +16903,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getAssociationDirection()
 	 * @generated
 	 */
-	int ASSOCIATION_DIRECTION = 139;
+	int ASSOCIATION_DIRECTION = 141;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.ChoreographyLoopType <em>Choreography Loop Type</em>}' enum.
@@ -16760,7 +16913,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getChoreographyLoopType()
 	 * @generated
 	 */
-	int CHOREOGRAPHY_LOOP_TYPE = 140;
+	int CHOREOGRAPHY_LOOP_TYPE = 142;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.EventBasedGatewayType <em>Event Based Gateway Type</em>}' enum.
@@ -16770,7 +16923,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getEventBasedGatewayType()
 	 * @generated
 	 */
-	int EVENT_BASED_GATEWAY_TYPE = 141;
+	int EVENT_BASED_GATEWAY_TYPE = 143;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.GatewayDirection <em>Gateway Direction</em>}' enum.
@@ -16780,7 +16933,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getGatewayDirection()
 	 * @generated
 	 */
-	int GATEWAY_DIRECTION = 142;
+	int GATEWAY_DIRECTION = 144;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.ItemKind <em>Item Kind</em>}' enum.
@@ -16790,7 +16943,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getItemKind()
 	 * @generated
 	 */
-	int ITEM_KIND = 143;
+	int ITEM_KIND = 145;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.MultiInstanceBehavior <em>Multi Instance Behavior</em>}' enum.
@@ -16800,7 +16953,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getMultiInstanceBehavior()
 	 * @generated
 	 */
-	int MULTI_INSTANCE_BEHAVIOR = 144;
+	int MULTI_INSTANCE_BEHAVIOR = 146;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.ProcessType <em>Process Type</em>}' enum.
@@ -16810,7 +16963,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getProcessType()
 	 * @generated
 	 */
-	int PROCESS_TYPE = 145;
+	int PROCESS_TYPE = 147;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.bpmn2.RelationshipDirection <em>Relationship Direction</em>}' enum.
@@ -16820,7 +16973,7 @@ public interface Bpmn2Package extends EPackage {
 	 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getRelationshipDirection()
 	 * @generated
 	 */
-	int RELATIONSHIP_DIRECTION = 146;
+	int RELATIONSHIP_DIRECTION = 148;
 
 	/**
 	 * Returns the meta object for class '{@link org.eclipse.bpmn2.DocumentRoot <em>Document Root</em>}'.
@@ -23195,11 +23348,81 @@ public interface Bpmn2Package extends EPackage {
 	 * @generated
 	 */
 	EAttribute getUserTask_Implementation();
-	
+
 	/**
-	 * @generated NOT
+	 * Returns the meta object for the attribute '{@link org.eclipse.bpmn2.UserTask#getAssignee <em>Assignee</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Assignee</em>'.
+	 * @see org.eclipse.bpmn2.UserTask#getAssignee()
+	 * @see #getUserTask()
+	 * @generated
 	 */
 	EAttribute getUserTask_Assignee();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.eclipse.bpmn2.UserTask#getCandidateUsers <em>Candidate Users</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Candidate Users</em>'.
+	 * @see org.eclipse.bpmn2.UserTask#getCandidateUsers()
+	 * @see #getUserTask()
+	 * @generated
+	 */
+	EReference getUserTask_CandidateUsers();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.eclipse.bpmn2.UserTask#getCandidateGroups <em>Candidate Groups</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Candidate Groups</em>'.
+	 * @see org.eclipse.bpmn2.UserTask#getCandidateGroups()
+	 * @see #getUserTask()
+	 * @generated
+	 */
+	EReference getUserTask_CandidateGroups();
+
+	/**
+	 * Returns the meta object for class '{@link org.eclipse.bpmn2.CandidateUser <em>Candidate User</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Candidate User</em>'.
+	 * @see org.eclipse.bpmn2.CandidateUser
+	 * @generated
+	 */
+	EClass getCandidateUser();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.eclipse.bpmn2.CandidateUser#getUser <em>User</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>User</em>'.
+	 * @see org.eclipse.bpmn2.CandidateUser#getUser()
+	 * @see #getCandidateUser()
+	 * @generated
+	 */
+	EAttribute getCandidateUser_User();
+
+	/**
+	 * Returns the meta object for class '{@link org.eclipse.bpmn2.CandidateGroup <em>Candidate Group</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Candidate Group</em>'.
+	 * @see org.eclipse.bpmn2.CandidateGroup
+	 * @generated
+	 */
+	EClass getCandidateGroup();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.eclipse.bpmn2.CandidateGroup#getGroup <em>Group</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Group</em>'.
+	 * @see org.eclipse.bpmn2.CandidateGroup#getGroup()
+	 * @see #getCandidateGroup()
+	 * @generated
+	 */
+	EAttribute getCandidateGroup_Group();
 
 	/**
 	 * Returns the meta object for enum '{@link org.eclipse.bpmn2.AdHocOrdering <em>Ad Hoc Ordering</em>}'.
@@ -28705,6 +28928,68 @@ public interface Bpmn2Package extends EPackage {
 		 */
 		EAttribute USER_TASK__IMPLEMENTATION = eINSTANCE
 				.getUserTask_Implementation();
+
+		/**
+		 * The meta object literal for the '<em><b>Assignee</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute USER_TASK__ASSIGNEE = eINSTANCE.getUserTask_Assignee();
+
+		/**
+		 * The meta object literal for the '<em><b>Candidate Users</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference USER_TASK__CANDIDATE_USERS = eINSTANCE
+				.getUserTask_CandidateUsers();
+
+		/**
+		 * The meta object literal for the '<em><b>Candidate Groups</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference USER_TASK__CANDIDATE_GROUPS = eINSTANCE
+				.getUserTask_CandidateGroups();
+
+		/**
+		 * The meta object literal for the '{@link org.eclipse.bpmn2.impl.CandidateUserImpl <em>Candidate User</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.eclipse.bpmn2.impl.CandidateUserImpl
+		 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getCandidateUser()
+		 * @generated
+		 */
+		EClass CANDIDATE_USER = eINSTANCE.getCandidateUser();
+
+		/**
+		 * The meta object literal for the '<em><b>User</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CANDIDATE_USER__USER = eINSTANCE.getCandidateUser_User();
+
+		/**
+		 * The meta object literal for the '{@link org.eclipse.bpmn2.impl.CandidateGroupImpl <em>Candidate Group</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.eclipse.bpmn2.impl.CandidateGroupImpl
+		 * @see org.eclipse.bpmn2.impl.Bpmn2PackageImpl#getCandidateGroup()
+		 * @generated
+		 */
+		EClass CANDIDATE_GROUP = eINSTANCE.getCandidateGroup();
+
+		/**
+		 * The meta object literal for the '<em><b>Group</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CANDIDATE_GROUP__GROUP = eINSTANCE.getCandidateGroup_Group();
 
 		/**
 		 * The meta object literal for the '{@link org.eclipse.bpmn2.AdHocOrdering <em>Ad Hoc Ordering</em>}' enum.

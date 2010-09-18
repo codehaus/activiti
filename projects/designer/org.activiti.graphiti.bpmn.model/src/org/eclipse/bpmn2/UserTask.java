@@ -26,6 +26,9 @@ import java.util.List;
  * <ul>
  *   <li>{@link org.eclipse.bpmn2.UserTask#getRenderings <em>Renderings</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.UserTask#getImplementation <em>Implementation</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.UserTask#getAssignee <em>Assignee</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.UserTask#getCandidateUsers <em>Candidate Users</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.UserTask#getCandidateGroups <em>Candidate Groups</em>}</li>
  * </ul>
  * </p>
  *
@@ -77,17 +80,63 @@ public interface UserTask extends Task {
 	 * @generated
 	 */
 	void setImplementation(String value);
-	
+
+	/**
+	 * Returns the value of the '<em><b>Assignee</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Assignee</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Assignee</em>' attribute.
+	 * @see #setAssignee(String)
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getUserTask_Assignee()
+	 * @model
+	 * @generated
+	 */
 	String getAssignee();
-	
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.bpmn2.UserTask#getAssignee <em>Assignee</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Assignee</em>' attribute.
+	 * @see #getAssignee()
+	 * @generated
+	 */
 	void setAssignee(String value);
-	
-	/*List<String> getCandidateUsers();
-	
-	void setCandidateUsers(List<String> candidateUsers);
-	
-	List<String> getCandidateGroups();
-	
-	void setCandidateGroups(List<String> candidateGroups);*/
+
+	/**
+	 * Returns the value of the '<em><b>Candidate Users</b></em>' reference list.
+	 * The list contents are of type {@link org.eclipse.bpmn2.CandidateUser}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Candidate Users</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Candidate Users</em>' reference list.
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getUserTask_CandidateUsers()
+	 * @model
+	 * @generated
+	 */
+	List<CandidateUser> getCandidateUsers();
+
+	/**
+	 * Returns the value of the '<em><b>Candidate Groups</b></em>' reference list.
+	 * The list contents are of type {@link org.eclipse.bpmn2.CandidateGroup}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Candidate Groups</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Candidate Groups</em>' reference list.
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getUserTask_CandidateGroups()
+	 * @model
+	 * @generated
+	 */
+	List<CandidateGroup> getCandidateGroups();
 
 } // UserTask

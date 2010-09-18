@@ -28,6 +28,8 @@ import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.CallChoreography;
 import org.eclipse.bpmn2.CallConversation;
 import org.eclipse.bpmn2.CancelEventDefinition;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.Category;
 import org.eclipse.bpmn2.CategoryValue;
 import org.eclipse.bpmn2.Choreography;
@@ -443,6 +445,10 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 			return createTransaction();
 		case Bpmn2Package.USER_TASK:
 			return createUserTask();
+		case Bpmn2Package.CANDIDATE_USER:
+			return createCandidateUser();
+		case Bpmn2Package.CANDIDATE_GROUP:
+			return createCandidateGroup();
 		default:
 			throw new IllegalArgumentException("The class '" + eClass.getName()
 					+ "' is not a valid classifier");
@@ -1737,6 +1743,26 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	public UserTask createUserTask() {
 		UserTaskImpl userTask = new UserTaskImpl();
 		return userTask;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public CandidateUser createCandidateUser() {
+		CandidateUserImpl candidateUser = new CandidateUserImpl();
+		return candidateUser;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public CandidateGroup createCandidateGroup() {
+		CandidateGroupImpl candidateGroup = new CandidateGroupImpl();
+		return candidateGroup;
 	}
 
 	/**

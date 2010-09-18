@@ -18,15 +18,23 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.bpmn2.Bpmn2Package;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.Rendering;
 import org.eclipse.bpmn2.UserTask;
+
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+
 import org.eclipse.emf.common.util.EList;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
+
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
@@ -38,6 +46,9 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * <ul>
  *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getRenderings <em>Renderings</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getImplementation <em>Implementation</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getAssignee <em>Assignee</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getCandidateUsers <em>Candidate Users</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getCandidateGroups <em>Candidate Groups</em>}</li>
  * </ul>
  * </p>
  *
@@ -73,10 +84,46 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 	 * @ordered
 	 */
 	protected String implementation = IMPLEMENTATION_EDEFAULT;
-	
+
+	/**
+	 * The default value of the '{@link #getAssignee() <em>Assignee</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getAssignee()
+	 * @generated
+	 * @ordered
+	 */
 	protected static final String ASSIGNEE_EDEFAULT = null;
-	
+
+	/**
+	 * The cached value of the '{@link #getAssignee() <em>Assignee</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getAssignee()
+	 * @generated
+	 * @ordered
+	 */
 	protected String assignee = ASSIGNEE_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getCandidateUsers() <em>Candidate Users</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCandidateUsers()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<CandidateUser> candidateUsers;
+
+	/**
+	 * The cached value of the '{@link #getCandidateGroups() <em>Candidate Groups</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCandidateGroups()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<CandidateGroup> candidateGroups;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -132,21 +179,55 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 					Bpmn2Package.USER_TASK__IMPLEMENTATION, oldImplementation,
 					implementation));
 	}
-	
+
 	/**
-	 * @generated NOT
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
 	 */
 	public String getAssignee() {
 		return assignee;
 	}
-	
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public void setAssignee(String newAssignee) {
 		String oldAssignee = assignee;
 		assignee = newAssignee;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET,
-					Bpmn2Package.USER_TASK__ASSIGNEE, oldAssignee,
-					assignee));
+					Bpmn2Package.USER_TASK__ASSIGNEE, oldAssignee, assignee));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public List<CandidateUser> getCandidateUsers() {
+		if (candidateUsers == null) {
+			candidateUsers = new EObjectResolvingEList<CandidateUser>(
+					CandidateUser.class, this,
+					Bpmn2Package.USER_TASK__CANDIDATE_USERS);
+		}
+		return candidateUsers;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public List<CandidateGroup> getCandidateGroups() {
+		if (candidateGroups == null) {
+			candidateGroups = new EObjectResolvingEList<CandidateGroup>(
+					CandidateGroup.class, this,
+					Bpmn2Package.USER_TASK__CANDIDATE_GROUPS);
+		}
+		return candidateGroups;
 	}
 
 	/**
@@ -168,17 +249,21 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated NOT
+	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case Bpmn2Package.USER_TASK__RENDERINGS:
-				return getRenderings();
-			case Bpmn2Package.USER_TASK__IMPLEMENTATION:
-				return getImplementation();
-			case Bpmn2Package.USER_TASK__ASSIGNEE:
-				return getAssignee();
+		case Bpmn2Package.USER_TASK__RENDERINGS:
+			return getRenderings();
+		case Bpmn2Package.USER_TASK__IMPLEMENTATION:
+			return getImplementation();
+		case Bpmn2Package.USER_TASK__ASSIGNEE:
+			return getAssignee();
+		case Bpmn2Package.USER_TASK__CANDIDATE_USERS:
+			return getCandidateUsers();
+		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
+			return getCandidateGroups();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -202,6 +287,16 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 		case Bpmn2Package.USER_TASK__ASSIGNEE:
 			setAssignee((String) newValue);
 			return;
+		case Bpmn2Package.USER_TASK__CANDIDATE_USERS:
+			getCandidateUsers().clear();
+			getCandidateUsers().addAll(
+					(Collection<? extends CandidateUser>) newValue);
+			return;
+		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
+			getCandidateGroups().clear();
+			getCandidateGroups().addAll(
+					(Collection<? extends CandidateGroup>) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -223,6 +318,12 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 		case Bpmn2Package.USER_TASK__ASSIGNEE:
 			setAssignee(ASSIGNEE_EDEFAULT);
 			return;
+		case Bpmn2Package.USER_TASK__CANDIDATE_USERS:
+			getCandidateUsers().clear();
+			return;
+		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
+			getCandidateGroups().clear();
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -243,6 +344,10 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 		case Bpmn2Package.USER_TASK__ASSIGNEE:
 			return ASSIGNEE_EDEFAULT == null ? assignee != null
 					: !ASSIGNEE_EDEFAULT.equals(assignee);
+		case Bpmn2Package.USER_TASK__CANDIDATE_USERS:
+			return candidateUsers != null && !candidateUsers.isEmpty();
+		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
+			return candidateGroups != null && !candidateGroups.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
