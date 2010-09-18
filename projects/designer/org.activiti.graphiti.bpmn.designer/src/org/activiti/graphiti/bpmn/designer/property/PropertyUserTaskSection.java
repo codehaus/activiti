@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
+import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
@@ -27,6 +30,7 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 
 	private CCombo performerTypeCombo;
 	private List<String> performerTypes = Arrays.asList("Assignee", "Candidate users", "Candidate groups");
+	private String currentType = "Assignee";
 	private Text expressionText;
 
 	@Override
@@ -73,21 +77,45 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 	@Override
 	public void refresh() {
 		performerTypeCombo.removeFocusListener(listener);
+		expressionText.removeFocusListener(listener);
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-			// the filter assured, that it is a EClass
 			if (bo == null)
 				return;
 			
-			int performerIndex = performerTypes.indexOf("Assignee");
-			performerTypeCombo.select(performerIndex == -1 ? 0 : performerIndex);
-			performerTypeCombo.addFocusListener(listener);
 			expressionText.setText("");
 			UserTask userTask = (UserTask) bo;
-			if(userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
-				expressionText.setText(userTask.getAssignee());
+			int performerIndex = 0;
+			if(userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0) {
+				performerIndex = performerTypes.indexOf("Candidate users");
+				StringBuffer expressionBuffer = new StringBuffer();
+				for(CandidateUser user : userTask.getCandidateUsers()) {
+					if(expressionBuffer.length() > 0) {
+						expressionBuffer.append(";");
+					}
+					expressionBuffer.append(user.getUser());
+				}
+				expressionText.setText(expressionBuffer.toString());
+			} else if(userTask.getCandidateGroups() != null && userTask.getCandidateGroups().size() > 0) {
+				performerIndex = performerTypes.indexOf("Candidate groups");
+				StringBuffer expressionBuffer = new StringBuffer();
+				for(CandidateGroup group : userTask.getCandidateGroups()) {
+					if(expressionBuffer.length() > 0) {
+						expressionBuffer.append(";");
+					}
+					expressionBuffer.append(group.getGroup());
+				}
+				expressionText.setText(expressionBuffer.toString());
+			} else {
+				performerIndex = performerTypes.indexOf("Assignee");
+				if(userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
+					expressionText.setText(userTask.getAssignee());
+				}
 			}
+			performerTypeCombo.select(performerIndex == -1 ? 0 : performerIndex);
+			performerTypeCombo.addFocusListener(listener);
+			expressionText.addFocusListener(listener);
 		}
 	}
 
@@ -97,6 +125,11 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 		}
 
 		public void focusLost(final FocusEvent e) {
+			final String performerType = performerTypeCombo.getText();
+			if(e.getSource() instanceof CCombo && !currentType.equalsIgnoreCase(performerType)) {
+				expressionText.setText("");
+			}
+			currentType = performerType;
 			PictogramElement pe = getSelectedPictogramElement();
 			if (pe != null) {
 				Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
@@ -110,17 +143,47 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 							if (bo == null) {
 								return;
 							}
-							String performerType = performerTypeCombo.getText();
-							if (performerType != null) {
-								if (bo instanceof UserTask) {
-
-									// todo
-								}
-							}
+							UserTask userTask = (UserTask) bo;
 							String expression = expressionText.getText();
-							if (expression != null) {
-								if (bo instanceof UserTask) {
-									((UserTask) bo).setAssignee(expression);
+							if (performerType != null && expression != null && expression.length() > 0) {
+								if("assignee".equalsIgnoreCase(performerType)) {
+									userTask.setAssignee(expression);
+									removeCandidateUsers(userTask);
+									removeCandidateGroups(userTask);
+								} else if("candidate users".equalsIgnoreCase(performerType)) {
+									String[] expressionList = null;
+									if(expression.contains(";")) {
+										expressionList = expression.split(";");
+									} else {
+										expressionList = new String[] {expression};
+									}
+									for(String user : expressionList) {
+										if(!candidateUserExists(userTask, user)) {
+											CandidateUser candidateUser = Bpmn2Factory.eINSTANCE.createCandidateUser();
+											candidateUser.setUser(user);
+											getDiagram().eResource().getContents().add(candidateUser);
+											userTask.getCandidateUsers().add(candidateUser);
+										}
+									}
+									userTask.setAssignee(null);
+									removeCandidateGroups(userTask);
+								} else {
+									String[] expressionList = null;
+									if(expression.contains(";")) {
+										expressionList = expression.split(";");
+									} else {
+										expressionList = new String[] {expression};
+									}
+									for(String group : expressionList) {
+										if(!candidateGroupExists(userTask, group)) {
+											CandidateGroup candidateGroup = Bpmn2Factory.eINSTANCE.createCandidateGroup();
+											candidateGroup.setGroup(group);
+											getDiagram().eResource().getContents().add(candidateGroup);
+											userTask.getCandidateGroups().add(candidateGroup);
+										}
+									}
+									userTask.setAssignee(null);
+									removeCandidateUsers(userTask);
 								}
 							}
 						}
@@ -129,6 +192,43 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 
 			}
 		}
+		
+		private void removeCandidateUsers(UserTask userTask) {
+			if(userTask.getCandidateUsers() == null) return;
+			for(CandidateUser user : userTask.getCandidateUsers()) {
+				getDiagram().eResource().getContents().remove(user);
+			}
+			userTask.getCandidateUsers().clear();
+		}
+		
+		private boolean candidateUserExists(UserTask userTask, String userText) {
+			if(userTask.getCandidateUsers() == null) return false;
+			for(CandidateUser user : userTask.getCandidateUsers()) {
+				if(userText.equalsIgnoreCase(user.getUser())) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		private void removeCandidateGroups(UserTask userTask) {
+			if(userTask.getCandidateGroups() == null) return;
+			for(CandidateGroup group : userTask.getCandidateGroups()) {
+				getDiagram().eResource().getContents().remove(group);
+			}
+			userTask.getCandidateGroups().clear();
+		}
+		
+		private boolean candidateGroupExists(UserTask userTask, String groupText) {
+			if(userTask.getCandidateGroups() == null) return false;
+			for(CandidateGroup group : userTask.getCandidateGroups()) {
+				if(groupText.equalsIgnoreCase(group.getGroup())) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
 	};
 
 }
