@@ -37,6 +37,19 @@ public class ActivitiUiUtil {
 		}
 		return result;
     }
+	
+	@SuppressWarnings("rawtypes")
+	public static Object getBusinessObjectFromContext(final ICustomContext context, final Class businessClass) {
+		Object result = null;
+		EList<EObject> businessObjects = context.getInnerPictogramElement().getLink().getBusinessObjects();
+		for (final EObject eobj: businessObjects) {
+			if (businessClass.equals(eobj.getClass())) {
+				result = eobj;
+				break;
+			}
+		}
+		return result;
+    }
 
 	public static Ellipse createInvisibleEllipse(GraphicsAlgorithmContainer gaContainer, IGaService gaService) {
 		Ellipse ret = AlgorithmsFactory.eINSTANCE.createEllipse();
