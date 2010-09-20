@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="Activiti BPMN Designer Update Site" url="TODO">
-      Activiti BPMN Designer Update Site
+   <description name="Activiti Eclipse BPMN 2.0 Designer Update Site" url="TODO">
+      Activiti Eclipse BPMN 2.0 Designer Update Site
    </description>
-   <feature url="features/org.activiti.graphiti.bpmn.feature_1.0.0.qualifier.jar" id="org.activiti.graphiti.bpmn.feature" version="1.0.0.qualifier">
+   <feature url="features/org.activiti.graphiti.bpmn.feature_0.5.0.jar" id="org.activiti.graphiti.bpmn.feature" version="0.5.0">
       <category name="designer"/>
    </feature>
    <category-def name="designer" label="Activiti BPMN Designer">
