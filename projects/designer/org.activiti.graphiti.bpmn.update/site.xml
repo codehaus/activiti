@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="Activiti Eclipse BPMN 2.0 Designer Update Site" url="TODO">
+   <description name="Activiti Eclipse BPMN 2.0 Designer Update Site" url="http://activiti.org/designer/update">
       Activiti Eclipse BPMN 2.0 Designer Update Site
    </description>
    <feature url="features/org.activiti.graphiti.bpmn.feature_0.5.0.jar" id="org.activiti.graphiti.bpmn.feature" version="0.5.0">
