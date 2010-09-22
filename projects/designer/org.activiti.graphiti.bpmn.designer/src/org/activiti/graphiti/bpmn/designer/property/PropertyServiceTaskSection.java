@@ -3,7 +3,6 @@ package org.activiti.graphiti.bpmn.designer.property;
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
@@ -92,10 +91,9 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 								}
 							}
 						}, editingDomain, "Model Update");
-						
-						
+
 						IProject currentProject = ActivitiUiUtil.getProjectFromDiagram(getDiagram());
-						
+
 						ActivitiUiUtil.doProjectReferenceChange(currentProject, containerProject, className);
 					}
 				} catch (Exception ex) {

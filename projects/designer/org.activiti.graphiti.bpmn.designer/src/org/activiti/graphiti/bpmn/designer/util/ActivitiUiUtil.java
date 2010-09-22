@@ -93,6 +93,11 @@ public class ActivitiUiUtil {
 	public static void doProjectReferenceChange(IProject currentProject, IJavaProject containerProject, String className)
 			throws CoreException {
 
+		if (currentProject.equals(containerProject.getProject())) {	
+			System.out.println("Service class is within current project");
+			return;
+		}
+		
 		IProjectDescription desc = currentProject.getDescription();
 		IProject[] refs = desc.getReferencedProjects();
 		IProject[] newRefs = new IProject[refs.length + 1];
