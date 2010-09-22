@@ -5,17 +5,25 @@
       version="0.5.0"
       provider-name="%providerName">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description url="http://www.activiti.org">
+      This feature contains the Activiti Eclipse BPMN 2.0 designer plug-in which enables you to design and test BPMN 2.0 processes.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
-   </copyright>
-
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="license.html">
+      %license
    </license>
+
+   <url>
+      <discovery label="Activiti suite website" url="http://activiti.org"/>
+   </url>
+
+   <includes
+         id="org.eclipse.emf"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.graphiti.feature"
+         version="0.0.0"/>
 
    <requires>
       <import plugin="org.eclipse.ui"/>
