@@ -35,15 +35,18 @@ public class SaveBpmnModelFeature extends AbstractCustomFeature {
 
 	public void execute(ICustomContext context) {
 		try {
-			URI uri = getDiagram().eResource().getURI();
-			URI bpmnUri = uri.trimFragment();
-			bpmnUri = bpmnUri.trimFileExtension();
-			bpmnUri = bpmnUri.appendFileExtension("bpmn20.xml");
-			BpmnXMLExport.createBpmnFile(bpmnUri, getDiagram().eResource().getContents());
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IPath location = Path.fromOSString(bpmnUri.toPlatformString(false));
-			IFile file = workspace.getRoot().getFile(location);
-			file.refreshLocal(IResource.DEPTH_INFINITE, null);
+			boolean validBpmn = BpmnXMLExport.validateBpmn(getDiagram().eResource().getContents());
+			if(validBpmn) {
+				URI uri = getDiagram().eResource().getURI();
+				URI bpmnUri = uri.trimFragment();
+				bpmnUri = bpmnUri.trimFileExtension();
+				bpmnUri = bpmnUri.appendFileExtension("bpmn20.xml");
+				BpmnXMLExport.createBpmnFile(bpmnUri, getDiagram());
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				IPath location = Path.fromOSString(bpmnUri.toPlatformString(false));
+				IFile file = workspace.getRoot().getFile(location);
+				file.refreshLocal(IResource.DEPTH_INFINITE, null);
+			}
 
 		} catch(Exception e) {
 			e.printStackTrace();

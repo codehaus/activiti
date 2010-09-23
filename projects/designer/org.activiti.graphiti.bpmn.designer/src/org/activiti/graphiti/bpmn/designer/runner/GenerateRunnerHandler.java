@@ -30,11 +30,10 @@ public class GenerateRunnerHandler extends AbstractHandler {
 				MessageDialog.openInformation(
 						HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "Generate Process Runner",
 						"The process you want to generate a runner for should have a filename that ends with " + BPMN_FILENAME_SUFFIX);
-			}else{
+			} else {
 				try {
-					TestRunnerClassGenerator.generateTestClass((IResource) bpmnFile);
+					new TestRunnerClassGenerator().generateTestClass((IResource) bpmnFile);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
