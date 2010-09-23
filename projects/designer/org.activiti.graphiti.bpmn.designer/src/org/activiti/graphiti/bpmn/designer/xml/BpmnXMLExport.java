@@ -31,6 +31,7 @@ public class BpmnXMLExport {
 	
 	private static final String BPMN2_NAMESPACE = "http://www.omg.org/spec/BPMN/20100524/MODEL";
 	private static final String ACTIVITI_NAMESPACE = "http://www.activiti.org/bpmn2.0";
+	private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn-extensions";
 	private static final String VALIDATION_TITLE = "BPMN 2.0 Validation";
 	
 	public static boolean validateBpmn(EList<EObject> contents) {
@@ -134,14 +135,20 @@ public class BpmnXMLExport {
 	        xtw.setDefaultNamespace(BPMN2_NAMESPACE);
 	        xtw.writeDefaultNamespace(BPMN2_NAMESPACE);
 	        xtw.writeAttribute("targetNamespace", ACTIVITI_NAMESPACE);
+	        xtw.writeNamespace("activiti", ACTIVITI_EXTENSIONS_NAMESPACE);
 	        
 	        org.eclipse.bpmn2.Process process = ActivitiUiUtil.getProcessObject(diagram);
 	        // start process element
 	        xtw.writeStartElement("process");
 	        xtw.writeAttribute("id", process.getId());
 	        xtw.writeAttribute("name", process.getName());
-	        if(process.getDocumentation() != null && process.getDocumentation().size() > 0) {
-	        	xtw.writeAttribute("documentation", process.getDocumentation().get(0).getText());
+	        if(process.getDocumentation() != null && process.getDocumentation().size() > 0 
+	        		&& process.getDocumentation().get(0) != null && process.getDocumentation().get(0).getText() != null
+	        		&& process.getDocumentation().get(0).getText().length() > 0) {
+	        	
+	        	xtw.writeStartElement("documentation");
+	        	xtw.writeCharacters(process.getDocumentation().get(0).getText());
+	        	xtw.writeEndElement();
 	        }
 	        
 	        // start StartEvent element

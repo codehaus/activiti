@@ -83,10 +83,12 @@ public class TestRunnerClassGenerator {
 	}
 	
 	private String createTestClass(IResource bpmnResource, IPackageFragment pack) {
-		parseBpmnXML(bpmnResource.getLocationURI().toString());
+		parseBpmnXML(bpmnResource.getRawLocation().toOSString());
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("package " + pack.getElementName() + ";\n\n");
-		buffer.append("import static org.junit.Assert.*;\n");
+		buffer.append("import static org.junit.Assert.*;\n\n");
+		buffer.append("import java.util.HashMap;\n");
+		buffer.append("import java.util.Map;\n\n");
 		buffer.append("import org.activiti.engine.ProcessEngine;\n");
 		buffer.append("import org.activiti.engine.ProcessEngineBuilder;\n");
 		buffer.append("import org.activiti.engine.RepositoryService;\n");
@@ -104,7 +106,9 @@ public class TestRunnerClassGenerator {
 		buffer.append("\t\trepositoryService.createDeployment()\n");
 		buffer.append("\t\t\t\t.addClasspathResource(\"diagrams/" + bpmnResource.getName() + "\")\n");
 		buffer.append("\t\t\t\t.deploy();\n");
-		buffer.append("\t\tProcessInstance processInstance = runtimeService.startProcessInstanceByKey(\"" + processId + "\");\n");
+		buffer.append("\t\tMap<String, Object> variableMap = new HashMap<String, Object>();\n");
+		buffer.append("\t\tvariableMap.put(\"name\", \"Activiti\");\n");
+		buffer.append("\t\tProcessInstance processInstance = runtimeService.startProcessInstanceByKey(\"" + processId + "\", variableMap);\n");
 		buffer.append("\t\tassertNotNull(processInstance.getId());\n");
 		buffer.append("\t\tSystem.out.println(\"id \" + processInstance.getId() + \" \"\n");
 		buffer.append("\t\t\t\t+ processInstance.getProcessDefinitionId());\n");
@@ -138,15 +142,16 @@ public class TestRunnerClassGenerator {
 			strLocation = location.toFile().getAbsolutePath();
 			strLocation = strLocation.substring(0, strLocation.lastIndexOf(File.separator));
 			XMLInputFactory xif = XMLInputFactory.newInstance();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(strLocation + filePath), "UTF-8");
+			InputStreamReader in = new InputStreamReader(new FileInputStream(filePath), "UTF-8");
 			XMLStreamReader xtr = xif.createXMLStreamReader(in);
 			while(xtr.hasNext()) {
 				xtr.next();
-				if("process".equalsIgnoreCase(xtr.getLocalName())) {
+				if(xtr.isStartElement() && "process".equalsIgnoreCase(xtr.getLocalName())) {
 					processId = xtr.getAttributeValue(null, "id");
 					processName = xtr.getAttributeValue(null, "name");
 				}
 			}
+			in.close();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
