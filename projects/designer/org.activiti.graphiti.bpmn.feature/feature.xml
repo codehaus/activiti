@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.activiti.graphiti.bpmn.feature"
-      label="%featureName"
+      label="Activiti Eclipse BPMN 2.0 Designer"
       version="0.5.0"
-      provider-name="%providerName">
+      provider-name="Activiti">
 
    <description url="http://www.activiti.org">
       This feature contains the Activiti Eclipse BPMN 2.0 designer plug-in which enables you to design and test BPMN 2.0 processes.
