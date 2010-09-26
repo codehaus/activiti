@@ -56,7 +56,8 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 			roundedRectangle.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
 			gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
 
-			// if addedClass has no resource we add it to the resource of the diagram
+			// if addedClass has no resource we add it to the resource of the
+			// diagram
 			// in a real scenario the business model would have its own resource
 			if (addedTask.eResource() == null) {
 				getDiagram().eResource().getContents().add(addedTask);
@@ -92,7 +93,7 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 			directEditingInfo.setPictogramElement(shape);
 			directEditingInfo.setGraphicsAlgorithm(text);
 		}
-		
+
 		{
 			final Shape shape = peCreateService.createShape(containerShape, false);
 			final Image image = gaService.createImage(shape, getIcon());
@@ -124,7 +125,7 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 		}
 		return false;
 	}
-	
+
 	protected abstract String getIcon();
 
 }

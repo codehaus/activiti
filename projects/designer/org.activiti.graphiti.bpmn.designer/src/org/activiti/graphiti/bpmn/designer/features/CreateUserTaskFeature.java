@@ -8,7 +8,7 @@ import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateUserTaskFeature extends AbstractCreateBPMNFeature {
-	
+
 	private static final String FEATURE_ID_KEY = "usertask";
 
 	public CreateUserTaskFeature(IFeatureProvider fp) {
@@ -23,21 +23,25 @@ public class CreateUserTaskFeature extends AbstractCreateBPMNFeature {
 	@Override
 	public Object[] create(ICreateContext context) {
 		UserTask newUserTask = Bpmn2Factory.eINSTANCE.createUserTask();
-		
+
 		newUserTask.setId(getNextId());
 		newUserTask.setName("User Task");
-		
+
 		getDiagram().eResource().getContents().add(newUserTask);
-		
+
 		addGraphicalRepresentation(context, newUserTask);
+
+		// activate direct editing after object creation
+		getFeatureProvider().getDirectEditingInfo().setActive(true);
+
 		return new Object[] { newUserTask };
 	}
-	
+
 	@Override
 	public String getCreateImageId() {
 		return ActivitiImageProvider.IMG_USERTASK;
 	}
-	
+
 	@Override
 	protected String getFeatureIdKey() {
 		return FEATURE_ID_KEY;

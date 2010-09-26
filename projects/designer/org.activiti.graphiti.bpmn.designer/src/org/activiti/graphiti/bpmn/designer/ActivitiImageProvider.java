@@ -24,23 +24,25 @@ public class ActivitiImageProvider extends AbstractImageProvider {
 
 	// The image identifier for an EReference.
 	public static final String IMG_EREFERENCE = PREFIX + "ereference"; //$NON-NLS-1$
-	
+
 	// Event image icons
 	public static final String IMG_STARTEVENT_NONE = PREFIX + "startevent.none"; //$NON-NLS-1$
 	public static final String IMG_ENDEVENT_NONE = PREFIX + "endevent.none"; //$NON-NLS-1$
-	
+
 	// Gateway image icons
 	public static final String IMG_GATEWAY_PARALLEL = PREFIX + "gateway.parallel"; //$NON-NLS-1$
 	public static final String IMG_GATEWAY_EXCLUSIVE = PREFIX + "gateway.exclusive"; //$NON-NLS-1$
-	
+
 	// Task image icons
 	public static final String IMG_USERTASK = PREFIX + "usertask"; //$NON-NLS-1$
 	public static final String IMG_SCRIPTTASK = PREFIX + "scripttask"; //$NON-NLS-1$
 	public static final String IMG_SERVICETASK = PREFIX + "servicetask"; //$NON-NLS-1$
-	
+
 	// Sub process icons
 	public static final String IMG_SUBPROCESS_COLLAPSED = PREFIX + "subprocess.collapsed"; //$NON-NLS-1$
 	public static final String IMG_SUBPROCESS_EXPANDED = PREFIX + "subprocess.expanded"; //$NON-NLS-1$
+
+	public static final String IMG_ACTION_ZOOM = PREFIX + "action.magnifier"; //$NON-NLS-1$
 
 	@Override
 	protected void addAvailableImages() {
@@ -55,5 +57,6 @@ public class ActivitiImageProvider extends AbstractImageProvider {
 		addImageFilePath(IMG_SERVICETASK, "icons/type.service.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_SUBPROCESS_COLLAPSED, "icons/type.subprocess.collapsed.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_SUBPROCESS_EXPANDED, "icons/type.subprocess.expanded.png"); //$NON-NLS-1$
+		addImageFilePath(IMG_ACTION_ZOOM, "icons/action.magnifier.png"); //$NON-NLS-1$
 	}
 }

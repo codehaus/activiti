@@ -19,4 +19,5 @@ public class ActivitiBPMNDiagramTypeProvider extends AbstractDiagramTypeProvider
         }
         return toolBehaviorProviders;
     }
+	
 }

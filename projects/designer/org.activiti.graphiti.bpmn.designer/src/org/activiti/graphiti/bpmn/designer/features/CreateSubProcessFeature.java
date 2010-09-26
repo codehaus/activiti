@@ -8,16 +8,16 @@ import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateSubProcessFeature extends AbstractCreateBPMNFeature {
-	
+
 	private static final String FEATURE_ID_KEY = "subprocess";
-	
+
 	public CreateSubProcessFeature(IFeatureProvider fp) {
 		super(fp, "SubProcess", "Add sub process");
 	}
 
 	@Override
 	public boolean canCreate(ICreateContext context) {
-		//TODO: revisit once lanes and pools have been added
+		// TODO: revisit once lanes and pools have been added
 		return context.getTargetContainer() instanceof Diagram;
 	}
 
@@ -26,15 +26,15 @@ public class CreateSubProcessFeature extends AbstractCreateBPMNFeature {
 		SubProcess newSubProcess = Bpmn2Factory.eINSTANCE.createSubProcess();
 		newSubProcess.setId(getNextId());
 		newSubProcess.setName("Sub Process");
-		
+
 		getDiagram().eResource().getContents().add(newSubProcess);
-		
+
 		// do the add
 		addGraphicalRepresentation(context, newSubProcess);
-		
+
 		// return newly created business object(s)
 		return new Object[] { newSubProcess };
-		
+
 	}
 
 	@Override
@@ -52,5 +52,5 @@ public class CreateSubProcessFeature extends AbstractCreateBPMNFeature {
 	protected Class getFeatureClass() {
 		return Bpmn2Factory.eINSTANCE.createSubProcess().getClass();
 	}
-	
+
 }

@@ -42,8 +42,24 @@ public class StyleUtil {
 		if (style == null) { // style not found - create new style
 			style = gaService.createStyle(diagram, styleId);
 			style.setForeground(gaService.manageColor(diagram, BPMN_CLASS_FOREGROUND));
-			//gaService.setRenderingStyle(style, TutorialColoredAreas.getLimeWhiteAdaptions());
+			// gaService.setRenderingStyle(style,
+			// TutorialColoredAreas.getLimeWhiteAdaptions());
 			gaService.setRenderingStyle(style, PredefinedColoredAreas.getBlueWhiteGlossAdaptions());
+			style.setLineWidth(2);
+		}
+		return style;
+	}
+
+	public static Style getStyleForPolygon(Diagram diagram) {
+		final String styleId = "BPMN-POLYGON"; //$NON-NLS-1$
+
+		Style style = findStyle(diagram, styleId);
+
+		IGaService gaService = Graphiti.getGaService();
+		if (style == null) { // style not found - create new style
+			style = gaService.createStyle(diagram, styleId);
+			style.setForeground(gaService.manageColor(diagram, IColorConstant.BLACK));
+			style.setBackground(gaService.manageColor(diagram, IColorConstant.BLACK));
 			style.setLineWidth(2);
 		}
 		return style;
@@ -60,7 +76,7 @@ public class StyleUtil {
 			IGaService gaService = Graphiti.getGaService();
 			style = gaService.createStyle(diagram, styleId);
 			// "overwrites" values from parent style
-			style.setForeground(gaService.manageColor(diagram, BPMN_CLASS_TEXT_FOREGROUND));			
+			style.setForeground(gaService.manageColor(diagram, BPMN_CLASS_TEXT_FOREGROUND));
 		}
 		return style;
 	}

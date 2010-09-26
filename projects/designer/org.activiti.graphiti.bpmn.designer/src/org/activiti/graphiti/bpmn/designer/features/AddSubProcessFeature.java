@@ -24,22 +24,22 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddSubProcessFeature extends AbstractAddShapeFeature {
-	
+
 	public AddSubProcessFeature(IFeatureProvider fp) {
 		super(fp);
 	}
-	
+
 	@Override
 	public PictogramElement add(IAddContext context) {
-		
+
 		final SubProcess addedSubProcess = (SubProcess) context.getNewObject();
 		final Diagram targetDiagram = (Diagram) context.getTargetContainer();
 
 		// CONTAINER SHAPE WITH ROUNDED RECTANGLE
 		final IPeCreateService peCreateService = Graphiti.getPeCreateService();
 		final ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
-		
-		//EList<Property> props = containerShape.getProperties();
+
+		// EList<Property> props = containerShape.getProperties();
 
 		// check whether the context has a size (e.g. from a create feature)
 		// otherwise define a default size for the shape
@@ -60,7 +60,8 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 			roundedRectangle.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
 			gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
 
-			// if addedClass has no resource we add it to the resource of the diagram
+			// if addedClass has no resource we add it to the resource of the
+			// diagram
 			// in a real scenario the business model would have its own resource
 			if (addedSubProcess.eResource() == null) {
 				getDiagram().eResource().getContents().add(addedSubProcess);
@@ -96,17 +97,17 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 			directEditingInfo.setPictogramElement(shape);
 			directEditingInfo.setGraphicsAlgorithm(text);
 		}
-		
+
 		{
 			final Shape shape = peCreateService.createShape(containerShape, false);
 			final Image image = gaService.createImage(shape, getIcon());
-			
-			//calculate position for icon
+
+			// calculate position for icon
 			final int iconWidthAndHeight = 10;
 			final int padding = 5;
-			final int xPos = (roundedRectangle.getWidth() /2) - (iconWidthAndHeight / 2) ;
+			final int xPos = (roundedRectangle.getWidth() / 2) - (iconWidthAndHeight / 2);
 			final int yPos = roundedRectangle.getHeight() - padding - iconWidthAndHeight;
-			
+
 			gaService.setLocationAndSize(image, xPos, yPos, iconWidthAndHeight, iconWidthAndHeight);
 		}
 
@@ -123,22 +124,21 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 
 		return containerShape;
 	}
-	
+
 	@Override
 	public boolean canAdd(IAddContext context) {
 		if (context.getNewObject() instanceof SubProcess) {
 			// check if user wants to add to a diagram
-			//TODO: lanes & pools
+			// TODO: lanes & pools
 			if (context.getTargetContainer() instanceof Diagram) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	protected String getIcon() {
 		return ActivitiImageProvider.IMG_SUBPROCESS_COLLAPSED;
 	}
-	
-	
+
 }

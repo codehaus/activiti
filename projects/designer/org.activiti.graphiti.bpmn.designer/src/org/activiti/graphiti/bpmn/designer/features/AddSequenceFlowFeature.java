@@ -14,6 +14,7 @@ import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddFeature;
 import org.eclipse.graphiti.mm.GraphicsAlgorithmContainer;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.algorithms.Polygon;
 import org.eclipse.graphiti.mm.algorithms.Polyline;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.algorithms.styles.Point;
@@ -42,26 +43,32 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 		connection.setStart(addConContext.getSourceAnchor());
 		connection.setEnd(addConContext.getTargetAnchor());
 
-		if(addedSequenceFlow.getSourceRef() instanceof Gateway) {
-			GraphicsAlgorithm sourceGraphics = getPictogramElement(addedSequenceFlow.getSourceRef()).getGraphicsAlgorithm();
-			GraphicsAlgorithm targetGraphics = getPictogramElement(addedSequenceFlow.getTargetRef()).getGraphicsAlgorithm();
-			if((sourceGraphics.getY() + 5) < targetGraphics.getY() || (sourceGraphics.getY() - 5) > targetGraphics.getY()) {
+		if (addedSequenceFlow.getSourceRef() instanceof Gateway) {
+			GraphicsAlgorithm sourceGraphics = getPictogramElement(addedSequenceFlow.getSourceRef())
+					.getGraphicsAlgorithm();
+			GraphicsAlgorithm targetGraphics = getPictogramElement(addedSequenceFlow.getTargetRef())
+					.getGraphicsAlgorithm();
+			if ((sourceGraphics.getY() + 5) < targetGraphics.getY()
+					|| (sourceGraphics.getY() - 5) > targetGraphics.getY()) {
 				Point bendPoint = StylesFactory.eINSTANCE.createPoint();
 				bendPoint.setX(sourceGraphics.getX() + 30);
 				bendPoint.setY(targetGraphics.getY() + (targetGraphics.getHeight() / 2));
 				connection.getBendpoints().add(bendPoint);
 			}
-		} else if(addedSequenceFlow.getTargetRef() instanceof Gateway) {
-			GraphicsAlgorithm sourceGraphics = getPictogramElement(addedSequenceFlow.getSourceRef()).getGraphicsAlgorithm();
-			GraphicsAlgorithm targetGraphics = getPictogramElement(addedSequenceFlow.getTargetRef()).getGraphicsAlgorithm();
-			if((sourceGraphics.getY() + 5) < targetGraphics.getY() || (sourceGraphics.getY() - 5) > targetGraphics.getY()) {
+		} else if (addedSequenceFlow.getTargetRef() instanceof Gateway) {
+			GraphicsAlgorithm sourceGraphics = getPictogramElement(addedSequenceFlow.getSourceRef())
+					.getGraphicsAlgorithm();
+			GraphicsAlgorithm targetGraphics = getPictogramElement(addedSequenceFlow.getTargetRef())
+					.getGraphicsAlgorithm();
+			if ((sourceGraphics.getY() + 5) < targetGraphics.getY()
+					|| (sourceGraphics.getY() - 5) > targetGraphics.getY()) {
 				Point bendPoint = StylesFactory.eINSTANCE.createPoint();
 				bendPoint.setX(targetGraphics.getX() + 30);
 				bendPoint.setY(sourceGraphics.getY() + (sourceGraphics.getHeight() / 2));
 				connection.getBendpoints().add(bendPoint);
 			}
 		}
-		
+
 		IGaService gaService = Graphiti.getGaService();
 		Polyline polyline = gaService.createPolyline(connection);
 		polyline.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
@@ -94,12 +101,14 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 		return false;
 	}
 
-	private Polyline createArrow(GraphicsAlgorithmContainer gaContainer) {
-		Polyline polyline = Graphiti.getGaCreateService().createPolyline(gaContainer, new int[] { -15, 10, 0, 0, -15, -10 });
-		polyline.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+	private Polygon createArrow(GraphicsAlgorithmContainer gaContainer) {
+		int xy[] = new int[] { -15, 10, 0, 0, -15, -10 };
+		int beforeAfter[] = new int[] { 2, 6, 3, 3, 6, 2 };
+		Polygon polyline = Graphiti.getGaCreateService().createPolygon(gaContainer, xy, beforeAfter);
+		polyline.setStyle(StyleUtil.getStyleForPolygon(getDiagram()));
 		return polyline;
 	}
-	
+
 	private PictogramElement getPictogramElement(EObject businessObject) {
 		Collection<PictogramLink> pictogramLinks = getDiagram().getPictogramLinks();
 		for (PictogramLink pictogramLink : pictogramLinks) {

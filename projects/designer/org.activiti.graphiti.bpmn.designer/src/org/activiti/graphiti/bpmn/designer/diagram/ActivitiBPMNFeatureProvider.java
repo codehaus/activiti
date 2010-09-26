@@ -19,6 +19,7 @@ import org.activiti.graphiti.bpmn.designer.features.CreateUserTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.DeleteFlowElementFeature;
 import org.activiti.graphiti.bpmn.designer.features.DirectEditFlowElementFeature;
 import org.activiti.graphiti.bpmn.designer.features.SaveBpmnModelFeature;
+import org.activiti.graphiti.bpmn.designer.features.UpdateConnectionFlowElementFeature;
 import org.activiti.graphiti.bpmn.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
@@ -44,6 +45,7 @@ import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
+import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
@@ -79,9 +81,9 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 
 	@Override
 	public ICreateFeature[] getCreateFeatures() {
-		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this), new CreateUserTaskFeature(this),
-				new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this), new CreateParallelGatewayFeature(this),
-				new CreateExclusiveGatewayFeature(this) };
+		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this),
+				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
+				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this) };
 	}
 
 	@Override
@@ -102,6 +104,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			Object bo = getBusinessObjectForPictogramElement(pictogramElement);
 			if (bo instanceof FlowElement) {
 				return new UpdateFlowElementFeature(this);
+			} else if (pictogramElement instanceof Connection) {
+				return new UpdateConnectionFlowElementFeature(this);
 			}
 		}
 		return super.getUpdateFeature(context);
