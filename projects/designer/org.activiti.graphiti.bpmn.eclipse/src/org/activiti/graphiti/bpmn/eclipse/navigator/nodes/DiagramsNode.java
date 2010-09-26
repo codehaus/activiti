@@ -18,6 +18,7 @@ package org.activiti.graphiti.bpmn.eclipse.navigator.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.eclipse.navigator.nodes.base.AbstractInstancesOfTypeContainerNode;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -27,7 +28,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
-
 
 public class DiagramsNode extends AbstractInstancesOfTypeContainerNode {
 
@@ -61,7 +61,7 @@ public class DiagramsNode extends AbstractInstancesOfTypeContainerNode {
 					ret.addAll(getFiles((IContainer) resource));
 				} else if (resource instanceof IFile) {
 					IFile file = (IFile) resource;
-					if (file.getName().endsWith(".diagram")) { //$NON-NLS-1$
+					if (file.getName().endsWith(ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION)) { //$NON-NLS-1$
 						ret.add(file);
 					}
 				}
@@ -84,7 +84,8 @@ public class DiagramsNode extends AbstractInstancesOfTypeContainerNode {
 			// implementation, so tool builders should use their own
 			// way of retrieval here
 			@SuppressWarnings("restriction")
-			Diagram diagram = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getDiagramFromFile(file, rSet);
+			Diagram diagram = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService()
+					.getDiagramFromFile(file, rSet);
 			if (diagram != null) {
 				ret.add(file);
 			}

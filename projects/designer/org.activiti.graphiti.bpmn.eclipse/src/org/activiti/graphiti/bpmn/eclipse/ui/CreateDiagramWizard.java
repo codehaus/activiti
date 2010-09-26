@@ -1,5 +1,6 @@
 package org.activiti.graphiti.bpmn.eclipse.ui;
 
+import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiPlugin;
 import org.activiti.graphiti.bpmn.eclipse.common.FileService;
 import org.activiti.graphiti.bpmn.eclipse.navigator.nodes.base.AbstractInstancesOfTypeContainerNode;
@@ -28,7 +29,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
  * The Class CreateDiagramWizard.
  */
 public class CreateDiagramWizard extends BasicNewResourceWizard {
-	
+
 	private static final String PAGE_NAME_DIAGRAM_NAME = "Diagram Name";
 
 	private Diagram diagram;
@@ -81,7 +82,7 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 		IProject project = null;
 		IFolder diagramFolder = null;
 
-		// Added check on IJavaProject 
+		// Added check on IJavaProject
 		// Kept IProject check for future facet implementation
 		Object element = getSelection().getFirstElement();
 		if (element instanceof IProject) {
@@ -106,10 +107,10 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 
 		Diagram diagram = Graphiti.getPeCreateService().createDiagram(diagramTypeId, diagramName, true);
 		if (diagramFolder == null) {
-			diagramFolder = project.getFolder("src/main/resources/diagrams/");
+			diagramFolder = project.getFolder(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER);
 		}
 
-		IFile diagramFile = diagramFolder.getFile(diagramName + ".diagram");
+		IFile diagramFile = diagramFolder.getFile(diagramName + ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION);
 		URI uri = URI.createPlatformResourceURI(diagramFile.getFullPath().toString(), true);
 
 		TransactionalEditingDomain domain = FileService.createEmfFileForDiagram(uri, diagram);
@@ -117,7 +118,8 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 		DiagramEditorInput editorInput = new DiagramEditorInput(EcoreUtil.getURI(diagram), domain, providerId);
 
 		try {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(editorInput, DiagramEditor.DIAGRAM_EDITOR_ID);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.openEditor(editorInput, DiagramEditor.DIAGRAM_EDITOR_ID);
 		} catch (PartInitException e) {
 			String error = "Error while opening diagram editor";
 			IStatus status = new Status(IStatus.ERROR, ActivitiPlugin.getID(), error, e);
