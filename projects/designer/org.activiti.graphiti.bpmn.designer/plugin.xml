@@ -61,6 +61,12 @@
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
+               class="org.activiti.graphiti.bpmn.designer.property.PropertySequenceFlowSection"
+               filter="org.activiti.graphiti.bpmn.designer.property.PropertySequenceFlowFilter"
+               id="org.activiti.graphiti.bpmn.designer.propertyTab.sequenceflow"
+               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+         </propertySection>
+         <propertySection
                class="org.activiti.graphiti.bpmn.designer.property.PropertyScriptTaskSection"
                filter="org.activiti.graphiti.bpmn.designer.property.PropertyScriptTaskFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.scripttask"

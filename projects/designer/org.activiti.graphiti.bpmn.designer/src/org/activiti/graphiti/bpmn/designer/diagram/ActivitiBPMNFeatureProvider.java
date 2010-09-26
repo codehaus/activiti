@@ -6,7 +6,6 @@ import org.activiti.graphiti.bpmn.designer.features.AddScriptTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddSequenceFlowFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddServiceTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddStartEventFeature;
-import org.activiti.graphiti.bpmn.designer.features.AddSubProcessFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddUserTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateEndEventFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateParallelGatewayFeature;
@@ -14,11 +13,9 @@ import org.activiti.graphiti.bpmn.designer.features.CreateScriptTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateSequenceFlowFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateServiceTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateStartEventFeature;
-import org.activiti.graphiti.bpmn.designer.features.CreateSubProcessFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateUserTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.DeleteFlowElementFeature;
 import org.activiti.graphiti.bpmn.designer.features.DirectEditFlowElementFeature;
-import org.activiti.graphiti.bpmn.designer.features.ExpandCollapseSubProcessFeature;
 import org.activiti.graphiti.bpmn.designer.features.SaveBpmnModelFeature;
 import org.activiti.graphiti.bpmn.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.EndEvent;
@@ -28,7 +25,6 @@ import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
-import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.features.IAddFeature;
@@ -72,8 +68,6 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			return new AddServiceTaskFeature(this);
 		} else if (context.getNewObject() instanceof Gateway) {
 			return new AddGatewayFeature(this);
-		}else if (context.getNewObject() instanceof SubProcess) {
-			return new AddSubProcessFeature(this);
 		}
         return super.getAddFeature(context);
     }
@@ -82,7 +76,7 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
     public ICreateFeature[] getCreateFeatures() {
         return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this), 
         		new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), 
-        		new CreateServiceTaskFeature(this), new CreateParallelGatewayFeature(this), new CreateSubProcessFeature(this)};
+        		new CreateServiceTaskFeature(this), new CreateParallelGatewayFeature(this)};
     }
     
     @Override
@@ -126,7 +120,7 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
     
     @Override
 	public ICustomFeature[] getCustomFeatures(ICustomContext context) {
-		return new ICustomFeature[] { new SaveBpmnModelFeature(this), new ExpandCollapseSubProcessFeature(this) };
+		return new ICustomFeature[] { new SaveBpmnModelFeature(this)};
 	}
 
 }
