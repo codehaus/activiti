@@ -2798,9 +2798,6 @@
       <details key="name" value="tFormalExpression"/>
       <details key="kind" value="mixed"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="body" ordered="false" lowerBound="1"
-        eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject" transient="true"
-        derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="evaluatesToTypeRef" ordered="false"
         lowerBound="1" eType="#//ItemDefinition">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -2815,6 +2812,7 @@
         <details key="name" value="language"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="body" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Gateway" abstract="true" eSuperTypes="#//FlowNode">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

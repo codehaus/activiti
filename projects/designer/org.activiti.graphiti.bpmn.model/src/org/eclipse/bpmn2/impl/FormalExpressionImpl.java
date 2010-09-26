@@ -21,7 +21,6 @@ import org.eclipse.bpmn2.ItemDefinition;
 import org.eclipse.emf.common.notify.Notification;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
@@ -33,9 +32,9 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.bpmn2.impl.FormalExpressionImpl#getBody <em>Body</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.FormalExpressionImpl#getEvaluatesToTypeRef <em>Evaluates To Type Ref</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.FormalExpressionImpl#getLanguage <em>Language</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.FormalExpressionImpl#getBody <em>Body</em>}</li>
  * </ul>
  * </p>
  *
@@ -43,16 +42,6 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class FormalExpressionImpl extends ExpressionImpl implements
 		FormalExpression {
-	/**
-	 * The cached value of the '{@link #getBody() <em>Body</em>}' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getBody()
-	 * @generated
-	 * @ordered
-	 */
-	protected EObject body;
-
 	/**
 	 * The cached value of the '{@link #getEvaluatesToTypeRef() <em>Evaluates To Type Ref</em>}' reference.
 	 * <!-- begin-user-doc -->
@@ -84,6 +73,26 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 	protected String language = LANGUAGE_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getBody() <em>Body</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBody()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String BODY_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getBody() <em>Body</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBody()
+	 * @generated
+	 * @ordered
+	 */
+	protected String body = BODY_EDEFAULT;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -100,46 +109,6 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 	@Override
 	protected EClass eStaticClass() {
 		return Bpmn2Package.Literals.FORMAL_EXPRESSION;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Object getBody() {
-		if (body != null && body.eIsProxy()) {
-			InternalEObject oldBody = (InternalEObject) body;
-			body = eResolveProxy(oldBody);
-			if (body != oldBody) {
-				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE,
-							Bpmn2Package.FORMAL_EXPRESSION__BODY, oldBody, body));
-			}
-		}
-		return body;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Object basicGetBody() {
-		return body;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setBody(Object newBody) {
-		Object oldBody = body;
-		body = (EObject) newBody;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET,
-					Bpmn2Package.FORMAL_EXPRESSION__BODY, oldBody, body));
 	}
 
 	/**
@@ -214,19 +183,39 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getBody() {
+		return body;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setBody(String newBody) {
+		String oldBody = body;
+		body = newBody;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Bpmn2Package.FORMAL_EXPRESSION__BODY, oldBody, body));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
-			if (resolve)
-				return getBody();
-			return basicGetBody();
 		case Bpmn2Package.FORMAL_EXPRESSION__EVALUATES_TO_TYPE_REF:
 			if (resolve)
 				return getEvaluatesToTypeRef();
 			return basicGetEvaluatesToTypeRef();
 		case Bpmn2Package.FORMAL_EXPRESSION__LANGUAGE:
 			return getLanguage();
+		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
+			return getBody();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -239,14 +228,14 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
-			setBody((Object) newValue);
-			return;
 		case Bpmn2Package.FORMAL_EXPRESSION__EVALUATES_TO_TYPE_REF:
 			setEvaluatesToTypeRef((ItemDefinition) newValue);
 			return;
 		case Bpmn2Package.FORMAL_EXPRESSION__LANGUAGE:
 			setLanguage((String) newValue);
+			return;
+		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
+			setBody((String) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -260,14 +249,14 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
-			setBody((Object) null);
-			return;
 		case Bpmn2Package.FORMAL_EXPRESSION__EVALUATES_TO_TYPE_REF:
 			setEvaluatesToTypeRef((ItemDefinition) null);
 			return;
 		case Bpmn2Package.FORMAL_EXPRESSION__LANGUAGE:
 			setLanguage(LANGUAGE_EDEFAULT);
+			return;
+		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
+			setBody(BODY_EDEFAULT);
 			return;
 		}
 		super.eUnset(featureID);
@@ -281,13 +270,14 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
-			return body != null;
 		case Bpmn2Package.FORMAL_EXPRESSION__EVALUATES_TO_TYPE_REF:
 			return evaluatesToTypeRef != null;
 		case Bpmn2Package.FORMAL_EXPRESSION__LANGUAGE:
 			return LANGUAGE_EDEFAULT == null ? language != null
 					: !LANGUAGE_EDEFAULT.equals(language);
+		case Bpmn2Package.FORMAL_EXPRESSION__BODY:
+			return BODY_EDEFAULT == null ? body != null : !BODY_EDEFAULT
+					.equals(body);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -305,6 +295,8 @@ public class FormalExpressionImpl extends ExpressionImpl implements
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (language: ");
 		result.append(language);
+		result.append(", body: ");
+		result.append(body);
 		result.append(')');
 		return result.toString();
 	}

@@ -22,9 +22,9 @@ package org.eclipse.bpmn2;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.eclipse.bpmn2.FormalExpression#getBody <em>Body</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.FormalExpression#getEvaluatesToTypeRef <em>Evaluates To Type Ref</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.FormalExpression#getLanguage <em>Language</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.FormalExpression#getBody <em>Body</em>}</li>
  * </ul>
  * </p>
  *
@@ -33,32 +33,6 @@ package org.eclipse.bpmn2;
  * @generated
  */
 public interface FormalExpression extends Expression {
-	/**
-	 * Returns the value of the '<em><b>Body</b></em>' reference.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Body</em>' reference isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Body</em>' reference.
-	 * @see #setBody(Object)
-	 * @see org.eclipse.bpmn2.Bpmn2Package#getFormalExpression_Body()
-	 * @model required="true" transient="true" derived="true" ordered="false"
-	 * @generated
-	 */
-	Object getBody();
-
-	/**
-	 * Sets the value of the '{@link org.eclipse.bpmn2.FormalExpression#getBody <em>Body</em>}' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Body</em>' reference.
-	 * @see #getBody()
-	 * @generated
-	 */
-	void setBody(Object value);
-
 	/**
 	 * Returns the value of the '<em><b>Evaluates To Type Ref</b></em>' reference.
 	 * <!-- begin-user-doc -->
@@ -112,5 +86,31 @@ public interface FormalExpression extends Expression {
 	 * @generated
 	 */
 	void setLanguage(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Body</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Body</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Body</em>' attribute.
+	 * @see #setBody(String)
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getFormalExpression_Body()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 * @generated
+	 */
+	String getBody();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.bpmn2.FormalExpression#getBody <em>Body</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Body</em>' attribute.
+	 * @see #getBody()
+	 * @generated
+	 */
+	void setBody(String value);
 
 } // FormalExpression

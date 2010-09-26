@@ -49,6 +49,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 
+import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model <b>Package</b>.
@@ -1153,6 +1155,9 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 				.get(eNS_URI) : new Bpmn2PackageImpl());
 
 		isInited = true;
+
+		// Initialize simple dependencies
+		XMLTypePackage.eINSTANCE.eClass();
 
 		// Obtain or create and register interdependencies
 		BpmnDiPackageImpl theBpmnDiPackage = (BpmnDiPackageImpl) (EPackage.Registry.INSTANCE
@@ -4809,7 +4814,7 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getFormalExpression_Body() {
+	public EReference getFormalExpression_EvaluatesToTypeRef() {
 		return (EReference) getFormalExpression().getEStructuralFeatures().get(
 				0);
 	}
@@ -4819,8 +4824,8 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getFormalExpression_EvaluatesToTypeRef() {
-		return (EReference) getFormalExpression().getEStructuralFeatures().get(
+	public EAttribute getFormalExpression_Language() {
+		return (EAttribute) getFormalExpression().getEStructuralFeatures().get(
 				1);
 	}
 
@@ -4829,7 +4834,7 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getFormalExpression_Language() {
+	public EAttribute getFormalExpression_Body() {
 		return (EAttribute) getFormalExpression().getEStructuralFeatures().get(
 				2);
 	}
