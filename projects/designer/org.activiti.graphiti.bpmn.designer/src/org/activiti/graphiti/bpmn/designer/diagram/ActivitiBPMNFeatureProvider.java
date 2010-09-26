@@ -1,6 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.diagram;
 
 import org.activiti.graphiti.bpmn.designer.features.AddEndEventFeature;
+import org.activiti.graphiti.bpmn.designer.features.AddExclusiveGatewayFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddGatewayFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddScriptTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddSequenceFlowFeature;
@@ -8,6 +9,7 @@ import org.activiti.graphiti.bpmn.designer.features.AddServiceTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddStartEventFeature;
 import org.activiti.graphiti.bpmn.designer.features.AddUserTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateEndEventFeature;
+import org.activiti.graphiti.bpmn.designer.features.CreateExclusiveGatewayFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateParallelGatewayFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateScriptTaskFeature;
 import org.activiti.graphiti.bpmn.designer.features.CreateSequenceFlowFeature;
@@ -19,6 +21,7 @@ import org.activiti.graphiti.bpmn.designer.features.DirectEditFlowElementFeature
 import org.activiti.graphiti.bpmn.designer.features.SaveBpmnModelFeature;
 import org.activiti.graphiti.bpmn.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.EndEvent;
+import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.ScriptTask;
@@ -47,18 +50,18 @@ import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
 public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 
-    public ActivitiBPMNFeatureProvider(IDiagramTypeProvider dtp) {
-        super(dtp);
-    }
-    
-    @Override
-    public IAddFeature getAddFeature(IAddContext context) {
-        // is object for add request a EClass?
-    	if (context.getNewObject() instanceof StartEvent) {
-        	return new AddStartEventFeature(this);
-        } else if (context.getNewObject() instanceof EndEvent) {
-        	return new AddEndEventFeature(this);
-        } else if (context.getNewObject() instanceof SequenceFlow) {
+	public ActivitiBPMNFeatureProvider(IDiagramTypeProvider dtp) {
+		super(dtp);
+	}
+
+	@Override
+	public IAddFeature getAddFeature(IAddContext context) {
+		// is object for add request a EClass?
+		if (context.getNewObject() instanceof StartEvent) {
+			return new AddStartEventFeature(this);
+		} else if (context.getNewObject() instanceof EndEvent) {
+			return new AddEndEventFeature(this);
+		} else if (context.getNewObject() instanceof SequenceFlow) {
 			return new AddSequenceFlowFeature(this);
 		} else if (context.getNewObject() instanceof UserTask) {
 			return new AddUserTaskFeature(this);
@@ -66,31 +69,33 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			return new AddScriptTaskFeature(this);
 		} else if (context.getNewObject() instanceof ServiceTask) {
 			return new AddServiceTaskFeature(this);
+		} else if (context.getNewObject() instanceof ExclusiveGateway) {
+			return new AddExclusiveGatewayFeature(this);
 		} else if (context.getNewObject() instanceof Gateway) {
 			return new AddGatewayFeature(this);
 		}
-        return super.getAddFeature(context);
-    }
-    
-    @Override
-    public ICreateFeature[] getCreateFeatures() {
-        return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this), 
-        		new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), 
-        		new CreateServiceTaskFeature(this), new CreateParallelGatewayFeature(this)};
-    }
-    
-    @Override
+		return super.getAddFeature(context);
+	}
+
+	@Override
+	public ICreateFeature[] getCreateFeatures() {
+		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this), new CreateUserTaskFeature(this),
+				new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this), new CreateParallelGatewayFeature(this),
+				new CreateExclusiveGatewayFeature(this) };
+	}
+
+	@Override
 	public IDeleteFeature getDeleteFeature(IDeleteContext context) {
 		IDeleteFeature ret = new DeleteFlowElementFeature(this);
 		return ret;
 	}
-    
-    @Override
-    public ICreateConnectionFeature[] getCreateConnectionFeatures() {
-        return new ICreateConnectionFeature[] { new CreateSequenceFlowFeature(this) };
-    }
-    
-    @Override
+
+	@Override
+	public ICreateConnectionFeature[] getCreateConnectionFeatures() {
+		return new ICreateConnectionFeature[] { new CreateSequenceFlowFeature(this) };
+	}
+
+	@Override
 	public IUpdateFeature getUpdateFeature(IUpdateContext context) {
 		PictogramElement pictogramElement = context.getPictogramElement();
 		if (pictogramElement instanceof ContainerShape) {
@@ -102,13 +107,13 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 		return super.getUpdateFeature(context);
 	}
 
-    @Override
-    public IFeature[] getDragAndDropFeatures(IPictogramElementContext context) {
-        // simply return all create connection features
-        return getCreateConnectionFeatures();
-    }
-    
-    @Override
+	@Override
+	public IFeature[] getDragAndDropFeatures(IPictogramElementContext context) {
+		// simply return all create connection features
+		return getCreateConnectionFeatures();
+	}
+
+	@Override
 	public IDirectEditingFeature getDirectEditingFeature(IDirectEditingContext context) {
 		PictogramElement pe = context.getPictogramElement();
 		Object bo = getBusinessObjectForPictogramElement(pe);
@@ -117,12 +122,10 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 		}
 		return super.getDirectEditingFeature(context);
 	}
-    
-    @Override
+
+	@Override
 	public ICustomFeature[] getCustomFeatures(ICustomContext context) {
-		return new ICustomFeature[] { new SaveBpmnModelFeature(this)};
+		return new ICustomFeature[] { new SaveBpmnModelFeature(this) };
 	}
 
 }
-
-
