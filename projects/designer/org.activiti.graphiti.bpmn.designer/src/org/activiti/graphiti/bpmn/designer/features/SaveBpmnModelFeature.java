@@ -2,6 +2,7 @@ package org.activiti.graphiti.bpmn.designer.features;
 
 import org.activiti.graphiti.bpmn.designer.xml.BpmnXMLExport;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -35,13 +36,23 @@ public class SaveBpmnModelFeature extends AbstractCustomFeature {
 
 	public void execute(ICustomContext context) {
 		try {
-			boolean validBpmn = BpmnXMLExport.validateBpmn(getDiagram().eResource().getContents());
+			URI uri = getDiagram().eResource().getURI();
+			URI bpmnUri = uri.trimFragment();
+			bpmnUri = bpmnUri.trimFileExtension();
+			bpmnUri = bpmnUri.appendFileExtension("bpmn20.xml");
+			
+			IProject project = null;
+			String parentDiagramName = null;
+			if (bpmnUri.isPlatformResource()) {
+				String platformString = bpmnUri.toPlatformString(true);
+				IResource fileResource = ResourcesPlugin.getWorkspace().getRoot().findMember(platformString);
+				project = fileResource.getProject();
+				parentDiagramName = uri.trimFragment().trimFileExtension().lastSegment();
+			}
+			boolean validBpmn = BpmnXMLExport.validateBpmn(getDiagram().eResource().getContents(), project, parentDiagramName);
 			if(validBpmn) {
-				URI uri = getDiagram().eResource().getURI();
-				URI bpmnUri = uri.trimFragment();
-				bpmnUri = bpmnUri.trimFileExtension();
-				bpmnUri = bpmnUri.appendFileExtension("bpmn20.xml");
-				BpmnXMLExport.createBpmnFile(bpmnUri, getDiagram());
+				
+				BpmnXMLExport.createBpmnFile(bpmnUri, getDiagram(), project, parentDiagramName);
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				IPath location = Path.fromOSString(bpmnUri.toPlatformString(false));
 				IFile file = workspace.getRoot().getFile(location);

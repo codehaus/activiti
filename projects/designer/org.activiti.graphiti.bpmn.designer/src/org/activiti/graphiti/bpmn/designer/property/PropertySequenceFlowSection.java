@@ -63,9 +63,11 @@ public class PropertySequenceFlowSection extends GFPropertySection implements IT
 			if(sequenceFlow.getConditionExpression() != null) {
 				
 				conditionExpressionText.removeFocusListener(listener);
-				String condition = ((FormalExpression) sequenceFlow.getConditionExpression()).getBody();
+				String condition = sequenceFlow.getConditionExpression().getBody();
 				conditionExpressionText.setText(condition);
 				conditionExpressionText.addFocusListener(listener);
+			} else {
+				conditionExpressionText.setText("");
 			}
 		}
 	}
@@ -89,17 +91,24 @@ public class PropertySequenceFlowSection extends GFPropertySection implements IT
 							if (bo == null) {
 								return;
 							}
+							if (bo instanceof SequenceFlow == false) {
+								return;
+							}
+							SequenceFlow sequenceFlow = (SequenceFlow) bo;
 							String condition = conditionExpressionText.getText();
-							if (condition != null) {
-								if (bo instanceof SequenceFlow) {
-									SequenceFlow sequenceFlow = (SequenceFlow) bo;
-									FormalExpression expression = (FormalExpression) sequenceFlow.getConditionExpression();
-									if(expression == null) {
-										expression = Bpmn2Factory.eINSTANCE.createFormalExpression();
-										getDiagram().eResource().getContents().add(expression);
-										sequenceFlow.setConditionExpression(expression);
-									}
-									expression.setBody(condition);
+							if (condition != null && condition.length() > 0) {
+								FormalExpression expression = sequenceFlow.getConditionExpression();
+								if(expression == null) {
+									expression = Bpmn2Factory.eINSTANCE.createFormalExpression();
+									expression.setId(sequenceFlow.getId() + "_condition");
+									sequenceFlow.setConditionExpression(expression);
+								}
+								expression.setBody(condition);
+								
+							} else {
+								FormalExpression expression = sequenceFlow.getConditionExpression();
+								if(expression != null) {
+									sequenceFlow.setConditionExpression(null);
 								}
 							}
 						}

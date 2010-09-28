@@ -55,7 +55,6 @@ public class ExpandCollapseSubProcessFeature extends AbstractDrillDownFeature {
 					SubProcessImpl.class);
 			this.subprocessId = subprocess.getId();
 			this.subprocessName = subprocess.getName();
-			System.out.println(String.format("Expanding or Collapsing subprocess '%s'", subprocessId));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,16 +87,8 @@ public class ExpandCollapseSubProcessFeature extends AbstractDrillDownFeature {
 				IFile targetFile = project.getFile(String.format(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER + "%s.%s"
 						+ ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION, parentDiagramName, subprocessId));
 				if (targetFile.exists()) {
-					System.out
-							.println(String
-									.format("Sub process '%s' already exists for diagram '%s'. Opening diagram editor for existing sub process",
-											subprocessId, parentDiagramName));
 					result.add(getExistingDiagram(project, targetFile));
 				} else {
-					System.out
-							.println(String
-									.format("Sub process '%s' doesn't exist for diagram '%s'. Creating new diagram file and opening editor",
-											subprocessId, parentDiagramName));
 					result.add(getNewDiagram(project, targetFile));
 				}
 			}
