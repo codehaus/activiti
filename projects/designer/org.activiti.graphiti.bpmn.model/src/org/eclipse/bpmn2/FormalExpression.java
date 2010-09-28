@@ -98,7 +98,7 @@ public interface FormalExpression extends Expression {
 	 * @return the value of the '<em>Body</em>' attribute.
 	 * @see #setBody(String)
 	 * @see org.eclipse.bpmn2.Bpmn2Package#getFormalExpression_Body()
-	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 * @model
 	 * @generated
 	 */
 	String getBody();

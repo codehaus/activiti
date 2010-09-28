@@ -49,8 +49,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 
-import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
-
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model <b>Package</b>.
@@ -1155,9 +1153,6 @@ public class Bpmn2PackageImpl extends EPackageImpl implements Bpmn2Package {
 				.get(eNS_URI) : new Bpmn2PackageImpl());
 
 		isInited = true;
-
-		// Initialize simple dependencies
-		XMLTypePackage.eINSTANCE.eClass();
 
 		// Obtain or create and register interdependencies
 		BpmnDiPackageImpl theBpmnDiPackage = (BpmnDiPackageImpl) (EPackage.Registry.INSTANCE

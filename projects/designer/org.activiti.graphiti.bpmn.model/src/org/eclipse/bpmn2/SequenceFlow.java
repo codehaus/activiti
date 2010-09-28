@@ -43,13 +43,13 @@ public interface SequenceFlow extends FlowElement {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Condition Expression</em>' containment reference.
-	 * @see #setConditionExpression(Expression)
+	 * @see #setConditionExpression(FormalExpression)
 	 * @see org.eclipse.bpmn2.Bpmn2Package#getSequenceFlow_ConditionExpression()
 	 * @model containment="true" ordered="false"
 	 *        extendedMetaData="kind='element' name='conditionExpression' namespace='http://www.omg.org/spec/BPMN/20100524/MODEL'"
 	 * @generated
 	 */
-	Expression getConditionExpression();
+	FormalExpression getConditionExpression();
 
 	/**
 	 * Sets the value of the '{@link org.eclipse.bpmn2.SequenceFlow#getConditionExpression <em>Condition Expression</em>}' containment reference.
@@ -59,7 +59,7 @@ public interface SequenceFlow extends FlowElement {
 	 * @see #getConditionExpression()
 	 * @generated
 	 */
-	void setConditionExpression(Expression value);
+	void setConditionExpression(FormalExpression value);
 
 	/**
 	 * Returns the value of the '<em><b>Is Immediate</b></em>' attribute.

@@ -15,8 +15,8 @@
 package org.eclipse.bpmn2.impl;
 
 import org.eclipse.bpmn2.Bpmn2Package;
-import org.eclipse.bpmn2.Expression;
 import org.eclipse.bpmn2.FlowNode;
+import org.eclipse.bpmn2.FormalExpression;
 import org.eclipse.bpmn2.SequenceFlow;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -52,7 +52,7 @@ public class SequenceFlowImpl extends FlowElementImpl implements SequenceFlow {
 	 * @generated
 	 * @ordered
 	 */
-	protected Expression conditionExpression;
+	protected FormalExpression conditionExpression;
 
 	/**
 	 * The default value of the '{@link #isIsImmediate() <em>Is Immediate</em>}' attribute.
@@ -118,7 +118,7 @@ public class SequenceFlowImpl extends FlowElementImpl implements SequenceFlow {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Expression getConditionExpression() {
+	public FormalExpression getConditionExpression() {
 		return conditionExpression;
 	}
 
@@ -128,8 +128,8 @@ public class SequenceFlowImpl extends FlowElementImpl implements SequenceFlow {
 	 * @generated
 	 */
 	public NotificationChain basicSetConditionExpression(
-			Expression newConditionExpression, NotificationChain msgs) {
-		Expression oldConditionExpression = conditionExpression;
+			FormalExpression newConditionExpression, NotificationChain msgs) {
+		FormalExpression oldConditionExpression = conditionExpression;
 		conditionExpression = newConditionExpression;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this,
@@ -149,7 +149,7 @@ public class SequenceFlowImpl extends FlowElementImpl implements SequenceFlow {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setConditionExpression(Expression newConditionExpression) {
+	public void setConditionExpression(FormalExpression newConditionExpression) {
 		if (newConditionExpression != conditionExpression) {
 			NotificationChain msgs = null;
 			if (conditionExpression != null)
@@ -375,7 +375,7 @@ public class SequenceFlowImpl extends FlowElementImpl implements SequenceFlow {
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 		case Bpmn2Package.SEQUENCE_FLOW__CONDITION_EXPRESSION:
-			setConditionExpression((Expression) newValue);
+			setConditionExpression((FormalExpression) newValue);
 			return;
 		case Bpmn2Package.SEQUENCE_FLOW__IS_IMMEDIATE:
 			setIsImmediate((Boolean) newValue);
@@ -399,7 +399,7 @@ public class SequenceFlowImpl extends FlowElementImpl implements SequenceFlow {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 		case Bpmn2Package.SEQUENCE_FLOW__CONDITION_EXPRESSION:
-			setConditionExpression((Expression) null);
+			setConditionExpression((FormalExpression) null);
 			return;
 		case Bpmn2Package.SEQUENCE_FLOW__IS_IMMEDIATE:
 			setIsImmediate(IS_IMMEDIATE_EDEFAULT);
