@@ -46,8 +46,10 @@ public class SaveBpmnModelFeature extends AbstractCustomFeature {
 			if (bpmnUri.isPlatformResource()) {
 				String platformString = bpmnUri.toPlatformString(true);
 				IResource fileResource = ResourcesPlugin.getWorkspace().getRoot().findMember(platformString);
-				project = fileResource.getProject();
-				parentDiagramName = uri.trimFragment().trimFileExtension().lastSegment();
+				if(fileResource != null) {
+					project = fileResource.getProject();
+					parentDiagramName = uri.trimFragment().trimFileExtension().lastSegment();
+				}
 			}
 			boolean validBpmn = BpmnXMLExport.validateBpmn(getDiagram().eResource().getContents(), project, parentDiagramName);
 			if(validBpmn) {

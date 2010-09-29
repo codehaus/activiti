@@ -100,6 +100,10 @@ public class BpmnXMLExport {
 	        	}
 	        } else if(object instanceof SubProcess) {
 	        	SubProcess subProcess = (SubProcess) object;
+	        	if(parentDiagramName == null) {
+	        		createErrorMessage("SubProcess " + subProcess.getName() + " has no diagram yet. Double click to create a sub process diagram.");
+	        		return false;
+	        	}
 	        	String subProcessId = subProcess.getId();
 	        	IFile targetFile = project.getFile(String.format(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER + "%s.%s"
 						+ ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION, parentDiagramName, subProcessId));
