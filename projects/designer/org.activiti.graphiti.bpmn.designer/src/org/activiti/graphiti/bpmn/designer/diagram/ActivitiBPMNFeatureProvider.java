@@ -109,9 +109,9 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			Object bo = getBusinessObjectForPictogramElement(pictogramElement);
 			if (bo instanceof FlowElement) {
 				return new UpdateFlowElementFeature(this);
-			} else if (pictogramElement instanceof Connection) {
-				return new UpdateConnectionFlowElementFeature(this);
 			}
+		} else if (pictogramElement instanceof Connection) {
+			return new UpdateConnectionFlowElementFeature(this);
 		}
 		return super.getUpdateFeature(context);
 	}
