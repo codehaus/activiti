@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.activiti.designer</groupId>
-	<artifactId>parent</artifactId>
+	<artifactId>org.activiti.designer.parent</artifactId>
 	<version>0.5.1</version>
 	<packaging>pom</packaging>
 	<name>Activiti Designer - Parent project</name>
@@ -15,6 +15,7 @@
 		<module>../org.activiti.designer.model</module>
 		<module>../org.activiti.designer.eclipse</module>
 		<module>../org.activiti.designer.gui</module>
+		<module>../org.activiti.designer.help</module>
 		<module>../org.activiti.designer.feature</module>
 		<module>../org.activiti.designer.updatesite</module>
 	</modules>
