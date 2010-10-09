@@ -17,6 +17,7 @@ import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Polygon;
 import org.eclipse.graphiti.mm.algorithms.Polyline;
 import org.eclipse.graphiti.mm.algorithms.Text;
+import org.eclipse.graphiti.mm.algorithms.styles.LineStyle;
 import org.eclipse.graphiti.mm.algorithms.styles.Point;
 import org.eclipse.graphiti.mm.algorithms.styles.StylesFactory;
 import org.eclipse.graphiti.mm.pictograms.ConnectionDecorator;
@@ -26,6 +27,7 @@ import org.eclipse.graphiti.mm.pictograms.PictogramLink;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
+import org.eclipse.graphiti.util.IColorConstant;
 
 public class AddSequenceFlowFeature extends AbstractAddFeature {
 
@@ -71,7 +73,8 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 
 		IGaService gaService = Graphiti.getGaService();
 		Polyline polyline = gaService.createPolyline(connection);
-		polyline.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+		polyline.setLineStyle(LineStyle.SOLID);
+		polyline.setForeground(Graphiti.getGaService().manageColor(getDiagram(), IColorConstant.BLACK));
 
 		// create link and wire it
 		link(connection, addedSequenceFlow);
