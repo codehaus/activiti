@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.activiti.designer</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>org.activiti.designer.parent</artifactId>
 		<version>0.5.1</version>
 		<relativePath>../org.activiti.designer.parent/pom.xml</relativePath>
 	</parent>
