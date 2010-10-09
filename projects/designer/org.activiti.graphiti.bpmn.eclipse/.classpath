@@ -1,7 +1,6 @@
 <classpath>
   <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
   <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="lib" path="C:/Documents and Settings/Administrator/.m2/repository/org/activiti/designer/org.activiti.designer.model/0.5.1/org.activiti.designer.model-0.5.1.jar"/>
   <classpathentry kind="lib" path="C:/Documents and Settings/Administrator/.m2/repository/p2/osgi/bundle/org.eclipse.core.commands/3.6.0.I20100512-1500/org.eclipse.core.commands-3.6.0.I20100512-1500.jar"/>
   <classpathentry kind="lib" path="C:/Documents and Settings/Administrator/.m2/repository/p2/osgi/bundle/org.eclipse.core.contenttype/3.4.100.v20100505-1235/org.eclipse.core.contenttype-3.4.100.v20100505-1235.jar"/>
   <classpathentry kind="lib" path="C:/Documents and Settings/Administrator/.m2/repository/p2/osgi/bundle/org.eclipse.core.jobs/3.5.1.R36x_v20100824/org.eclipse.core.jobs-3.5.1.R36x_v20100824.jar"/>
