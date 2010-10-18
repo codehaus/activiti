@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+  
+<mapper namespace="org.activiti.cycle">
+
+  <!-- Artifact RESULT MAP -->
+  <resultMap id="resultMapArtifact" type="org.activiti.cycle.Artifact">
+    <id property="id" column="ID_"/>
+    <result property="elementId" column="ELEMENT_ID_"/>
+    <result property="elementName" column="ELEMENT_NAME_"/>
+    <collection property="artifactRevisionList" javaType="ArrayList" ofType="org.activiti.cycle.ArtifactRevision" column="ID_" select="selectArtifactRevisionForArtifact"/>
+	<collection property="artifactCycleList" javaType="ArrayList" ofType="org.activiti.cycle.CycleLink" column="ID_" select="selectCycleLinkForSourceArtifact"/>    
+  </resultMap> 	
+  
+  <!-- Artifact Revision RESULT MAP -->
+  <resultMap id="resultMapArtifactRevision" type="org.activiti.cycle.ArtifactRevision">
+    <id property="id" column="ID_"/>
+    <result property="artifactId" column="ARTIFACT_ID_"/>
+    <result property="revision" column="REVISION_"/>
+  </resultMap>
+  
+  <!-- Cycle Link RESULT MAP -->
+  <resultMap id="resultMapCycleLink" type="org.activiti.cycle.CycleLink">
+    <id property="id" column="ID_"/>
+    <result property="targetArtifactId" column="TARGET_ARTIFACT_ID_"/>
+    <result property="targetElementId" column="TARGET_ELEMENT_ID_"/>
+    <result property="targetElementName" column="TARGET_ELEMENT_NAME_"/>
+    <result property="targetElementRevision" column="TARGET_ELEMENT_REVISION_"/>
+    <result property="sourceArtifactId" column="SOURCE_ARTIFACT_ID_"/>
+    <result property="description" column="DESCRIPTION_"/>
+    <result property="linkType" column="LINK_TYPE_"/>
+    <result property="linkedBothWays" column="LINKED_BOTH_WAYS_"/>    
+  </resultMap>
+  
+  <!-- selectArtifact -->
+  <select id="selectArtifact" parameterType="string" resultType="list" resultMap="resultMapArtifact">
+  	select * from ACT_CY_ARTIFACT where ID_ = #{id}
+  </select>
+    
+  <!-- selectArtifactRevisionForArtifact -->
+  <select id="selectArtifactRevisionForArtifact" parameterType="string" resultType="list" resultMap="resultMapArtifactRevision"> 
+  	select * from ACT_CY_ARTIFACT_REVISION where ARTIFACT_ID_ = #{artifactId}
+  </select>
+  
+    <!-- selectCycleLinkForSourceArtifact -->
+  <select id="selectCycleLinkForSourceArtifact" parameterType="string" resultType="list" resultMap="resultMapCycleLink"> 
+  	select * from ACT_CY_LINK where SOURCE_ARTIFACT_ID_ = #{sourceArtifactId}
+  </select>
+  
+  <!-- insertArtifact -->
+  <insert id="insertArtifact" parameterType="org.activiti.cycle.Artifact">
+    insert into ACT_CY_ARTIFACT (ID_, SOURCE_ELEMENT_ID_, SOURCE_ELEMENT_NAME_,)
+    values (
+	    #{id, jdbcType=VARCHAR},
+	    #{elementId, jdbcType=VARCHAR},
+	    #{elementName, jdbcType=VARCHAR}
+    )
+   </insert>
+   
+  <!-- insertArtifactRevision -->
+  <insert id="insertArtifactRevision" parameterType="org.activiti.cycle.ArtifactRevision">
+    insert into ACT_CY_ARTIFACT_REVISION (ID_, ARTIFACT_ID_, REVISION_,)
+    values (
+	    #{id, jdbcType=VARCHAR},
+	    #{artifactId, jdbcType=VARCHAR},
+	    #{revision, jdbcType=BIGINT}
+    )
+   </insert>
+   
+  <!-- insertCycleLink -->
+  <insert id="insertCycleLink" parameterType="org.activiti.cycle.CycleLink">
+    insert into ACT_CY_LINK (ID_, TARGET_ELEMENT_NAME, TARGET_ELEMENT_ID_, TARGET_ELEMENT_REVISION_ ,SOURCE_ARTIFACT_ID_)
+    values (
+	    #{id, jdbcType=VARCHAR},
+	    #{targetElementName, jdbcType=VARCHAR},
+	    #{targetElementId, jdbcType=VARCHAR},
+	    #{targetRevision, jdbcType=BIGINT},
+	    #{sourceArtifactId, jdbcType=VARCHAR}	    
+    )
+  </insert>
+   
+  <!-- updateArtifact -->
+  <update id="updateArtifact" parameterType="org.activiti.cycle.Artifact">
+    update ACT_CY_ARTIFACT set
+	    ID_ = #{id},
+	    ELEMENT_ID_ = #{elementId},
+	    ELEMENT_NAME_ = #{elementName}
+	where ID_ = #{id} 
+   </update>
+
+  <!-- updateArtifactRevision -->
+  <update id="updateArtifactRevision" parameterType="org.activiti.cycle.ArtifactRevision">
+    update ACT_CY_ARTIFACT_REVISION set
+	    ID_ = #{id},
+	    ARTIFACT_ID_ = #{artifactId},
+	    REVISION_ = #{revision},
+    where ID_ = #{id}
+   </update>
+
+  <!-- updateCycleLink -->
+  <update id="updateCycleLink" parameterType="org.activiti.cycle.CycleLink">
+    update ACT_CY_LINK set
+ 	    ID_ = #{id},
+	    TARGET_ELEMENT_NAME_ = #{targetElementName},
+	    TARGET_ELEMENT_ID_ = #{targetElementId},
+	    TARGET_REVISION_ = #{targetRevision},
+	    SOURCE_ARTIFACT_ID_ = #{sourceArtifactId}	    
+    where ID_ = #{id}
+  </update>
+  
+  <!-- deleteArtifact -->
+  <delete id="deleteArtifact" parameterType="string">
+    delete from ACT_CY_ARTIFACT where ID_ = #{id} 
+   </delete>
+  
+  <!-- deleteArtifactRevision -->
+  <delete id="deleteArtifactRevision" parameterType="string">
+    delete from ACT_CY_ARTIFACT_REVISION where ID_ = #{id}
+   </delete>
+
+  <!-- deleteCycleLink -->
+  <delete id="deleteCycleLink" parameterType="string">
+    delete ACT_CY_LINK where ID_ = #{id}
+  </delete>
+
+</mapper>

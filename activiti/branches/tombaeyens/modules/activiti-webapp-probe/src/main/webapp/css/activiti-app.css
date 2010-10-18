@@ -1,0 +1,16 @@
+/* STYLING */
+
+#Activiti a.current,
+#Activiti .yui-pg-current-page,
+#Activiti .activiti-form.bd h1,
+#Activiti .activiti-form.bd h2,
+#Activiti .activiti-form.bd h3,
+h1 {
+  color: #007dc3;
+}
+
+/* STRUCTURE */
+/* Override Core style for long DB table names */
+.yui-gf div.yui-u.first {
+  min-width:18em;
+}
