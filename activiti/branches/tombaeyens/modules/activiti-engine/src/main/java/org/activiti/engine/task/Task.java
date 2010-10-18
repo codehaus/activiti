@@ -54,7 +54,8 @@ public interface Task {
 	
 	String getProcessDefinitionId();
 	
-	String getFormResourceKey();
+  /** @deprecated to be replaced with TaskService.getFormInstance().getFormResourceKey() */
+  String getFormResourceKey();
 	
 	Date getCreateTime();
 	

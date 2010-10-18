@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.activiti.engine.impl.el.ActivitiValueExpression;
+import org.activiti.engine.impl.form.DefaultTaskFormHandler;
+import org.activiti.engine.impl.form.TaskFormHandler;
 
 /**
  * Container for task definition information gathered at parsing time.
@@ -30,6 +32,7 @@ public class TaskDefinition {
   protected Set<ActivitiValueExpression> candidateUserIdValueExpressions = new HashSet<ActivitiValueExpression>();
   protected Set<ActivitiValueExpression> candidateGroupIdValueExpressions = new HashSet<ActivitiValueExpression>();
   protected String formResourceKey;
+  protected TaskFormHandler taskFormHandler = new DefaultTaskFormHandler();
 
   // getters and setters //////////////////////////////////////////////////////
 
@@ -81,4 +84,11 @@ public class TaskDefinition {
     this.formResourceKey = formResourceKey;
   }
 
+  public TaskFormHandler getTaskFormHandler() {
+    return taskFormHandler;
+  }
+
+  public void setTaskFormHandler(TaskFormHandler taskFormHandler) {
+    this.taskFormHandler = taskFormHandler;
+  }
 }

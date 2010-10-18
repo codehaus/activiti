@@ -11,20 +11,25 @@
  * limitations under the License.
  */
 
-package org.activiti.engine.history;
+package org.activiti.engine.impl.form;
+
+import java.util.Map;
+
+import org.activiti.engine.form.TaskFormInstance;
+import org.activiti.engine.task.Task;
 
 
 
 /**
  * @author Tom Baeyens
  */
-public interface HistoricVariableUpdate {
+public class DefaultTaskFormHandler implements TaskFormHandler {
 
-  String getHistoricFormInstanceId();
-  String getProcessInstanceId();
-  String getExecutionId();
-  String getVariableName();
-  String getVariableType();
-  Object getValue();
-  int getRevision();
+  public TaskFormInstance createTaskFormInstance(Task task) {
+    return null;
+  }
+
+  public void submitTaskFormInstance(String taskId, Map<String, Object> properties) {
+  }
+
 }

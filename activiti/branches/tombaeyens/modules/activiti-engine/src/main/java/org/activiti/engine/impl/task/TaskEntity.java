@@ -22,8 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.db.PersistentObject;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 import org.activiti.engine.impl.runtime.ExecutionEntity;
 import org.activiti.engine.impl.runtime.VariableMap;
 import org.activiti.engine.impl.util.ClockUtil;
@@ -58,6 +61,9 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
   protected ExecutionEntity processInstance;
   
   protected String processDefinitionId;
+  
+  protected String taskDefinitionId;
+  protected TaskDefinition taskDefinition;
   
   public TaskEntity() {
   }
@@ -222,6 +228,15 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
     }
   }
   
+  public TaskDefinition getTaskDefinition() {
+    if (taskDefinition==null && taskDefinitionId!=null) {
+      RepositorySession repositorySession = CommandContext.getCurrentSession(RepositorySession.class);
+      ProcessDefinitionEntity processDefinition = repositorySession.findDeployedProcessDefinitionById(processDefinitionId);
+      taskDefinition = processDefinition.getTaskDefinitions().get(taskDefinitionId);
+    }
+    return taskDefinition;
+  }
+  
   public String toString() {
     return "Task["+id+"]";
   }
@@ -326,5 +341,12 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
   public void setFormResourceKey(String formResourceKey) {
     this.formResourceKey = formResourceKey;
   }
+
+  public String getTaskDefinitionId() {
+    return taskDefinitionId;
+  }
   
+  public void setTaskDefinitionId(String taskDefinitionId) {
+    this.taskDefinitionId = taskDefinitionId;
+  }
 }
