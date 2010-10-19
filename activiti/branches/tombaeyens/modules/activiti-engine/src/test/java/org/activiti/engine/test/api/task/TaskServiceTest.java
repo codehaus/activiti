@@ -220,7 +220,7 @@ public class TaskServiceTest extends ActivitiInternalTestCase {
       formService.getRenderedTaskForm("unexistingtask");
       fail("ActivitiException expected");
     } catch (ActivitiException ae) {
-      assertTextPresent("No task found for id = 'unexistingtask'", ae.getMessage());
+      assertTextPresent("Task 'unexistingtask' not found", ae.getMessage());
     }
   }
   

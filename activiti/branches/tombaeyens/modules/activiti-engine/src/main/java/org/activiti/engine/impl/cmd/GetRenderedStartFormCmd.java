@@ -44,7 +44,7 @@ public class GetRenderedStartFormCmd implements Command<Object> {
     }
     StartFormHandler startFormHandler = processDefinition.getStartFormHandler();
     if (startFormHandler == null) {
-      throw new ActivitiException("No startFormHandler defined in process definition '" + processDefinitionId +"'");
+      return null;
     }
     
     FormEngine formEngine = commandContext

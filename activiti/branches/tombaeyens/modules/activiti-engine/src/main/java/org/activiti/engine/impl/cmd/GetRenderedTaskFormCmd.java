@@ -41,11 +41,11 @@ public class GetRenderedTaskFormCmd  implements Command<Object> {
     TaskSession taskSession = commandContext.getTaskSession();
     TaskEntity task = taskSession.findTaskById(taskId);
     if (task == null) {
-      throw new ActivitiException("Task '" + task +"' not found");
+      throw new ActivitiException("Task '" + taskId +"' not found");
     }
     TaskFormHandler taskFormHandler = task.getTaskDefinition().getTaskFormHandler();
     if (taskFormHandler == null) {
-      throw new ActivitiException("No taskFormHandler defined in task '" + taskId +"'");
+      return null;
     }
     
     FormEngine formEngine = commandContext

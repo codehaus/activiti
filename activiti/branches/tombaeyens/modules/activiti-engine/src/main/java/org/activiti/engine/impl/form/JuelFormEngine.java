@@ -27,6 +27,9 @@ import org.activiti.engine.impl.task.TaskEntity;
 public class JuelFormEngine implements FormEngine {
   
   public Object renderStartForm(StartFormInstance startFormInstance) {
+    if (startFormInstance.getFormKey()==null) {
+      return null;
+    }
     CommandContext commandContext = CommandContext.getCurrent();
     String formTemplateString = getFormTemplateString(startFormInstance, commandContext);
     ScriptingEngines scriptingEngines = commandContext.getProcessEngineConfiguration().getScriptingEngines();
@@ -34,6 +37,9 @@ public class JuelFormEngine implements FormEngine {
   }
 
   public Object renderTaskForm(TaskFormInstance taskFormInstance) {
+    if (taskFormInstance.getFormKey()==null) {
+      return null;
+    }
     CommandContext commandContext = CommandContext.getCurrent();
     String formTemplateString = getFormTemplateString(taskFormInstance, commandContext);
     ScriptingEngines scriptingEngines = commandContext.getProcessEngineConfiguration().getScriptingEngines();
