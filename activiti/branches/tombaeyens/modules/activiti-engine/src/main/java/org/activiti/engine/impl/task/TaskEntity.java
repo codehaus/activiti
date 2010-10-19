@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.db.PersistentObject;
 import org.activiti.engine.impl.interceptor.CommandContext;
@@ -48,7 +47,6 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
   protected String assignee;
   protected String name;
   protected String description;
-  protected String formResourceKey;
   protected int priority = Task.PRIORITY_NORMAL;
   protected Date createTime; // The time when the task has been created
   protected boolean isIdentityLinksInitialized = false;
@@ -62,7 +60,7 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
   
   protected String processDefinitionId;
   
-  protected String taskDefinitionId;
+  protected String taskDefinitionKey;
   protected TaskDefinition taskDefinition;
   
   public TaskEntity() {
@@ -228,15 +226,6 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
     }
   }
   
-  public TaskDefinition getTaskDefinition() {
-    if (taskDefinition==null && taskDefinitionId!=null) {
-      RepositorySession repositorySession = CommandContext.getCurrentSession(RepositorySession.class);
-      ProcessDefinitionEntity processDefinition = repositorySession.findDeployedProcessDefinitionById(processDefinitionId);
-      taskDefinition = processDefinition.getTaskDefinitions().get(taskDefinitionId);
-    }
-    return taskDefinition;
-  }
-  
   public String toString() {
     return "Task["+id+"]";
   }
@@ -264,6 +253,22 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
     }
   }
 
+  // modified getters and setters /////////////////////////////////////////////
+  
+  public void setTaskDefinition(TaskDefinition taskDefinition) {
+    this.taskDefinition = taskDefinition;
+    this.taskDefinitionKey = taskDefinition.getKey();
+  }
+
+  public TaskDefinition getTaskDefinition() {
+    if (taskDefinition==null && taskDefinitionKey!=null) {
+      RepositorySession repositorySession = CommandContext.getCurrentSession(RepositorySession.class);
+      ProcessDefinitionEntity processDefinition = repositorySession.findDeployedProcessDefinitionById(processDefinitionId);
+      taskDefinition = processDefinition.getTaskDefinitions().get(taskDefinitionKey);
+    }
+    return taskDefinition;
+  }
+  
   // getters and setters //////////////////////////////////////////////////////
 
   public String getId() {
@@ -334,19 +339,11 @@ public class TaskEntity implements Task, Serializable, PersistentObject {
     return assignee;
   }
   
-  public String getFormResourceKey() {
-    return formResourceKey;
-  }
-
-  public void setFormResourceKey(String formResourceKey) {
-    this.formResourceKey = formResourceKey;
-  }
-
-  public String getTaskDefinitionId() {
-    return taskDefinitionId;
+  public String getTaskDefinitionKey() {
+    return taskDefinitionKey;
   }
   
-  public void setTaskDefinitionId(String taskDefinitionId) {
-    this.taskDefinitionId = taskDefinitionId;
+  public void setTaskDefinitionKey(String taskDefinitionKey) {
+    this.taskDefinitionKey = taskDefinitionKey;
   }
 }

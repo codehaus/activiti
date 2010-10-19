@@ -13,35 +13,34 @@
 
 package org.activiti.engine.impl.form;
 
-import org.activiti.engine.form.StartFormInstance;
-import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.form.TaskFormInstance;
+import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
 import org.activiti.engine.impl.interceptor.CommandContext;
-import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
+import org.activiti.engine.impl.task.TaskEntity;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.task.Task;
 
 
 /**
  * @author Tom Baeyens
  */
-public class StartFormInstanceImpl extends FormInstanceImpl implements StartFormInstance, Command<Object> {
-  
+public class TaskFormInstanceImpl extends FormInstanceImpl implements TaskFormInstance {
+
   private static final long serialVersionUID = 1L;
   
-  protected ProcessDefinition processDefinition;
-
-  public StartFormInstanceImpl(ProcessDefinitionEntity processDefinition) {
-    this.formKey = (String) processDefinition.getFormKey();
-    this.deploymentId = processDefinition.getDeploymentId();
-    this.processDefinition = processDefinition;
-  }
-
-  public Object execute(CommandContext commandContext) {
-    return null;
-  }
-
-  // getters and setters //////////////////////////////////////////////////////
+  protected Task task;
   
-  public ProcessDefinition getProcessDefinition() {
-    return processDefinition;
+  public TaskFormInstanceImpl(TaskEntity task) {
+    this.task = task;
+    this.formKey = task.getTaskDefinition().getFormKey();
+    String processDefinitionId = task.getProcessDefinitionId();
+    ProcessDefinition processDefinition = new ProcessDefinitionQueryImpl()
+      .id(processDefinitionId)
+      .executeSingleResult(CommandContext.getCurrent());
+    this.deploymentId = processDefinition.getDeploymentId();
+  }
+
+  public Task getTask() {
+    return task;
   }
 }

@@ -44,9 +44,6 @@ public abstract class FormInstanceImpl implements FormInstance, Serializable {
   public String getFormKey() {
     return formKey;
   }
-  public void setFormKey(String formKey) {
-    this.formKey = formKey;
-  }
   public void setProperties(Map<String, Object> properties) {
     this.properties = properties;
   }
@@ -55,8 +52,5 @@ public abstract class FormInstanceImpl implements FormInstance, Serializable {
   }
   public String getDeploymentId() {
     return deploymentId;
-  }
-  public void setDeploymentId(String deploymentId) {
-    this.deploymentId = deploymentId;
   }
 }

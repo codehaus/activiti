@@ -267,6 +267,7 @@ public class ProcessEngineConfiguration {
       notifyConfigurationComplete(repositoryService);
       notifyConfigurationComplete(runtimeService);
       notifyConfigurationComplete(taskService);
+      notifyConfigurationComplete(formService);
       notifyConfigurationComplete(managementService);
       notifyConfigurationComplete(identityService);
       notifyConfigurationComplete(historyService);

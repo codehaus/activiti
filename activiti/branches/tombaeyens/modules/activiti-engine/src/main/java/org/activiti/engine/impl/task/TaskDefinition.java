@@ -26,12 +26,15 @@ import org.activiti.engine.impl.form.TaskFormHandler;
  */
 public class TaskDefinition {
 
+  protected String key;
+  // assignment fields
   protected ActivitiValueExpression nameValueExpression;
   protected ActivitiValueExpression descriptionValueExpression;
   protected ActivitiValueExpression assigneeValueExpression;
   protected Set<ActivitiValueExpression> candidateUserIdValueExpressions = new HashSet<ActivitiValueExpression>();
   protected Set<ActivitiValueExpression> candidateGroupIdValueExpressions = new HashSet<ActivitiValueExpression>();
-  protected String formResourceKey;
+  // form fields
+  protected String formKey;
   protected TaskFormHandler taskFormHandler = new DefaultTaskFormHandler();
 
   // getters and setters //////////////////////////////////////////////////////
@@ -76,12 +79,12 @@ public class TaskDefinition {
     candidateGroupIdValueExpressions.add(groupId);
   }
 
-  public String getFormResourceKey() {
-    return formResourceKey;
+  public String getFormKey() {
+    return formKey;
   }
 
-  public void setFormResourceKey(String formResourceKey) {
-    this.formResourceKey = formResourceKey;
+  public void setFormKey(String formKey) {
+    this.formKey = formKey;
   }
 
   public TaskFormHandler getTaskFormHandler() {
@@ -90,5 +93,13 @@ public class TaskDefinition {
 
   public void setTaskFormHandler(TaskFormHandler taskFormHandler) {
     this.taskFormHandler = taskFormHandler;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
   }
 }

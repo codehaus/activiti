@@ -782,16 +782,12 @@ public class BpmnParse extends Parse {
    */
   public void parseUserTask(Element userTaskElement, ScopeImpl scope) {
     ActivityImpl activity = parseAndCreateActivityOnScopeElement(userTaskElement, scope);
-    TaskDefinition taskDefinition = parseTaskDefinition(userTaskElement);
+    TaskDefinition taskDefinition = parseTaskDefinition(userTaskElement, activity.getId(), (ProcessDefinitionEntity) scope.getProcessDefinition());
 
-    String taskDefinitionId = scope.getId();
-    ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) scope.getProcessDefinition();
-    processDefinition.getTaskDefinitions().put(taskDefinitionId, taskDefinition);
-    
     UserTaskActivity userTaskActivity = new UserTaskActivity(expressionManager, taskDefinition);
 
     String formResourceKey = userTaskElement.attributeNS(BpmnParser.BPMN_EXTENSIONS_NS, "form");
-    taskDefinition.setFormResourceKey(formResourceKey);
+    taskDefinition.setFormKey(formResourceKey);
 
     activity.setActivityBehavior(userTaskActivity);
 
@@ -802,9 +798,12 @@ public class BpmnParse extends Parse {
     }
   }
 
-  public TaskDefinition parseTaskDefinition(Element taskElement) {
+  public TaskDefinition parseTaskDefinition(Element taskElement, String taskDefinitionKey, ProcessDefinitionEntity processDefinition) {
     TaskDefinition taskDefinition = new TaskDefinition();
 
+    taskDefinition.setKey(taskDefinitionKey);
+    processDefinition.getTaskDefinitions().put(taskDefinitionKey, taskDefinition);
+    
     String name = taskElement.attribute("name");
     if (name != null) {
       taskDefinition.setNameValueExpression(expressionManager.createValueExpression(name));
