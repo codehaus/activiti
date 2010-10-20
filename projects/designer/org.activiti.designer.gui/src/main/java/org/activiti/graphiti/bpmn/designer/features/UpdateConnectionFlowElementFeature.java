@@ -69,7 +69,12 @@ public class UpdateConnectionFlowElementFeature extends AbstractUpdateFeature {
 			TransactionalEditingDomain editingDomain = getDiagramEditor().getEditingDomain();
 			CommandExec.getSingleton().executeFeatureWithContext(this, context);
 		}
-		return Reason.createTrueReason();
+		
+		//FIXME: this is far from perfect, but limits red dashed connectors to updateable connectors only
+		if (isOutOfSync(context)) {
+			return Reason.createTrueReason();	
+		}
+		return Reason.createFalseReason();
 	}
 
 	public boolean update(IUpdateContext context) {
