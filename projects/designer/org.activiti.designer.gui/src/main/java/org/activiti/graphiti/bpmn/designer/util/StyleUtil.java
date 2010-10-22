@@ -60,7 +60,7 @@ public class StyleUtil {
 			style = gaService.createStyle(diagram, styleId);
 			style.setForeground(gaService.manageColor(diagram, IColorConstant.BLACK));
 			style.setBackground(gaService.manageColor(diagram, IColorConstant.BLACK));
-			style.setLineWidth(2);
+			style.setLineWidth(0);
 		}
 		return style;
 	}

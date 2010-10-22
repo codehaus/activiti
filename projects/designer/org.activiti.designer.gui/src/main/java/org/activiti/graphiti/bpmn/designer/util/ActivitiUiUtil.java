@@ -1,5 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.util;
 
+import org.activiti.graphiti.bpmn.designer.Activator;
+import org.activiti.graphiti.bpmn.designer.preferences.ActivitiDesignerPreferences;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -25,10 +27,12 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.preference.IPreferenceStore;
 
 public class ActivitiUiUtil {
 
-	public static void runModelChange(final Runnable runnable, final TransactionalEditingDomain editingDomain, final String label) {
+	public static void runModelChange(final Runnable runnable, final TransactionalEditingDomain editingDomain,
+			final String label) {
 
 		editingDomain.getCommandStack().execute(new RecordingCommand(editingDomain, label) {
 			protected void doExecute() {
@@ -93,11 +97,11 @@ public class ActivitiUiUtil {
 	public static void doProjectReferenceChange(IProject currentProject, IJavaProject containerProject, String className)
 			throws CoreException {
 
-		if (currentProject.equals(containerProject.getProject())) {	
+		if (currentProject.equals(containerProject.getProject())) {
 			System.out.println("Service class is within current project");
 			return;
 		}
-		
+
 		IProjectDescription desc = currentProject.getDescription();
 		IProject[] refs = desc.getReferencedProjects();
 		IProject[] newRefs = new IProject[refs.length + 1];
@@ -121,7 +125,8 @@ public class ActivitiUiUtil {
 		if (!dependsOnPresent) {
 			IClasspathEntry[] entryList = new IClasspathEntry[1];
 			entryList[0] = prjEntry;
-			IClasspathEntry[] newEntries = (IClasspathEntry[]) ArrayUtils.addAll(javaProject.getRawClasspath(), entryList);
+			IClasspathEntry[] newEntries = (IClasspathEntry[]) ArrayUtils.addAll(javaProject.getRawClasspath(),
+					entryList);
 			javaProject.setRawClasspath(newEntries, null);
 		}
 
@@ -145,5 +150,18 @@ public class ActivitiUiUtil {
 			}
 		}
 		return currentProject;
+	}
+
+	/**
+	 * Gets a boolean preference's value from the plugin's preference store.
+	 * 
+	 * @param preference
+	 *            the preference to get
+	 * @return true if the preference is stored as true, otherwise false and
+	 *         false if there is no preference applied
+	 */
+	public static final boolean getBooleanPreference(final ActivitiDesignerPreferences preference) {
+		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		return store.getBoolean(preference.getPreferenceId());
 	}
 }

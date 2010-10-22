@@ -3,6 +3,8 @@ package org.activiti.graphiti.bpmn.designer.features;
 import java.util.Collection;
 import java.util.List;
 
+import org.activiti.graphiti.bpmn.designer.preferences.ActivitiDesignerPreferences;
+import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.activiti.graphiti.bpmn.designer.util.StyleUtil;
 import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.SequenceFlow;
@@ -86,7 +88,12 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 		gaService.setLocation(text, 10, 0);
 		// set reference name in the text decorator
 		SequenceFlow sequenceFlow = (SequenceFlow) context.getNewObject();
-		text.setValue(sequenceFlow.getName());
+
+		if (ActivitiUiUtil.getBooleanPreference(ActivitiDesignerPreferences.EDITOR_ADD_LABELS_TO_NEW_SEQUENCEFLOWS)) {
+			text.setValue(sequenceFlow.getName());
+		} else {
+			text.setValue("");
+		}
 
 		// add static graphical decorators (composition and navigable)
 		ConnectionDecorator cd = peCreateService.createConnectionDecorator(connection, false, 1.0, true);
@@ -105,8 +112,8 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 	}
 
 	private Polygon createArrow(GraphicsAlgorithmContainer gaContainer) {
-		int xy[] = new int[] { -15, 10, 0, 0, -15, -10 };
-		int beforeAfter[] = new int[] { 2, 6, 3, 3, 6, 2 };
+		int xy[] = new int[] { -10, 6, 0, 0, -10, -6 };
+		int beforeAfter[] = new int[] { 2, 2, 2, 2, 2, 2 };
 		Polygon polyline = Graphiti.getGaCreateService().createPolygon(gaContainer, xy, beforeAfter);
 		polyline.setStyle(StyleUtil.getStyleForPolygon(getDiagram()));
 		return polyline;

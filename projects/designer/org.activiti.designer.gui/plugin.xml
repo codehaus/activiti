@@ -118,5 +118,11 @@
             id="org.activiti.graphiti.bpmn.designer.preferences"
             name="Activiti">
       </page>
+      <page
+            category="org.activiti.graphiti.bpmn.designer.preferences"
+            class="org.activiti.graphiti.bpmn.designer.preferences.ActivitiEditorPreferencesPage"
+            id="org.activiti.designer.gui.editorpage"
+            name="Editor Preferences">
+      </page>
    </extension>
 </plugin>
