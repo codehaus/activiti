@@ -63,16 +63,19 @@ public class UpdateConnectionFlowElementFeature extends AbstractUpdateFeature {
 
 		this.syncObjects = new SyncObjects(context);
 
-		if (bo instanceof SequenceFlow && isOutOfSync(context)) {
-			// manually force an update
-			// FIXME: need transaction that's writable
-			TransactionalEditingDomain editingDomain = getDiagramEditor().getEditingDomain();
-			CommandExec.getSingleton().executeFeatureWithContext(this, context);
-		}
+		//TODO: reinstate this block, but only for updateable connectors to automatically update if needed so the user is not required to do this manually
+		// possibly, #update() should be expanded to detect duplicate updates if the user still forces it and updating is no longer required. This depends on the lifecycle of this 
+		//instance and would entail creating a force override of the #isOutOfSync() method's result to reflect having been manually updated.
+//		if (bo instanceof SequenceFlow && isOutOfSync(context)) {
+//			// manually force an update
+//			// FIXME: need transaction that's writable
+//			TransactionalEditingDomain editingDomain = getDiagramEditor().getEditingDomain();
+//			CommandExec.getSingleton().executeFeatureWithContext(this, context);
+//		}
 		
 		//FIXME: this is far from perfect, but limits red dashed connectors to updateable connectors only
 		if (isOutOfSync(context)) {
-			return Reason.createTrueReason();	
+			return Reason.createTrueReason("This sequence flow requires updating because the source and \ndestination nodes have changed since the diagram was last saved. \n\nUse right-click > Update to update the sequence flow");	
 		}
 		return Reason.createFalseReason();
 	}
