@@ -106,8 +106,8 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 	}
 
 	private Polygon createArrow(GraphicsAlgorithmContainer gaContainer) {
-		int xy[] = new int[] { -10, 6, 0, 0, -10, -6 };
-		int beforeAfter[] = new int[] { 2, 2, 2, 2, 2, 2 };
+		int xy[] = new int[] { -10, -5, 0, 0, -10, 5, -8, 0 };
+		int beforeAfter[] = new int[] { 3, 3, 0, 0, 3, 3, 3, 3 };
 		Polygon polyline = Graphiti.getGaCreateService().createPolygon(gaContainer, xy, beforeAfter);
 		polyline.setStyle(StyleUtil.getStyleForPolygon(getDiagram()));
 		return polyline;
