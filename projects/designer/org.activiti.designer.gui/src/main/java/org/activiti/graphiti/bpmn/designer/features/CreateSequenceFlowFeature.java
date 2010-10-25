@@ -1,6 +1,8 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
 import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
+import org.activiti.graphiti.bpmn.designer.preferences.ActivitiDesignerPreferences;
+import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.FlowNode;
@@ -85,7 +87,12 @@ public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeatu
 		sequenceFlow.setId(getNextId());
 		sequenceFlow.setSourceRef(source);
 		sequenceFlow.setTargetRef(target);
-		sequenceFlow.setName(String.format("to %s", target.getName()));
+
+		if (ActivitiUiUtil.getBooleanPreference(ActivitiDesignerPreferences.EDITOR_ADD_LABELS_TO_NEW_SEQUENCEFLOWS)) {
+			sequenceFlow.setName(String.format("to %s", target.getName()));
+		} else {
+			sequenceFlow.setName("");
+		}
 
 		getDiagram().eResource().getContents().add(sequenceFlow);
 

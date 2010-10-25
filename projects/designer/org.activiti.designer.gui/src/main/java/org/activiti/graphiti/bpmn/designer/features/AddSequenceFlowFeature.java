@@ -3,8 +3,6 @@ package org.activiti.graphiti.bpmn.designer.features;
 import java.util.Collection;
 import java.util.List;
 
-import org.activiti.graphiti.bpmn.designer.preferences.ActivitiDesignerPreferences;
-import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.activiti.graphiti.bpmn.designer.util.StyleUtil;
 import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.SequenceFlow;
@@ -86,14 +84,10 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 		Text text = gaService.createDefaultText(textDecorator);
 		text.setStyle(StyleUtil.getStyleForEClassText((getDiagram())));
 		gaService.setLocation(text, 10, 0);
+
 		// set reference name in the text decorator
 		SequenceFlow sequenceFlow = (SequenceFlow) context.getNewObject();
-
-		if (ActivitiUiUtil.getBooleanPreference(ActivitiDesignerPreferences.EDITOR_ADD_LABELS_TO_NEW_SEQUENCEFLOWS)) {
-			text.setValue(sequenceFlow.getName());
-		} else {
-			text.setValue("");
-		}
+		text.setValue(sequenceFlow.getName());
 
 		// add static graphical decorators (composition and navigable)
 		ConnectionDecorator cd = peCreateService.createConnectionDecorator(connection, false, 1.0, true);
