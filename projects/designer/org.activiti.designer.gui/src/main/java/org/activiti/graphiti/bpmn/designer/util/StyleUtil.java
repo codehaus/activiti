@@ -51,16 +51,16 @@ public class StyleUtil {
 	}
 
 	public static Style getStyleForPolygon(Diagram diagram) {
-		final String styleId = "BPMN-POLYGON"; //$NON-NLS-1$
+		final String styleId = "BPMN-POLYGON-ARROW"; //$NON-NLS-1$
 
 		Style style = findStyle(diagram, styleId);
 
-		IGaService gaService = Graphiti.getGaService();
 		if (style == null) { // style not found - create new style
+			IGaService gaService = Graphiti.getGaService();
 			style = gaService.createStyle(diagram, styleId);
 			style.setForeground(gaService.manageColor(diagram, IColorConstant.BLACK));
 			style.setBackground(gaService.manageColor(diagram, IColorConstant.BLACK));
-			style.setLineWidth(0);
+			style.setLineWidth(1);
 		}
 		return style;
 	}
