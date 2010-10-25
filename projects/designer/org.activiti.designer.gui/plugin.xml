@@ -122,7 +122,7 @@
             category="org.activiti.graphiti.bpmn.designer.preferences"
             class="org.activiti.graphiti.bpmn.designer.preferences.ActivitiEditorPreferencesPage"
             id="org.activiti.designer.gui.editorpage"
-            name="Editor Preferences">
+            name="Editor">
       </page>
    </extension>
 </plugin>
