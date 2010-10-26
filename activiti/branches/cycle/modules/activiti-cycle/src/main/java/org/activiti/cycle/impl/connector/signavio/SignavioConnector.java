@@ -455,6 +455,8 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
   public RepositoryArtifact createArtifactFromJSON(String containingFolderId, String artifactName, String artifactType, String jsonContent)
           throws RepositoryNodeNotFoundException {
 
+    // TODO: Add check if model already exists (overwrite or throw exception?)
+    
     String revisionComment = null;
     String description = null;
     
