@@ -458,38 +458,42 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     String revisionComment = null;
     String description = null;
     
-    // public void createNewModel(String parentFolderId, String name, String
-    // jsonData, String revisionComment, String description) throws IOException
-    // {
     try {
       // do this to check if jsonString is valid
       JSONObject jsonModel = new JSONObject(jsonContent);
 
-      Form modelForm = new Form();
-      // TODO: Check if this is correct, maybe we need to include an empty
-      // string
+      Form modelForm = new Form(); 
       if (revisionComment != null) {
         modelForm.add("comment", revisionComment);
+      }
+      else {
+        modelForm.add("comment", "");
       }
       if (description != null) {
         modelForm.add("description", description);
       }
+      else {
+        modelForm.add("description", "");
+      }
       modelForm.add("glossary_xml", new JSONArray().toString());
-      // signavio generates a new id for POSTed models
-      // modelForm.add("id", null);
+      // signavio generates a new id for POSTed models, so don't set an id
       modelForm.add("json_xml", jsonModel.toString());
       modelForm.add("name", artifactName);
       
       // TODO: Check ArtifactType here correctly
-      modelForm.add("namespace", "http://b3mn.org/stencilset/bpmn2.0#");
-      modelForm.add("parent", "/directory/" + containingFolderId);
+      modelForm.add("namespace", SignavioPluginDefinition.SIGNAVIO_NAMESPACE_FOR_BPMN_2_0);
+      // Important: Don't set the type attribute here, otherwise it will not
+      // work!
+
+      modelForm.add("parent", "/" + getConfiguration().DIRECTORY_URL_SUFFIX + containingFolderId);
       // we have to provide a SVG (even if don't have the correct one) because
       // otherwise Signavio throws an exception in its GUI
       modelForm
               .add(
-                      "svg_xml",
+                      "svg_xml", //
                       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:oryx=\"http://oryx-editor.org\" id=\"sid-80D82B67-3B30-4B35-A6CB-16EEE17A719F\" width=\"50\" height=\"50\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs/><g stroke=\"black\" font-family=\"Verdana, sans-serif\" font-size-adjust=\"none\" font-style=\"normal\" font-variant=\"normal\" font-weight=\"normal\" line-heigth=\"normal\" font-size=\"12\"><g class=\"stencils\" transform=\"translate(25, 25)\"><g class=\"me\"/><g class=\"children\"/><g class=\"edge\"/></g></g></svg>");
       modelForm.add("type", "BPMN 2.0");
+      
       // modelForm.add("views", new JSONArray().toString());
       Representation modelRep = modelForm.getWebRepresentation();
 
