@@ -184,32 +184,34 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
       throw new RepositoryException(jsonDirectoryObject + " is not a directory");
     }
     String directoryName = jsonDirectoryObject.getJSONObject("rep").getString("name");
+    
+    if (jsonDirectoryObject.getJSONObject("rep").has("type")) {
+      // need hard coded translation of some special folders with special
+      // treatment by signavio
+      // see https://app.camunda.com/jira/browse/HEMERA-328
+      String type = jsonDirectoryObject.getJSONObject("rep").optString("type");
+       if ("public".equals(type)) {
+         // TODO: Think about what to show here (I18n?)
+        directoryName = "Public";
+      }
+      if ("private".equals(type)) {
+        directoryName = "Private";
+      }
+    }
     log.finest("Directoryname: " + directoryName);
 
     // String directoryDescription =
     // jsonDirectoryObject.getJSONObject("rep").getString("description");
     String href = jsonDirectoryObject.getString("href");
 
-    // for (JSONObject subDirectoryInfo : getSubDirectoryInfos(href)) {
-    // printDirectory(subDirectoryInfo, indention);
-    // }
-    //
-    // for (JSONObject modelInfo : getSubModelInfos(href)) {
-    // String modelName = modelInfo.getJSONObject("rep").getString("name");
-    // String modelType = modelInfo.getJSONObject("rep").getString("type");
-    // System.out.println(indention + "- MODEL " + modelName + " (" + modelType
-    // + ")");
-    // }
-
-    // folderInfo.setId( directoryId );
     // TODO: Check where we get the real ID from!
     String id = getConfiguration().getDirectoryIdFromUrl(href);
     RepositoryFolderImpl folderInfo = new RepositoryFolderImpl(getConfiguration().getId(), id);
 
     folderInfo.getMetadata().setName(directoryName);
+
     // TODO: Where do we get the path from?
     // folderInfo.getMetadata().setPath();
-
     return folderInfo;
   }
 
@@ -235,7 +237,7 @@ public class SignavioConnector extends AbstractRepositoryConnector<SignavioConne
     fileInfo.getMetadata().setLastAuthor(json.optString("author"));
     fileInfo.getMetadata().setCreated(SignavioJsonHelper.getDateValueIfExists(json, "created"));
     fileInfo.getMetadata().setLastChanged(SignavioJsonHelper.getDateValueIfExists(json, "updated"));
-
+    
     // relObject.getJSONObject("rep").getString("revision"); --> UUID of
     // revision
     // relObject.getJSONObject("rep").getString("description");
