@@ -1,11 +1,15 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.activiti.designer.eclipse.preferences.Preferences;
+import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.eclipse.common.FileService;
+import org.activiti.graphiti.bpmn.eclipse.util.Util;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.impl.SubProcessImpl;
 import org.eclipse.core.resources.IFile;
@@ -97,13 +101,31 @@ public class ExpandCollapseSubProcessFeature extends AbstractDrillDownFeature {
 		return result;
 	}
 
+	@SuppressWarnings("restriction")
 	private Diagram getNewDiagram(final IProject project, final IFile targetFile) {
-		Diagram diagram = Graphiti.getPeCreateService().createDiagram("BPMNdiagram", subprocessName, true);
+		Diagram diagram = null;
 		URI uri = URI.createPlatformResourceURI(targetFile.getFullPath().toString(), true);
-		TransactionalEditingDomain domain = FileService.createEmfFileForDiagram(uri, diagram);
+
+		TransactionalEditingDomain domain = null;
+
+		boolean createContent = PreferencesUtil
+				.getBooleanPreference(Preferences.EDITOR_ADD_DEFAULT_CONTENT_TO_DIAGRAMS);
+
+		if (createContent) {
+			final InputStream contentStream = Util.getContentStream(Util.Content.NEW_SUBPROCESS_CONTENT);
+			InputStream replacedStream = Util.swapStreamContents(subprocessName, contentStream);
+			domain = FileService.createEmfFileForDiagram(uri, null, replacedStream, targetFile);
+			diagram = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getDiagramFromFile(
+					targetFile, domain.getResourceSet());
+		} else {
+			diagram = Graphiti.getPeCreateService().createDiagram("BPMNdiagram", subprocessName, true);
+			domain = FileService.createEmfFileForDiagram(uri, diagram, null, null);
+		}
+
 		return diagram;
 	}
 
+	@SuppressWarnings("restriction")
 	private Diagram getExistingDiagram(final IProject project, final IFile targetFile) {
 		final ResourceSet rSet = new ResourceSetImpl();
 		Diagram diagram = GraphitiUiInternal.getEmfService().getDiagramFromFile(targetFile, rSet);

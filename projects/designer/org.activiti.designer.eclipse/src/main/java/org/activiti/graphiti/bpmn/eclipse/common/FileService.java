@@ -16,6 +16,7 @@
 package org.activiti.graphiti.bpmn.eclipse.common;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
@@ -25,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -44,21 +47,31 @@ import org.eclipse.graphiti.ui.editor.DiagramEditorFactory;
 
 public class FileService {
 
-	public static TransactionalEditingDomain createEmfFileForDiagram(URI diagramResourceUri, final Diagram diagram) {
+	public static TransactionalEditingDomain createEmfFileForDiagram(URI diagramResourceUri, final Diagram diagram,
+			final InputStream contentStream, final IFile resourceFile) {
 
 		// Create a resource set and EditingDomain
 		final TransactionalEditingDomain editingDomain = DiagramEditorFactory.createResourceSetAndEditingDomain();
 		final ResourceSet resourceSet = editingDomain.getResourceSet();
 		// Create a resource for this file.
 		final Resource resource = resourceSet.createResource(diagramResourceUri);
+
 		final CommandStack commandStack = editingDomain.getCommandStack();
 		commandStack.execute(new RecordingCommand(editingDomain) {
 
 			@Override
 			protected void doExecute() {
 				resource.setTrackingModification(true);
-				resource.getContents().add(diagram);
-
+				if (contentStream == null) {
+					resource.getContents().add(diagram);
+				} else {
+					try {
+						resourceFile.create(contentStream, IResource.FORCE, null);
+					} catch (CoreException e) {
+						// TODO
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 
@@ -70,7 +83,8 @@ public class FileService {
 		saveInWorkspaceRunnable(editingDomain, options);
 	}
 
-	private static void saveInWorkspaceRunnable(final TransactionalEditingDomain editingDomain, final Map<Resource, Map<?, ?>> options) {
+	private static void saveInWorkspaceRunnable(final TransactionalEditingDomain editingDomain,
+			final Map<Resource, Map<?, ?>> options) {
 
 		final Map<URI, Throwable> failedSaves = new HashMap<URI, Throwable>();
 		final IWorkspaceRunnable wsRunnable = new IWorkspaceRunnable() {
@@ -89,7 +103,8 @@ public class FileService {
 									throw new IllegalStateException(
 											"FileService.save() called from within a command (likely produces a deadlock)");
 								}
-							} while ((parentTx = ((TransactionalEditingDomainImpl) editingDomain).getActiveTransaction().getParent()) != null);
+							} while ((parentTx = ((TransactionalEditingDomainImpl) editingDomain)
+									.getActiveTransaction().getParent()) != null);
 						}
 
 						final EList<Resource> resources = editingDomain.getResourceSet().getResources();
@@ -143,7 +158,8 @@ public class FileService {
 	private static String createMessage(Map<URI, Throwable> failedSaves) {
 		final StringBuilder buf = new StringBuilder("The following resources could not be saved:");
 		for (final Entry<URI, Throwable> entry : failedSaves.entrySet()) {
-			buf.append("\nURI: ").append(entry.getKey().toString()).append(", cause: \n").append(getExceptionAsString(entry.getValue()));
+			buf.append("\nURI: ").append(entry.getKey().toString()).append(", cause: \n")
+					.append(getExceptionAsString(entry.getValue()));
 		}
 		return buf.toString();
 	}
@@ -161,4 +177,5 @@ public class FileService {
 		printWriter.close();
 		return result;
 	}
+
 }

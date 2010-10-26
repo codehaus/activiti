@@ -1,9 +1,14 @@
 package org.activiti.graphiti.bpmn.eclipse.ui;
 
+import java.io.InputStream;
+
+import org.activiti.designer.eclipse.preferences.Preferences;
+import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiPlugin;
 import org.activiti.graphiti.bpmn.eclipse.common.FileService;
 import org.activiti.graphiti.bpmn.eclipse.navigator.nodes.base.AbstractInstancesOfTypeContainerNode;
+import org.activiti.graphiti.bpmn.eclipse.util.Util;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -74,6 +79,7 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 	 */
 	@Override
 	public boolean performFinish() {
+
 		final String diagramTypeId = "BPMNdiagram";
 
 		ITextProvider namePage = (ITextProvider) getPage(PAGE_NAME_DIAGRAM_NAME);
@@ -105,7 +111,6 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 			return false;
 		}
 
-		Diagram diagram = Graphiti.getPeCreateService().createDiagram(diagramTypeId, diagramName, true);
 		if (diagramFolder == null) {
 			diagramFolder = project.getFolder(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER);
 		}
@@ -113,7 +118,23 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 		IFile diagramFile = diagramFolder.getFile(diagramName + ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION);
 		URI uri = URI.createPlatformResourceURI(diagramFile.getFullPath().toString(), true);
 
-		TransactionalEditingDomain domain = FileService.createEmfFileForDiagram(uri, diagram);
+		TransactionalEditingDomain domain = null;
+
+		boolean createContent = PreferencesUtil
+				.getBooleanPreference(Preferences.EDITOR_ADD_DEFAULT_CONTENT_TO_DIAGRAMS);
+
+		if (createContent) {
+			final InputStream contentStream = Util.getContentStream(Util.Content.NEW_DIAGRAM_CONTENT);
+			InputStream replacedStream = Util.swapStreamContents(diagramName, contentStream);
+			domain = FileService.createEmfFileForDiagram(uri, null, replacedStream, diagramFile);
+			diagram = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getDiagramFromFile(
+					diagramFile, domain.getResourceSet());
+
+		} else {
+			diagram = Graphiti.getPeCreateService().createDiagram(diagramTypeId, diagramName, true);
+			domain = FileService.createEmfFileForDiagram(uri, diagram, null, null);
+		}
+
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
 		DiagramEditorInput editorInput = new DiagramEditorInput(EcoreUtil.getURI(diagram), domain, providerId);
 

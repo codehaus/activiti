@@ -1,7 +1,5 @@
 package org.activiti.graphiti.bpmn.designer.util;
 
-import org.activiti.graphiti.bpmn.designer.Activator;
-import org.activiti.graphiti.bpmn.designer.preferences.ActivitiDesignerPreferences;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -27,7 +25,6 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jface.preference.IPreferenceStore;
 
 public class ActivitiUiUtil {
 
@@ -152,16 +149,4 @@ public class ActivitiUiUtil {
 		return currentProject;
 	}
 
-	/**
-	 * Gets a boolean preference's value from the plugin's preference store.
-	 * 
-	 * @param preference
-	 *            the preference to get
-	 * @return true if the preference is stored as true, otherwise false and
-	 *         false if there is no preference applied
-	 */
-	public static final boolean getBooleanPreference(final ActivitiDesignerPreferences preference) {
-		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		return store.getBoolean(preference.getPreferenceId());
-	}
 }

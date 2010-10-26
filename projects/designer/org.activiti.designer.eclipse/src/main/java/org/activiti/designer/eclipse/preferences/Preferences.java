@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.activiti.graphiti.bpmn.designer.preferences;
+package org.activiti.designer.eclipse.preferences;
 
 /**
  * Enumeration of preferences used in the designer.
@@ -11,14 +11,15 @@ package org.activiti.graphiti.bpmn.designer.preferences;
  * @version 1
  * 
  */
-public enum ActivitiDesignerPreferences {
+public enum Preferences {
 
 	ECLIPSE_ACTIVITI_JAR_LOCATION("org.activiti.designer.preferences.eclipse.activitiJarLocation"), EDITOR_ADD_LABELS_TO_NEW_SEQUENCEFLOWS(
-			"org.activiti.designer.preferences.editor.addLabelsToNewSequenceFlows");
+			"org.activiti.designer.preferences.editor.addLabelsToNewSequenceFlows"), EDITOR_ADD_DEFAULT_CONTENT_TO_DIAGRAMS(
+			"org.activiti.designer.preferences.editor.addDefaultContentToDiagrams");
 
 	private String preferenceId;
 
-	private ActivitiDesignerPreferences(final String preferenceId) {
+	private Preferences(final String preferenceId) {
 		this.preferenceId = preferenceId;
 	}
 

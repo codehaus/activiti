@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.graphiti;bundle-version="0.7.0",
  org.activiti.designer.model;bundle-version="0.5.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.activiti.graphiti.bpmn.eclipse.common,
+Export-Package: org.activiti.designer.eclipse.preferences,
+ org.activiti.graphiti.bpmn.eclipse.common,
  org.activiti.graphiti.bpmn.eclipse.navigator,
  org.activiti.graphiti.bpmn.eclipse.navigator.nodes,
  org.activiti.graphiti.bpmn.eclipse.navigator.nodes.base,

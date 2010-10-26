@@ -1,6 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.preferences;
 
-import org.activiti.graphiti.bpmn.designer.Activator;
+import org.activiti.designer.eclipse.preferences.Preferences;
+import org.activiti.graphiti.bpmn.eclipse.common.ActivitiPlugin;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -14,16 +15,16 @@ public class ActivitiPreferencePage extends FieldEditorPreferencePage implements
 	}
 
 	public void createFieldEditors() {
-		addField(new DirectoryFieldEditor(ActivitiDesignerPreferences.ECLIPSE_ACTIVITI_JAR_LOCATION.getPreferenceId(),
+		addField(new DirectoryFieldEditor(Preferences.ECLIPSE_ACTIVITI_JAR_LOCATION.getPreferenceId(),
 				"&Directory with Activiti jars:", getFieldEditorParent()));
 	}
 
 	@Override
 	public void init(IWorkbench workbench) {
-		IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
+		IPreferenceStore prefStore = ActivitiPlugin.getDefault().getPreferenceStore();
 		setPreferenceStore(prefStore);
 		setDescription("Set the location of your Activiti install base.");
-		String test = prefStore.getString(ActivitiDesignerPreferences.ECLIPSE_ACTIVITI_JAR_LOCATION.getPreferenceId());
+		String test = prefStore.getString(Preferences.ECLIPSE_ACTIVITI_JAR_LOCATION.getPreferenceId());
 		System.out.println("Val = " + test);
 	}
 }

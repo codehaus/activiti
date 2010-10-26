@@ -3,12 +3,15 @@ package org.activiti.graphiti.bpmn.eclipse.ui;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.draw2d.CheckBox;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 /**
  * The Class DiagramNameWizardPage.
  */
 public class DiagramNameWizardPage extends AbstractInputFieldWizardPage {
+
+	CheckBox createDefaultContent = new CheckBox();
 
 	/**
 	 * The Constructor.

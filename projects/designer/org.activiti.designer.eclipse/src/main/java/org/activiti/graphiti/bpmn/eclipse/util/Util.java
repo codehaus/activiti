@@ -15,6 +15,13 @@
  *******************************************************************************/
 package org.activiti.graphiti.bpmn.eclipse.util;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +47,9 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
  * Collection of general static helper methods.
  */
 public class Util {
+
+	private static final String DIAGRAM_NAME_PATTERN = "name=\"%s\"";
+	private static final String DIAGRAM_NAME_DEFAULT = String.format(DIAGRAM_NAME_PATTERN, "my_bpmn2_diagram");
 
 	/**
 	 * Moves the object at the source index of the list to the _target index of
@@ -87,9 +97,10 @@ public class Util {
 			return false;
 		return o1.equals(o2);
 	}
-	
+
 	public static BaseElement[] getAllBpmnElements(IProject project, ResourceSet rSet) {
-		// FIXME: always unload to have our resources refreshed, this is highly non-performant
+		// FIXME: always unload to have our resources refreshed, this is highly
+		// non-performant
 		EList<Resource> resources = rSet.getResources();
 		for (Resource resource : resources) {
 			resource.unload();
@@ -117,8 +128,8 @@ public class Util {
 						// implementation, so tool builders should use their own
 						// way of retrieval here
 						@SuppressWarnings("restriction")
-						Diagram diag = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getDiagramFromFile(
-								file, rSet);
+						Diagram diag = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService()
+								.getDiagramFromFile(file, rSet);
 						if (diag != null) {
 							diagrams.add(diag);
 						} else {
@@ -129,7 +140,8 @@ public class Util {
 							// (e.g. known by a special extension or residing in
 							// a special folder) instead of this generic logic.
 							@SuppressWarnings("restriction")
-							URI uri = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getFileURI(file, rSet);
+							URI uri = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService()
+									.getFileURI(file, rSet);
 							Resource fileResource = rSet.getResource(uri, true);
 							if (fileResource != null) {
 								EList<EObject> contents = fileResource.getContents();
@@ -156,5 +168,63 @@ public class Util {
 			}
 		}
 		return bpmnElements.toArray(new BaseElement[bpmnElements.size()]);
+	}
+
+	public static InputStream getContentStream(final Content content) {
+		return Util.class.getClassLoader().getResourceAsStream(content.getContentPath());
+	}
+
+	public enum Content {
+
+		NEW_DIAGRAM_CONTENT("src/main/resources/content/new-diagram-content.xml"), NEW_SUBPROCESS_CONTENT(
+				"src/main/resources/content/new-subprocess-content.xml");
+
+		private final String contentPath;
+
+		private Content(String contentPath) {
+			this.contentPath = contentPath;
+		}
+
+		public String getContentPath() {
+			return contentPath;
+		}
+
+	}
+
+	/**
+	 * Replaces the document name in the provided contentStream's content and
+	 * returns a new stream containing the new content.
+	 * 
+	 * @param diagramName
+	 *            the name of the document to use
+	 * @param contentStream
+	 *            the original content stream
+	 * @return
+	 */
+	public static InputStream swapStreamContents(final String diagramName, final InputStream contentStream) {
+		InputStream result = null;
+
+		try {
+
+			Writer writer = new StringWriter();
+			char[] buffer = new char[1024];
+			try {
+				Reader reader = new BufferedReader(new InputStreamReader(contentStream, "UTF-8"));
+				int n;
+				while ((n = reader.read(buffer)) != -1) {
+					writer.write(buffer, 0, n);
+				}
+			} finally {
+				contentStream.close();
+			}
+			String contentString = writer.toString();
+			contentString = contentString.replace(DIAGRAM_NAME_DEFAULT,
+					String.format(DIAGRAM_NAME_PATTERN, diagramName));
+
+			result = new ByteArrayInputStream(contentString.getBytes());
+		} catch (Exception e) {
+			// TODO
+		}
+		return result;
 	}
 }
