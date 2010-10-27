@@ -4,12 +4,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.eclipse.common.FileService;
+import org.activiti.designer.eclipse.common.Preferences;
+import org.activiti.designer.eclipse.common.PreferencesUtil;
+import org.activiti.designer.eclipse.util.Util;
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
-import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
-import org.activiti.graphiti.bpmn.eclipse.common.FileService;
-import org.activiti.graphiti.bpmn.eclipse.common.Preferences;
-import org.activiti.graphiti.bpmn.eclipse.common.PreferencesUtil;
-import org.activiti.graphiti.bpmn.eclipse.util.Util;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.impl.SubProcessImpl;
 import org.eclipse.core.resources.IFile;

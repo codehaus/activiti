@@ -3,10 +3,10 @@ package org.activiti.graphiti.bpmn.designer.diagram;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
 import org.activiti.graphiti.bpmn.designer.features.ExpandCollapseSubProcessFeature;
 import org.activiti.graphiti.bpmn.designer.features.SaveBpmnModelFeature;
-import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.core.resources.IFile;

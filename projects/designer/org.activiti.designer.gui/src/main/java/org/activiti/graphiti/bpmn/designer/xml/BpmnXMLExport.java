@@ -8,8 +8,8 @@ import java.util.Iterator;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
-import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.EndEvent;

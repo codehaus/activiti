@@ -16,9 +16,9 @@
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
-            contentProvider="org.activiti.graphiti.bpmn.eclipse.navigator.BpmnTreeContentProvider"
+            contentProvider="org.activiti.designer.eclipse.navigator.BpmnTreeContentProvider"
             id="org.activiti.graphiti.bpmn.eclipse.navigatorContent"
-            labelProvider="org.activiti.graphiti.bpmn.eclipse.navigator.BpmnLabelProvider"
+            labelProvider="org.activiti.designer.eclipse.navigator.BpmnLabelProvider"
             name="Activiti navigator content"
             priority="higher">
          <triggerPoints>
@@ -31,7 +31,7 @@
          <possibleChildren>
             <or>
                <instanceof
-                     value="org.activiti.graphiti.bpmn.eclipse.navigator.nodes.BpmnElementsNode">
+                     value="org.activiti.designer.eclipse.navigator.nodes.BpmnElementsNode">
                </instanceof>
                <instanceof
                      value="org.eclipse.bpmn2.StartEvent">
@@ -56,7 +56,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
+            class="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
             fixed="false"
             icon="community_icon.png"
             id="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
@@ -71,7 +71,7 @@
       </category>
       <wizard
             category="org.activiti.graphiti.bpmn.eclipse.category"
-            class="org.activiti.graphiti.bpmn.eclipse.ui.CreateActivitiProjectWizard"
+            class="org.activiti.designer.eclipse.ui.CreateActivitiProjectWizard"
             finalPerspective="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
             icon="community_icon.png"
             id="org.activiti.graphiti.bpmn.eclipse.ui.CreateActivitiProjectWizard"
@@ -80,7 +80,7 @@
       </wizard>
       <wizard
             category="org.activiti.graphiti.bpmn.eclipse.category"
-            class="org.activiti.graphiti.bpmn.eclipse.ui.CreateDiagramWizard"
+            class="org.activiti.designer.eclipse.ui.CreateDiagramWizard"
             finalPerspective="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
             icon="community_icon.png"
             id="org.activiti.graphiti.bpmn.eclipse.ui.CreateDiagramWizard"
@@ -93,14 +93,14 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.activiti.graphiti.bpmn.eclipse.common.ActivitiProjectNature">
+               class="org.activiti.designer.eclipse.common.ActivitiProjectNature">
          </run>
       </runtime>
    </extension>
    <extension
          point="org.eclipse.graphiti.ui.imageProviders">
       <imageProvider
-            class="org.activiti.graphiti.bpmn.eclipse.common.ActivitiEclipseImageProvider"
+            class="org.activiti.designer.eclipse.common.ActivitiEclipseImageProvider"
             id="org.activiti.graphiti.bpmn.eclipse.common.ActivitiImageProvider">
       </imageProvider>
    </extension>
