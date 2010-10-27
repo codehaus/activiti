@@ -24,8 +24,8 @@ Require-Bundle: org.eclipse.ui,
  org.activiti.designer.model;bundle-version="0.5.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.activiti.graphiti.bpmn.designer,
- org.activiti.graphiti.bpmn.designer.diagram
+Export-Package: org.activiti.designer,
+ org.activiti.designer.diagram
 Bundle-Vendor: Eclipse Modeling Project
-Bundle-Activator: org.activiti.graphiti.bpmn.designer.Activator
+Bundle-Activator: org.activiti.designer.Activator
 Bundle-ClassPath: .

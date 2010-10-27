@@ -13,7 +13,7 @@
    <extension
          point="org.eclipse.graphiti.ui.diagramTypeProviders">
       <diagramTypeProvider
-            class="org.activiti.graphiti.bpmn.designer.diagram.ActivitiBPMNDiagramTypeProvider"
+            class="org.activiti.designer.diagram.ActivitiBPMNDiagramTypeProvider"
             id="org.activiti.graphiti.bpmn.designer.diagram.ActivitiBPMNDiagramTypeProvider"
             name="Activiti BPMN editor">
          <diagramType
@@ -27,7 +27,7 @@
    <extension
          point="org.eclipse.graphiti.ui.imageProviders">
       <imageProvider
-            class="org.activiti.graphiti.bpmn.designer.ActivitiImageProvider"
+            class="org.activiti.designer.ActivitiImageProvider"
             id="org.activiti.graphiti.bpmn.designer.ActivitiImageProvider">
       </imageProvider>
    </extension>
@@ -55,38 +55,38 @@
       <propertySections
             contributorId="BPMNdiagram.PropertyContributor">
          <propertySection
-               class="org.activiti.graphiti.bpmn.designer.property.PropertyDiagramSection"
-               filter="org.activiti.graphiti.bpmn.designer.property.PropertyDiagramFilter"
+               class="org.activiti.designer.property.PropertyDiagramSection"
+               filter="org.activiti.designer.property.PropertyDiagramFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.diagram"
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
-               class="org.activiti.graphiti.bpmn.designer.property.PropertySequenceFlowSection"
-               filter="org.activiti.graphiti.bpmn.designer.property.PropertySequenceFlowFilter"
+               class="org.activiti.designer.property.PropertySequenceFlowSection"
+               filter="org.activiti.designer.property.PropertySequenceFlowFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.sequenceflow"
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
-               class="org.activiti.graphiti.bpmn.designer.property.PropertyScriptTaskSection"
-               filter="org.activiti.graphiti.bpmn.designer.property.PropertyScriptTaskFilter"
+               class="org.activiti.designer.property.PropertyScriptTaskSection"
+               filter="org.activiti.designer.property.PropertyScriptTaskFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.scripttask"
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
-               class="org.activiti.graphiti.bpmn.designer.property.PropertyServiceTaskSection"
-               filter="org.activiti.graphiti.bpmn.designer.property.PropertyServiceTaskFilter"
+               class="org.activiti.designer.property.PropertyServiceTaskSection"
+               filter="org.activiti.designer.property.PropertyServiceTaskFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.servicetask"
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
-               class="org.activiti.graphiti.bpmn.designer.property.PropertyUserTaskSection"
-               filter="org.activiti.graphiti.bpmn.designer.property.PropertyUserTaskFilter"
+               class="org.activiti.designer.property.PropertyUserTaskSection"
+               filter="org.activiti.designer.property.PropertyUserTaskFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.usertask"
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
          <propertySection
-               class="org.activiti.graphiti.bpmn.designer.property.PropertyBpmnSection"
-               filter="org.activiti.graphiti.bpmn.designer.property.PropertyBpmnFilter"
+               class="org.activiti.designer.property.PropertyBpmnSection"
+               filter="org.activiti.designer.property.PropertyBpmnFilter"
                id="org.activiti.graphiti.bpmn.designer.propertyTab.flowelement"
                tab="org.activiti.graphiti.bpmn.designer.propertyTab">
          </propertySection>
@@ -106,7 +106,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.activiti.graphiti.bpmn.designer.runner.GenerateRunnerHandler"
+            defaultHandler="org.activiti.designer.runner.GenerateRunnerHandler"
             id="org.activiti.graphiti.bpmn.designer.generateProcessRunner"
             name="GenerateProcessRunner">
       </command>
@@ -114,13 +114,13 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="org.activiti.graphiti.bpmn.designer.preferences.ActivitiPreferencePage"
+            class="org.activiti.designer.preferences.ActivitiPreferencePage"
             id="org.activiti.graphiti.bpmn.designer.preferences"
             name="Activiti">
       </page>
       <page
             category="org.activiti.graphiti.bpmn.designer.preferences"
-            class="org.activiti.graphiti.bpmn.designer.preferences.ActivitiEditorPreferencesPage"
+            class="org.activiti.designer.preferences.ActivitiEditorPreferencesPage"
             id="org.activiti.designer.gui.editorpage"
             name="Editor">
       </page>
