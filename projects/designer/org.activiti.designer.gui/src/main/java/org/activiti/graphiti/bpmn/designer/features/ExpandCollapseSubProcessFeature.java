@@ -6,8 +6,8 @@ import java.util.Collection;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.FileService;
-import org.activiti.designer.eclipse.common.Preferences;
-import org.activiti.designer.eclipse.common.PreferencesUtil;
+import org.activiti.designer.eclipse.preferences.Preferences;
+import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.activiti.designer.eclipse.util.Util;
 import org.activiti.graphiti.bpmn.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.SubProcess;

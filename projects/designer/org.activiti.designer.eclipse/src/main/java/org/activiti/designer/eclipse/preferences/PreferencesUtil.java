@@ -1,8 +1,9 @@
 /**
  * 
  */
-package org.activiti.designer.eclipse.common;
+package org.activiti.designer.eclipse.preferences;
 
+import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 /**

@@ -1,7 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.features;
 
-import org.activiti.designer.eclipse.common.Preferences;
-import org.activiti.designer.eclipse.common.PreferencesUtil;
+import org.activiti.designer.eclipse.preferences.Preferences;
+import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.activiti.graphiti.bpmn.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.EndEvent;
