@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Activiti Designer - Help
 Bundle-SymbolicName: org.activiti.designer.help;singleton:=true
 Bundle-Version: 0.5.1
-Bundle-Activator: org.activiti.graphiti.bpmn.help.Activator
+Bundle-Activator: org.activiti.designer.help.Activator
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

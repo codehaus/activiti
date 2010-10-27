@@ -10,5 +10,8 @@
         <toc
             file="tocusage.xml">
         </toc>
+        <toc
+              file="tocpreferences.xml">
+        </toc>
     </extension>
 </plugin>
