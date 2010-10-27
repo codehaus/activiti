@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.activiti.designer.eclipse.preferences;
+package org.activiti.graphiti.bpmn.eclipse.common;
 
 /**
  * Enumeration of preferences used in the designer.

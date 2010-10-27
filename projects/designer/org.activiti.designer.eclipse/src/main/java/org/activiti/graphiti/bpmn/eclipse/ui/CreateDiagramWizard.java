@@ -2,11 +2,11 @@ package org.activiti.graphiti.bpmn.eclipse.ui;
 
 import java.io.InputStream;
 
-import org.activiti.designer.eclipse.preferences.Preferences;
-import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiPlugin;
 import org.activiti.graphiti.bpmn.eclipse.common.FileService;
+import org.activiti.graphiti.bpmn.eclipse.common.Preferences;
+import org.activiti.graphiti.bpmn.eclipse.common.PreferencesUtil;
 import org.activiti.graphiti.bpmn.eclipse.navigator.nodes.base.AbstractInstancesOfTypeContainerNode;
 import org.activiti.graphiti.bpmn.eclipse.util.Util;
 import org.eclipse.core.resources.IFile;

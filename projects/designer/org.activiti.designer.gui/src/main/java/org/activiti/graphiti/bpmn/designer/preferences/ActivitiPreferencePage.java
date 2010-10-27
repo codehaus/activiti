@@ -1,7 +1,7 @@
 package org.activiti.graphiti.bpmn.designer.preferences;
 
-import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.graphiti.bpmn.eclipse.common.ActivitiPlugin;
+import org.activiti.graphiti.bpmn.eclipse.common.Preferences;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
