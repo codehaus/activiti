@@ -8,7 +8,7 @@
          <includes>
             <contentExtension
                   isRoot="false"
-                  pattern="org.activiti.graphiti.bpmn.eclipse.navigatorContent">
+                  pattern="org.activiti.designer.eclipse.navigatorContent">
             </contentExtension>
          </includes>
       </viewerContentBinding>
@@ -17,7 +17,7 @@
          point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
             contentProvider="org.activiti.designer.eclipse.navigator.BpmnTreeContentProvider"
-            id="org.activiti.graphiti.bpmn.eclipse.navigatorContent"
+            id="org.activiti.designer.eclipse.navigatorContent"
             labelProvider="org.activiti.designer.eclipse.navigator.BpmnLabelProvider"
             name="Activiti navigator content"
             priority="higher">
@@ -41,13 +41,13 @@
       </navigatorContent>
       <commonWizard
             type="import"
-            wizardId="org.activiti.graphiti.bpmn.eclipse.commonWizard1">
+            wizardId="org.activiti.designer.eclipse.commonWizard1">
          <enablement>
             <adapt
                   type="org.eclipse.core.resources.IProject">
                <test
                      property="org.eclipse.core.resources.projectNature"
-                     value="org.activiti.graphiti.bpmn.eclipse.activitinature">
+                     value="org.activiti.designer.eclipse.activitinature">
                </test>
             </adapt>
          </enablement>
@@ -59,36 +59,36 @@
             class="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
             fixed="false"
             icon="community_icon.png"
-            id="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
+            id="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
             name="Activiti">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-            id="org.activiti.graphiti.bpmn.eclipse.category"
+            id="org.activiti.designer.eclipse.category"
             name="Activiti">
       </category>
       <wizard
-            category="org.activiti.graphiti.bpmn.eclipse.category"
+            category="org.activiti.designer.eclipse.category"
             class="org.activiti.designer.eclipse.ui.CreateActivitiProjectWizard"
-            finalPerspective="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
+            finalPerspective="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
             icon="community_icon.png"
-            id="org.activiti.graphiti.bpmn.eclipse.ui.CreateActivitiProjectWizard"
+            id="org.activiti.designer.eclipse.ui.CreateActivitiProjectWizard"
             name="Activiti project"
             project="true">
       </wizard>
       <wizard
-            category="org.activiti.graphiti.bpmn.eclipse.category"
+            category="org.activiti.designer.eclipse.category"
             class="org.activiti.designer.eclipse.ui.CreateDiagramWizard"
-            finalPerspective="org.activiti.graphiti.bpmn.eclipse.perspective.ActivitiPerspective"
+            finalPerspective="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
             icon="community_icon.png"
-            id="org.activiti.graphiti.bpmn.eclipse.ui.CreateDiagramWizard"
+            id="org.activiti.designer.eclipse.ui.CreateDiagramWizard"
             name="Activiti diagram">
       </wizard>
    </extension>
    <extension
-         id="org.activiti.graphiti.bpmn.nature"
+         id="org.activiti.designer.nature"
          name="Activiti nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
@@ -101,7 +101,7 @@
          point="org.eclipse.graphiti.ui.imageProviders">
       <imageProvider
             class="org.activiti.designer.eclipse.common.ActivitiEclipseImageProvider"
-            id="org.activiti.graphiti.bpmn.eclipse.common.ActivitiImageProvider">
+            id="org.activiti.designer.eclipse.common.ActivitiImageProvider">
       </imageProvider>
    </extension>
 

@@ -5,7 +5,7 @@
          point="org.eclipse.graphiti.ui.diagramTypes">
       <diagramType
             description="The BPMN diagram for the Activiti process engine"
-            id="org.activiti.graphiti.bpmn.designer.DiagramTypeBPMN"
+            id="org.activiti.designer.DiagramTypeBPMN"
             name="Activiti BPMN diagram type"
             type="BPMNdiagram">
       </diagramType>
@@ -14,13 +14,13 @@
          point="org.eclipse.graphiti.ui.diagramTypeProviders">
       <diagramTypeProvider
             class="org.activiti.designer.diagram.ActivitiBPMNDiagramTypeProvider"
-            id="org.activiti.graphiti.bpmn.designer.diagram.ActivitiBPMNDiagramTypeProvider"
+            id="org.activiti.designer.diagram.ActivitiBPMNDiagramTypeProvider"
             name="Activiti BPMN editor">
          <diagramType
-               id="org.activiti.graphiti.bpmn.designer.DiagramTypeBPMN">
+               id="org.activiti.designer.DiagramTypeBPMN">
          </diagramType>
          <imageProvider
-               id="org.activiti.graphiti.bpmn.designer.ActivitiImageProvider">
+               id="org.activiti.designer.ActivitiImageProvider">
          </imageProvider>
       </diagramTypeProvider>
    </extension>
@@ -28,7 +28,7 @@
          point="org.eclipse.graphiti.ui.imageProviders">
       <imageProvider
             class="org.activiti.designer.ActivitiImageProvider"
-            id="org.activiti.graphiti.bpmn.designer.ActivitiImageProvider">
+            id="org.activiti.designer.ActivitiImageProvider">
       </imageProvider>
    </extension>
    <extension
@@ -45,7 +45,7 @@
             contributorId="BPMNdiagram.PropertyContributor">
          <propertyTab
                category="Activiti"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab"
+               id="org.activiti.designer.propertyTab"
                label="Main">
          </propertyTab>
       </propertyTabs>
@@ -57,38 +57,38 @@
          <propertySection
                class="org.activiti.designer.property.PropertyDiagramSection"
                filter="org.activiti.designer.property.PropertyDiagramFilter"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab.diagram"
-               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+               id="org.activiti.designer.propertyTab.diagram"
+               tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection
                class="org.activiti.designer.property.PropertySequenceFlowSection"
                filter="org.activiti.designer.property.PropertySequenceFlowFilter"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab.sequenceflow"
-               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+               id="org.activiti.designer.propertyTab.sequenceflow"
+               tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection
                class="org.activiti.designer.property.PropertyScriptTaskSection"
                filter="org.activiti.designer.property.PropertyScriptTaskFilter"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab.scripttask"
-               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+               id="org.activiti.designer.propertyTab.scripttask"
+               tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection
                class="org.activiti.designer.property.PropertyServiceTaskSection"
                filter="org.activiti.designer.property.PropertyServiceTaskFilter"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab.servicetask"
-               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+               id="org.activiti.designer.propertyTab.servicetask"
+               tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection
                class="org.activiti.designer.property.PropertyUserTaskSection"
                filter="org.activiti.designer.property.PropertyUserTaskFilter"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab.usertask"
-               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+               id="org.activiti.designer.propertyTab.usertask"
+               tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection
                class="org.activiti.designer.property.PropertyBpmnSection"
                filter="org.activiti.designer.property.PropertyBpmnFilter"
-               id="org.activiti.graphiti.bpmn.designer.propertyTab.flowelement"
-               tab="org.activiti.graphiti.bpmn.designer.propertyTab">
+               id="org.activiti.designer.propertyTab.flowelement"
+               tab="org.activiti.designer.propertyTab">
          </propertySection>
       </propertySections>
    </extension>
@@ -97,7 +97,7 @@
       <menuContribution
             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
          <command
-               commandId="org.activiti.graphiti.bpmn.designer.generateProcessRunner"
+               commandId="org.activiti.designer.generateProcessRunner"
                label="Generate Process Runner Class"
                style="push">
          </command>
@@ -107,7 +107,7 @@
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.activiti.designer.runner.GenerateRunnerHandler"
-            id="org.activiti.graphiti.bpmn.designer.generateProcessRunner"
+            id="org.activiti.designer.generateProcessRunner"
             name="GenerateProcessRunner">
       </command>
    </extension>
@@ -115,11 +115,11 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="org.activiti.designer.preferences.ActivitiPreferencePage"
-            id="org.activiti.graphiti.bpmn.designer.preferences"
+            id="org.activiti.designer.preferences"
             name="Activiti">
       </page>
       <page
-            category="org.activiti.graphiti.bpmn.designer.preferences"
+            category="org.activiti.designer.preferences"
             class="org.activiti.designer.preferences.ActivitiEditorPreferencesPage"
             id="org.activiti.designer.gui.editorpage"
             name="Editor">

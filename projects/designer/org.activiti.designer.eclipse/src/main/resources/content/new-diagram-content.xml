@@ -47,7 +47,7 @@
         <link businessObjects="usertask1"/>
       </children>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Image" width="10" height="10" x="5" y="5" id="org.activiti.graphiti.bpmn.designer.usertask" stretchH="false" stretchV="false" proportional="false"/>
+        <graphicsAlgorithm xsi:type="al:Image" width="10" height="10" x="5" y="5" id="org.activiti.designer.usertask" stretchH="false" stretchV="false" proportional="false"/>
       </children>
     </children>
     <styles foreground="/0/@colors.2" lineWidth="2" id="BPMN-CLASS">

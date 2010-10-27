@@ -1,4 +1,4 @@
-package org.activiti.graphiti.bpmn.help;
+package org.activiti.designer.help;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
