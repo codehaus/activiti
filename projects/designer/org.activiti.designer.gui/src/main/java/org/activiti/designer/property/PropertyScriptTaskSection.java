@@ -102,7 +102,6 @@ public class PropertyScriptTaskSection extends GFPropertySection implements ITab
 				Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
 				if (bo instanceof ScriptTask) {
 					DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-					@SuppressWarnings("restriction")
 					TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 					ActivitiUiUtil.runModelChange(new Runnable() {
 						public void run() {

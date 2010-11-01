@@ -50,8 +50,9 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 					.getGraphicsAlgorithm();
 			GraphicsAlgorithm targetGraphics = getPictogramElement(addedSequenceFlow.getTargetRef())
 					.getGraphicsAlgorithm();
-			if ((sourceGraphics.getY() + 5) < targetGraphics.getY()
-					|| (sourceGraphics.getY() - 5) > targetGraphics.getY()) {
+			if (((sourceGraphics.getY() + 5) < targetGraphics.getY()
+					|| (sourceGraphics.getY() - 5) > targetGraphics.getY())  && 
+					(sourceGraphics.getX() + (sourceGraphics.getWidth() / 2)) < targetGraphics.getX()) {
 				Point bendPoint = StylesFactory.eINSTANCE.createPoint();
 				bendPoint.setX(sourceGraphics.getX() + 30);
 				bendPoint.setY(targetGraphics.getY() + (targetGraphics.getHeight() / 2));
@@ -62,8 +63,9 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 					.getGraphicsAlgorithm();
 			GraphicsAlgorithm targetGraphics = getPictogramElement(addedSequenceFlow.getTargetRef())
 					.getGraphicsAlgorithm();
-			if ((sourceGraphics.getY() + 5) < targetGraphics.getY()
-					|| (sourceGraphics.getY() - 5) > targetGraphics.getY()) {
+			if (((sourceGraphics.getY() + 5) < targetGraphics.getY()
+					|| (sourceGraphics.getY() - 5) > targetGraphics.getY()) && 
+					(sourceGraphics.getX() + sourceGraphics.getWidth()) < targetGraphics.getX()) {
 				Point bendPoint = StylesFactory.eINSTANCE.createPoint();
 				bendPoint.setX(targetGraphics.getX() + 30);
 				bendPoint.setY(sourceGraphics.getY() + (sourceGraphics.getHeight() / 2));

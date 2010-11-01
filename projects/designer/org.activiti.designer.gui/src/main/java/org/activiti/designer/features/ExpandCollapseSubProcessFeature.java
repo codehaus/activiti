@@ -101,7 +101,6 @@ public class ExpandCollapseSubProcessFeature extends AbstractDrillDownFeature {
 		return result;
 	}
 
-	@SuppressWarnings("restriction")
 	private Diagram getNewDiagram(final IProject project, final IFile targetFile) {
 		Diagram diagram = null;
 		URI uri = URI.createPlatformResourceURI(targetFile.getFullPath().toString(), true);
@@ -125,7 +124,6 @@ public class ExpandCollapseSubProcessFeature extends AbstractDrillDownFeature {
 		return diagram;
 	}
 
-	@SuppressWarnings("restriction")
 	private Diagram getExistingDiagram(final IProject project, final IFile targetFile) {
 		final ResourceSet rSet = new ResourceSetImpl();
 		Diagram diagram = GraphitiUiInternal.getEmfService().getDiagramFromFile(targetFile, rSet);

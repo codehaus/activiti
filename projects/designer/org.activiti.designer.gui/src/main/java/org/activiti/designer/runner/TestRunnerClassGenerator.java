@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.junit.buildpath.BuildPathSupport;
 
-@SuppressWarnings("restriction")
 public class TestRunnerClassGenerator {
 	
 	private static final Path ACTIVITI_JARS = new Path("org.eclipse.jdt.USER_LIBRARY/ACTIVITI_LIB");
@@ -71,14 +70,14 @@ public class TestRunnerClassGenerator {
 		}
 
 		IPackageFragment pack = srcRoot.createPackageFragment(
-				"org.activiti.designer.runner", false, null);
+				"org.activiti.designer.test", false, null);
 
-		ICompilationUnit cu = pack.createCompilationUnit("ProcessRunner.java",
+		ICompilationUnit cu = pack.createCompilationUnit("ProcessTest.java",
 				createTestClass(bpmnResource, pack), false, null);
 		
 		IFolder testResourceFolder = project.getFolder("src").getFolder("test").getFolder("resources");
-		IFile propertiesFile = testResourceFolder.getFile("activiti.properties");
-		InputStream source = new ByteArrayInputStream(createPropertyFile().getBytes()); 
+		IFile propertiesFile = testResourceFolder.getFile("activiti.cfg.xml");
+		InputStream source = new ByteArrayInputStream(createConfigFile().getBytes()); 
 		propertiesFile.create(source, true, null);
 	}
 	
@@ -95,11 +94,11 @@ public class TestRunnerClassGenerator {
 		buffer.append("import org.activiti.engine.RuntimeService;\n");
 		buffer.append("import org.activiti.engine.runtime.ProcessInstance;\n");
 		buffer.append("import org.junit.Test;\n\n");
-		buffer.append("public class ProcessRunner{\n\n");
+		buffer.append("public class ProcessTest {\n\n");
 		buffer.append("\t@Test\n");
-		buffer.append("\tpublic void testProcess(){\n");
+		buffer.append("\tpublic void testProcess() {\n");
 		buffer.append("\t\tProcessEngine processEngine = new ProcessEngineBuilder()\n"); 
-		buffer.append("\t\t\t\t.configureFromPropertiesResource(\"activiti.properties\")\n"); 
+		buffer.append("\t\t\t\t.configureFromResource(\"activiti.cfg.xml\")\n"); 
 		buffer.append("\t\t\t\t.buildProcessEngine();\n");
 		buffer.append("\t\tRuntimeService runtimeService = processEngine.getRuntimeService();\n");
 		buffer.append("\t\tRepositoryService repositoryService = processEngine.getRepositoryService();\n");
@@ -117,16 +116,18 @@ public class TestRunnerClassGenerator {
 		return buffer.toString();
 	}
 	
-	private String createPropertyFile() {
+	private String createConfigFile() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("database=h2\n");
-		buffer.append("jdbc.driver=org.h2.Driver\n");
-		buffer.append("jdbc.url=jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000\n");
-		buffer.append("jdbc.username=sa\n");
-		buffer.append("jdbc.password=\n");
-		buffer.append("db.schema.strategy=create-drop\n");
-		buffer.append("jdbc.password=\n");
-		buffer.append("job.executor.auto.activate=off\n");
+		buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		buffer.append("<activiti-cfg>\n");
+		buffer.append("  <database type=\"h2\" schema-strategy=\"create-if-necessary\">\n");
+		buffer.append("    <jdbc url=\"jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000\"\n");
+		buffer.append("          driver=\"org.h2.Driver\"\n");
+		buffer.append("          username=\"sa\"\n");
+		buffer.append("          password=\"\" />\n");
+		buffer.append("  </database>\n");
+		buffer.append("  <job-executor activate=\"off\" />\n");
+		buffer.append("</activiti-cfg>");
 		return buffer.toString();
 	}
 	

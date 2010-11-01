@@ -99,7 +99,6 @@ public class PropertyDiagramSection extends GFPropertySection implements ITabbed
 		org.eclipse.bpmn2.Process process = ActivitiUiUtil.getProcessObject(getDiagram());
 		if(process == null) {
 			DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-			@SuppressWarnings("restriction")
 			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 			ActivitiUiUtil.runModelChange(new Runnable() {
 				public void run() {
@@ -132,7 +131,6 @@ public class PropertyDiagramSection extends GFPropertySection implements ITabbed
 
 		public void focusLost(final FocusEvent e) {
 			DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-			@SuppressWarnings("restriction")
 			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 			ActivitiUiUtil.runModelChange(new Runnable() {
 				public void run() {

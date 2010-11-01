@@ -43,8 +43,8 @@ public class BpmnXMLExport {
 	private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
 	private static final String SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
 	private static final String XPATH_NAMESPACE = "http://www.w3.org/1999/XPath";
-	private static final String ACTIVITI_NAMESPACE = "http://www.activiti.org/bpmn2.0";
-	private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn-extensions";
+	private static final String PROCESS_NAMESPACE = "http://www.activiti.org/test";
+	private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn";
 	private static final String VALIDATION_TITLE = "BPMN 2.0 Validation";
 
 	public static boolean validateBpmn(EList<EObject> contents, IProject project, String parentDiagramName) {
@@ -172,7 +172,7 @@ public class BpmnXMLExport {
 			xtw.writeNamespace("activiti", ACTIVITI_EXTENSIONS_NAMESPACE);
 			xtw.writeAttribute("typeLanguage", SCHEMA_NAMESPACE);
 			xtw.writeAttribute("expressionLanguage", XPATH_NAMESPACE);
-			xtw.writeAttribute("targetNamespace", ACTIVITI_NAMESPACE);
+			xtw.writeAttribute("targetNamespace", PROCESS_NAMESPACE);
 
 			org.eclipse.bpmn2.Process process = ActivitiUiUtil.getProcessObject(diagram);
 			// start process element
@@ -269,21 +269,21 @@ public class BpmnXMLExport {
 				// TODO revisit once the designer supports mixing these
 				// configurations as they are now exclusive
 				if (userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "assignee", userTask.getAssignee());
+					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "assignee", userTask.getAssignee());
 				} else if (userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0) {
 					Iterator<CandidateUser> candidateUserIterator = userTask.getCandidateUsers().iterator();
 					String candidateUsers = candidateUserIterator.next().getUser();
 					while (candidateUserIterator.hasNext()) {
 						candidateUsers += ", " + candidateUserIterator.next().getUser();
 					}
-					xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "candidateUsers", candidateUsers);
+					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "candidateUsers", candidateUsers);
 				} else {
 					Iterator<CandidateGroup> candidateGroupIterator = userTask.getCandidateGroups().iterator();
 					String candidateGroups = candidateGroupIterator.next().getGroup();
 					while (candidateGroupIterator.hasNext()) {
 						candidateGroups += ", " + candidateGroupIterator.next().getGroup();
 					}
-					xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "candidateGroups", candidateGroups);
+					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "candidateGroups", candidateGroups);
 				}
 				// end UserTask element
 				xtw.writeEndElement();
@@ -309,7 +309,7 @@ public class BpmnXMLExport {
 			xtw.writeStartElement("serviceTask");
 			xtw.writeAttribute("id", serviceTask.getId());
 			xtw.writeAttribute("name", serviceTask.getName());
-			xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "class", serviceTask.getImplementation());
+			xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "class", serviceTask.getImplementation());
 
 			// end ServiceTask element
 			xtw.writeEndElement();
@@ -405,7 +405,7 @@ public class BpmnXMLExport {
 					xtw.writeStartElement("userTask");
 					xtw.writeAttribute("id", subProcessId + "_" + userTask.getId());
 					xtw.writeAttribute("name", userTask.getName());
-					xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "assignee", userTask.getAssignee());
+					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "assignee", userTask.getAssignee());
 
 					// end UserTask element
 					xtw.writeEndElement();
@@ -431,7 +431,7 @@ public class BpmnXMLExport {
 				xtw.writeStartElement("serviceTask");
 				xtw.writeAttribute("id", subProcessId + "_" + serviceTask.getId());
 				xtw.writeAttribute("name", serviceTask.getName());
-				xtw.writeAttribute("activiti", ACTIVITI_NAMESPACE, "class", serviceTask.getImplementation());
+				xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "class", serviceTask.getImplementation());
 
 				// end ServiceTask element
 				xtw.writeEndElement();

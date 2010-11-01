@@ -112,7 +112,6 @@ public class PropertyBpmnSection extends GFPropertySection implements ITabbedPro
 			if (!(bo instanceof FlowElement)) return;
 				
 			DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-			@SuppressWarnings("restriction")
 			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 			ActivitiUiUtil.runModelChange(new Runnable() {
 				public void run() {

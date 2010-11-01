@@ -72,7 +72,6 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 						}
 
 						DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-						@SuppressWarnings("restriction")
 						TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 
 						ActivitiUiUtil.runModelChange(new Runnable() {

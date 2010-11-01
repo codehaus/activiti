@@ -93,25 +93,6 @@
       </propertySections>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
-         <command
-               commandId="org.activiti.designer.generateProcessRunner"
-               label="Generate Process Runner Class"
-               style="push">
-         </command>
-      </menuContribution> 
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="org.activiti.designer.runner.GenerateRunnerHandler"
-            id="org.activiti.designer.generateProcessRunner"
-            name="GenerateProcessRunner">
-      </command>
-   </extension>
-   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="org.activiti.designer.preferences.ActivitiPreferencePage"
@@ -124,5 +105,28 @@
             id="org.activiti.designer.gui.editorpage"
             name="Editor">
       </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="org.activiti.designer.gui.unitTestContribution"
+            nameFilter="*.bpmn20.xml"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="org.activiti.designer.gui.menu1"
+               label="Activiti"
+               path="additions">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               class="org.activiti.designer.actions.GenerateUnitTestAction"
+               id="org.activiti.designer.gui.generateUnitTestAction"
+               label="Generate unit test"
+               menubarPath="org.activiti.designer.gui.menu1/group1">
+         </action>
+      </objectContribution>
    </extension>
 </plugin>

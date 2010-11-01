@@ -83,7 +83,6 @@ public class PropertySequenceFlowSection extends GFPropertySection implements IT
 				Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
 				if (bo instanceof SequenceFlow) {
 					DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-					@SuppressWarnings("restriction")
 					TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 					ActivitiUiUtil.runModelChange(new Runnable() {
 						public void run() {
