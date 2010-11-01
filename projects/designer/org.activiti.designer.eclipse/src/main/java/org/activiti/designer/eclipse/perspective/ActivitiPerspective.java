@@ -47,8 +47,8 @@ public class ActivitiPerspective implements IPerspectiveFactory {
 
 		// Top left.
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float) 0.26, editorArea);//$NON-NLS-1$
-		topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
 		topLeft.addView("org.eclipse.jdt.ui.PackageExplorer");
+		topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
 		topLeft.addPlaceholder(IPageLayout.ID_BOOKMARKS);
 
 		// Bottom left.
@@ -60,8 +60,8 @@ public class ActivitiPerspective implements IPerspectiveFactory {
 		// Bottom right.
 		IFolderLayout bottomRight = layout.createFolder("bottomRight", IPageLayout.BOTTOM, (float) 0.66,//$NON-NLS-1$
 				editorArea);
-		bottomRight.addView("org.eclipse.pde.runtime.LogView");
 		bottomRight.addView(IPageLayout.ID_PROP_SHEET);
 		bottomRight.addView(IPageLayout.ID_PROBLEM_VIEW);
+		bottomRight.addView("org.eclipse.pde.runtime.LogView");
 	}
 }

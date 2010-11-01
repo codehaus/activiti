@@ -61,7 +61,6 @@ import org.eclipse.ui.part.PageBook;
  */
 // The generic outline uses internal functionality of Graphiti. For concrete
 // tool implementations this should not be necessary
-@SuppressWarnings("restriction")
 public class GraphicsEditorOutlinePage extends ContentOutlinePage implements IAdaptable, IPropertyListener {
 
 	// The IDs to identify the outline and the thunbnail

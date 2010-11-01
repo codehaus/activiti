@@ -127,7 +127,6 @@ public class Util {
 						// This may of course be different in a concrete tool
 						// implementation, so tool builders should use their own
 						// way of retrieval here
-						@SuppressWarnings("restriction")
 						Diagram diag = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService()
 								.getDiagramFromFile(file, rSet);
 						if (diag != null) {
@@ -139,7 +138,6 @@ public class Util {
 							// use their own logic to browse through their files
 							// (e.g. known by a special extension or residing in
 							// a special folder) instead of this generic logic.
-							@SuppressWarnings("restriction")
 							URI uri = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService()
 									.getFileURI(file, rSet);
 							Resource fileResource = rSet.getResource(uri, true);

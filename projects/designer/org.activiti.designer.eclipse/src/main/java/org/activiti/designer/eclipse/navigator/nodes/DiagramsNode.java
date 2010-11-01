@@ -83,7 +83,6 @@ public class DiagramsNode extends AbstractInstancesOfTypeContainerNode {
 			// This may of course be different in a concrete tool
 			// implementation, so tool builders should use their own
 			// way of retrieval here
-			@SuppressWarnings("restriction")
 			Diagram diagram = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService()
 					.getDiagramFromFile(file, rSet);
 			if (diagram != null) {

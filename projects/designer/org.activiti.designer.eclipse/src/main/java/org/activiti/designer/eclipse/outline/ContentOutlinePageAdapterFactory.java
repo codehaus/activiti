@@ -24,7 +24,6 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 // The generic outline uses internal functionality of Graphiti. For concrete
 // tool implementations this should not be necessary 
-@SuppressWarnings("restriction")
 public class ContentOutlinePageAdapterFactory implements IAdapterFactory {
 
 	private static final Class<?>[] ADAPTERS = new Class[] { IContentOutlinePage.class };
