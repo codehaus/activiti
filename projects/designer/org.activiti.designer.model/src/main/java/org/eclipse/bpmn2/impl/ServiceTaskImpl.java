@@ -14,16 +14,24 @@
  */
 package org.eclipse.bpmn2.impl;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.eclipse.bpmn2.Bpmn2Package;
+import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.Operation;
 import org.eclipse.bpmn2.ServiceTask;
 
 import org.eclipse.emf.common.notify.Notification;
 
+import org.eclipse.emf.common.util.EList;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 
 /**
  * <!-- begin-user-doc -->
@@ -34,6 +42,7 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  * <ul>
  *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getImplementation <em>Implementation</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getOperationRef <em>Operation Ref</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getCustomProperties <em>Custom Properties</em>}</li>
  * </ul>
  * </p>
  *
@@ -69,6 +78,16 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 	 * @ordered
 	 */
 	protected Operation operationRef;
+
+	/**
+	 * The cached value of the '{@link #getCustomProperties() <em>Custom Properties</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCustomProperties()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<CustomProperty> customProperties;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -107,8 +126,7 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		String oldImplementation = implementation;
 		implementation = newImplementation;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET,
-					Bpmn2Package.SERVICE_TASK__IMPLEMENTATION,
+			eNotify(new ENotificationImpl(this, Notification.SET, Bpmn2Package.SERVICE_TASK__IMPLEMENTATION,
 					oldImplementation, implementation));
 	}
 
@@ -123,8 +141,7 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 			operationRef = (Operation) eResolveProxy(oldOperationRef);
 			if (operationRef != oldOperationRef) {
 				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE,
-							Bpmn2Package.SERVICE_TASK__OPERATION_REF,
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, Bpmn2Package.SERVICE_TASK__OPERATION_REF,
 							oldOperationRef, operationRef));
 			}
 		}
@@ -149,9 +166,21 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		Operation oldOperationRef = operationRef;
 		operationRef = newOperationRef;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET,
-					Bpmn2Package.SERVICE_TASK__OPERATION_REF, oldOperationRef,
-					operationRef));
+			eNotify(new ENotificationImpl(this, Notification.SET, Bpmn2Package.SERVICE_TASK__OPERATION_REF,
+					oldOperationRef, operationRef));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public List<CustomProperty> getCustomProperties() {
+		if (customProperties == null) {
+			customProperties = new EObjectResolvingEList<CustomProperty>(CustomProperty.class, this,
+					Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES);
+		}
+		return customProperties;
 	}
 
 	/**
@@ -168,6 +197,8 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 			if (resolve)
 				return getOperationRef();
 			return basicGetOperationRef();
+		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
+			return getCustomProperties();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -177,6 +208,7 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
@@ -185,6 +217,10 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 			return;
 		case Bpmn2Package.SERVICE_TASK__OPERATION_REF:
 			setOperationRef((Operation) newValue);
+			return;
+		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
+			getCustomProperties().clear();
+			getCustomProperties().addAll((Collection<? extends CustomProperty>) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -204,6 +240,9 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		case Bpmn2Package.SERVICE_TASK__OPERATION_REF:
 			setOperationRef((Operation) null);
 			return;
+		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
+			getCustomProperties().clear();
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -217,10 +256,12 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 		case Bpmn2Package.SERVICE_TASK__IMPLEMENTATION:
-			return IMPLEMENTATION_EDEFAULT == null ? implementation != null
-					: !IMPLEMENTATION_EDEFAULT.equals(implementation);
+			return IMPLEMENTATION_EDEFAULT == null ? implementation != null : !IMPLEMENTATION_EDEFAULT
+					.equals(implementation);
 		case Bpmn2Package.SERVICE_TASK__OPERATION_REF:
 			return operationRef != null;
+		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
+			return customProperties != null && !customProperties.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

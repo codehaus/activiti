@@ -51,6 +51,7 @@ import org.eclipse.bpmn2.CorrelationProperty;
 import org.eclipse.bpmn2.CorrelationPropertyBinding;
 import org.eclipse.bpmn2.CorrelationPropertyRetrievalExpression;
 import org.eclipse.bpmn2.CorrelationSubscription;
+import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.DataAssociation;
 import org.eclipse.bpmn2.DataInput;
 import org.eclipse.bpmn2.DataInputAssociation;
@@ -327,14 +328,12 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseCompensateEventDefinition(
-				CompensateEventDefinition object) {
+		public Adapter caseCompensateEventDefinition(CompensateEventDefinition object) {
 			return createCompensateEventDefinitionAdapter();
 		}
 
 		@Override
-		public Adapter caseComplexBehaviorDefinition(
-				ComplexBehaviorDefinition object) {
+		public Adapter caseComplexBehaviorDefinition(ComplexBehaviorDefinition object) {
 			return createComplexBehaviorDefinitionAdapter();
 		}
 
@@ -344,8 +343,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseConditionalEventDefinition(
-				ConditionalEventDefinition object) {
+		public Adapter caseConditionalEventDefinition(ConditionalEventDefinition object) {
 			return createConditionalEventDefinitionAdapter();
 		}
 
@@ -355,8 +353,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseConversationAssociation(
-				ConversationAssociation object) {
+		public Adapter caseConversationAssociation(ConversationAssociation object) {
 			return createConversationAssociationAdapter();
 		}
 
@@ -381,20 +378,17 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseCorrelationPropertyBinding(
-				CorrelationPropertyBinding object) {
+		public Adapter caseCorrelationPropertyBinding(CorrelationPropertyBinding object) {
 			return createCorrelationPropertyBindingAdapter();
 		}
 
 		@Override
-		public Adapter caseCorrelationPropertyRetrievalExpression(
-				CorrelationPropertyRetrievalExpression object) {
+		public Adapter caseCorrelationPropertyRetrievalExpression(CorrelationPropertyRetrievalExpression object) {
 			return createCorrelationPropertyRetrievalExpressionAdapter();
 		}
 
 		@Override
-		public Adapter caseCorrelationSubscription(
-				CorrelationSubscription object) {
+		public Adapter caseCorrelationSubscription(CorrelationSubscription object) {
 			return createCorrelationSubscriptionAdapter();
 		}
 
@@ -484,8 +478,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseEscalationEventDefinition(
-				EscalationEventDefinition object) {
+		public Adapter caseEscalationEventDefinition(EscalationEventDefinition object) {
 			return createEscalationEventDefinitionAdapter();
 		}
 
@@ -520,14 +513,12 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseExtensionAttributeDefinition(
-				ExtensionAttributeDefinition object) {
+		public Adapter caseExtensionAttributeDefinition(ExtensionAttributeDefinition object) {
 			return createExtensionAttributeDefinitionAdapter();
 		}
 
 		@Override
-		public Adapter caseExtensionAttributeValue(
-				ExtensionAttributeValue object) {
+		public Adapter caseExtensionAttributeValue(ExtensionAttributeValue object) {
 			return createExtensionAttributeValueAdapter();
 		}
 
@@ -627,8 +618,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseInputOutputSpecification(
-				InputOutputSpecification object) {
+		public Adapter caseInputOutputSpecification(InputOutputSpecification object) {
 			return createInputOutputSpecificationAdapter();
 		}
 
@@ -718,8 +708,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseMultiInstanceLoopCharacteristics(
-				MultiInstanceLoopCharacteristics object) {
+		public Adapter caseMultiInstanceLoopCharacteristics(MultiInstanceLoopCharacteristics object) {
 			return createMultiInstanceLoopCharacteristicsAdapter();
 		}
 
@@ -749,8 +738,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseParticipantMultiplicity(
-				ParticipantMultiplicity object) {
+		public Adapter caseParticipantMultiplicity(ParticipantMultiplicity object) {
 			return createParticipantMultiplicityAdapter();
 		}
 
@@ -805,8 +793,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseResourceAssignmentExpression(
-				ResourceAssignmentExpression object) {
+		public Adapter caseResourceAssignmentExpression(ResourceAssignmentExpression object) {
 			return createResourceAssignmentExpressionAdapter();
 		}
 
@@ -816,8 +803,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseResourceParameterBinding(
-				ResourceParameterBinding object) {
+		public Adapter caseResourceParameterBinding(ResourceParameterBinding object) {
 			return createResourceParameterBindingAdapter();
 		}
 
@@ -862,8 +848,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseStandardLoopCharacteristics(
-				StandardLoopCharacteristics object) {
+		public Adapter caseStandardLoopCharacteristics(StandardLoopCharacteristics object) {
 			return createStandardLoopCharacteristicsAdapter();
 		}
 
@@ -893,8 +878,7 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		}
 
 		@Override
-		public Adapter caseTerminateEventDefinition(
-				TerminateEventDefinition object) {
+		public Adapter caseTerminateEventDefinition(TerminateEventDefinition object) {
 			return createTerminateEventDefinitionAdapter();
 		}
 
@@ -931,6 +915,11 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 		@Override
 		public Adapter caseCandidateGroup(CandidateGroup object) {
 			return createCandidateGroupAdapter();
+		}
+
+		@Override
+		public Adapter caseCustomProperty(CustomProperty object) {
+			return createCustomPropertyAdapter();
 		}
 
 		@Override
@@ -2909,6 +2898,20 @@ public class Bpmn2AdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createCandidateGroupAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.eclipse.bpmn2.CustomProperty <em>Custom Property</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.eclipse.bpmn2.CustomProperty
+	 * @generated
+	 */
+	public Adapter createCustomPropertyAdapter() {
 		return null;
 	}
 

@@ -2428,7 +2428,8 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="diagrams" ordered="false"
-        upperBound="-1" eType="ecore:EClass BPMNDI.ecore#//BPMNDiagram" containment="true">
+        upperBound="-1" eType="ecore:EClass http://www.omg.org/spec/BPMN/20100524/DI-XMI#//BPMNDiagram"
+        containment="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="BPMNDiagram"/>

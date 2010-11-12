@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="org.activiti.designer.extension.ExportMarshaller" name="Export Marshaller" schema="schema/org.activiti.designer.extension.ExportMarshaller.exsd"/>
    <extension
          point="org.eclipse.graphiti.ui.diagramTypes">
       <diagramType
@@ -76,6 +77,12 @@
                class="org.activiti.designer.property.PropertyServiceTaskSection"
                filter="org.activiti.designer.property.PropertyServiceTaskFilter"
                id="org.activiti.designer.propertyTab.servicetask"
+               tab="org.activiti.designer.propertyTab">
+         </propertySection>
+         <propertySection
+               class="org.activiti.designer.property.PropertyCustomServiceTaskSection"
+               filter="org.activiti.designer.property.PropertyCustomServiceTaskFilter"
+               id="org.activiti.designer.propertyTab.customservicetask"
                tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection

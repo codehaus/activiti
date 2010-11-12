@@ -14,6 +14,8 @@
  */
 package org.eclipse.bpmn2;
 
+import java.util.List;
+
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Service Task</b></em>'.
@@ -24,6 +26,7 @@ package org.eclipse.bpmn2;
  * <ul>
  *   <li>{@link org.eclipse.bpmn2.ServiceTask#getImplementation <em>Implementation</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.ServiceTask#getOperationRef <em>Operation Ref</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.ServiceTask#getCustomProperties <em>Custom Properties</em>}</li>
  * </ul>
  * </p>
  *
@@ -85,5 +88,21 @@ public interface ServiceTask extends Task {
 	 * @generated
 	 */
 	void setOperationRef(Operation value);
+
+	/**
+	 * Returns the value of the '<em><b>Custom Properties</b></em>' reference list.
+	 * The list contents are of type {@link org.eclipse.bpmn2.CustomProperty}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Custom Properties</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Custom Properties</em>' reference list.
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getServiceTask_CustomProperties()
+	 * @model
+	 * @generated
+	 */
+	List<CustomProperty> getCustomProperties();
 
 } // ServiceTask

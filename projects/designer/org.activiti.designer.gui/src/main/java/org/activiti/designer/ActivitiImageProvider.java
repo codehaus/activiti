@@ -59,4 +59,5 @@ public class ActivitiImageProvider extends AbstractImageProvider {
 		addImageFilePath(IMG_SUBPROCESS_EXPANDED, "icons/type.subprocess.expanded.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_ACTION_ZOOM, "icons/action.magnifier.png"); //$NON-NLS-1$
 	}
+
 }

@@ -1150,6 +1150,15 @@ public interface Bpmn2Factory extends EFactory {
 	CandidateGroup createCandidateGroup();
 
 	/**
+	 * Returns a new object of class '<em>Custom Property</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Custom Property</em>'.
+	 * @generated
+	 */
+	CustomProperty createCustomProperty();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

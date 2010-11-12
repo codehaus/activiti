@@ -1,12 +1,19 @@
 package org.activiti.designer.diagram;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.features.CreateCustomServiceTaskFeature;
 import org.activiti.designer.features.ExpandCollapseSubProcessFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
+import org.activiti.designer.property.extension.CustomServiceTaskContext;
+import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.core.resources.IFile;
@@ -30,6 +37,9 @@ import org.eclipse.graphiti.mm.pictograms.AnchorContainer;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.palette.IPaletteCompartmentEntry;
+import org.eclipse.graphiti.palette.IToolEntry;
+import org.eclipse.graphiti.palette.impl.ObjectCreationToolEntry;
+import org.eclipse.graphiti.palette.impl.PaletteCompartmentEntry;
 import org.eclipse.graphiti.platform.IPlatformImageConstants;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.tb.ContextButtonEntry;
@@ -39,7 +49,11 @@ import org.eclipse.graphiti.tb.IContextButtonPadData;
 import org.eclipse.graphiti.tb.IContextMenuEntry;
 import org.eclipse.graphiti.tb.IDecorator;
 import org.eclipse.graphiti.tb.ImageDecorator;
+import org.eclipse.graphiti.ui.internal.GraphitiUIPlugin;
 import org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 
 public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
@@ -130,6 +144,43 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		IPaletteCompartmentEntry[] superCompartments = super.getPalette();
 		for (int i = 0; i < superCompartments.length; i++)
 			ret.add(superCompartments[i]);
+
+		final Map<String, List<CustomServiceTaskContext>> tasksInDrawers = new HashMap<String, List<CustomServiceTaskContext>>();
+
+		final IProject project = ActivitiUiUtil.getProjectFromDiagram(getDiagramTypeProvider().getDiagram());
+		final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil
+				.getCustomServiceTaskContexts(project);
+
+		final ImageRegistry reg = GraphitiUIPlugin.getDefault().getImageRegistry();
+		for (final CustomServiceTaskContext taskContext : customServiceTaskContexts) {
+			if (reg.get(taskContext.getImageKey()) == null) {
+				reg.put(taskContext.getImageKey(), new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+						.getShell().getDisplay(), taskContext.getSmallIconStream()));
+			}
+		}
+
+		for (final CustomServiceTaskContext taskContext : customServiceTaskContexts) {
+			if (!tasksInDrawers.containsKey(taskContext.getServiceTask().contributeToPaletteDrawer())) {
+				tasksInDrawers.put(taskContext.getServiceTask().contributeToPaletteDrawer(),
+						new ArrayList<CustomServiceTaskContext>());
+			}
+			tasksInDrawers.get(taskContext.getServiceTask().contributeToPaletteDrawer()).add(taskContext);
+		}
+
+		for (final Entry<String, List<CustomServiceTaskContext>> drawer : tasksInDrawers.entrySet()) {
+
+			final IPaletteCompartmentEntry paletteCompartmentEntry = new PaletteCompartmentEntry(drawer.getKey(), null);
+
+			for (final CustomServiceTaskContext currentDrawerItem : drawer.getValue()) {
+				final CreateCustomServiceTaskFeature feature = new CreateCustomServiceTaskFeature(getFeatureProvider(),
+						currentDrawerItem.getServiceTask().getName(), currentDrawerItem.getServiceTask().getName(),
+						currentDrawerItem.getServiceTask().getClass().getCanonicalName());
+				final IToolEntry entry = new ObjectCreationToolEntry(currentDrawerItem.getServiceTask().getName(),
+						currentDrawerItem.getServiceTask().getName(), currentDrawerItem.getImageKey(), null, feature);
+				paletteCompartmentEntry.getToolEntries().add(entry);
+			}
+			ret.add(paletteCompartmentEntry);
+		}
 
 		return ret.toArray(new IPaletteCompartmentEntry[ret.size()]);
 	}

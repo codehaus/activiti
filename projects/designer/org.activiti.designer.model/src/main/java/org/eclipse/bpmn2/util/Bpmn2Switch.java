@@ -53,6 +53,7 @@ import org.eclipse.bpmn2.CorrelationProperty;
 import org.eclipse.bpmn2.CorrelationPropertyBinding;
 import org.eclipse.bpmn2.CorrelationPropertyRetrievalExpression;
 import org.eclipse.bpmn2.CorrelationSubscription;
+import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.DataAssociation;
 import org.eclipse.bpmn2.DataInput;
 import org.eclipse.bpmn2.DataInputAssociation;
@@ -216,8 +217,7 @@ public class Bpmn2Switch<T> {
 			return doSwitch(theEClass.getClassifierID(), theEObject);
 		} else {
 			List<EClass> eSuperTypes = theEClass.getESuperTypes();
-			return eSuperTypes.isEmpty() ? defaultCase(theEObject) : doSwitch(
-					eSuperTypes.get(0), theEObject);
+			return eSuperTypes.isEmpty() ? defaultCase(theEObject) : doSwitch(eSuperTypes.get(0), theEObject);
 		}
 	}
 
@@ -1910,6 +1910,15 @@ public class Bpmn2Switch<T> {
 				result = defaultCase(theEObject);
 			return result;
 		}
+		case Bpmn2Package.CUSTOM_PROPERTY: {
+			CustomProperty customProperty = (CustomProperty) theEObject;
+			T result = caseCustomProperty(customProperty);
+			if (result == null)
+				result = caseBaseElement(customProperty);
+			if (result == null)
+				result = defaultCase(theEObject);
+			return result;
+		}
 		default:
 			return defaultCase(theEObject);
 		}
@@ -2421,8 +2430,7 @@ public class Bpmn2Switch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseCorrelationPropertyRetrievalExpression(
-			CorrelationPropertyRetrievalExpression object) {
+	public T caseCorrelationPropertyRetrievalExpression(CorrelationPropertyRetrievalExpression object) {
 		return null;
 	}
 
@@ -2812,8 +2820,7 @@ public class Bpmn2Switch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseExtensionAttributeDefinition(
-			ExtensionAttributeDefinition object) {
+	public T caseExtensionAttributeDefinition(ExtensionAttributeDefinition object) {
 		return null;
 	}
 
@@ -3398,8 +3405,7 @@ public class Bpmn2Switch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseMultiInstanceLoopCharacteristics(
-			MultiInstanceLoopCharacteristics object) {
+	public T caseMultiInstanceLoopCharacteristics(MultiInstanceLoopCharacteristics object) {
 		return null;
 	}
 
@@ -3654,8 +3660,7 @@ public class Bpmn2Switch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseResourceAssignmentExpression(
-			ResourceAssignmentExpression object) {
+	public T caseResourceAssignmentExpression(ResourceAssignmentExpression object) {
 		return null;
 	}
 
@@ -4016,6 +4021,21 @@ public class Bpmn2Switch<T> {
 	 * @generated
 	 */
 	public T caseCandidateGroup(CandidateGroup object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Custom Property</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Custom Property</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseCustomProperty(CustomProperty object) {
 		return null;
 	}
 

@@ -7,12 +7,12 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.platform.AbstractPropertySectionFilter;
 
-public class PropertyServiceTaskFilter extends AbstractPropertySectionFilter {
+public class PropertyCustomServiceTaskFilter extends AbstractPropertySectionFilter {
 
 	@Override
 	protected boolean accept(PictogramElement pe) {
 		EObject bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-		if (bo instanceof ServiceTask && !ExtensionUtil.isCustomServiceTask(bo)) {
+		if (bo instanceof ServiceTask && ExtensionUtil.isCustomServiceTask(bo)) {
 			return true;
 		}
 		return false;

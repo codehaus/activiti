@@ -3,6 +3,7 @@ package org.activiti.designer.features;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.Task;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
@@ -96,7 +97,7 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 
 		{
 			final Shape shape = peCreateService.createShape(containerShape, false);
-			final Image image = gaService.createImage(shape, getIcon());
+			final Image image = gaService.createImage(shape, getIcon(addedTask));
 			gaService.setLocationAndSize(image, 5, 5, 10, 10);
 		}
 
@@ -126,6 +127,6 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 		return false;
 	}
 
-	protected abstract String getIcon();
+	protected abstract String getIcon(EObject bo);
 
 }
