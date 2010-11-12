@@ -27,6 +27,7 @@ import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.cfg.IdGenerator;
+import org.activiti.engine.impl.cfg.IdentitySession;
 import org.activiti.engine.impl.cfg.ProcessEngineConfiguration;
 import org.activiti.engine.impl.interceptor.CommandContextInterceptor;
 import org.activiti.engine.impl.interceptor.CommandExecutorImpl;
@@ -55,6 +56,7 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
 
   protected ProcessEngineConfiguration processEngineConfiguration = new ProcessEngineConfiguration();
   protected PlatformTransactionManager transactionManager;
+  protected Object someSpringSecurityBean;
   protected ApplicationContext applicationContext;
   protected String deploymentName = "SpringAutoDeployment";
   protected Resource[] deploymentResources = new Resource[0];
@@ -79,6 +81,7 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
     initializeSpringTransactionInterceptor();
     initializeExpressionManager();
     initializeJPA();
+    initializeSpringSecurity();
 
     processEngine = (ProcessEngineImpl) processEngineConfiguration.buildProcessEngine();
 
@@ -117,12 +120,19 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
     }
   }
   
-  private void initializeJPA() {
+  protected void initializeJPA() {
     if(jpaEntityManagerFactory != null) {
       processEngineConfiguration.enableJPA(jpaEntityManagerFactory, jpaHandleTransaction, jpaCloseEntityManager);
     }
   }
   
+  protected void initializeSpringSecurity() {
+    if (someSpringSecurityBean!=null) {
+      SpringSecurityIdentitySessionFactory springSecurityIdentitySessionFactory = new SpringSecurityIdentitySessionFactory(someSpringSecurityBean);
+      processEngineConfiguration.getSessionFactories().put(IdentitySession.class, springSecurityIdentitySessionFactory);
+    }
+  }
+
   public Class< ? > getObjectType() {
     return ProcessEngine.class;
   }
@@ -252,5 +262,13 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
   
   public void setJpaCloseEntityManager(boolean jpaCloseEntityManager) {
     this.jpaCloseEntityManager = jpaCloseEntityManager;
+  }
+  
+  public Object getSomeSpringSecurityBean() {
+    return someSpringSecurityBean;
+  }
+
+  public void setSomeSpringSecurityBean(Object someSpringSecurityBean) {
+    this.someSpringSecurityBean = someSpringSecurityBean;
   }
 }
