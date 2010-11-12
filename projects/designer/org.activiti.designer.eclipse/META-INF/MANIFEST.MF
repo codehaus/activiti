@@ -30,6 +30,7 @@ Export-Package:
  org.activiti.designer.eclipse.property,
  org.activiti.designer.eclipse.ui,
  org.activiti.designer.eclipse.util,
- org.activiti.designer.eclipse.util.uiprovider
+ org.activiti.designer.eclipse.util.uiprovider,
+ org.activiti.designer.eclipse.extension.export
 Bundle-Activator: org.activiti.designer.eclipse.common.ActivitiPlugin
 Bundle-ClassPath: .

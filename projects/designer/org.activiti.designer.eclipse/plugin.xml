@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="org.activiti.designer.eclipse.extension.export.ExportMarshaller" name="Export Marshaller" schema="schema/org.activiti.designer.eclipse.extension.export.ExportMarshaller.exsd"/>
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding
