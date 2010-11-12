@@ -8,8 +8,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.activiti.designer.integration.servicetask.validator.FieldValidator;
-
 /**
  * @author Tiese Barrell
  * @version 1
@@ -17,15 +15,11 @@ import org.activiti.designer.integration.servicetask.validator.FieldValidator;
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Property {
+@Target(value = { ElementType.FIELD, ElementType.TYPE })
+public @interface Help {
 
-	abstract PropertyType type();
+	String displayHelpShort();
 
-	String displayName() default "";
-
-	Class<? extends FieldValidator> fieldValidator() default FieldValidator.class;
-
-	boolean required() default false;
+	String displayHelpLong() default "";
 
 }
