@@ -17,8 +17,16 @@ import org.osgi.framework.BundleContext;
 
 public class ActivitiPlugin extends AbstractUIPlugin {
 
-	private static ActivitiPlugin _plugin;
+	/**
+	 * The name used for the user library that contains extensions for the
+	 * Activiti Designer.
+	 */
+	public static final String USER_LIBRARY_NAME_EXTENSIONS = "Activiti Designer Extensions";
 
+	public static final String DESIGNER_EXTENSIONS_USER_LIB_PATH = "org.eclipse.jdt.USER_LIBRARY/"
+			+ USER_LIBRARY_NAME_EXTENSIONS;
+
+	private static ActivitiPlugin _plugin;
 
 	/**
 	 * Creates the Plugin and caches its default instance.

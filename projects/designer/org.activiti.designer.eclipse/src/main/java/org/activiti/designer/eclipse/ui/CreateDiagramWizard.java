@@ -23,6 +23,7 @@ import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.graphiti.ui.editor.DiagramEditorInput;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
@@ -77,6 +78,7 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 	 * 
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
+	@SuppressWarnings("restriction")
 	@Override
 	public boolean performFinish() {
 
@@ -102,6 +104,14 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 		} else if (element instanceof IFolder) {
 			diagramFolder = (IFolder) element;
 			project = diagramFolder.getProject();
+		} else if (element instanceof PackageFragment) { // access is
+															// discouraged, but
+															// inevitable when
+															// the selection is
+															// the diagrams
+															// package itself
+			PackageFragment fragment = (PackageFragment) element;
+			project = fragment.getJavaProject().getProject();
 		}
 
 		if (project == null || !project.isAccessible()) {

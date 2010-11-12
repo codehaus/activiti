@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.common.ActivitiProjectNature;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -60,10 +62,14 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 
 		IPath[] javaPath = new IPath[] { new Path("**/*.java") };
 		IPath testOutputLocation = javaProject.getPath().append("target/test-classes");
-		
-		IClasspathEntry[] entries = { JavaCore.newSourceEntry(srcPath1, javaPath, null, null), JavaCore.newSourceEntry(srcPath2, javaPath),
+
+		IPath srcPathUserLibrary = new Path(ActivitiPlugin.DESIGNER_EXTENSIONS_USER_LIB_PATH);
+
+		IClasspathEntry[] entries = { JavaCore.newSourceEntry(srcPath1, javaPath, null, null),
+				JavaCore.newSourceEntry(srcPath2, javaPath),
 				JavaCore.newSourceEntry(srcPath3, javaPath, null, testOutputLocation),
-				JavaCore.newSourceEntry(srcPath4, javaPath, testOutputLocation), JavaRuntime.getDefaultJREContainerEntry()};
+				JavaCore.newSourceEntry(srcPath4, javaPath, testOutputLocation),
+				JavaRuntime.getDefaultJREContainerEntry(), JavaCore.newContainerEntry(srcPathUserLibrary) };
 
 		return entries;
 	}
@@ -76,6 +82,7 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 		sourceFolders.add("src/main");
 		sourceFolders.add("src/main/java");
 		sourceFolders.add("src/main/resources/");
+		sourceFolders.add(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER);
 		sourceFolders.add("src/test/");
 		sourceFolders.add("src/test/java/");
 		sourceFolders.add("src/test/resources");
@@ -84,7 +91,7 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 			IFolder sourceFolder = project.getFolder(folder);
 			sourceFolder.create(false, true, null);
 		}
-	} 
+	}
 
 	private void createOutputLocation(IJavaProject javaProject) throws JavaModelException {
 
