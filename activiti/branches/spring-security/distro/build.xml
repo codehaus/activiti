@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="activiti.distro" default="distro">
+  
+  <property file="${user.home}/.activiti/build.properties" />
+
+  <property name="activiti.version" value="5.0-SNAPSHOT" /> 
+  <property name="target.distro.root" value="target/activiti-${activiti.version}" />
+	<property name="activiti.website" value="../../activiti-website" />
+
+  <condition property="mvn.executable" value="mvn.bat" else="mvn">
+     <os family="windows"/>
+  </condition>
+
+  <condition property="ls.executable" value="dir" else="ls">
+     <os family="windows"/>
+  </condition>
+
+	<condition property="ls.executable.options" value="/B" else="">
+     <os family="windows"/>
+  </condition>
+
+  <target name="clean">
+    <delete dir="target" />
+  </target>
+  
+  <target name="distro" depends="build.modules, 
+  	                             copy.static.resources,
+  	                             copy.dependencies,
+                                 copy.webapps,
+  	                             copy.examples,
+  	                             copy.docs">
+  	<zip destfile="${target.distro.root}.zip">
+  		<fileset dir="${target.distro.root}" />
+  	</zip>
+  </target>
+  
+  <target name="build.modules">
+  	<condition property="nodocs.profile" value=",nodocs -Dskiptests" else="">
+  		<equals arg1="${nodocs}" arg2="true" />
+  	</condition>
+    <exec executable="${mvn.executable}" dir=".." failonerror="true">
+      <arg line="-Pdistro${nodocs.profile} clean install" />
+    </exec>
+  </target>
+  
+	<target name="copy.static.resources">
+    <copy todir="${target.distro.root}">
+      <fileset dir="src" />
+    </copy>
+	</target>
+	
+	<target name="copy.dependencies">
+		<!-- FETCH DEPENDENCIES FROM MAVEN -->
+    <exec executable="${mvn.executable}" dir="../modules/activiti-engine">
+      <arg line="dependency:copy-dependencies -DoutputDirectory=../../distro/target/libs-engine-runtime"/>
+    </exec>
+    <exec executable="${mvn.executable}" dir="../modules/activiti-engine">
+      <arg line="dependency:copy-dependencies -DoutputDirectory=../../distro/target/libs-engine-test -DexcludeScope=runtime"/>
+    </exec>
+    <exec executable="${mvn.executable}" dir="../modules/activiti-spring">
+      <arg line="dependency:copy-dependencies -DoutputDirectory=../../distro/target/libs-spring-runtime"/>
+    </exec>
+    <exec executable="${mvn.executable}" dir="../modules/activiti-spring">
+      <arg line="dependency:copy-dependencies -DoutputDirectory=../../distro/target/libs-spring-test -DexcludeScope=runtime"/>
+    </exec>
+    <exec executable="${mvn.executable}" dir="../modules/activiti-cycle">
+      <arg line="dependency:copy-dependencies -DoutputDirectory=../../distro/target/libs-cycle-runtime"/>
+    </exec>
+    <exec executable="${mvn.executable}" dir="../modules/activiti-webapp-rest">
+      <arg line="dependency:copy-dependencies -DoutputDirectory=../../distro/target/libs-webapp-rest"/>
+    </exec>
+    <exec executable="${mvn.executable}" dir="../modules/activiti-webapp">
+      <arg line="dependency:unpack-dependencies -DoutputDirectory=../../distro/target/spring-surf-application-war -DincludeArtifactIds=spring-surf-application"/>
+    </exec>
+    <!-- DELETE UNNECESSARY ANT JARS -->
+    <delete>
+       <fileset dir="target/libs-engine-runtime">
+         <include name="ant-*.jar" />
+       </fileset>
+      <fileset dir="target/libs-engine-test">
+        <include name="ant-*.jar" />
+      </fileset>
+     </delete>
+		<!-- CREATE DEPENDENCY LIST FILES -->
+    <mkdir dir="${target.distro.root}/setup/files/dependencies/libs" />
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.engine.test.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/libs-engine-test"/>
+    </exec>
+    <delete>
+      <fileset dir="target/libs-engine-runtime" 
+               includesfile="${target.distro.root}/setup/files/dependencies/libs.engine.test.txt" />
+    </delete>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.engine.runtime.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/libs-engine-runtime"/>
+    </exec>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.spring.test.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/libs-spring-test"/>
+    </exec>
+    <delete>
+      <fileset dir="target/libs-spring-runtime" 
+               includesfile="${target.distro.root}/setup/files/dependencies/libs.spring.test.txt" />
+      <fileset dir="target/libs-spring-test" 
+               includesfile="${target.distro.root}/setup/files/dependencies/libs.engine.test.txt" />
+      <fileset dir="target/libs-cycle-runtime" 
+               includesfile="${target.distro.root}/setup/files/dependencies/libs.engine.runtime.txt" />
+    </delete>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.spring.test.txt" executable="${ls.executable}">
+       <arg line="${ls.executable.options} target/libs-spring-test"/>
+    </exec>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.spring.runtime.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/libs-spring-runtime"/>
+    </exec>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.cycle.runtime.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/libs-cycle-runtime"/>
+    </exec>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.webapp.rest.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/libs-webapp-rest"/>
+    </exec>
+    <exec output="${target.distro.root}/setup/files/dependencies/libs.webapp.ui.txt" executable="${ls.executable}">
+      <arg line="${ls.executable.options} target/spring-surf-application-war/WEB-INF/lib"/>
+    </exec>
+    <!-- MOVE ALL LIBS TO setup/files/dependencies/libs -->
+    <move todir="${target.distro.root}/setup/files/dependencies/libs">
+      <fileset dir="target/libs-engine-runtime" />
+      <fileset dir="target/libs-engine-test" />
+      <fileset dir="target/libs-spring-runtime" />
+      <fileset dir="target/libs-spring-test" />
+      <fileset dir="target/libs-cycle-runtime" />
+      <fileset dir="target/libs-webapp-rest" />
+      <fileset dir="target/spring-surf-application-war/WEB-INF/lib" />
+    </move>
+	</target>
+	
+	<target name="copy.webapps">
+    <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-probe.war" />
+    <unzip dest="${target.distro.root}/setup/files/webapps/activiti-probe.war" 
+           src="../modules/activiti-webapp-probe/target/activiti-webapp-probe-${activiti.version}.war"/>
+    <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-cycle.war" />
+    <unzip dest="${target.distro.root}/setup/files/webapps/activiti-cycle.war" 
+           src="../modules/activiti-webapp-cycle/target/activiti-webapp-cycle-${activiti.version}.war"/>
+    <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-explorer.war" />
+    <unzip dest="${target.distro.root}/setup/files/webapps/activiti-explorer.war" 
+           src="../modules/activiti-webapp-explorer/target/activiti-webapp-explorer-${activiti.version}.war"/>
+    <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-rest.war" />
+    <unzip dest="${target.distro.root}/setup/files/webapps/activiti-rest.war" 
+           src="../modules/activiti-webapp-rest/target/activiti-webapp-rest-${activiti.version}.war"/>
+    <mkdir dir="${target.distro.root}/setup/files/webapps/activiti-init.war" />
+    <unzip dest="${target.distro.root}/setup/files/webapps/activiti-init.war" 
+           src="../modules/activiti-webapp-init/target/activiti-webapp-init-${activiti.version}.war"/>
+		<delete>
+      <fileset dir="${target.distro.root}/setup/files/webapps/activiti-cycle.war/WEB-INF/lib" />
+      <fileset dir="${target.distro.root}/setup/files/webapps/activiti-explorer.war/WEB-INF/lib" />
+      <fileset dir="${target.distro.root}/setup/files/webapps/activiti-rest.war/WEB-INF/lib" />
+      <fileset dir="${target.distro.root}/setup/files/webapps/activiti-probe.war/WEB-INF/lib" />
+    </delete>
+	</target>
+	
+	<target name="copy.examples">
+    <mkdir dir="${target.distro.root}/workspace/activiti-engine-examples/src" />
+    <copy todir="${target.distro.root}/workspace/activiti-engine-examples/src">
+      <fileset dir="../modules/activiti-engine/src/test/java">
+        <include name="org/activiti/examples/**" />
+      </fileset>
+      <fileset dir="../modules/activiti-engine/src/test/resources">
+        <include name="org/activiti/examples/**" />
+        <include name="activiti.cfg.xml" />
+        <include name="logging.properties" />
+      </fileset>
+    </copy>
+    <mkdir dir="${target.distro.root}/workspace/activiti-spring-examples/src" />
+    <copy todir="${target.distro.root}/workspace/activiti-spring-examples/src">
+      <fileset dir="../modules/activiti-spring/src/test/java">
+        <include name="org/activiti/examples/**" />
+      </fileset>
+      <fileset dir="../modules/activiti-spring/src/test/resources">
+        <include name="org/activiti/examples/**" />
+      </fileset>
+    </copy>
+	</target>
+
+	<target name="build.docs" unless="nodocs">
+    <!-- JAVADOCS -->
+    <exec executable="${mvn.executable}" dir="../modules/activiti-engine">
+      <arg line="javadoc:javadoc" />
+    </exec>
+    <mkdir dir="${target.distro.root}/docs/javadocs" />
+    <copy todir="${target.distro.root}/docs/javadocs">
+      <fileset dir="../modules/activiti-engine/target/site/apidocs" />
+    </copy>
+    <!-- USERGUIDE -->
+    <echo message="On failure, make sure that you have installed the Xalan libs by executing the 'install.xalan.libs' target in the 'userguide' folder."></echo>
+    <ant antfile="../userguide/build.xml" inheritall="false" />
+    <mkdir dir="${target.distro.root}/docs/userguide" />
+    <copy todir="${target.distro.root}/docs/userguide">
+      <fileset dir="../userguide/target/html/en" />
+    </copy>
+	</target>
+
+	<target name="copy.docs" depends="build.docs" unless="nodocs">
+		<!-- COPY XSD -->
+    <copy todir="${target.distro.root}/docs/xsd">
+      <fileset dir="../modules/activiti-engine/src/main/resources/org/activiti/impl/bpmn/parser">
+        <include name="*.xsd" />
+      </fileset>
+      <fileset dir="../modules/activiti-engine/src/main/resources/org/activiti/impl/cfg">
+        <include name="*.xsd" />
+      </fileset>
+    </copy>
+	</target>
+	
+	<target name="publish.docs" depends="build.docs">
+		<mkdir dir="${activiti.website}/javadocs" />
+    <copy todir="${activiti.website}/javadocs" overwrite="true">
+      <fileset dir="../modules/activiti-engine/target/site/apidocs" />
+    </copy>
+    <mkdir dir="${activiti.website}/userguide" />
+    <copy todir="${activiti.website}/userguide" overwrite="true">
+      <fileset dir="../userguide/target/html/en" />
+    </copy>
+    <copy todir="${activiti.website}" overwrite="true">
+      <fileset dir="src">
+      	<include name="readme.html" />
+     </fileset>
+    </copy>
+	</target>
+	
+</project>
