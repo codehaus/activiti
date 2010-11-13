@@ -35,6 +35,7 @@ import org.activiti.engine.impl.interceptor.CommandInterceptor;
 import org.activiti.engine.impl.interceptor.LogInterceptor;
 import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.repository.DeploymentBuilder;
+import org.activiti.spring.security.SpringSecurityIdentitySessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -43,6 +44,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ContextResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.provisioning.GroupManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -51,12 +54,14 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author Christian Stettler
  * @author Tom Baeyens
  * @author Joram Barrez
+ * @author Josh Long 
  */
 public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, DisposableBean, ApplicationContextAware {
 
   protected ProcessEngineConfiguration processEngineConfiguration = new ProcessEngineConfiguration();
   protected PlatformTransactionManager transactionManager;
-  protected Object someSpringSecurityBean;
+  protected UserDetailsManager springSecurityUserDetailsManager;
+  protected GroupManager springSecurityGroupManager;
   protected ApplicationContext applicationContext;
   protected String deploymentName = "SpringAutoDeployment";
   protected Resource[] deploymentResources = new Resource[0];
@@ -127,8 +132,10 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
   }
   
   protected void initializeSpringSecurity() {
-    if (someSpringSecurityBean!=null) {
-      SpringSecurityIdentitySessionFactory springSecurityIdentitySessionFactory = new SpringSecurityIdentitySessionFactory(someSpringSecurityBean);
+		IdentitySession identitySession = null;  // todo is there a way to get ahold of the default IdentitySession instance so that
+    if (this.springSecurityUserDetailsManager!=null) {
+      SpringSecurityIdentitySessionFactory springSecurityIdentitySessionFactory =
+					new SpringSecurityIdentitySessionFactory( identitySession, this.springSecurityUserDetailsManager, this.springSecurityGroupManager );
       processEngineConfiguration.getSessionFactories().put(IdentitySession.class, springSecurityIdentitySessionFactory);
     }
   }
@@ -263,12 +270,12 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
   public void setJpaCloseEntityManager(boolean jpaCloseEntityManager) {
     this.jpaCloseEntityManager = jpaCloseEntityManager;
   }
-  
-  public Object getSomeSpringSecurityBean() {
-    return someSpringSecurityBean;
-  }
 
-  public void setSomeSpringSecurityBean(Object someSpringSecurityBean) {
-    this.someSpringSecurityBean = someSpringSecurityBean;
-  }
+	public void setSpringSecurityUserDetailsManager(UserDetailsManager springSecurityUserDetailsManager) {
+		this.springSecurityUserDetailsManager = springSecurityUserDetailsManager;
+	}
+
+	public void setSpringSecurityGroupManager(GroupManager springSecurityGroupManager) {
+		this.springSecurityGroupManager = springSecurityGroupManager;
+	}
 }
