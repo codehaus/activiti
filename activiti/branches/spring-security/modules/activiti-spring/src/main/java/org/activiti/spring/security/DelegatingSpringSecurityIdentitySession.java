@@ -23,6 +23,7 @@ import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.interceptor.Session;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.GroupManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 
@@ -88,7 +89,7 @@ public class DelegatingSpringSecurityIdentitySession implements IdentitySession,
 		this.identitySession = is;
 	}
 
-	public DelegatingSpringSecurityIdentitySession(IdentitySession is,UserDetailsManager userDetailsManager) {
+	public DelegatingSpringSecurityIdentitySession(IdentitySession is, UserDetailsManager userDetailsManager) {
 		GroupManager groupManager = userDetailsManager instanceof GroupManager ? (GroupManager) userDetailsManager : null;
 		this.construct(is, userDetailsManager , groupManager);
 	}
@@ -100,7 +101,6 @@ public class DelegatingSpringSecurityIdentitySession implements IdentitySession,
 
 
 	public Group createNewGroup(String groupId) {
-
 		if(this.groupManager!=null)
 			this.groupManager.createGroup(groupId , this.grantedAuthorities);
 
@@ -184,7 +184,7 @@ public class DelegatingSpringSecurityIdentitySession implements IdentitySession,
 		this.identitySession.insertUser(user);
 	}
 
-	protected ActivitiUserDetails activitiUserDetailsFromUser(User user){
+	protected UserDetails activitiUserDetailsFromUser(User user){
 		return new ActivitiUserDetails(user);
 	}
 
