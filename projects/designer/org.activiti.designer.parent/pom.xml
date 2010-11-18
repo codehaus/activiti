@@ -8,6 +8,7 @@
 	<name>Activiti Designer - Parent project</name>
 
 	<properties>
+		<activiti-version>5.0.rc1</activiti-version>
 		<tycho-version>0.10.0</tycho-version>
 	</properties>
 
