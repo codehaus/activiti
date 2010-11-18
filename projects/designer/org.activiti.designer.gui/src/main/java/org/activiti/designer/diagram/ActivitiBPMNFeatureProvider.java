@@ -21,7 +21,6 @@ import org.activiti.designer.features.CreateUserTaskFeature;
 import org.activiti.designer.features.DeleteFlowElementFeature;
 import org.activiti.designer.features.DirectEditFlowElementFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
-import org.activiti.designer.features.UpdateConnectionFlowElementFeature;
 import org.activiti.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
@@ -48,7 +47,6 @@ import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
-import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
@@ -88,7 +86,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 	public ICreateFeature[] getCreateFeatures() {
 		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this),
 				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
-				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this), new CreateSubProcessFeature(this) };
+				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this),
+				new CreateSubProcessFeature(this) };
 	}
 
 	@Override
@@ -110,8 +109,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			if (bo instanceof FlowElement) {
 				return new UpdateFlowElementFeature(this);
 			}
-		} else if (pictogramElement instanceof Connection) {
-			return new UpdateConnectionFlowElementFeature(this);
+			// } else if (pictogramElement instanceof Connection) {
+			// return new SequenceFlowSynchronizer(this);
 		}
 		return super.getUpdateFeature(context);
 	}

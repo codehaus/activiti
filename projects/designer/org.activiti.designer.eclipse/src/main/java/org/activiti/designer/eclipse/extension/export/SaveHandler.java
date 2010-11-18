@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.graphiti.ui.editor.DiagramEditorInput;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.IEditorPart;
@@ -40,6 +41,8 @@ import org.eclipse.ui.progress.IProgressService;
 /**
  * Handles file saving for diagrams and forking to {@link ExportMarshaller}s
  * during save actions.
+ * <p>
+ * Also updates sequenceflow objects that are out of sync in the businessmodel.
  * 
  * @author Tiese Barrell
  * @version 1
@@ -70,6 +73,10 @@ public class SaveHandler extends AbstractHandler implements IHandler {
 		final IEditorPart editorPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getActiveEditor();
 
+		final DiagramEditorInput editorInput = (DiagramEditorInput) editorPart.getEditorInput();
+
+		SequenceFlowSynchronizer.synchronize(editorInput.getDiagram().getConnections(), (DiagramEditor) editorPart);
+
 		// Perform the regular save of the diagram without progress monitoring
 		editorPart.doSave(null);
 
@@ -79,8 +86,7 @@ public class SaveHandler extends AbstractHandler implements IHandler {
 		if (marshallers.size() > 0) {
 
 			// Get the resource belonging to the editor part
-			final DiagramEditorInput editor = (DiagramEditorInput) editorPart.getEditorInput();
-			final Resource resource = editor.getDiagram().eResource();
+			final Resource resource = editorInput.getDiagram().eResource();
 
 			// Get the progress service so we can have a progress monitor
 			final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
