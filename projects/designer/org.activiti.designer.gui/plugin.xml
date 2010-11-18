@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="org.activiti.designer.extension.ExportMarshaller" name="Export Marshaller" schema="schema/org.activiti.designer.extension.ExportMarshaller.exsd"/>
    <extension
          point="org.eclipse.graphiti.ui.diagramTypes">
       <diagramType
@@ -111,6 +110,12 @@
             class="org.activiti.designer.preferences.ActivitiEditorPreferencesPage"
             id="org.activiti.designer.gui.editorpage"
             name="Editor">
+      </page>
+      <page
+            category="org.activiti.designer.preferences"
+            class="org.activiti.designer.preferences.ActivitiSavePreferencesPage"
+            id="org.activiti.designer.gui.savepage"
+            name="Save">
       </page>
    </extension>
    <extension

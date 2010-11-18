@@ -15,7 +15,8 @@ public enum Preferences {
 
 	ECLIPSE_ACTIVITI_JAR_LOCATION("org.activiti.designer.preferences.eclipse.activitiJarLocation"), EDITOR_ADD_LABELS_TO_NEW_SEQUENCEFLOWS(
 			"org.activiti.designer.preferences.editor.addLabelsToNewSequenceFlows"), EDITOR_ADD_DEFAULT_CONTENT_TO_DIAGRAMS(
-			"org.activiti.designer.preferences.editor.addDefaultContentToDiagrams");
+			"org.activiti.designer.preferences.editor.addDefaultContentToDiagrams"), SAVE_TO_FORMAT(
+			"org.activiti.designer.preferences.save.saveToFormat");
 
 	private String preferenceId;
 

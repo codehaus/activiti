@@ -105,5 +105,20 @@
             id="org.activiti.designer.eclipse.common.ActivitiImageProvider">
       </imageProvider>
    </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.activiti.designer.eclipse.extension.export.SaveHandler"
+            commandId="org.eclipse.ui.file.save">
+            <activeWhen>
+	          <with
+	                variable="activePartId">
+	             <equals
+	                   value="org.eclipse.graphiti.ui.editor.DiagramEditor">
+	             </equals>
+	          </with>
+	       </activeWhen>
+      </handler>
+   </extension>
 
 </plugin>

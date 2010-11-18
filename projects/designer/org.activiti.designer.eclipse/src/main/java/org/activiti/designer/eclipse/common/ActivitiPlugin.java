@@ -26,6 +26,8 @@ public class ActivitiPlugin extends AbstractUIPlugin {
 	public static final String DESIGNER_EXTENSIONS_USER_LIB_PATH = "org.eclipse.jdt.USER_LIBRARY/"
 			+ USER_LIBRARY_NAME_EXTENSIONS;
 
+	public static final String EXPORT_MARSHALLER_EXTENSIONPOINT_ID = "org.activiti.designer.eclipse.extension.export.ExportMarshaller";
+
 	private static ActivitiPlugin _plugin;
 
 	/**
