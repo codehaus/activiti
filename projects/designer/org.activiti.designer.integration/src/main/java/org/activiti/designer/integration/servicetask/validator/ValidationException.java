@@ -5,40 +5,41 @@ package org.activiti.designer.integration.servicetask.validator;
 
 /**
  * @author a139923
- *
+ * 
  */
 public class ValidationException extends Exception {
 
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = -1862271923772265577L;
+
+	/**
+	 * 
+	 */
 	public ValidationException() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param arg0
+	 * @param message
 	 */
-	public ValidationException(String arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public ValidationException(String message) {
+		super(message);
 	}
 
 	/**
-	 * @param arg0
+	 * @param throwable
 	 */
-	public ValidationException(Throwable arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public ValidationException(Throwable throwable) {
+		super(throwable);
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param message
+	 * @param throwable
 	 */
-	public ValidationException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
+	public ValidationException(String message, Throwable throwable) {
+		super(message, throwable);
 	}
 
 }

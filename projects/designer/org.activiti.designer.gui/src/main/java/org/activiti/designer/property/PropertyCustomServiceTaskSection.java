@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
-import org.activiti.designer.integration.servicetask.Help;
-import org.activiti.designer.integration.servicetask.Property;
+import org.activiti.designer.integration.servicetask.annotation.Help;
+import org.activiti.designer.integration.servicetask.annotation.Property;
 import org.activiti.designer.integration.servicetask.validator.FieldValidator;
 import org.activiti.designer.integration.servicetask.validator.RequiredFieldValidator;
 import org.activiti.designer.property.extension.ExtensionUtil;
@@ -63,7 +63,6 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 	@Override
 	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
 		super.createControls(parent, tabbedPropertySheetPage);
-		// TODO:ugly?
 		this.parent = parent;
 	}
 
@@ -90,8 +89,7 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 		workParent = factory.createFlatFormComposite(parent);
 		FormData data;
 
-		customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil
-				.getProjectFromDiagram(getDiagram()));
+		customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil.getProjectFromDiagram(getDiagram()));
 
 		final ServiceTask serviceTask = getServiceTask();
 
@@ -177,7 +175,6 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 							switch (property.type()) {
 
 							case STRING:
-								// TODO refill data from model if present
 								final Text propertyText = factory.createText(workParent, "", SWT.BORDER_SOLID);
 								data = new FormData();
 								data.top = new FormAttachment(previousAnchor, VSPACE);
@@ -215,7 +212,6 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 							}
 
-							// TODO
 							final FieldWrapper wrapper = new FieldWrapper(createdControl, property.type());
 							fieldControls.put(field.getName(), wrapper);
 							createdControl.addFocusListener(listener);
@@ -270,31 +266,6 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 		}
 
 		this.workParent.getParent().getParent().layout(true, true);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.views.properties.tabbed.AbstractPropertySection#aboutToBeShown
-	 * ()
-	 */
-	@Override
-	public void aboutToBeShown() {
-		// TODO Auto-generated method stub
-		super.aboutToBeShown();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.views.properties.tabbed.AbstractPropertySection#
-	 * aboutToBeHidden()
-	 */
-	@Override
-	public void aboutToBeHidden() {
-		// TODO Auto-generated method stub
-		super.aboutToBeHidden();
 	}
 
 	private Help getHelp(Field field) {

@@ -1,7 +1,13 @@
 package org.activiti.designer.features;
 
+import java.util.List;
+
+import org.activiti.designer.integration.servicetask.CustomServiceTask;
+import org.activiti.designer.integration.servicetask.DiagramBaseShape;
+import org.activiti.designer.property.extension.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.activiti.designer.util.StyleUtil;
+import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.Task;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
@@ -9,7 +15,9 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
 import org.eclipse.graphiti.mm.algorithms.Ellipse;
+import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Image;
+import org.eclipse.graphiti.mm.algorithms.Polygon;
 import org.eclipse.graphiti.mm.algorithms.Rectangle;
 import org.eclipse.graphiti.mm.algorithms.RoundedRectangle;
 import org.eclipse.graphiti.mm.algorithms.Text;
@@ -25,6 +33,8 @@ import org.eclipse.graphiti.services.IPeCreateService;
 
 public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 
+	private static final int IMAGE_SIZE = 16;
+
 	public AddTaskFeature(IFeatureProvider fp) {
 		super(fp);
 	}
@@ -37,35 +47,127 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 		// CONTAINER SHAPE WITH ROUNDED RECTANGLE
 		final IPeCreateService peCreateService = Graphiti.getPeCreateService();
 		final ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
-
-		// check whether the context has a size (e.g. from a create feature)
-		// otherwise define a default size for the shape
-		final int width = context.getWidth() <= 0 ? 105 : context.getWidth();
-		final int height = context.getHeight() <= 0 ? 55 : context.getHeight();
-
 		final IGaService gaService = Graphiti.getGaService();
-		RoundedRectangle roundedRectangle; // need to access it later
-		{
-			// create invisible outer rectangle expanded by
-			// the width needed for the anchor
-			final Rectangle invisibleRectangle = gaService.createInvisibleRectangle(containerShape);
-			gaService.setLocationAndSize(invisibleRectangle, context.getX(), context.getY(), width, height);
 
-			// create and set visible rectangle inside invisible rectangle
-			roundedRectangle = gaService.createRoundedRectangle(invisibleRectangle, 5, 5);
-			roundedRectangle.setParentGraphicsAlgorithm(invisibleRectangle);
-			roundedRectangle.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
-			gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
+		DiagramBaseShape baseShape = DiagramBaseShape.ACTIVITY;
 
-			// if addedClass has no resource we add it to the resource of the
-			// diagram
-			// in a real scenario the business model would have its own resource
-			if (addedTask.eResource() == null) {
-				getDiagram().eResource().getContents().add(addedTask);
+		if (ExtensionUtil.isCustomServiceTask(addedTask)) {
+			final ServiceTask serviceTask = (ServiceTask) addedTask;
+			final List<CustomServiceTask> customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil
+					.getProjectFromDiagram(getDiagram()));
+
+			CustomServiceTask targetTask = null;
+
+			for (final CustomServiceTask customServiceTask : customServiceTasks) {
+				if (ExtensionUtil.unwrapCustomId(serviceTask.getImplementation()).equals(customServiceTask.getId())) {
+					targetTask = customServiceTask;
+					break;
+				}
 			}
 
-			// create link and wire it
-			link(containerShape, addedTask);
+			if (!DiagramBaseShape.ACTIVITY.equals(targetTask.getDiagramBaseShape())) {
+				baseShape = targetTask.getDiagramBaseShape();
+			}
+		}
+
+		int width = 0;
+		int height = 0;
+		GraphicsAlgorithm algorithm = null;
+
+		switch (baseShape) {
+		case ACTIVITY:
+			// check whether the context has a size (e.g. from a create feature)
+			// otherwise define a default size for the shape
+			width = context.getWidth() <= 0 ? 105 : context.getWidth();
+			height = context.getHeight() <= 0 ? 55 : context.getHeight();
+
+			RoundedRectangle roundedRectangle; // need to access it later
+			{
+				// create invisible outer rectangle expanded by
+				// the width needed for the anchor
+				final Rectangle invisibleRectangle = gaService.createInvisibleRectangle(containerShape);
+				gaService.setLocationAndSize(invisibleRectangle, context.getX(), context.getY(), width, height);
+
+				// create and set visible rectangle inside invisible rectangle
+				roundedRectangle = gaService.createRoundedRectangle(invisibleRectangle, 5, 5);
+				algorithm = roundedRectangle;
+				roundedRectangle.setParentGraphicsAlgorithm(invisibleRectangle);
+				roundedRectangle.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+				gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
+
+				// if addedClass has no resource we add it to the resource of
+				// the
+				// diagram
+				// in a real scenario the business model would have its own
+				// resource
+				if (addedTask.eResource() == null) {
+					getDiagram().eResource().getContents().add(addedTask);
+				}
+
+				// create link and wire it
+				link(containerShape, addedTask);
+			}
+			break;
+		case GATEWAY:
+			// check whether the context has a size (e.g. from a create feature)
+			// otherwise define a default size for the shape
+			width = context.getWidth() <= 0 ? 60 : context.getWidth();
+			height = context.getHeight() <= 0 ? 60 : context.getHeight();
+
+			Polygon polygon;
+			{
+				int xy[] = new int[] { 0, 30, 30, 0, 60, 30, 30, 60, 0, 30 };
+
+				final Polygon invisiblePolygon = gaService.createPolygon(containerShape, xy);
+				invisiblePolygon.setFilled(false);
+				invisiblePolygon.setLineVisible(false);
+				gaService.setLocationAndSize(invisiblePolygon, context.getX(), context.getY(), width, height);
+
+				// create and set visible circle inside invisible circle
+				polygon = gaService.createPolygon(invisiblePolygon, xy);
+				algorithm = polygon;
+				polygon.setParentGraphicsAlgorithm(invisiblePolygon);
+				polygon.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+				gaService.setLocationAndSize(polygon, 0, 0, width, height);
+
+				// final Rectangle invisibleRectangle =
+				// gaService.createInvisibleRectangle(containerShape);
+				// gaService.setLocationAndSize(invisibleRectangle,
+				// context.getX(), context.getY(), width, height + 40);
+				//
+				// // create shape
+				// final Shape shape =
+				// peCreateService.createShape(containerShape, false);
+				// final Polygon invisiblePolygon =
+				// gaService.createPolygon(shape, xy);
+				// invisiblePolygon.setLineVisible(false);
+				// //
+				// invisiblePolygon.setParentGraphicsAlgorithm(invisibleRectangle);
+				// gaService.setLocationAndSize(invisiblePolygon,
+				// context.getX(), context.getY(), width, height);
+				//
+				// final Shape shape2 =
+				// peCreateService.createShape(containerShape, true);
+				// polygon = gaService.createPolygon(shape2, xy);
+				// polygon.setParentGraphicsAlgorithm(polygon);
+				// polygon.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+				// gaService.setLocationAndSize(polygon, 0, 0, width, height);
+				//
+				// algorithm = polygon;
+
+				// if addedClass has no resource we add it to the resource of
+				// the
+				// diagram. In a real scenario the business model would have its
+				// own
+				// resource
+				if (addedTask.eResource() == null) {
+					getDiagram().eResource().getContents().add(addedTask);
+				}
+
+				// create link and wire it
+				link(containerShape, addedTask);
+			}
+			break;
 		}
 
 		// SHAPE WITH TEXT
@@ -79,7 +181,15 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.getFont().setBold(true);
-			gaService.setLocationAndSize(text, 0, 20, width, 20);
+
+			switch (baseShape) {
+			case ACTIVITY:
+				gaService.setLocationAndSize(text, 0, 20, width, 20);
+				break;
+			case GATEWAY:
+				gaService.setLocationAndSize(text, 0, height + 5, width, 40);
+				break;
+			}
 
 			// create link and wire it
 			link(shape, addedTask);
@@ -98,7 +208,16 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 		{
 			final Shape shape = peCreateService.createShape(containerShape, false);
 			final Image image = gaService.createImage(shape, getIcon(addedTask));
-			gaService.setLocationAndSize(image, 5, 5, 10, 10);
+
+			switch (baseShape) {
+			case ACTIVITY:
+				gaService.setLocationAndSize(image, 5, 5, IMAGE_SIZE, IMAGE_SIZE);
+				break;
+			case GATEWAY:
+				gaService.setLocationAndSize(image, width / 2 - IMAGE_SIZE / 2, height / 2 - IMAGE_SIZE / 2, 16, 16);
+				break;
+			}
+
 		}
 
 		// add a chopbox anchor to the shape
@@ -108,10 +227,14 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 		final BoxRelativeAnchor boxAnchor = peCreateService.createBoxRelativeAnchor(containerShape);
 		boxAnchor.setRelativeWidth(1.0);
 		boxAnchor.setRelativeHeight(0.51);
-		boxAnchor.setReferencedGraphicsAlgorithm(roundedRectangle);
+		boxAnchor.setReferencedGraphicsAlgorithm(algorithm);
 		final Ellipse ellipse = ActivitiUiUtil.createInvisibleEllipse(boxAnchor, gaService);
 		gaService.setLocationAndSize(ellipse, 0, 0, 0, 0);
 		layoutPictogramElement(containerShape);
+
+		// TODO: temporary
+		// containerShape.getGraphicsAlgorithm().setLineVisible(true);
+		// containerShape.getGraphicsAlgorithm().setLineWidth(1);
 
 		return containerShape;
 	}

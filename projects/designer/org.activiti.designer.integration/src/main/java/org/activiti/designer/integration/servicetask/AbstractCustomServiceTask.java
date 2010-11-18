@@ -6,6 +6,8 @@ package org.activiti.designer.integration.servicetask;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import org.activiti.designer.integration.servicetask.annotation.Property;
+
 /**
  * Abstract base class for implementing CustomServiceTasks. Defaults provided by
  * this base class:
@@ -13,7 +15,9 @@ import java.lang.reflect.Field;
  * <li>Provides an id which is determined by invoking {@link #getClass()
  * .getCanonicalName}.</li> <li>Don't contribute to a palette drawer (i.e., the
  * "" drawer). Override {@link #contributeToPaletteDrawer()} if you
- * <strong>do</strong> wish to contribute to a drawer.</li>
+ * <strong>do</strong> wish to contribute to a drawer.</li> <li>Sets the diagram
+ * base shape to {@link DiagramBaseShape#ACTIVITY}. Override
+ * {@link #getDiagramBaseShape()} to customize the shape drawn in the diagram.</li>
  * 
  * @author Tiese Barrell
  * @version 1
@@ -104,6 +108,17 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	@Override
 	public String getSmallIconPath() {
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask#
+	 * getDiagramBaseShape()
+	 */
+	@Override
+	public DiagramBaseShape getDiagramBaseShape() {
+		return DiagramBaseShape.ACTIVITY;
 	}
 
 }

@@ -1,13 +1,14 @@
 /**
  * 
  */
-package org.activiti.designer.integration.servicetask;
+package org.activiti.designer.integration.servicetask.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.activiti.designer.integration.servicetask.PropertyType;
 import org.activiti.designer.integration.servicetask.validator.FieldValidator;
 
 /**

@@ -17,10 +17,6 @@ package org.activiti.designer.integration.servicetask;
 public interface CustomServiceTask {
 
 	public static final String MANIFEST_EXTENSION_NAME = "ActivitiDesigner-Extension-Name";
-	public static final String MANIFEST_EXTENSION_PROVIDERS = "ActivitiDesigner-Extension-Providers";
-
-	// TODO: shape usage, palette contribution, execution context, icon
-	void execute() throws Exception;
 
 	/**
 	 * Gets the identifier for this custom service task. The qualified
@@ -54,5 +50,16 @@ public interface CustomServiceTask {
 	 * @return the path to the icon file or null if there is none
 	 */
 	String getSmallIconPath();
+
+	/**
+	 * Gets the base shape for the diagram for this {@link CustomServiceTask}.
+	 * The base shape is the type of shape used to display a node in the
+	 * diagram. For ServiceTasks, this a rounded rectangle by default. Override
+	 * this method and return a different base shape to customize the base shape
+	 * drawn for this {@link CustomServiceTask}.
+	 * 
+	 * @return the base shape for the element in the diagram
+	 */
+	DiagramBaseShape getDiagramBaseShape();
 
 }

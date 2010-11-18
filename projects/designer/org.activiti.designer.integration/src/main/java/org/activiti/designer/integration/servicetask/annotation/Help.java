@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.activiti.designer.integration.servicetask;
+package org.activiti.designer.integration.servicetask.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
