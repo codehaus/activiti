@@ -18,11 +18,13 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.Path;
@@ -79,6 +81,33 @@ public class SaveHandler extends AbstractHandler implements IHandler {
 
 		// Perform the regular save of the diagram without progress monitoring
 		editorPart.doSave(null);
+		
+		// TODO temporary to save bpmn20.xml
+		
+		URI uri = editorInput.getDiagram().eResource().getURI();
+		URI bpmnUri = uri.trimFragment();
+		bpmnUri = bpmnUri.trimFileExtension();
+		bpmnUri = bpmnUri.appendFileExtension("bpmn20.xml");
+		
+		IProject project = null;
+		String parentDiagramName = null;
+		if (bpmnUri.isPlatformResource()) {
+			String platformString = bpmnUri.toPlatformString(true);
+			IResource fileResource = ResourcesPlugin.getWorkspace().getRoot().findMember(platformString);
+			if(fileResource != null) {
+				project = fileResource.getProject();
+				parentDiagramName = uri.trimFragment().trimFileExtension().lastSegment();
+			}
+		}
+		BpmnXMLExport.createBpmnFile(bpmnUri, editorInput.getDiagram(), project, parentDiagramName);
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IPath location = Path.fromOSString(bpmnUri.toPlatformString(false));
+		IFile file = workspace.getRoot().getFile(location);
+		try {
+			file.refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 
 		// Determine list of ExportMarshallers to invoke after regular save
 		final List<ExportMarshaller> marshallers = getActiveMarshallers();
