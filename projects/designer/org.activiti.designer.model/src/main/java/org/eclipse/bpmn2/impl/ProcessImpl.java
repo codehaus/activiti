@@ -64,6 +64,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *   <li>{@link org.eclipse.bpmn2.impl.ProcessImpl#isIsClosed <em>Is Closed</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.ProcessImpl#isIsExecutable <em>Is Executable</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.ProcessImpl#getProcessType <em>Process Type</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.ProcessImpl#getFilename <em>Filename</em>}</li>
  * </ul>
  * </p>
  *
@@ -230,6 +231,26 @@ public class ProcessImpl extends CallableElementImpl implements
 	 * @ordered
 	 */
 	protected ProcessType processType = PROCESS_TYPE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFilename()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FILENAME_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFilename()
+	 * @generated
+	 * @ordered
+	 */
+	protected String filename = FILENAME_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -575,6 +596,28 @@ public class ProcessImpl extends CallableElementImpl implements
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getFilename() {
+		return filename;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setFilename(String newFilename) {
+		String oldFilename = filename;
+		filename = newFilename;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Bpmn2Package.PROCESS__FILENAME, oldFilename, filename));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd,
 			int featureID, NotificationChain msgs) {
@@ -641,6 +684,8 @@ public class ProcessImpl extends CallableElementImpl implements
 			return isIsExecutable();
 		case Bpmn2Package.PROCESS__PROCESS_TYPE:
 			return getProcessType();
+		case Bpmn2Package.PROCESS__FILENAME:
+			return getFilename();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -704,6 +749,9 @@ public class ProcessImpl extends CallableElementImpl implements
 		case Bpmn2Package.PROCESS__PROCESS_TYPE:
 			setProcessType((ProcessType) newValue);
 			return;
+		case Bpmn2Package.PROCESS__FILENAME:
+			setFilename((String) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -755,6 +803,9 @@ public class ProcessImpl extends CallableElementImpl implements
 		case Bpmn2Package.PROCESS__PROCESS_TYPE:
 			setProcessType(PROCESS_TYPE_EDEFAULT);
 			return;
+		case Bpmn2Package.PROCESS__FILENAME:
+			setFilename(FILENAME_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -794,6 +845,9 @@ public class ProcessImpl extends CallableElementImpl implements
 			return isExecutable != IS_EXECUTABLE_EDEFAULT;
 		case Bpmn2Package.PROCESS__PROCESS_TYPE:
 			return processType != PROCESS_TYPE_EDEFAULT;
+		case Bpmn2Package.PROCESS__FILENAME:
+			return FILENAME_EDEFAULT == null ? filename != null
+					: !FILENAME_EDEFAULT.equals(filename);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -855,6 +909,8 @@ public class ProcessImpl extends CallableElementImpl implements
 		result.append(isExecutable);
 		result.append(", processType: ");
 		result.append(processType);
+		result.append(", filename: ");
+		result.append(filename);
 		result.append(')');
 		return result.toString();
 	}

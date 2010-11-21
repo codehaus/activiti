@@ -32,6 +32,7 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 	private List<String> performerTypes = Arrays.asList("Assignee", "Candidate users", "Candidate groups");
 	private String currentType = "Assignee";
 	private Text expressionText;
+	private Text formKeyText;
 
 	@Override
 	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
@@ -71,6 +72,21 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 		data.right = new FormAttachment(expressionText, -HSPACE);
 		data.top = new FormAttachment(expressionText, 0, SWT.TOP);
 		expressionLabel.setLayoutData(data);
+		
+		formKeyText = factory.createText(composite, ""); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 120);
+		data.right = new FormAttachment(100, 0);
+		data.top = new FormAttachment(expressionText, VSPACE);
+		formKeyText.setLayoutData(data);
+		formKeyText.addFocusListener(listener);
+
+		CLabel formKeyLabel = factory.createCLabel(composite, "Form key:"); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 0);
+		data.right = new FormAttachment(formKeyText, -HSPACE);
+		data.top = new FormAttachment(formKeyText, 0, SWT.TOP);
+		formKeyLabel.setLayoutData(data);
 
 	}
 
@@ -78,6 +94,7 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 	public void refresh() {
 		performerTypeCombo.removeFocusListener(listener);
 		expressionText.removeFocusListener(listener);
+		formKeyText.removeFocusListener(listener);
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
@@ -113,9 +130,14 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 					expressionText.setText(userTask.getAssignee());
 				}
 			}
+			formKeyText.setText("");
+			if(userTask.getFormKey() != null && userTask.getFormKey().length() > 0) {
+				formKeyText.setText(userTask.getFormKey());
+			}
 			performerTypeCombo.select(performerIndex == -1 ? 0 : performerIndex);
 			performerTypeCombo.addFocusListener(listener);
 			expressionText.addFocusListener(listener);
+			formKeyText.addFocusListener(listener);
 		}
 	}
 
@@ -184,6 +206,12 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 									userTask.setAssignee(null);
 									removeCandidateUsers(userTask);
 								}
+							}
+							String formKey = formKeyText.getText();
+							if(formKey != null) {
+								userTask.setFormKey(formKey);
+							} else {
+								userTask.setFormKey("");
 							}
 						}
 					}, editingDomain, "Model Update");

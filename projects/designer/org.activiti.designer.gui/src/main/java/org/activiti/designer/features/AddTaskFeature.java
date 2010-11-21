@@ -6,6 +6,8 @@ import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.integration.servicetask.DiagramBaseShape;
 import org.activiti.designer.property.extension.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.util.OSEnum;
+import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.Task;
@@ -181,6 +183,9 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.getFont().setBold(true);
+			if(OSUtil.getOperatingSystem() == OSEnum.Mac) {
+				text.getFont().setSize(11);
+			}
 
 			switch (baseShape) {
 			case ACTIVITY:

@@ -1159,6 +1159,24 @@ public interface Bpmn2Factory extends EFactory {
 	CustomProperty createCustomProperty();
 
 	/**
+	 * Returns a new object of class '<em>Mail Task</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Mail Task</em>'.
+	 * @generated
+	 */
+	MailTask createMailTask();
+
+	/**
+	 * Returns a new object of class '<em>Field Extension</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Field Extension</em>'.
+	 * @generated
+	 */
+	FieldExtension createFieldExtension();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

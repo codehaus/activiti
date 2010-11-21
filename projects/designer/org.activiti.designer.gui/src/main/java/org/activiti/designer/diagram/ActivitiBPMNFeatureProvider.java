@@ -3,6 +3,8 @@ package org.activiti.designer.diagram;
 import org.activiti.designer.features.AddEndEventFeature;
 import org.activiti.designer.features.AddExclusiveGatewayFeature;
 import org.activiti.designer.features.AddGatewayFeature;
+import org.activiti.designer.features.AddMailTaskFeature;
+import org.activiti.designer.features.AddManualTaskFeature;
 import org.activiti.designer.features.AddScriptTaskFeature;
 import org.activiti.designer.features.AddSequenceFlowFeature;
 import org.activiti.designer.features.AddServiceTaskFeature;
@@ -11,6 +13,8 @@ import org.activiti.designer.features.AddSubProcessFeature;
 import org.activiti.designer.features.AddUserTaskFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
+import org.activiti.designer.features.CreateMailTaskFeature;
+import org.activiti.designer.features.CreateManualTaskFeature;
 import org.activiti.designer.features.CreateParallelGatewayFeature;
 import org.activiti.designer.features.CreateScriptTaskFeature;
 import org.activiti.designer.features.CreateSequenceFlowFeature;
@@ -26,6 +30,8 @@ import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.Gateway;
+import org.eclipse.bpmn2.MailTask;
+import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
@@ -72,6 +78,10 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			return new AddScriptTaskFeature(this);
 		} else if (context.getNewObject() instanceof ServiceTask) {
 			return new AddServiceTaskFeature(this);
+		} else if (context.getNewObject() instanceof MailTask) {
+			return new AddMailTaskFeature(this);
+		} else if (context.getNewObject() instanceof ManualTask) {
+			return new AddManualTaskFeature(this);
 		} else if (context.getNewObject() instanceof ExclusiveGateway) {
 			return new AddExclusiveGatewayFeature(this);
 		} else if (context.getNewObject() instanceof Gateway) {
@@ -84,9 +94,15 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 
 	@Override
 	public ICreateFeature[] getCreateFeatures() {
-		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this),
-				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
-				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this),
+		return new ICreateFeature[] { new CreateStartEventFeature(this), 
+				new CreateEndEventFeature(this),
+				new CreateUserTaskFeature(this), 
+				new CreateScriptTaskFeature(this), 
+				new CreateServiceTaskFeature(this),
+				new CreateMailTaskFeature(this), 
+				new CreateManualTaskFeature(this), 
+				new CreateParallelGatewayFeature(this), 
+				new CreateExclusiveGatewayFeature(this),
 				new CreateSubProcessFeature(this) };
 	}
 

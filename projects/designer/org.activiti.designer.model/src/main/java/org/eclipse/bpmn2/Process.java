@@ -35,6 +35,7 @@ import java.util.List;
  *   <li>{@link org.eclipse.bpmn2.Process#isIsClosed <em>Is Closed</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.Process#isIsExecutable <em>Is Executable</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.Process#getProcessType <em>Process Type</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.Process#getFilename <em>Filename</em>}</li>
  * </ul>
  * </p>
  *
@@ -292,5 +293,32 @@ public interface Process extends CallableElement, FlowElementsContainer {
 	 * @generated
 	 */
 	void setProcessType(ProcessType value);
+
+	/**
+	 * Returns the value of the '<em><b>Filename</b></em>' attribute.
+	 * The default value is <code>""</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Filename</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Filename</em>' attribute.
+	 * @see #setFilename(String)
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getProcess_Filename()
+	 * @model default=""
+	 * @generated
+	 */
+	String getFilename();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.bpmn2.Process#getFilename <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Filename</em>' attribute.
+	 * @see #getFilename()
+	 * @generated
+	 */
+	void setFilename(String value);
 
 } // Process

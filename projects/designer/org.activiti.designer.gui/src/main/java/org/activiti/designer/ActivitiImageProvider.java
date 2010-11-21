@@ -37,6 +37,8 @@ public class ActivitiImageProvider extends AbstractImageProvider {
 	public static final String IMG_USERTASK = PREFIX + "usertask"; //$NON-NLS-1$
 	public static final String IMG_SCRIPTTASK = PREFIX + "scripttask"; //$NON-NLS-1$
 	public static final String IMG_SERVICETASK = PREFIX + "servicetask"; //$NON-NLS-1$
+	public static final String IMG_MAILTASK = PREFIX + "mail"; //$NON-NLS-1$
+	public static final String IMG_MANUALTASK = PREFIX + "manual"; //$NON-NLS-1$
 
 	// Sub process icons
 	public static final String IMG_SUBPROCESS_COLLAPSED = PREFIX + "subprocess.collapsed"; //$NON-NLS-1$
@@ -55,6 +57,8 @@ public class ActivitiImageProvider extends AbstractImageProvider {
 		addImageFilePath(IMG_USERTASK, "icons/type.user.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_SCRIPTTASK, "icons/type.script.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_SERVICETASK, "icons/type.service.png"); //$NON-NLS-1$
+		addImageFilePath(IMG_MAILTASK, "icons/type.mail.png"); //$NON-NLS-1$
+		addImageFilePath(IMG_MANUALTASK, "icons/type.manual.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_SUBPROCESS_COLLAPSED, "icons/type.subprocess.collapsed.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_SUBPROCESS_EXPANDED, "icons/type.subprocess.expanded.png"); //$NON-NLS-1$
 		addImageFilePath(IMG_ACTION_ZOOM, "icons/action.magnifier.png"); //$NON-NLS-1$

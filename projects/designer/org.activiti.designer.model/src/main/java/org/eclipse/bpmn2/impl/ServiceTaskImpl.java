@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.bpmn2.Bpmn2Package;
 import org.eclipse.bpmn2.CustomProperty;
+import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.Operation;
 import org.eclipse.bpmn2.ServiceTask;
 
@@ -43,6 +44,8 @@ import org.eclipse.emf.ecore.util.EObjectResolvingEList;
  *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getImplementation <em>Implementation</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getOperationRef <em>Operation Ref</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getCustomProperties <em>Custom Properties</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getImplementationType <em>Implementation Type</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.ServiceTaskImpl#getFieldExtensions <em>Field Extensions</em>}</li>
  * </ul>
  * </p>
  *
@@ -90,6 +93,36 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 	protected EList<CustomProperty> customProperties;
 
 	/**
+	 * The default value of the '{@link #getImplementationType() <em>Implementation Type</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getImplementationType()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String IMPLEMENTATION_TYPE_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getImplementationType() <em>Implementation Type</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getImplementationType()
+	 * @generated
+	 * @ordered
+	 */
+	protected String implementationType = IMPLEMENTATION_TYPE_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getFieldExtensions() <em>Field Extensions</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFieldExtensions()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<FieldExtension> fieldExtensions;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -126,7 +159,8 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		String oldImplementation = implementation;
 		implementation = newImplementation;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Bpmn2Package.SERVICE_TASK__IMPLEMENTATION,
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Bpmn2Package.SERVICE_TASK__IMPLEMENTATION,
 					oldImplementation, implementation));
 	}
 
@@ -141,7 +175,8 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 			operationRef = (Operation) eResolveProxy(oldOperationRef);
 			if (operationRef != oldOperationRef) {
 				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE, Bpmn2Package.SERVICE_TASK__OPERATION_REF,
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE,
+							Bpmn2Package.SERVICE_TASK__OPERATION_REF,
 							oldOperationRef, operationRef));
 			}
 		}
@@ -166,8 +201,9 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		Operation oldOperationRef = operationRef;
 		operationRef = newOperationRef;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Bpmn2Package.SERVICE_TASK__OPERATION_REF,
-					oldOperationRef, operationRef));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Bpmn2Package.SERVICE_TASK__OPERATION_REF, oldOperationRef,
+					operationRef));
 	}
 
 	/**
@@ -177,10 +213,48 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 	 */
 	public List<CustomProperty> getCustomProperties() {
 		if (customProperties == null) {
-			customProperties = new EObjectResolvingEList<CustomProperty>(CustomProperty.class, this,
+			customProperties = new EObjectResolvingEList<CustomProperty>(
+					CustomProperty.class, this,
 					Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES);
 		}
 		return customProperties;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getImplementationType() {
+		return implementationType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setImplementationType(String newImplementationType) {
+		String oldImplementationType = implementationType;
+		implementationType = newImplementationType;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Bpmn2Package.SERVICE_TASK__IMPLEMENTATION_TYPE,
+					oldImplementationType, implementationType));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public List<FieldExtension> getFieldExtensions() {
+		if (fieldExtensions == null) {
+			fieldExtensions = new EObjectResolvingEList<FieldExtension>(
+					FieldExtension.class, this,
+					Bpmn2Package.SERVICE_TASK__FIELD_EXTENSIONS);
+		}
+		return fieldExtensions;
 	}
 
 	/**
@@ -199,6 +273,10 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 			return basicGetOperationRef();
 		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
 			return getCustomProperties();
+		case Bpmn2Package.SERVICE_TASK__IMPLEMENTATION_TYPE:
+			return getImplementationType();
+		case Bpmn2Package.SERVICE_TASK__FIELD_EXTENSIONS:
+			return getFieldExtensions();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -220,7 +298,16 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 			return;
 		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
 			getCustomProperties().clear();
-			getCustomProperties().addAll((Collection<? extends CustomProperty>) newValue);
+			getCustomProperties().addAll(
+					(Collection<? extends CustomProperty>) newValue);
+			return;
+		case Bpmn2Package.SERVICE_TASK__IMPLEMENTATION_TYPE:
+			setImplementationType((String) newValue);
+			return;
+		case Bpmn2Package.SERVICE_TASK__FIELD_EXTENSIONS:
+			getFieldExtensions().clear();
+			getFieldExtensions().addAll(
+					(Collection<? extends FieldExtension>) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -243,6 +330,12 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
 			getCustomProperties().clear();
 			return;
+		case Bpmn2Package.SERVICE_TASK__IMPLEMENTATION_TYPE:
+			setImplementationType(IMPLEMENTATION_TYPE_EDEFAULT);
+			return;
+		case Bpmn2Package.SERVICE_TASK__FIELD_EXTENSIONS:
+			getFieldExtensions().clear();
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -256,12 +349,17 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 		case Bpmn2Package.SERVICE_TASK__IMPLEMENTATION:
-			return IMPLEMENTATION_EDEFAULT == null ? implementation != null : !IMPLEMENTATION_EDEFAULT
-					.equals(implementation);
+			return IMPLEMENTATION_EDEFAULT == null ? implementation != null
+					: !IMPLEMENTATION_EDEFAULT.equals(implementation);
 		case Bpmn2Package.SERVICE_TASK__OPERATION_REF:
 			return operationRef != null;
 		case Bpmn2Package.SERVICE_TASK__CUSTOM_PROPERTIES:
 			return customProperties != null && !customProperties.isEmpty();
+		case Bpmn2Package.SERVICE_TASK__IMPLEMENTATION_TYPE:
+			return IMPLEMENTATION_TYPE_EDEFAULT == null ? implementationType != null
+					: !IMPLEMENTATION_TYPE_EDEFAULT.equals(implementationType);
+		case Bpmn2Package.SERVICE_TASK__FIELD_EXTENSIONS:
+			return fieldExtensions != null && !fieldExtensions.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -279,6 +377,8 @@ public class ServiceTaskImpl extends TaskImpl implements ServiceTask {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (implementation: ");
 		result.append(implementation);
+		result.append(", implementationType: ");
+		result.append(implementationType);
 		result.append(')');
 		return result.toString();
 	}

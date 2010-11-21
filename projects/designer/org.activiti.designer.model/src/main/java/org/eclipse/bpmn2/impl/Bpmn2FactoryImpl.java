@@ -76,6 +76,7 @@ import org.eclipse.bpmn2.Extension;
 import org.eclipse.bpmn2.ExtensionAttributeDefinition;
 import org.eclipse.bpmn2.ExtensionAttributeValue;
 import org.eclipse.bpmn2.ExtensionDefinition;
+import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FormalExpression;
 import org.eclipse.bpmn2.GatewayDirection;
 import org.eclipse.bpmn2.GlobalBusinessRuleTask;
@@ -102,6 +103,7 @@ import org.eclipse.bpmn2.ItemKind;
 import org.eclipse.bpmn2.Lane;
 import org.eclipse.bpmn2.LaneSet;
 import org.eclipse.bpmn2.LinkEventDefinition;
+import org.eclipse.bpmn2.MailTask;
 import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.Message;
 import org.eclipse.bpmn2.MessageEventDefinition;
@@ -452,8 +454,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 			return createCandidateGroup();
 		case Bpmn2Package.CUSTOM_PROPERTY:
 			return createCustomProperty();
+		case Bpmn2Package.MAIL_TASK:
+			return createMailTask();
+		case Bpmn2Package.FIELD_EXTENSION:
+			return createFieldExtension();
 		default:
-			throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
+			throw new IllegalArgumentException("The class '" + eClass.getName()
+					+ "' is not a valid classifier");
 		}
 	}
 
@@ -472,19 +479,23 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 		case Bpmn2Package.CHOREOGRAPHY_LOOP_TYPE:
 			return createChoreographyLoopTypeFromString(eDataType, initialValue);
 		case Bpmn2Package.EVENT_BASED_GATEWAY_TYPE:
-			return createEventBasedGatewayTypeFromString(eDataType, initialValue);
+			return createEventBasedGatewayTypeFromString(eDataType,
+					initialValue);
 		case Bpmn2Package.GATEWAY_DIRECTION:
 			return createGatewayDirectionFromString(eDataType, initialValue);
 		case Bpmn2Package.ITEM_KIND:
 			return createItemKindFromString(eDataType, initialValue);
 		case Bpmn2Package.MULTI_INSTANCE_BEHAVIOR:
-			return createMultiInstanceBehaviorFromString(eDataType, initialValue);
+			return createMultiInstanceBehaviorFromString(eDataType,
+					initialValue);
 		case Bpmn2Package.PROCESS_TYPE:
 			return createProcessTypeFromString(eDataType, initialValue);
 		case Bpmn2Package.RELATIONSHIP_DIRECTION:
-			return createRelationshipDirectionFromString(eDataType, initialValue);
+			return createRelationshipDirectionFromString(eDataType,
+					initialValue);
 		default:
-			throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+			throw new IllegalArgumentException("The datatype '"
+					+ eDataType.getName() + "' is not a valid classifier");
 		}
 	}
 
@@ -503,19 +514,23 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 		case Bpmn2Package.CHOREOGRAPHY_LOOP_TYPE:
 			return convertChoreographyLoopTypeToString(eDataType, instanceValue);
 		case Bpmn2Package.EVENT_BASED_GATEWAY_TYPE:
-			return convertEventBasedGatewayTypeToString(eDataType, instanceValue);
+			return convertEventBasedGatewayTypeToString(eDataType,
+					instanceValue);
 		case Bpmn2Package.GATEWAY_DIRECTION:
 			return convertGatewayDirectionToString(eDataType, instanceValue);
 		case Bpmn2Package.ITEM_KIND:
 			return convertItemKindToString(eDataType, instanceValue);
 		case Bpmn2Package.MULTI_INSTANCE_BEHAVIOR:
-			return convertMultiInstanceBehaviorToString(eDataType, instanceValue);
+			return convertMultiInstanceBehaviorToString(eDataType,
+					instanceValue);
 		case Bpmn2Package.PROCESS_TYPE:
 			return convertProcessTypeToString(eDataType, instanceValue);
 		case Bpmn2Package.RELATIONSHIP_DIRECTION:
-			return convertRelationshipDirectionToString(eDataType, instanceValue);
+			return convertRelationshipDirectionToString(eDataType,
+					instanceValue);
 		default:
-			throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+			throw new IllegalArgumentException("The datatype '"
+					+ eDataType.getName() + "' is not a valid classifier");
 		}
 	}
 
@@ -1774,11 +1789,33 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public AdHocOrdering createAdHocOrderingFromString(EDataType eDataType, String initialValue) {
+	public MailTask createMailTask() {
+		MailTaskImpl mailTask = new MailTaskImpl();
+		return mailTask;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public FieldExtension createFieldExtension() {
+		FieldExtensionImpl fieldExtension = new FieldExtensionImpl();
+		return fieldExtension;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public AdHocOrdering createAdHocOrderingFromString(EDataType eDataType,
+			String initialValue) {
 		AdHocOrdering result = AdHocOrdering.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1787,7 +1824,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertAdHocOrderingToString(EDataType eDataType, Object instanceValue) {
+	public String convertAdHocOrderingToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1796,11 +1834,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public AssociationDirection createAssociationDirectionFromString(EDataType eDataType, String initialValue) {
+	public AssociationDirection createAssociationDirectionFromString(
+			EDataType eDataType, String initialValue) {
 		AssociationDirection result = AssociationDirection.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1809,7 +1849,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertAssociationDirectionToString(EDataType eDataType, Object instanceValue) {
+	public String convertAssociationDirectionToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1818,11 +1859,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ChoreographyLoopType createChoreographyLoopTypeFromString(EDataType eDataType, String initialValue) {
+	public ChoreographyLoopType createChoreographyLoopTypeFromString(
+			EDataType eDataType, String initialValue) {
 		ChoreographyLoopType result = ChoreographyLoopType.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1831,7 +1874,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertChoreographyLoopTypeToString(EDataType eDataType, Object instanceValue) {
+	public String convertChoreographyLoopTypeToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1840,11 +1884,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EventBasedGatewayType createEventBasedGatewayTypeFromString(EDataType eDataType, String initialValue) {
+	public EventBasedGatewayType createEventBasedGatewayTypeFromString(
+			EDataType eDataType, String initialValue) {
 		EventBasedGatewayType result = EventBasedGatewayType.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1853,7 +1899,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertEventBasedGatewayTypeToString(EDataType eDataType, Object instanceValue) {
+	public String convertEventBasedGatewayTypeToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1862,11 +1909,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public GatewayDirection createGatewayDirectionFromString(EDataType eDataType, String initialValue) {
+	public GatewayDirection createGatewayDirectionFromString(
+			EDataType eDataType, String initialValue) {
 		GatewayDirection result = GatewayDirection.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1875,7 +1924,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertGatewayDirectionToString(EDataType eDataType, Object instanceValue) {
+	public String convertGatewayDirectionToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1884,11 +1934,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ItemKind createItemKindFromString(EDataType eDataType, String initialValue) {
+	public ItemKind createItemKindFromString(EDataType eDataType,
+			String initialValue) {
 		ItemKind result = ItemKind.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1897,7 +1949,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertItemKindToString(EDataType eDataType, Object instanceValue) {
+	public String convertItemKindToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1906,11 +1959,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public MultiInstanceBehavior createMultiInstanceBehaviorFromString(EDataType eDataType, String initialValue) {
+	public MultiInstanceBehavior createMultiInstanceBehaviorFromString(
+			EDataType eDataType, String initialValue) {
 		MultiInstanceBehavior result = MultiInstanceBehavior.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1919,7 +1974,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertMultiInstanceBehaviorToString(EDataType eDataType, Object instanceValue) {
+	public String convertMultiInstanceBehaviorToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1928,11 +1984,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ProcessType createProcessTypeFromString(EDataType eDataType, String initialValue) {
+	public ProcessType createProcessTypeFromString(EDataType eDataType,
+			String initialValue) {
 		ProcessType result = ProcessType.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1941,7 +1999,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertProcessTypeToString(EDataType eDataType, Object instanceValue) {
+	public String convertProcessTypeToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -1950,11 +2009,13 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public RelationshipDirection createRelationshipDirectionFromString(EDataType eDataType, String initialValue) {
+	public RelationshipDirection createRelationshipDirectionFromString(
+			EDataType eDataType, String initialValue) {
 		RelationshipDirection result = RelationshipDirection.get(initialValue);
 		if (result == null)
-			throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
-					+ eDataType.getName() + "'");
+			throw new IllegalArgumentException("The value '" + initialValue
+					+ "' is not a valid enumerator of '" + eDataType.getName()
+					+ "'");
 		return result;
 	}
 
@@ -1963,7 +2024,8 @@ public class Bpmn2FactoryImpl extends EFactoryImpl implements Bpmn2Factory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertRelationshipDirectionToString(EDataType eDataType, Object instanceValue) {
+	public String convertRelationshipDirectionToString(EDataType eDataType,
+			Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 

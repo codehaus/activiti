@@ -27,6 +27,8 @@ import java.util.List;
  *   <li>{@link org.eclipse.bpmn2.ServiceTask#getImplementation <em>Implementation</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.ServiceTask#getOperationRef <em>Operation Ref</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.ServiceTask#getCustomProperties <em>Custom Properties</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.ServiceTask#getImplementationType <em>Implementation Type</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.ServiceTask#getFieldExtensions <em>Field Extensions</em>}</li>
  * </ul>
  * </p>
  *
@@ -104,5 +106,47 @@ public interface ServiceTask extends Task {
 	 * @generated
 	 */
 	List<CustomProperty> getCustomProperties();
+
+	/**
+	 * Returns the value of the '<em><b>Implementation Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Implementation Type</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Implementation Type</em>' attribute.
+	 * @see #setImplementationType(String)
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getServiceTask_ImplementationType()
+	 * @model
+	 * @generated
+	 */
+	String getImplementationType();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.bpmn2.ServiceTask#getImplementationType <em>Implementation Type</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Implementation Type</em>' attribute.
+	 * @see #getImplementationType()
+	 * @generated
+	 */
+	void setImplementationType(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Field Extensions</b></em>' reference list.
+	 * The list contents are of type {@link org.eclipse.bpmn2.FieldExtension}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Field Extensions</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Field Extensions</em>' reference list.
+	 * @see org.eclipse.bpmn2.Bpmn2Package#getServiceTask_FieldExtensions()
+	 * @model
+	 * @generated
+	 */
+	List<FieldExtension> getFieldExtensions();
 
 } // ServiceTask

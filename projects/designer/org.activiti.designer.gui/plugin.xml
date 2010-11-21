@@ -91,6 +91,12 @@
                tab="org.activiti.designer.propertyTab">
          </propertySection>
          <propertySection
+               class="org.activiti.designer.property.PropertyMailTaskSection"
+               filter="org.activiti.designer.property.PropertyMailTaskFilter"
+               id="org.activiti.designer.propertyTab.mailtask"
+               tab="org.activiti.designer.propertyTab">
+         </propertySection>
+         <propertySection
                class="org.activiti.designer.property.PropertyBpmnSection"
                filter="org.activiti.designer.property.PropertyBpmnFilter"
                id="org.activiti.designer.propertyTab.flowelement"

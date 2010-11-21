@@ -16,10 +16,14 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
@@ -31,8 +35,15 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
 public class PropertyServiceTaskSection extends GFPropertySection implements ITabbedPropertyConstants {
 
-	private Text implementationNameText;
+	private final static String CLASS_TYPE = "classType";
+	private final static String EXPRESSION_TYPE = "expressionType";
+	private Button expressionTypeButton;
+	private Button classTypeButton;
+	private Text classNameText;
 	private Button classSelectButton;
+	private CLabel classSelectLabel;
+	private Text expressionText;
+	private CLabel expressionLabel;
 
 	@Override
 	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
@@ -41,23 +52,75 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 		TabbedPropertySheetWidgetFactory factory = getWidgetFactory();
 		Composite composite = factory.createFlatFormComposite(parent);
 		FormData data;
+		
+		Composite radioTypeComposite = new Composite(composite, SWT.NULL);
+		radioTypeComposite.setBackground(composite.getBackground());
+		data = new FormData();
+		data.left = new FormAttachment(0, 120);
+		data.right = new FormAttachment(100, 0);
+		radioTypeComposite.setLayoutData(data);
+		radioTypeComposite.setLayout(new RowLayout());
+	    
+		classTypeButton = new Button(radioTypeComposite, SWT.RADIO);
+		classTypeButton.setText("Java class");
+		classTypeButton.setSelection(true);
+		classTypeButton.addSelectionListener(new SelectionListener() {
 
-		implementationNameText = factory.createText(composite, ""); //$NON-NLS-1$
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				setVisibleClassType(true);
+				setVisibleExpressionType(false);
+				saveImplementationType(CLASS_TYPE);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+				//
+			}
+			
+		});
+		expressionTypeButton = new Button(radioTypeComposite, SWT.RADIO);
+		expressionTypeButton.setText("Expression");
+		expressionTypeButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				setVisibleClassType(false);
+				setVisibleExpressionType(true);
+				saveImplementationType(EXPRESSION_TYPE);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+				//
+			}
+			
+		});
+		
+		CLabel typeLabel = factory.createCLabel(composite, "Type:"); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 0);
+		data.right = new FormAttachment(radioTypeComposite, -HSPACE);
+		data.top = new FormAttachment(radioTypeComposite, 0, SWT.TOP);
+		typeLabel.setLayoutData(data);
+
+		classNameText = factory.createText(composite, ""); //$NON-NLS-1$
 		data = new FormData();
 		data.left = new FormAttachment(0, 120);
 		data.right = new FormAttachment(70, 0);
-		implementationNameText.setEnabled(false);
-		implementationNameText.setLayoutData(data);
+		data.top = new FormAttachment(radioTypeComposite, VSPACE);
+		classNameText.setEnabled(false);
+		classNameText.setLayoutData(data);
 
 		classSelectButton = factory.createButton(composite, "Select class", SWT.PUSH);
 		data = new FormData();
-		data.left = new FormAttachment(implementationNameText, 0);
+		data.left = new FormAttachment(classNameText, 0);
 		data.right = new FormAttachment(78, 0);
-		data.top = new FormAttachment(implementationNameText, -2, SWT.TOP);
+		data.top = new FormAttachment(classNameText, -2, SWT.TOP);
 		classSelectButton.setLayoutData(data);
 		classSelectButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent evt) {
-				Shell shell = implementationNameText.getShell();
+				Shell shell = classNameText.getShell();
 				try {
 					SelectionDialog dialog = JavaUI.createTypeDialog(shell, new ProgressMonitorDialog(shell),
 							SearchEngine.createWorkspaceScope(), IJavaElementSearchConstants.CONSIDER_CLASSES, false);
@@ -68,7 +131,7 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 						IJavaProject containerProject = ((IType) result[0]).getJavaProject();
 
 						if (className != null) {
-							implementationNameText.setText(className);
+							classNameText.setText(className);
 						}
 
 						DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
@@ -81,7 +144,7 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 								if (bo == null) {
 									return;
 								}
-								String implementationName = implementationNameText.getText();
+								String implementationName = classNameText.getText();
 								if (implementationName != null) {
 									if (bo instanceof ServiceTask) {
 
@@ -101,25 +164,121 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 			}
 		});
 
-		CLabel expressionLabel = factory.createCLabel(composite, "Service class:"); //$NON-NLS-1$
+		classSelectLabel = factory.createCLabel(composite, "Service class:"); //$NON-NLS-1$
 		data = new FormData();
 		data.left = new FormAttachment(0, 0);
-		data.right = new FormAttachment(implementationNameText, -HSPACE);
-		data.top = new FormAttachment(implementationNameText, 0, SWT.TOP);
+		data.right = new FormAttachment(classNameText, -HSPACE);
+		data.top = new FormAttachment(classNameText, 0, SWT.TOP);
+		classSelectLabel.setLayoutData(data);
+		
+		expressionText = factory.createText(composite, ""); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 120);
+		data.right = new FormAttachment(100, 0);
+		data.top = new FormAttachment(radioTypeComposite, VSPACE);
+		expressionText.setVisible(false);
+		expressionText.setLayoutData(data);
+		expressionText.addFocusListener(listener);
+		
+		expressionLabel = factory.createCLabel(composite, "Expression:"); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 0);
+		data.right = new FormAttachment(expressionText, -HSPACE);
+		data.top = new FormAttachment(expressionText, 0, SWT.TOP);
+		expressionLabel.setVisible(false);
 		expressionLabel.setLayoutData(data);
 
 	}
 
 	@Override
 	public void refresh() {
-
+		
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
+			expressionText.removeFocusListener(listener);
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
 			if (bo == null)
 				return;
-			String implemenationName = ((ServiceTask) bo).getImplementation();
-			implementationNameText.setText(implemenationName == null ? "" : implemenationName);
+			
+			ServiceTask serviceTask = (ServiceTask) bo;
+			String implementationName = serviceTask.getImplementation();
+			if(serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0 ||
+					CLASS_TYPE.equals(serviceTask.getImplementationType())) {
+				setVisibleClassType(true);
+				setVisibleExpressionType(false);
+				classNameText.setText(implementationName == null ? "" : implementationName);
+			} else {
+				setVisibleClassType(false);
+				setVisibleExpressionType(true);
+				expressionText.setText(implementationName == null ? "" : implementationName);
+			}
+			expressionText.addFocusListener(listener);
 		}
 	}
+	
+	private void saveImplementationType(final String type) {
+		PictogramElement pe = getSelectedPictogramElement();
+		if (pe != null) {
+			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+			if (bo instanceof ServiceTask) {
+				DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
+				TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
+				ActivitiUiUtil.runModelChange(new Runnable() {
+					public void run() {
+						Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
+						if (bo == null) {
+							return;
+						}
+						ServiceTask serviceTask = (ServiceTask)  bo;
+						serviceTask.setImplementationType(type);
+						serviceTask.setImplementation("");
+					}
+				}, editingDomain, "Model Update");
+			}
+
+		}
+	}
+	
+	private void setVisibleClassType(boolean visible) {
+		classTypeButton.setSelection(visible);
+		classNameText.setVisible(visible);
+		classSelectButton.setVisible(visible);
+		classSelectLabel.setVisible(visible);
+	}
+	
+	private void setVisibleExpressionType(boolean visible) {
+		expressionTypeButton.setSelection(visible);
+		expressionText.setVisible(visible);
+		expressionLabel.setVisible(visible);
+	}
+	
+	private FocusListener listener = new FocusListener() {
+
+		public void focusGained(final FocusEvent e) {
+		}
+
+		public void focusLost(final FocusEvent e) {
+			PictogramElement pe = getSelectedPictogramElement();
+			if (pe != null) {
+				Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+				if (bo instanceof ServiceTask) {
+					DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
+					TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
+					ActivitiUiUtil.runModelChange(new Runnable() {
+						public void run() {
+							Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
+							if (bo == null) {
+								return;
+							}
+							ServiceTask serviceTask = (ServiceTask)  bo;
+							if (expressionText.isVisible() && expressionText.getText() != null) {
+								serviceTask.setImplementation(expressionText.getText());
+							}
+						}
+					}, editingDomain, "Model Update");
+				}
+
+			}
+		}
+	};
 }

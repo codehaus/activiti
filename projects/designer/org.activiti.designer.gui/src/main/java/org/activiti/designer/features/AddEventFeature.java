@@ -1,6 +1,8 @@
 package org.activiti.designer.features;
 
 import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.util.OSEnum;
+import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.Event;
@@ -77,6 +79,9 @@ public class AddEventFeature extends AbstractAddShapeFeature {
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.getFont().setBold(true);
+			if(OSUtil.getOperatingSystem() == OSEnum.Mac) {
+				text.getFont().setSize(11);
+			}
 			gaService.setLocationAndSize(text, 0, 0, width, 55);
 
 			// create link and wire it

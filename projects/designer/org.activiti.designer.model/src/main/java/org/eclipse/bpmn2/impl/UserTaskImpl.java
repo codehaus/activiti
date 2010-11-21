@@ -49,6 +49,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getAssignee <em>Assignee</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getCandidateUsers <em>Candidate Users</em>}</li>
  *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getCandidateGroups <em>Candidate Groups</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.impl.UserTaskImpl#getFormKey <em>Form Key</em>}</li>
  * </ul>
  * </p>
  *
@@ -124,6 +125,26 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 	 * @ordered
 	 */
 	protected EList<CandidateGroup> candidateGroups;
+
+	/**
+	 * The default value of the '{@link #getFormKey() <em>Form Key</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFormKey()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FORM_KEY_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getFormKey() <em>Form Key</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFormKey()
+	 * @generated
+	 * @ordered
+	 */
+	protected String formKey = FORM_KEY_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -235,6 +256,28 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getFormKey() {
+		return formKey;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setFormKey(String newFormKey) {
+		String oldFormKey = formKey;
+		formKey = newFormKey;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Bpmn2Package.USER_TASK__FORM_KEY, oldFormKey, formKey));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd,
 			int featureID, NotificationChain msgs) {
@@ -264,6 +307,8 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 			return getCandidateUsers();
 		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
 			return getCandidateGroups();
+		case Bpmn2Package.USER_TASK__FORM_KEY:
+			return getFormKey();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -297,6 +342,9 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 			getCandidateGroups().addAll(
 					(Collection<? extends CandidateGroup>) newValue);
 			return;
+		case Bpmn2Package.USER_TASK__FORM_KEY:
+			setFormKey((String) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -324,6 +372,9 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
 			getCandidateGroups().clear();
 			return;
+		case Bpmn2Package.USER_TASK__FORM_KEY:
+			setFormKey(FORM_KEY_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -348,6 +399,9 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 			return candidateUsers != null && !candidateUsers.isEmpty();
 		case Bpmn2Package.USER_TASK__CANDIDATE_GROUPS:
 			return candidateGroups != null && !candidateGroups.isEmpty();
+		case Bpmn2Package.USER_TASK__FORM_KEY:
+			return FORM_KEY_EDEFAULT == null ? formKey != null
+					: !FORM_KEY_EDEFAULT.equals(formKey);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -367,6 +421,8 @@ public class UserTaskImpl extends TaskImpl implements UserTask {
 		result.append(implementation);
 		result.append(", assignee: ");
 		result.append(assignee);
+		result.append(", formKey: ");
+		result.append(formKey);
 		result.append(')');
 		return result.toString();
 	}
