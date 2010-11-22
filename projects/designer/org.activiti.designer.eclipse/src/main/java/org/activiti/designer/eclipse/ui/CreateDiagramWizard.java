@@ -9,6 +9,8 @@ import org.activiti.designer.eclipse.navigator.nodes.base.AbstractInstancesOfTyp
 import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.activiti.designer.eclipse.util.Util;
+import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.Documentation;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -16,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.services.Graphiti;
@@ -64,9 +67,8 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.ui.wizards.newresource.BasicNewResourceWizard#init(org.eclipse
-	 * .ui.IWorkbench, org.eclipse.jface.viewers.IStructuredSelection)
+	 * @see org.eclipse.ui.wizards.newresource.BasicNewResourceWizard#init(org.eclipse .ui.IWorkbench,
+	 * org.eclipse.jface.viewers.IStructuredSelection)
 	 */
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
@@ -142,7 +144,30 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 
 		} else {
 			diagram = Graphiti.getPeCreateService().createDiagram(diagramTypeId, diagramName, true);
+
 			domain = FileService.createEmfFileForDiagram(uri, diagram, null, null);
+
+			final Runnable runnable = new Runnable() {
+				public void run() {
+
+					org.eclipse.bpmn2.Process process = Bpmn2Factory.eINSTANCE.createProcess();
+					process.setId("helloworld");
+					process.setName("helloworld");
+					Documentation documentation = Bpmn2Factory.eINSTANCE.createDocumentation();
+					documentation.setId("documentation_process");
+					documentation.setText("");
+					process.getDocumentation().add(documentation);
+
+					diagram.eResource().getContents().add(process);
+				}
+			};
+
+			domain.getCommandStack().execute(new RecordingCommand(domain, "default process content") {
+				protected void doExecute() {
+					runnable.run();
+				}
+			});
+
 		}
 
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
