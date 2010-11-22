@@ -1,5 +1,7 @@
 package org.activiti.designer.eclipse.ui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.common.ActivitiProjectNature;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -42,11 +45,17 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 
 			createSourceFolders(newProject);
 			createOutputLocation(javaProject);
+			
+			IFile pomFile = newProject.getFile("pom.xml");
+			InputStream pomSource = new ByteArrayInputStream(createPOMFile().getBytes()); 
+			pomFile.create(pomSource, true, null);
+			pomSource.close();
 
 			IClasspathEntry[] entries = createClasspathEntries(javaProject);
 
 			javaProject.setRawClasspath(entries, null);
-		} catch (CoreException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 
@@ -97,6 +106,69 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 
 		IPath targetPath = javaProject.getPath().append("target/classes");
 		javaProject.setOutputLocation(targetPath, null);
+	}
+	
+	private String createPOMFile() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
+		buffer.append("    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n");
+		buffer.append("  <modelVersion>4.0.0</modelVersion>\n");
+		buffer.append("  <groupId>org.activiti.examples</groupId>\n");
+		buffer.append("  <artifactId>activiti-examples</artifactId>\n");
+		buffer.append("  <version>1.0-SNAPSHOT</version>\n");
+		buffer.append("  <packaging>jar</packaging>\n");
+		buffer.append("  <name>BPMN 2.0 with Activiti - Examples</name>\n");
+		buffer.append("  <properties>\n");
+		buffer.append("    <activiti-version>5.0.rc1</activiti-version>\n");
+		buffer.append("  </properties>\n");
+		buffer.append("  <dependencies>\n");
+		buffer.append("    <dependency>\n");
+		buffer.append("      <groupId>org.activiti</groupId>\n");
+		buffer.append("      <artifactId>activiti-engine</artifactId>\n");
+		buffer.append("      <version>${activiti-version}</version>\n");
+		buffer.append("    </dependency>\n");
+		buffer.append("    <dependency>\n");
+		buffer.append("      <groupId>org.activiti</groupId>\n");
+		buffer.append("      <artifactId>activiti-spring</artifactId>\n");
+		buffer.append("      <version>${activiti-version}</version>\n");
+		buffer.append("    </dependency>\n");
+		buffer.append("    <dependency>\n");
+		buffer.append("      <groupId>hsqldb</groupId>\n");
+		buffer.append("      <artifactId>hsqldb</artifactId>\n");
+		buffer.append("      <version>1.8.0.7</version>\n");
+		buffer.append("	   </dependency>\n");
+		buffer.append("    <dependency>\n");
+		buffer.append("	     <groupId>com.h2database</groupId>\n");
+		buffer.append("	     <artifactId>h2</artifactId>\n");
+		buffer.append("	     <version>1.2.132</version>\n");
+		buffer.append("    </dependency>\n");
+		buffer.append("	   <dependency>\n");
+		buffer.append("      <groupId>junit</groupId>\n");
+		buffer.append("      <artifactId>junit</artifactId>\n");
+		buffer.append("      <version>4.8.1</version>\n");
+		buffer.append("	   </dependency>\n");
+		buffer.append("  </dependencies>\n");
+		buffer.append("	 <repositories>\n");
+		buffer.append("    <repository>\n");
+		buffer.append("      <id>Activiti</id>\n");
+		buffer.append("      <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>\n");
+		buffer.append("	   </repository>\n");
+		buffer.append("	 </repositories>\n");
+		buffer.append("	 <build>\n");
+		buffer.append("    <plugins>\n");
+		buffer.append("      <plugin>\n");
+		buffer.append("        <groupId>org.apache.maven.plugins</groupId>\n");
+		buffer.append("        <artifactId>maven-compiler-plugin</artifactId>\n");
+		buffer.append("	       <version>2.3.2</version>\n");
+		buffer.append("        <configuration>\n");
+		buffer.append("	         <source>1.6</source>\n");
+		buffer.append("	         <target>1.6</target>\n");
+		buffer.append("	       </configuration>\n");
+		buffer.append("	     </plugin>\n");
+		buffer.append("     </plugins>\n");
+		buffer.append("	 </build>\n");
+		buffer.append("</project>\n");
+		return buffer.toString();
 	}
 
 }

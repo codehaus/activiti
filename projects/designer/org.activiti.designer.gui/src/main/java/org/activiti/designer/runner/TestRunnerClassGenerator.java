@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -17,18 +16,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.junit.buildpath.BuildPathSupport;
 
 public class TestRunnerClassGenerator {
-	
-	private static final Path ACTIVITI_JARS = new Path("org.eclipse.jdt.USER_LIBRARY/ACTIVITI_LIB");
 	
 	private String processId;
 	private String processName;
@@ -38,36 +32,6 @@ public class TestRunnerClassGenerator {
 		IFolder sourceFolder = project.getFolder("src").getFolder("test").getFolder("java");
 		IJavaProject javaProject = (IJavaProject)project.getNature(JavaCore.NATURE_ID);
 		IPackageFragmentRoot srcRoot = javaProject.getPackageFragmentRoot(sourceFolder);
-		
-		boolean junitAdded = false;
-		boolean activitiLibAdded = false;
-		for(IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-			if(cpEntry.equals(BuildPathSupport.getJUnit4ClasspathEntry())) {
-				junitAdded = true;
-			} else if(cpEntry.getPath().equals(ACTIVITI_JARS)) {
-				activitiLibAdded = true;
-			}
-		}
-		if(junitAdded == false || activitiLibAdded == false) {
-			int countClasspathEntries = 0;
-			if(junitAdded == false) {
-				countClasspathEntries++;
-			}
-			if(activitiLibAdded == false) {
-				countClasspathEntries++;
-			}
-			IClasspathEntry[] entryList = new IClasspathEntry[countClasspathEntries];
-			int count = 0;
-			if(junitAdded == false) {
-				entryList[count++] = BuildPathSupport.getJUnit4ClasspathEntry();
-			}
-			if(activitiLibAdded == false) {
-				entryList[count++] = JavaCore.newContainerEntry(ACTIVITI_JARS);
-			}
-			IClasspathEntry[] newEntries = 
-				(IClasspathEntry[]) ArrayUtils.addAll(javaProject.getRawClasspath(), entryList);
-			javaProject.setRawClasspath(newEntries, null);
-		}
 
 		IPackageFragment pack = srcRoot.createPackageFragment(
 				"org.activiti.designer.test", false, null);
@@ -79,6 +43,7 @@ public class TestRunnerClassGenerator {
 		IFile propertiesFile = testResourceFolder.getFile("activiti.cfg.xml");
 		InputStream source = new ByteArrayInputStream(createConfigFile().getBytes()); 
 		propertiesFile.create(source, true, null);
+		source.close();
 	}
 	
 	private String createTestClass(IResource bpmnResource, IPackageFragment pack) {
@@ -152,6 +117,7 @@ public class TestRunnerClassGenerator {
 					processName = xtr.getAttributeValue(null, "name");
 				}
 			}
+			xtr.close();
 			in.close();
 		} catch(Exception e) {
 			e.printStackTrace();
