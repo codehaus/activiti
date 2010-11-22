@@ -1,0 +1,28 @@
+/* STYLING */
+
+#Activiti a.current,
+#Activiti .yui-pg-current-page,
+#Activiti .activiti-form.bd h1,
+#Activiti .activiti-form.bd h2,
+#Activiti .activiti-form.bd h3,
+h1 {
+  color: #007dc3;
+}
+
+#fileChooserTree a:hover {
+  text-decoration: none;
+}
+
+/* YUI AutoComplete (used for "tag this" dialog) */
+
+.yui-ac-content ul li {
+  list-style: none;
+  float: left;
+  margin: 0 5px 0 0;
+}
+
+#tag-suggestions {
+  position: inherit !important;
+}
+
+/* STRUCTURE */
