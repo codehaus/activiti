@@ -19,15 +19,4 @@ package org.activiti.engine;
  * @author Tom Baeyens
  */
 public interface DbSchemaStrategy {
-  
-  /** creates the schema when the process engine is being created and 
-   * drops the schema when the process engine is being closed.
-   */
-  String CREATE_DROP = "create-drop";
-  
-  /** checks the version of the DB schema against the library when 
-   * the process engine is being created and throws an exception
-   * if the versions don't match.
-   */
-  String CHECK_VERSION = "check-version";
 }

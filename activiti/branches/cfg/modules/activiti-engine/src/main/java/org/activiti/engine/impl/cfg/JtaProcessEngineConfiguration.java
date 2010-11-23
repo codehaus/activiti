@@ -13,11 +13,32 @@
 
 package org.activiti.engine.impl.cfg;
 
+import java.util.Collection;
+
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.impl.interceptor.CommandInterceptor;
+
 
 /**
  * @author Tom Baeyens
  */
-public interface ProcessEngineConfigurationAware {
+public class JtaProcessEngineConfiguration extends ProcessEngineConfigurationImpl {
 
-  void configurationCompleted(ProcessEngineConfiguration processEngineConfiguration);
+  // TODO
+  
+  @Override
+  public ProcessEngine buildProcessEngine() {
+    return null;
+  }
+
+  @Override
+  protected Collection< ? extends CommandInterceptor> getDefaultCommandInterceptorsTxRequired() {
+    return null;
+  }
+
+  @Override
+  protected Collection< ? extends CommandInterceptor> getDefaultCommandInterceptorsTxRequiresNew() {
+    return null;
+  }
+
 }

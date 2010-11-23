@@ -15,11 +15,10 @@ package org.activiti.engine.test.db;
 
 import java.util.List;
 
-import org.activiti.engine.DbSchemaStrategy;
 import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineBuilder;
 import org.activiti.engine.TaskService;
-import org.activiti.engine.impl.cfg.ProcessEngineConfiguration;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.activiti.engine.impl.test.ActivitiInternalTestCase;
 import org.activiti.engine.impl.test.PvmTestCase;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -47,15 +46,15 @@ public class EngineRebootProcessDefinitionCacheTest extends PvmTestCase {
     ActivitiInternalTestCase.closeProcessEngine();
 
     // Creating the DB schema (without building a process engine)
-    ProcessEngineConfiguration processEngineConfiguration = new ProcessEngineConfiguration();
+    ProcessEngineConfigurationImpl processEngineConfiguration = new StandaloneProcessEngineConfiguration();
     processEngineConfiguration.setJdbcUrl("jdbc:h2:mem:activiti-reboot-test;DB_CLOSE_DELAY=1000");
-    processEngineConfiguration.dbSchemaCreate();
+    processEngineConfiguration.getDbSqlSessionFactory().dbSchemaCreate();
     
     // Create process engine and deploy test process
-     ProcessEngine processEngine = new ProcessEngineBuilder()
-       .setDbSchemaStrategy(DbSchemaStrategy.CHECK_VERSION)
+     ProcessEngine processEngine = new StandaloneProcessEngineConfiguration()
+       .setDbSchemaStrategy(org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CHECK_VERSION)
        .setJdbcUrl("jdbc:h2:mem:activiti-reboot-test;DB_CLOSE_DELAY=1000")
-       .setJobExecutorAutoActivation(false)
+       .setJobExecutorActivate(false)
        .buildProcessEngine();
      
      processEngine.getRepositoryService()
@@ -81,10 +80,10 @@ public class EngineRebootProcessDefinitionCacheTest extends PvmTestCase {
      assertNotNull(processEngine.getRuntimeService());
      
      // Reboot the process engine
-     processEngine = new ProcessEngineBuilder()
-       .setDbSchemaStrategy(DbSchemaStrategy.CHECK_VERSION)
+     processEngine = new StandaloneProcessEngineConfiguration()
+       .setDbSchemaStrategy(org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CHECK_VERSION)
        .setJdbcUrl("jdbc:h2:mem:activiti-reboot-test;DB_CLOSE_DELAY=1000")
-       .setJobExecutorAutoActivation(false)
+       .setJobExecutorActivate(false)
        .buildProcessEngine();
      
      // Check if the existing process instance is still alive
@@ -122,6 +121,6 @@ public class EngineRebootProcessDefinitionCacheTest extends PvmTestCase {
      processEngine.close();
       
      // Cleanup schema
-     processEngineConfiguration.dbSchemaDrop();
+     processEngineConfiguration.getDbSqlSessionFactory().dbSchemaDrop();
    }
 }

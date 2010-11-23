@@ -15,10 +15,8 @@ package org.activiti.engine.test.db;
 
 import javax.sql.DataSource;
 
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineBuilder;
-import org.activiti.engine.impl.ProcessEngineImpl;
-import org.activiti.engine.impl.cfg.ProcessEngineConfiguration;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.test.PvmTestCase;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 
@@ -29,11 +27,10 @@ import org.apache.ibatis.datasource.pooled.PooledDataSource;
 public class ConnectionPoolTest extends PvmTestCase {
   
   public void testMyBatisConnectionPoolProperlyConfigured() {
-    ProcessEngine processEngine = new ProcessEngineBuilder()
-      .configureFromResource("org/activiti/engine/test/db/connection-pool.activiti.cfg.xml")
-      .buildProcessEngine();
-      
-    ProcessEngineConfiguration config = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration();
+    ProcessEngineConfigurationImpl config = (ProcessEngineConfigurationImpl) ProcessEngineConfiguration
+      .createProcessEngineConfigurationFromResource("org/activiti/engine/test/db/connection-pool.activiti.cfg.xml");
+    
+    config.buildProcessEngine();
     
     // Expected values
     int maxActive = 25;
