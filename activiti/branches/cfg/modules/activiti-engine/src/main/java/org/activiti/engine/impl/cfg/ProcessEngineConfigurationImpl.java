@@ -74,6 +74,7 @@ import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.impl.jobexecutor.JobExecutorMessageSessionFactory;
 import org.activiti.engine.impl.jobexecutor.JobExecutorTimerSessionFactory;
 import org.activiti.engine.impl.jobexecutor.JobHandler;
+import org.activiti.engine.impl.jobexecutor.TimerExecuteNestedActivityJobHandler;
 import org.activiti.engine.impl.repository.Deployer;
 import org.activiti.engine.impl.scripting.ScriptingEngines;
 import org.activiti.engine.impl.util.IoUtil;
@@ -474,6 +475,11 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     if (jobExecutor==null) {
       jobExecutor = new JobExecutor();
     }
+
+    jobHandlers = new HashMap<String, JobHandler>();
+    TimerExecuteNestedActivityJobHandler timerExecuteNestedActivityJobHandler = new TimerExecuteNestedActivityJobHandler();
+    jobHandlers.put(timerExecuteNestedActivityJobHandler.getType(), timerExecuteNestedActivityJobHandler);
+    
     jobExecutor.setCommandExecutor(commandExecutorTxRequired);
     jobExecutor.setAutoActivate(jobExecutorActivate);
   }

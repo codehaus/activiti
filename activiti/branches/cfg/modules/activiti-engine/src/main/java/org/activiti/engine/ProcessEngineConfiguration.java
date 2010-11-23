@@ -59,7 +59,7 @@ public abstract class ProcessEngineConfiguration {
   protected String databaseType = "h2";
   protected String dbSchemaStrategy = DB_SCHEMA_STRATEGY_CHECK_VERSION;
   protected String jdbcDriver = "org.h2.Driver";
-  protected String jdbcUrl = "jdbc:h2:mem:activiti";
+  protected String jdbcUrl = "jdbc:h2:tcp://localhost/activiti";
   protected String jdbcUsername = "sa";
   protected String jdbcPassword = "";
   protected int maxActiveConnections;
