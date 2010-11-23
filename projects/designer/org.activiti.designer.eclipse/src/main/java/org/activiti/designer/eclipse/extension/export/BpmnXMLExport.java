@@ -38,6 +38,7 @@ import org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
+@Deprecated
 public class BpmnXMLExport {
 
 	private static final String BPMN2_NAMESPACE = "http://www.omg.org/spec/BPMN/20100524/MODEL";
@@ -286,11 +287,11 @@ public class BpmnXMLExport {
 					}
 					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "candidateGroups", candidateGroups);
 				}
-				
-				if(userTask.getFormKey() != null && userTask.getFormKey().length() > 0) {
+
+				if (userTask.getFormKey() != null && userTask.getFormKey().length() > 0) {
 					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "formKey", userTask.getFormKey());
 				}
-				
+
 				// end UserTask element
 				xtw.writeEndElement();
 			}
@@ -315,22 +316,24 @@ public class BpmnXMLExport {
 			xtw.writeStartElement("serviceTask");
 			xtw.writeAttribute("id", serviceTask.getId());
 			xtw.writeAttribute("name", serviceTask.getName());
-			
-			if(serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0 ||
-					"classType".equals(serviceTask.getImplementationType())) {
-				
-				if(serviceTask.getImplementation() != null && serviceTask.getImplementation().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "class", serviceTask.getImplementation());
+
+			if (serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0
+					|| "classType".equals(serviceTask.getImplementationType())) {
+
+				if (serviceTask.getImplementation() != null && serviceTask.getImplementation().length() > 0) {
+					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "class",
+							serviceTask.getImplementation());
 				}
 			} else {
-				if(serviceTask.getImplementation() != null && serviceTask.getImplementation().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "expression", serviceTask.getImplementation());
+				if (serviceTask.getImplementation() != null && serviceTask.getImplementation().length() > 0) {
+					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "expression",
+							serviceTask.getImplementation());
 				}
 			}
 
 			// end ServiceTask element
 			xtw.writeEndElement();
-		
+
 		} else if (object instanceof MailTask) {
 			MailTask mailTask = (MailTask) object;
 			// start MailTask element
@@ -338,40 +341,40 @@ public class BpmnXMLExport {
 			xtw.writeAttribute("id", mailTask.getId());
 			xtw.writeAttribute("name", mailTask.getName());
 			xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "type", "mail");
-			
+
 			xtw.writeStartElement("extensionElements");
-			
-			if(mailTask.getTo() != null && mailTask.getTo().length() > 0) {
+
+			if (mailTask.getTo() != null && mailTask.getTo().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "to");
 				xtw.writeAttribute("expression", mailTask.getTo());
 				xtw.writeEndElement();
 			}
-			if(mailTask.getFrom() != null && mailTask.getFrom().length() > 0) {
+			if (mailTask.getFrom() != null && mailTask.getFrom().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "from");
 				xtw.writeAttribute("expression", mailTask.getFrom());
 				xtw.writeEndElement();
 			}
-			if(mailTask.getSubject() != null && mailTask.getSubject().length() > 0) {
+			if (mailTask.getSubject() != null && mailTask.getSubject().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "subject");
 				xtw.writeAttribute("expression", mailTask.getSubject());
 				xtw.writeEndElement();
 			}
-			if(mailTask.getCc() != null && mailTask.getCc().length() > 0) {
+			if (mailTask.getCc() != null && mailTask.getCc().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "cc");
 				xtw.writeAttribute("expression", mailTask.getCc());
 				xtw.writeEndElement();
 			}
-			if(mailTask.getBcc() != null && mailTask.getBcc().length() > 0) {
+			if (mailTask.getBcc() != null && mailTask.getBcc().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "bcc");
 				xtw.writeAttribute("expression", mailTask.getBcc());
 				xtw.writeEndElement();
 			}
-			if(mailTask.getHtml() != null && mailTask.getHtml().length() > 0) {
+			if (mailTask.getHtml() != null && mailTask.getHtml().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "html");
 				xtw.writeStartElement("activiti", "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
@@ -379,7 +382,7 @@ public class BpmnXMLExport {
 				xtw.writeEndElement();
 				xtw.writeEndElement();
 			}
-			if(mailTask.getText() != null && mailTask.getText().length() > 0) {
+			if (mailTask.getText() != null && mailTask.getText().length() > 0) {
 				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "text");
 				xtw.writeStartElement("activiti", "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
@@ -391,7 +394,7 @@ public class BpmnXMLExport {
 
 			// end MailTask element
 			xtw.writeEndElement();
-			
+
 		} else if (object instanceof ManualTask) {
 			ManualTask manualTask = (ManualTask) object;
 			// start ManualTask element

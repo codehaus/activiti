@@ -52,8 +52,7 @@ public class Util {
 	private static final String DIAGRAM_NAME_DEFAULT = String.format(DIAGRAM_NAME_PATTERN, "my_bpmn2_diagram");
 
 	/**
-	 * Moves the object at the source index of the list to the _target index of
-	 * the list and returns the moved object.
+	 * Moves the object at the source index of the list to the _target index of the list and returns the moved object.
 	 * 
 	 * @param targetIndex
 	 *            the new position for the object in the list.
@@ -79,16 +78,14 @@ public class Util {
 	}
 
 	/**
-	 * Returns true, if the given objects equal, while null is also a valid
-	 * value. In detail the check is: (o1 == null && o2 == null) ||
-	 * (o1.equals(o2)).
+	 * Returns true, if the given objects equal, while null is also a valid value. In detail the check is: (o1 == null
+	 * && o2 == null) || (o1.equals(o2)).
 	 * 
 	 * @param o1
 	 *            The first Object to compare.
 	 * @param o2
 	 *            The second Object to compare.
-	 * @return true, if the given objects equal, while null is also a valid
-	 *         value.
+	 * @return true, if the given objects equal, while null is also a valid value.
 	 */
 	public static boolean equalsWithNull(Object o1, Object o2) {
 		if (o1 == null && o2 == null)
@@ -190,8 +187,26 @@ public class Util {
 	}
 
 	/**
-	 * Replaces the document name in the provided contentStream's content and
-	 * returns a new stream containing the new content.
+	 * Gets the {@link URI} where the diagram resource for a subprocess should be stored.
+	 * 
+	 * @param diagram
+	 *            the parent diagram for the subprocess
+	 * @param subprocessId
+	 *            the id of the subprocess
+	 * @return the {@link URI} for hte subprocess' resource
+	 */
+	public static final URI getSubProcessURI(Diagram diagram, String subprocessId) {
+
+		final URI baseURI = diagram.eResource().getURI().trimFileExtension();
+		final URI subProcessURI = baseURI.appendFileExtension(subprocessId).appendFileExtension(
+				diagram.eResource().getURI().fileExtension());
+
+		return subProcessURI;
+	}
+
+	/**
+	 * Replaces the document name in the provided contentStream's content and returns a new stream containing the new
+	 * content.
 	 * 
 	 * @param diagramName
 	 *            the name of the document to use

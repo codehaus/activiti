@@ -20,6 +20,7 @@
 		<module>../org.activiti.designer.feature</module>
 		<module>../org.activiti.designer.updatesite</module>
 		<module>../org.activiti.designer.integration</module>
+		<module>../org.activiti.designer.export.bpmn20</module>
 	</modules>
 
 	<repositories>

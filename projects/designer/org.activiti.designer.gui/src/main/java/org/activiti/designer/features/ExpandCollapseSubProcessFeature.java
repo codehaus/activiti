@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.FileService;
 import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.designer.eclipse.preferences.PreferencesUtil;
@@ -16,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -87,9 +87,12 @@ public class ExpandCollapseSubProcessFeature extends AbstractDrillDownFeature {
 
 			if (fileResource != null) {
 				IProject project = fileResource.getProject();
-				final String parentDiagramName = uriTrimmed.trimFileExtension().lastSegment();
-				IFile targetFile = project.getFile(String.format(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER + "%s.%s"
-						+ ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION, parentDiagramName, subprocessId));
+
+				final IFile targetFile = ResourcesPlugin.getWorkspace().getRoot()
+						.getFile(new Path(Util.getSubProcessURI(getDiagram(), subprocessId).toPlatformString(true)));
+
+				// final IFile targetFile = project.getFile();
+
 				if (targetFile.exists()) {
 					result.add(getExistingDiagram(project, targetFile));
 				} else {

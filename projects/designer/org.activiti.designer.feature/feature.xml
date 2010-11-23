@@ -109,4 +109,11 @@
          version="0.5.1"
          unpack="false"/>
 
+   <plugin
+         id="org.activiti.designer.export.bpmn20"
+         download-size="0"
+         install-size="0"
+         version="0.5.1"
+         unpack="false"/>
+
 </feature>
