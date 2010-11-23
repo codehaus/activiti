@@ -11,28 +11,34 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
 
-import javax.persistence.Column;
+import java.util.Calendar;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
+ * 
+ * WARNING: This class cannot be used in JPA-context, since it has an illegal
+ * type of ID.
+ * 
+ * For testing purposes only.
+ * 
  * @author Frederik Heremans
  */
-@Entity(name = "SHORT_ID_ENTITY")
-public class ShortIdJPAEntity {
+@Entity
+public class IllegalIdClassJPAEntity {
 
   @Id
-  @Column(name = "ID_")
-  private short shortId;
+  private Calendar id;
 
-  public short getShortId() {
-    return shortId;
+  public Calendar getId() {
+    return id;
   }
 
-  public void setShortId(short shortId) {
-    this.shortId = shortId;
+  public void setId(Calendar id) {
+    this.id = id;
   }
 
 }

@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

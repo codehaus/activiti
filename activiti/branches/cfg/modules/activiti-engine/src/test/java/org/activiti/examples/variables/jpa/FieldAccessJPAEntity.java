@@ -11,28 +11,44 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
+ * Simple JPA entity, id is set on a field.
+ * 
  * @author Frederik Heremans
  */
-@Entity(name = "STRING_ID_ENTITY")
-public class StringIdJPAEntity {
+@Entity(name = "JPA_ENTITY_FIELD")
+public class FieldAccessJPAEntity {
 
   @Id
   @Column(name = "ID_")
-  private String stringId;
+  private Long id;
 
-  public String getStringId() {
-    return stringId;
+  private String value;
+
+  public FieldAccessJPAEntity() {
+    // Empty constructor needed for JPA
   }
 
-  public void setStringId(String stringId) {
-    this.stringId = stringId;
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 
 }

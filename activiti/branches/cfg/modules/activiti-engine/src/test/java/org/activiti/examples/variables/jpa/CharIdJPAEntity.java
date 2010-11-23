@@ -11,26 +11,28 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author Frederik Heremans
  */
-@Entity(name = "JPA_SUBCLASS_PROPERTY")
-public class SubclassPropertyAccessJPAEntity extends MappedSuperClassPropertyAccessJPAEntity {
+@Entity(name = "CHAR_ID_ENTITY")
+public class CharIdJPAEntity {
 
-  private String value;
+  @Id
+  @Column(name = "ID_")
+  private char charId;
 
-  @Column(name = "VALUE_")
-  public String getValue() {
-    return value;
+  public char getCharId() {
+    return charId;
   }
 
-  public void setValue(String value) {
-    this.value = value;
+  public void setCharId(char charId) {
+    this.charId = charId;
   }
 
 }

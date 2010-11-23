@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,18 +20,19 @@ import javax.persistence.Id;
 /**
  * @author Frederik Heremans
  */
-@Entity(name = "DOUBLE_ID_ENTITY")
-public class DoubleIdJPAEntity {
+@Entity(name = "SHORT_ID_ENTITY")
+public class ShortIdJPAEntity {
 
   @Id
   @Column(name = "ID_")
-  private double doubleId;
+  private short shortId;
 
-  public double getDoubleId() {
-    return doubleId;
+  public short getShortId() {
+    return shortId;
   }
 
-  public void setDoubleId(double doubleId) {
-    this.doubleId = doubleId;
+  public void setShortId(short shortId) {
+    this.shortId = shortId;
   }
+
 }

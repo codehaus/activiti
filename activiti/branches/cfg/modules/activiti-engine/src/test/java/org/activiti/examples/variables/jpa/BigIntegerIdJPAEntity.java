@@ -11,44 +11,30 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
+
+import java.math.BigInteger;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
- * Simple JPA entity, id is set on a property.
- * 
  * @author Frederik Heremans
  */
-@Entity(name = "JPA_ENTITY_P")
-public class PropertyAccessJPAEntity {
-
-  private Long id;
-
-  private String value;
-
-  public PropertyAccessJPAEntity() {
-    // Empty constructor needed for JPA
-  }
+@Entity(name = "BIGINT_ID_ENTITY")
+public class BigIntegerIdJPAEntity {
 
   @Id
   @Column(name = "ID_")
-  public Long getId() {
-    return id;
+  private BigInteger bigIntegerId;
+
+  public BigInteger getBigIntegerId() {
+    return bigIntegerId;
   }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
+  public void setBigIntegerId(BigInteger bigIntegerId) {
+    this.bigIntegerId = bigIntegerId;
   }
 
 }

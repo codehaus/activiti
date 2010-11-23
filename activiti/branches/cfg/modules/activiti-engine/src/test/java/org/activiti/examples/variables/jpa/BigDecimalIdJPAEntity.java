@@ -11,44 +11,30 @@
  * limitations under the License.
  */
 
-package org.activiti.standalone.jpa;
+package org.activiti.examples.variables.jpa;
+
+import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
- * Simple JPA entity, id is set on a field.
- * 
  * @author Frederik Heremans
  */
-@Entity(name = "JPA_ENTITY_FIELD")
-public class FieldAccessJPAEntity {
+@Entity(name = "BIGD_ID_ENTITY")
+public class BigDecimalIdJPAEntity {
 
   @Id
   @Column(name = "ID_")
-  private Long id;
+  private BigDecimal bigDecimalId;
 
-  private String value;
-
-  public FieldAccessJPAEntity() {
-    // Empty constructor needed for JPA
+  public BigDecimal getBigDecimalId() {
+    return bigDecimalId;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
+  public void setBigDecimalId(BigDecimal bigDecimalId) {
+    this.bigDecimalId = bigDecimalId;
   }
 
 }

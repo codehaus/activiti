@@ -11,6 +11,8 @@
     <property name="jdbcUrl" value="jdbc:h2:mem:JpaVariableTest;DB_CLOSE_DELAY=1000" />
 
     <property name="jpaPersistenceUnitName" value="activiti-jpa-pu" />
+    <property name="jpaHandleTransaction" value="true" />
+    <property name="jpaCloseEntityManager" value="true" />
     
     <!-- job executor configurations -->
     <property name="jobExecutorActivate" value="false" />
