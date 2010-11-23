@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Activiti Designer BPMN 2.0 Export Marshaller
+Bundle-SymbolicName: org.activiti.designer.export.bpmn20;singleton:=true
+Bundle-Version: 0.5.1.qualifier
+Bundle-Activator: org.activiti.designer.export.bpmn20.bundle.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.activiti.designer.eclipse;bundle-version="0.5.1",
+ org.activiti.designer.model;bundle-version="0.5.1",
+ org.eclipse.emf;bundle-version="2.6.0",
+ org.eclipse.graphiti.mm;bundle-version="0.7.0",
+ org.eclipse.graphiti.ui;bundle-version="0.7.0",
+ org.eclipse.core.resources;bundle-version="3.6.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
