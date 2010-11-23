@@ -38,10 +38,10 @@ public class ConnectionPoolTest extends PvmTestCase {
     int maxCheckoutTime = 30000;
     int maxWaitTime = 25000;
     
-    assertEquals(maxActive, config.getMaxActiveConnections());
-    assertEquals(maxIdle, config.getMaxIdleConnections());
-    assertEquals(maxCheckoutTime, config.getMaxCheckoutTime());
-    assertEquals(maxWaitTime, config.getMaxWaitTime());
+    assertEquals(maxActive, config.getJdbcMaxActiveConnections());
+    assertEquals(maxIdle, config.getJdbcMaxIdleConnections());
+    assertEquals(maxCheckoutTime, config.getJdbcMaxCheckoutTime());
+    assertEquals(maxWaitTime, config.getJdbcMaxWaitTime());
     
     // Verify that these properties are correctly set in the MyBatis datasource
     DataSource datasource = config.getDbSqlSessionFactory().getSqlSessionFactory().getConfiguration().getEnvironment().getDataSource();

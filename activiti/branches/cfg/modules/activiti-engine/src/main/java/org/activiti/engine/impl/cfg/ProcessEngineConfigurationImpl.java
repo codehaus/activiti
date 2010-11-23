@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
 import org.activiti.engine.ActivitiException;
@@ -109,8 +110,6 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
 
   public static final String DEFAULT_WS_SYNC_FACTORY = "org.activiti.engine.impl.webservice.CxfWebServiceClientFactory";
 
-  protected String processEngineName;
-  
   // SERVICES /////////////////////////////////////////////////////////////////
 
   protected RepositoryService repositoryService = new RepositoryServiceImpl();
@@ -309,17 +308,17 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       PooledDataSource pooledDataSource = 
         new PooledDataSource(ReflectUtil.getClassLoader(), jdbcDriver, jdbcUrl, jdbcUsername, jdbcPassword );
       
-      if (maxActiveConnections > 0) {
-        pooledDataSource.setPoolMaximumActiveConnections(maxActiveConnections);
+      if (jdbcMaxActiveConnections > 0) {
+        pooledDataSource.setPoolMaximumActiveConnections(jdbcMaxActiveConnections);
       }
-      if (maxIdleConnections > 0) {
-        pooledDataSource.setPoolMaximumIdleConnections(maxIdleConnections);
+      if (jdbcMaxIdleConnections > 0) {
+        pooledDataSource.setPoolMaximumIdleConnections(jdbcMaxIdleConnections);
       }
-      if (maxCheckoutTime > 0) {
-        pooledDataSource.setPoolMaximumCheckoutTime(maxCheckoutTime);
+      if (jdbcMaxCheckoutTime > 0) {
+        pooledDataSource.setPoolMaximumCheckoutTime(jdbcMaxCheckoutTime);
       }
-      if (maxWaitTime > 0) {
-        pooledDataSource.setPoolTimeToWait(maxWaitTime);
+      if (jdbcMaxWaitTime > 0) {
+        pooledDataSource.setPoolTimeToWait(jdbcMaxWaitTime);
       }
       
       dataSource = pooledDataSource;
@@ -604,6 +603,9 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   // JPA //////////////////////////////////////////////////////////////////////
   
   protected void initJpa() {
+    if(jpaPersistenceUnitName!=null) {
+      jpaEntityManagerFactory = Persistence.createEntityManagerFactory(jpaPersistenceUnitName);
+    }
     if(jpaEntityManagerFactory!=null) {
       sessionFactories.put(EntityManagerSession.class, new EntityManagerSessionFactory(jpaEntityManagerFactory, jpaHandleTransaction, jpaCloseEntityManager));
       VariableType jpaType = variableTypes.getVariableType(JPAEntityVariableType.TYPE_NAME);
@@ -1143,32 +1145,50 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   }
 
   @Override
-  public ProcessEngineConfigurationImpl setMaxActiveConnections(int maxActiveConnections) {
-    super.setMaxActiveConnections(maxActiveConnections);
+  public ProcessEngineConfigurationImpl setJdbcMaxActiveConnections(int jdbcMaxActiveConnections) {
+    super.setJdbcMaxActiveConnections(jdbcMaxActiveConnections);
     return this;
   }
 
   @Override
-  public ProcessEngineConfigurationImpl setMaxCheckoutTime(int maxCheckoutTime) {
-    super.setMaxCheckoutTime(maxCheckoutTime);
+  public ProcessEngineConfigurationImpl setJdbcMaxCheckoutTime(int jdbcMaxCheckoutTime) {
+    super.setJdbcMaxCheckoutTime(jdbcMaxCheckoutTime);
     return this;
   }
 
   @Override
-  public ProcessEngineConfigurationImpl setMaxIdleConnections(int maxIdleConnections) {
-    super.setMaxIdleConnections(maxIdleConnections);
+  public ProcessEngineConfigurationImpl setJdbcMaxIdleConnections(int jdbcMaxIdleConnections) {
+    super.setJdbcMaxIdleConnections(jdbcMaxIdleConnections);
     return this;
   }
 
   @Override
-  public ProcessEngineConfigurationImpl setMaxWaitTime(int maxWaitTime) {
-    super.setMaxWaitTime(maxWaitTime);
+  public ProcessEngineConfigurationImpl setJdbcMaxWaitTime(int jdbcMaxWaitTime) {
+    super.setJdbcMaxWaitTime(jdbcMaxWaitTime);
     return this;
   }
 
   @Override
   public ProcessEngineConfigurationImpl setTransactionsExternallyManaged(boolean transactionsExternallyManaged) {
     super.setTransactionsExternallyManaged(transactionsExternallyManaged);
+    return this;
+  }
+
+  @Override
+  public ProcessEngineConfigurationImpl setJpaEntityManagerFactory(Object jpaEntityManagerFactory) {
+    this.jpaEntityManagerFactory = jpaEntityManagerFactory;
+    return this;
+  }
+
+  @Override
+  public ProcessEngineConfigurationImpl setJpaHandleTransaction(boolean jpaHandleTransaction) {
+    this.jpaHandleTransaction = jpaHandleTransaction;
+    return this;
+  }
+  
+  @Override
+  public ProcessEngineConfigurationImpl setJpaCloseEntityManager(boolean jpaCloseEntityManager) {
+    this.jpaCloseEntityManager = jpaCloseEntityManager;
     return this;
   }
 }

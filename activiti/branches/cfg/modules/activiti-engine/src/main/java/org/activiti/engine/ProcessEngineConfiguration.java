@@ -19,9 +19,11 @@ import javax.sql.DataSource;
 
 import org.activiti.engine.impl.cfg.JtaProcessEngineConfiguration;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 
 
 /**
@@ -62,13 +64,14 @@ public abstract class ProcessEngineConfiguration {
   protected String jdbcUrl = "jdbc:h2:tcp://localhost/activiti";
   protected String jdbcUsername = "sa";
   protected String jdbcPassword = "";
-  protected int maxActiveConnections;
-  protected int maxIdleConnections;
-  protected int maxCheckoutTime;
-  protected int maxWaitTime;
+  protected int jdbcMaxActiveConnections;
+  protected int jdbcMaxIdleConnections;
+  protected int jdbcMaxCheckoutTime;
+  protected int jdbcMaxWaitTime;
   protected DataSource dataSource;
   protected boolean transactionsExternallyManaged = false;
   
+  protected String jpaPersistenceUnitName;
   protected Object jpaEntityManagerFactory;
   protected boolean jpaHandleTransaction;
   protected boolean jpaCloseEntityManager;
@@ -89,9 +92,8 @@ public abstract class ProcessEngineConfiguration {
   }
 
   public static ProcessEngineConfiguration createProcessEngineConfigurationFromResource(String resource, String beanName) {
-    ClassPathResource classPathResource = new ClassPathResource(resource);
-    XmlBeanFactory xmlBeanFactory = new XmlBeanFactory(classPathResource);
-    return (ProcessEngineConfiguration) xmlBeanFactory.getBean("processEngineConfiguration");
+    Resource springResource = new ClassPathResource(resource);
+    return parseProcessEngineConfiguration(springResource, beanName);
   }
   
   public static ProcessEngineConfiguration createProcessEngineConfigurationFromInputStream(InputStream inputStream) {
@@ -99,9 +101,16 @@ public abstract class ProcessEngineConfiguration {
   }
 
   public static ProcessEngineConfiguration createProcessEngineConfigurationFromInputStream(InputStream inputStream, String beanName) {
-    InputStreamResource resource = new InputStreamResource(inputStream);
-    XmlBeanFactory xmlBeanFactory = new XmlBeanFactory(resource);
-    return (ProcessEngineConfiguration) xmlBeanFactory.getBean("processEngineConfiguration");
+    Resource springResource = new InputStreamResource(inputStream);
+    return parseProcessEngineConfiguration(springResource, beanName);
+  }
+
+  protected static ProcessEngineConfiguration parseProcessEngineConfiguration(Resource springResource, String beanName) {
+    DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+    XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
+    xmlBeanDefinitionReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
+    xmlBeanDefinitionReader.loadBeanDefinitions(springResource);
+    return (ProcessEngineConfiguration) beanFactory.getBean(beanName);
   }
   
   public static ProcessEngineConfiguration createStandaloneProcessEngineConfiguration() {
@@ -111,12 +120,8 @@ public abstract class ProcessEngineConfiguration {
   public static ProcessEngineConfiguration createJtaProcessEngineConfiguration() {
     return new JtaProcessEngineConfiguration();
   }
+
   
-  public void enableJPA(Object entityManagerFactory, boolean handleTransaction, boolean closeEntityManager) {
-    this.jpaEntityManagerFactory = entityManagerFactory;
-    this.jpaHandleTransaction = handleTransaction;
-    this.jpaCloseEntityManager = closeEntityManager;
-  }
 
   // getters and setters //////////////////////////////////////////////////////
   
@@ -295,46 +300,46 @@ public abstract class ProcessEngineConfiguration {
   }
 
   
-  public int getMaxActiveConnections() {
-    return maxActiveConnections;
+  public int getJdbcMaxActiveConnections() {
+    return jdbcMaxActiveConnections;
   }
 
   
-  public ProcessEngineConfiguration setMaxActiveConnections(int maxActiveConnections) {
-    this.maxActiveConnections = maxActiveConnections;
+  public ProcessEngineConfiguration setJdbcMaxActiveConnections(int jdbcMaxActiveConnections) {
+    this.jdbcMaxActiveConnections = jdbcMaxActiveConnections;
     return this;
   }
 
   
-  public int getMaxIdleConnections() {
-    return maxIdleConnections;
+  public int getJdbcMaxIdleConnections() {
+    return jdbcMaxIdleConnections;
   }
 
   
-  public ProcessEngineConfiguration setMaxIdleConnections(int maxIdleConnections) {
-    this.maxIdleConnections = maxIdleConnections;
+  public ProcessEngineConfiguration setJdbcMaxIdleConnections(int jdbcMaxIdleConnections) {
+    this.jdbcMaxIdleConnections = jdbcMaxIdleConnections;
     return this;
   }
 
   
-  public int getMaxCheckoutTime() {
-    return maxCheckoutTime;
+  public int getJdbcMaxCheckoutTime() {
+    return jdbcMaxCheckoutTime;
   }
 
   
-  public ProcessEngineConfiguration setMaxCheckoutTime(int maxCheckoutTime) {
-    this.maxCheckoutTime = maxCheckoutTime;
+  public ProcessEngineConfiguration setJdbcMaxCheckoutTime(int jdbcMaxCheckoutTime) {
+    this.jdbcMaxCheckoutTime = jdbcMaxCheckoutTime;
     return this;
   }
 
   
-  public int getMaxWaitTime() {
-    return maxWaitTime;
+  public int getJdbcMaxWaitTime() {
+    return jdbcMaxWaitTime;
   }
 
   
-  public ProcessEngineConfiguration setMaxWaitTime(int maxWaitTime) {
-    this.maxWaitTime = maxWaitTime;
+  public ProcessEngineConfiguration setJdbcMaxWaitTime(int jdbcMaxWaitTime) {
+    this.jdbcMaxWaitTime = jdbcMaxWaitTime;
     return this;
   }
 
@@ -355,5 +360,46 @@ public abstract class ProcessEngineConfiguration {
   public ProcessEngineConfiguration setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
     return this;
+  }
+
+  
+  public Object getJpaEntityManagerFactory() {
+    return jpaEntityManagerFactory;
+  }
+
+  
+  public ProcessEngineConfiguration setJpaEntityManagerFactory(Object jpaEntityManagerFactory) {
+    this.jpaEntityManagerFactory = jpaEntityManagerFactory;
+    return this;
+  }
+
+  
+  public boolean isJpaHandleTransaction() {
+    return jpaHandleTransaction;
+  }
+
+  
+  public ProcessEngineConfiguration setJpaHandleTransaction(boolean jpaHandleTransaction) {
+    this.jpaHandleTransaction = jpaHandleTransaction;
+    return this;
+  }
+
+  
+  public boolean isJpaCloseEntityManager() {
+    return jpaCloseEntityManager;
+  }
+
+  
+  public ProcessEngineConfiguration setJpaCloseEntityManager(boolean jpaCloseEntityManager) {
+    this.jpaCloseEntityManager = jpaCloseEntityManager;
+    return this;
+  }
+
+  public String getJpaPersistenceUnitName() {
+    return jpaPersistenceUnitName;
+  }
+
+  public void setJpaPersistenceUnitName(String jpaPersistenceUnitName) {
+    this.jpaPersistenceUnitName = jpaPersistenceUnitName;
   }
 }
