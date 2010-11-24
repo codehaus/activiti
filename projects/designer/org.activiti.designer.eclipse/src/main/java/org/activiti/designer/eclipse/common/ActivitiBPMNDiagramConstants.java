@@ -13,8 +13,9 @@ public final class ActivitiBPMNDiagramConstants {
 	public static final String DIAGRAM_FOLDER = "src/main/resources/diagrams/";
 	public static final String DIAGRAM_EXTENSION = ".diagram";
 
-	private ActivitiBPMNDiagramConstants() {
+	public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";
 
+	private ActivitiBPMNDiagramConstants() {
 	}
 
 }

@@ -127,5 +127,11 @@
 	   <attribute name="nodeId"/>
 	   <persistent value="true"/>
 	</extension>
+	<extension
+	      point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.activiti.designer.eclipse.preferences.ActivitiSavePreferencesPageInitializer">
+      </initializer>
+   </extension>
 
 </plugin>

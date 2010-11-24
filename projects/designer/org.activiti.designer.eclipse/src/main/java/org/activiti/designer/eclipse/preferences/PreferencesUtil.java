@@ -24,12 +24,20 @@ public final class PreferencesUtil {
 	}
 
 	/**
+	 * Gets the preference store for the Activiti designer.
+	 * 
+	 * @return the preference store
+	 */
+	public static final IPreferenceStore getActivitiDesignerPreferenceStore() {
+		return ActivitiPlugin.getDefault().getPreferenceStore();
+	}
+
+	/**
 	 * Gets a boolean preference's value from the preference store.
 	 * 
 	 * @param preference
 	 *            the {@link Preferences} to get
-	 * @return true if the preference is stored as true, otherwise false and
-	 *         false if there is no preference applied
+	 * @return true if the preference is stored as true, otherwise false and false if there is no preference applied
 	 */
 	public static final boolean getBooleanPreference(final Preferences preference) {
 		final IPreferenceStore store = ActivitiPlugin.getDefault().getPreferenceStore();
@@ -37,14 +45,12 @@ public final class PreferencesUtil {
 	}
 
 	/**
-	 * Gets a boolean preference's value from the preference store. This method
-	 * is intended for dynamic preference ids only. If possible, you should use
-	 * {@link #getBooleanPreference(Preferences)} instead.
+	 * Gets a boolean preference's value from the preference store. This method is intended for dynamic preference ids
+	 * only. If possible, you should use {@link #getBooleanPreference(Preferences)} instead.
 	 * 
 	 * @param preferenceId
 	 *            the id of the preferences to get
-	 * @return true if the preference is stored as true, otherwise false and
-	 *         false if there is no preference applied
+	 * @return true if the preference is stored as true, otherwise false and false if there is no preference applied
 	 */
 	public static final boolean getBooleanPreference(final String preferenceId) {
 		final IPreferenceStore store = ActivitiPlugin.getDefault().getPreferenceStore();
@@ -52,15 +58,25 @@ public final class PreferencesUtil {
 	}
 
 	/**
-	 * Returns the preference id to be used for an {@link ExportMarshaller}
-	 * extension.
+	 * Returns the preference id to be used for an {@link ExportMarshaller} extension.
 	 * 
 	 * @param marshaller
 	 *            the {@link ExportMarshaller} to get the property for
 	 * @return the id of the preference
 	 */
 	public static final String getPreferenceId(final ExportMarshaller marshaller) {
-		return Preferences.SAVE_TO_FORMAT.getPreferenceId() + "." + marshaller.getMarshallerName();
+		return getExportMarshallerPreferenceId(marshaller.getMarshallerName());
+	}
+
+	/**
+	 * Returns the preference id to be used for an {@link ExportMarshaller} extension based on the marshaller's name.
+	 * 
+	 * @param marshallerName
+	 *            the name of the {@link ExportMarshaller} to get the property for
+	 * @return the id of the preference
+	 */
+	public static final String getExportMarshallerPreferenceId(final String marshallerName) {
+		return Preferences.SAVE_TO_FORMAT.getPreferenceId() + "." + marshallerName;
 	}
 
 }

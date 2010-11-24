@@ -32,20 +32,6 @@ public class ActivitiSavePreferencesPage extends FieldEditorPreferencePage imple
 					addField(new BooleanFieldEditor(PreferencesUtil.getPreferenceId(exportMarshaller),
 							"&Automatically save to " + exportMarshaller.getFormatName()
 									+ " format when saving diagrams", getFieldEditorParent()));
-
-					// ISafeRunnable runnable = new ISafeRunnable() {
-					// @Override
-					// public void handleException(Throwable exception) {
-					// System.out.println("Exception in client");
-					// }
-					//
-					// @Override
-					// public void run() throws Exception {
-					// System.out.println(((ExportMarshaller)
-					// o).getMarshallerName());
-					// }
-					// };
-					// SafeRunner.run(runnable);
 				}
 			}
 		} catch (CoreException ex) {

@@ -11,6 +11,7 @@ import java.util.Iterator;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.export.AbstractExportMarshaller;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
 import org.activiti.designer.eclipse.util.Util;
@@ -69,7 +70,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
 	@Override
 	public String getMarshallerName() {
-		return "Activiti Designer BPMN 2.0";
+		return ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME;
 	}
 
 	@Override
