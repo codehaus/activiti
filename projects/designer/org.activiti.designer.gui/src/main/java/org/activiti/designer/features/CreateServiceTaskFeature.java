@@ -1,6 +1,11 @@
 package org.activiti.designer.features;
 
+import java.util.List;
+
 import org.activiti.designer.ActivitiImageProvider;
+import org.activiti.designer.integration.servicetask.CustomServiceTask;
+import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -36,6 +41,21 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 
 		if (this.customServiceTaskName != null) {
 			newServiceTask.setImplementation("custom:" + this.customServiceTaskName);
+
+			// Customize the name displayed by default
+			final List<CustomServiceTask> customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil
+					.getProjectFromDiagram(getDiagram()));
+
+			CustomServiceTask targetTask = null;
+
+			for (final CustomServiceTask customServiceTask : customServiceTasks) {
+				if (ExtensionUtil.unwrapCustomId(newServiceTask.getImplementation()).equals(customServiceTask.getId())) {
+					targetTask = customServiceTask;
+					break;
+				}
+			}
+
+			newServiceTask.setName(targetTask.getName());
 		}
 
 		getDiagram().eResource().getContents().add(newServiceTask);
