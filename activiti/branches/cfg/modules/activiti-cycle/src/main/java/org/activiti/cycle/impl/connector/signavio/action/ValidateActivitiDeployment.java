@@ -9,7 +9,6 @@ import org.activiti.cycle.impl.connector.signavio.provider.ActivitiCompliantBpmn
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
-import org.activiti.engine.impl.cfg.ProcessEngineConfiguration;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 

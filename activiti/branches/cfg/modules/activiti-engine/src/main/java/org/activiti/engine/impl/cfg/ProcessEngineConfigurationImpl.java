@@ -32,6 +32,7 @@ import org.activiti.engine.IdentityService;
 import org.activiti.engine.ManagementService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
@@ -171,6 +172,8 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   // MYBATIS SQL SESSION FACTORY //////////////////////////////////////////////
   
   protected SqlSessionFactory sqlSessionFactory;
+  protected TransactionFactory transactionFactory;
+
 
   // ID GENERATOR /////////////////////////////////////////////////////////////
   protected IdGenerator idGenerator;
@@ -220,6 +223,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     initJobExecutor();
     initDataSource();
     initIdGenerator();
+    initTransactionFactory();
     initSqlSessionFactory();
     initSessionFactories();
     initJpa();
@@ -340,45 +344,41 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   
   // myBatis SqlSessionFactory ////////////////////////////////////////////////
   
-  protected void initSqlSessionFactory() {
-    if (sqlSessionFactory==null) {
-      TransactionFactory transactionFactory = null;
+  protected void initTransactionFactory() {
+    if (transactionFactory==null) {
       if (transactionsExternallyManaged) {
         transactionFactory = new ManagedTransactionFactory();
       } else {
         transactionFactory = new JdbcTransactionFactory();
       }
-      sqlSessionFactory = createSessionFactory(dataSource, transactionFactory);
+    }
+  }
+
+  protected void initSqlSessionFactory() {
+    if (sqlSessionFactory==null) {
+      InputStream inputStream = null;
+      try {
+        inputStream = ReflectUtil.getResourceAsStream("org/activiti/db/ibatis/activiti.ibatis.mem.conf.xml");
+
+        // update the jdbc parameters to the configured ones...
+        Environment environment = new Environment("default", transactionFactory, dataSource);
+        Reader reader = new InputStreamReader(inputStream);
+        XMLConfigBuilder parser = new XMLConfigBuilder(reader);
+        Configuration configuration = parser.getConfiguration();
+        configuration.setEnvironment(environment);
+        configuration.getTypeHandlerRegistry().register(VariableType.class, JdbcType.VARCHAR, new IbatisVariableTypeHandler());
+        configuration = parser.parse();
+
+        sqlSessionFactory = new DefaultSqlSessionFactory(configuration);
+
+      } catch (Exception e) {
+        throw new ActivitiException("Error while building ibatis SqlSessionFactory: " + e.getMessage(), e);
+      } finally {
+        IoUtil.closeSilently(inputStream);
+      }
     }
   }
   
-  protected SqlSessionFactory createSessionFactory(DataSource dataSource, TransactionFactory transactionFactory) {
-    InputStream inputStream = null;
-    try {
-      inputStream = ReflectUtil.getResourceAsStream(getMyBatisMappingConfigResource());
-
-      // update the jdbc parameters to the configured ones...
-      Environment environment = new Environment("default", transactionFactory, dataSource);
-      Reader reader = new InputStreamReader(inputStream);
-      XMLConfigBuilder parser = new XMLConfigBuilder(reader);
-      Configuration configuration = parser.getConfiguration();
-      configuration.setEnvironment(environment);
-      configuration.getTypeHandlerRegistry().register(VariableType.class, JdbcType.VARCHAR, new IbatisVariableTypeHandler());
-      configuration = parser.parse();
-
-      return new DefaultSqlSessionFactory(configuration);
-
-    } catch (Exception e) {
-      throw new ActivitiException("Error while building ibatis SqlSessionFactory: " + e.getMessage(), e);
-    } finally {
-      IoUtil.closeSilently(inputStream);
-    }
-  }
-
-  protected String getMyBatisMappingConfigResource() {
-    return "org/activiti/db/ibatis/activiti.ibatis.mem.conf.xml";
-  }
-
   // session factories ////////////////////////////////////////////////////////
   
   protected void initSessionFactories() {
@@ -1059,6 +1059,16 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     this.dbSqlSessionFactory = dbSqlSessionFactory;
     return this;
   }
+  
+  public TransactionFactory getTransactionFactory() {
+    return transactionFactory;
+  }
+
+  public ProcessEngineConfigurationImpl setTransactionFactory(TransactionFactory transactionFactory) {
+    this.transactionFactory = transactionFactory;
+    return this;
+  }
+
 
   @Override
   public ProcessEngineConfigurationImpl setClassLoader(ClassLoader classLoader) {

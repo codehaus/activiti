@@ -13,9 +13,17 @@
 
 package org.activiti.engine.impl.cfg;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import javax.transaction.TransactionManager;
+
+import org.activiti.engine.impl.interceptor.CommandContextInterceptor;
+import org.activiti.engine.impl.interceptor.CommandExecutorImpl;
 import org.activiti.engine.impl.interceptor.CommandInterceptor;
+import org.activiti.engine.impl.interceptor.JtaTransactionInterceptor;
+import org.activiti.engine.impl.interceptor.LogInterceptor;
 
 
 /**
@@ -23,16 +31,33 @@ import org.activiti.engine.impl.interceptor.CommandInterceptor;
  */
 public class JtaProcessEngineConfiguration extends ProcessEngineConfigurationImpl {
 
-  // TODO
+  protected TransactionManager transactionManager;
   
   @Override
   protected Collection< ? extends CommandInterceptor> getDefaultCommandInterceptorsTxRequired() {
-    return null;
+    List<CommandInterceptor> defaultCommandInterceptorsTxRequired = new ArrayList<CommandInterceptor>();
+    defaultCommandInterceptorsTxRequired.add(new LogInterceptor());
+    defaultCommandInterceptorsTxRequired.add(new JtaTransactionInterceptor(transactionManager, false));
+    defaultCommandInterceptorsTxRequired.add(new CommandContextInterceptor());
+    defaultCommandInterceptorsTxRequired.add(new CommandExecutorImpl());
+    return defaultCommandInterceptorsTxRequired;
   }
 
   @Override
   protected Collection< ? extends CommandInterceptor> getDefaultCommandInterceptorsTxRequiresNew() {
-    return null;
+    List<CommandInterceptor> defaultCommandInterceptorsTxRequiresNew = new ArrayList<CommandInterceptor>();
+    defaultCommandInterceptorsTxRequiresNew.add(new LogInterceptor());
+    defaultCommandInterceptorsTxRequiresNew.add(new JtaTransactionInterceptor(transactionManager, true));
+    defaultCommandInterceptorsTxRequiresNew.add(new CommandContextInterceptor());
+    defaultCommandInterceptorsTxRequiresNew.add(new CommandExecutorImpl());
+    return defaultCommandInterceptorsTxRequiresNew;
   }
 
+  public TransactionManager getTransactionManager() {
+    return transactionManager;
+  }
+
+  public void setTransactionManager(TransactionManager transactionManager) {
+    this.transactionManager = transactionManager;
+  }
 }

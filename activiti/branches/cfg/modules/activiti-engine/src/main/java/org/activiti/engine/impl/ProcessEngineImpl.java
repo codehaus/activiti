@@ -91,6 +91,8 @@ public class ProcessEngineImpl implements ProcessEngine {
     } else {
       log.info("ProcessEngine " + name + " created");
     }
+    
+    ProcessEngines.registerProcessEngine(this);
 
     if ((jobExecutor != null) && (jobExecutor.isAutoActivate())) {
       jobExecutor.start();

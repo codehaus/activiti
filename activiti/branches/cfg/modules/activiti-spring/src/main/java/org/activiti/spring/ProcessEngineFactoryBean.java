@@ -14,7 +14,6 @@
 package org.activiti.spring;
 
 import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.springframework.beans.BeansException;
@@ -50,8 +49,6 @@ public class ProcessEngineFactoryBean implements FactoryBean<ProcessEngine>, Dis
 
     processEngine = (ProcessEngineImpl) processEngineConfiguration.buildProcessEngine();
 
-    ProcessEngines.registerProcessEngine(processEngine);
-    
     return processEngine;
   }
 
