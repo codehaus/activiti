@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.activiti.cycle.impl.conf.CycleDbSqlSessionFactory;
+import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.ProcessEngineImpl;
-import org.activiti.engine.impl.cfg.ProcessEngineConfiguration;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -50,22 +51,22 @@ public abstract class AbstractCycleDaoMyBatisImpl {
   private void performDbSchemaCreation(CycleDbSqlSessionFactory dbSqlSessionFactory, ProcessEngineConfiguration processEngineConfiguration) {
     String dbSchemaStrategy = processEngineConfiguration.getDbSchemaStrategy();
     
-    if (ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_DROP_CREATE.equals(dbSchemaStrategy)) {
+    if (ProcessEngineConfigurationImpl.DB_SCHEMA_STRATEGY_DROP_CREATE.equals(dbSchemaStrategy)) {
       try {
         dbSqlSessionFactory.dbSchemaDrop();
       } catch (RuntimeException e) {
         // ignore
       }
     }
-    if (org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CREATE_DROP.equals(dbSchemaStrategy) || ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_DROP_CREATE.equals(dbSchemaStrategy)
-            || ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CREATE.equals(dbSchemaStrategy)) {
+    if (org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CREATE_DROP.equals(dbSchemaStrategy) || ProcessEngineConfigurationImpl.DB_SCHEMA_STRATEGY_DROP_CREATE.equals(dbSchemaStrategy)
+            || ProcessEngineConfigurationImpl.DB_SCHEMA_STRATEGY_CREATE.equals(dbSchemaStrategy)) {
       dbSqlSessionFactory.dbSchemaCreate();
       
     } else if (org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CHECK_VERSION.equals(dbSchemaStrategy)) {
       dbSqlSessionFactory.dbSchemaCheckVersion();
       
-    } else if (ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CREATE_IF_NECESSARY.equals(dbSchemaStrategy)) {
-      log.warning("Cycle doesn't support '" + ProcessEngineConfiguration.DB_SCHEMA_STRATEGY_CREATE_IF_NECESSARY
+    } else if (ProcessEngineConfigurationImpl.DB_SCHEMA_STRATEGY_CREATE_IF_NECESSARY.equals(dbSchemaStrategy)) {
+      log.warning("Cycle doesn't support '" + ProcessEngineConfigurationImpl.DB_SCHEMA_STRATEGY_CREATE_IF_NECESSARY
               + "' DB strategy at the moment. Nothing is created!");
       // TODO: the check if necessary doesn't work, since the tables are alway created by the engine already!
 //      try {

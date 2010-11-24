@@ -30,6 +30,7 @@ import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.ManagementService;
+import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
@@ -39,6 +40,7 @@ import org.activiti.engine.impl.FormServiceImpl;
 import org.activiti.engine.impl.HistoryServiceImpl;
 import org.activiti.engine.impl.IdentityServiceImpl;
 import org.activiti.engine.impl.ManagementServiceImpl;
+import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.RuntimeServiceImpl;
 import org.activiti.engine.impl.ServiceImpl;
@@ -189,11 +191,17 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   protected ExpressionManager expressionManager;
   protected BusinessCalendarManager businessCalendarManager;
 
-  // Webservices
   protected String wsSyncFactoryClassName = DEFAULT_WS_SYNC_FACTORY;
 
   protected CommandContextFactory commandContextFactory;
   protected TransactionContextFactory transactionContextFactory;
+  
+  // buildProcessEngine ///////////////////////////////////////////////////////
+  
+  public ProcessEngine buildProcessEngine() {
+    init();
+    return new ProcessEngineImpl(this);
+  }
   
   // init /////////////////////////////////////////////////////////////////////
   
@@ -347,7 +355,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   protected SqlSessionFactory createSessionFactory(DataSource dataSource, TransactionFactory transactionFactory) {
     InputStream inputStream = null;
     try {
-      inputStream = ReflectUtil.getResourceAsStream("org/activiti/db/ibatis/activiti.ibatis.mem.conf.xml");
+      inputStream = ReflectUtil.getResourceAsStream(getMyBatisMappingConfigResource());
 
       // update the jdbc parameters to the configured ones...
       Environment environment = new Environment("default", transactionFactory, dataSource);
@@ -365,6 +373,10 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     } finally {
       IoUtil.closeSilently(inputStream);
     }
+  }
+
+  protected String getMyBatisMappingConfigResource() {
+    return "org/activiti/db/ibatis/activiti.ibatis.mem.conf.xml";
   }
 
   // session factories ////////////////////////////////////////////////////////

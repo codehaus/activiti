@@ -15,7 +15,6 @@ package org.activiti.engine.impl.cfg;
 
 import java.util.Collection;
 
-import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.impl.interceptor.CommandInterceptor;
 
 
@@ -26,11 +25,6 @@ public class JtaProcessEngineConfiguration extends ProcessEngineConfigurationImp
 
   // TODO
   
-  @Override
-  public ProcessEngine buildProcessEngine() {
-    return null;
-  }
-
   @Override
   protected Collection< ? extends CommandInterceptor> getDefaultCommandInterceptorsTxRequired() {
     return null;
