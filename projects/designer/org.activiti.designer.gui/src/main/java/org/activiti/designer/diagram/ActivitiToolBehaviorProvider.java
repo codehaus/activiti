@@ -2,15 +2,28 @@ package org.activiti.designer.diagram;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.features.CreateCustomServiceTaskFeature;
+import org.activiti.designer.features.CreateEndEventFeature;
+import org.activiti.designer.features.CreateExclusiveGatewayFeature;
+import org.activiti.designer.features.CreateMailTaskFeature;
+import org.activiti.designer.features.CreateManualTaskFeature;
+import org.activiti.designer.features.CreateParallelGatewayFeature;
+import org.activiti.designer.features.CreateScriptTaskFeature;
+import org.activiti.designer.features.CreateServiceTaskFeature;
+import org.activiti.designer.features.CreateStartEventFeature;
+import org.activiti.designer.features.CreateSubProcessFeature;
+import org.activiti.designer.features.CreateUserTaskFeature;
 import org.activiti.designer.features.ExpandCollapseSubProcessFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
+import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.property.extension.CustomServiceTaskContext;
 import org.activiti.designer.property.extension.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
@@ -25,6 +38,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.features.ICreateConnectionFeature;
+import org.eclipse.graphiti.features.ICreateFeature;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.IDoubleClickContext;
@@ -57,8 +71,20 @@ import org.eclipse.ui.PlatformUI;
 
 public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
+	private static final Map<Class<? extends ICreateFeature>, PaletteEntry> toolMapping = new HashMap<Class<? extends ICreateFeature>, PaletteEntry>();
+
 	public ActivitiToolBehaviorProvider(IDiagramTypeProvider dtp) {
 		super(dtp);
+		toolMapping.put(CreateStartEventFeature.class, PaletteEntry.START_EVENT);
+		toolMapping.put(CreateEndEventFeature.class, PaletteEntry.END_EVENT);
+		toolMapping.put(CreateExclusiveGatewayFeature.class, PaletteEntry.EXCLUSIVE_GATEWAY);
+		toolMapping.put(CreateMailTaskFeature.class, PaletteEntry.MAIL_TASK);
+		toolMapping.put(CreateManualTaskFeature.class, PaletteEntry.MANUAL_TASK);
+		toolMapping.put(CreateParallelGatewayFeature.class, PaletteEntry.PARALLEL_GATEWAY);
+		toolMapping.put(CreateScriptTaskFeature.class, PaletteEntry.SCRIPT_TASK);
+		toolMapping.put(CreateServiceTaskFeature.class, PaletteEntry.SERVICE_TASK);
+		toolMapping.put(CreateSubProcessFeature.class, PaletteEntry.SUBPROCESS);
+		toolMapping.put(CreateUserTaskFeature.class, PaletteEntry.USER_TASK);
 	}
 
 	@Override
@@ -138,16 +164,31 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
-		List<IPaletteCompartmentEntry> ret = new ArrayList<IPaletteCompartmentEntry>();
 
-		// add compartments from super class
+		final IProject project = ActivitiUiUtil.getProjectFromDiagram(getDiagramTypeProvider().getDiagram());
+
+		final List<IPaletteCompartmentEntry> ret = new ArrayList<IPaletteCompartmentEntry>();
+
+		// add compartments from super class if not disabled
 		IPaletteCompartmentEntry[] superCompartments = super.getPalette();
-		for (int i = 0; i < superCompartments.length; i++)
-			ret.add(superCompartments[i]);
+
+		for (int i = 0; i < superCompartments.length; i++) {
+
+			final IPaletteCompartmentEntry entry = superCompartments[i];
+
+			// Prune any disabled palette entries in the Objects compartment
+			if (entry.getLabel().equals("Objects")) {
+				pruneDisabledPaletteEntries(project, entry);
+			}
+
+			// Only add compartment if there are actually tools in it
+			if (entry.getToolEntries().size() > 0) {
+				ret.add(entry);
+			}
+		}
 
 		final Map<String, List<CustomServiceTaskContext>> tasksInDrawers = new HashMap<String, List<CustomServiceTaskContext>>();
 
-		final IProject project = ActivitiUiUtil.getProjectFromDiagram(getDiagramTypeProvider().getDiagram());
 		final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil
 				.getCustomServiceTaskContexts(project);
 
@@ -183,6 +224,43 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		}
 
 		return ret.toArray(new IPaletteCompartmentEntry[ret.size()]);
+	}
+
+	/**
+	 * Prunes the disabled palette entries from the {@link IPaletteCompartmentEntry}.
+	 * 
+	 * @param entry
+	 *            the compartment being pruned
+	 */
+	private void pruneDisabledPaletteEntries(final IProject project, final IPaletteCompartmentEntry entry) {
+
+		final Set<PaletteEntry> disabledPaletteEntries = ExtensionUtil.getDisabledPaletteEntries(project);
+
+		if (!disabledPaletteEntries.isEmpty()) {
+
+			final Iterator<IToolEntry> entryIterator = entry.getToolEntries().iterator();
+
+			while (entryIterator.hasNext()) {
+
+				final IToolEntry toolEntry = entryIterator.next();
+
+				if (disabledPaletteEntries.contains(PaletteEntry.ALL)) {
+					entryIterator.remove();
+				} else {
+					if (toolEntry instanceof ObjectCreationToolEntry) {
+						ObjectCreationToolEntry objToolEntry = (ObjectCreationToolEntry) toolEntry;
+						System.out.println("Tool entry "
+								+ objToolEntry.getCreateFeature().getClass().getCanonicalName());
+						if (toolMapping.containsKey(objToolEntry.getCreateFeature().getClass())) {
+							if (disabledPaletteEntries.contains(toolMapping.get(objToolEntry.getCreateFeature()
+									.getClass()))) {
+								entryIterator.remove();
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
