@@ -173,20 +173,58 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
 		// add compartments from super class if not disabled
 		IPaletteCompartmentEntry[] superCompartments = super.getPalette();
-
+		
+		// create new compartments
+		IPaletteCompartmentEntry connectionCompartmentEntry = new PaletteCompartmentEntry("Connection", null);
+		IPaletteCompartmentEntry eventCompartmentEntry = new PaletteCompartmentEntry("Event", null);
+		IPaletteCompartmentEntry taskCompartmentEntry = new PaletteCompartmentEntry("Task", null);
+		IPaletteCompartmentEntry gatewayCompartmentEntry = new PaletteCompartmentEntry("Gateway", null);
+		
 		for (int i = 0; i < superCompartments.length; i++) {
 
 			final IPaletteCompartmentEntry entry = superCompartments[i];
 
 			// Prune any disabled palette entries in the Objects compartment
-			if (entry.getLabel().equals("Objects")) {
+			if ("Objects".equals(entry.getLabel())) {
 				pruneDisabledPaletteEntries(project, entry);
 			}
+		}
 
-			// Only add compartment if there are actually tools in it
-			if (entry.getToolEntries().size() > 0) {
-				ret.add(entry);
+		for (IPaletteCompartmentEntry iPaletteCompartmentEntry : superCompartments) {
+			for(IToolEntry toolEntry : iPaletteCompartmentEntry.getToolEntries()) {
+				if("sequenceflow".equalsIgnoreCase(toolEntry.getLabel())) {
+					connectionCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("startevent".equalsIgnoreCase(toolEntry.getLabel())) {
+					eventCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("endevent".equalsIgnoreCase(toolEntry.getLabel())) {
+					eventCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("usertask".equalsIgnoreCase(toolEntry.getLabel())) {
+					taskCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("scripttask".equalsIgnoreCase(toolEntry.getLabel())) {
+					taskCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("servicetask".equalsIgnoreCase(toolEntry.getLabel())) {
+					taskCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("mailtask".equalsIgnoreCase(toolEntry.getLabel())) {
+					taskCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("manualtask".equalsIgnoreCase(toolEntry.getLabel())) {
+					taskCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
+					gatewayCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
+					gatewayCompartmentEntry.getToolEntries().add(toolEntry);
+				} else if("subprocess".equalsIgnoreCase(toolEntry.getLabel())) {
+					taskCompartmentEntry.getToolEntries().add(toolEntry);
+				}
 			}
+		}
+		
+		ret.add(connectionCompartmentEntry);
+		ret.add(eventCompartmentEntry);
+		if (taskCompartmentEntry.getToolEntries().size() > 0) {
+			ret.add(taskCompartmentEntry);
+		}
+		if (gatewayCompartmentEntry.getToolEntries().size() > 0) {
+			ret.add(gatewayCompartmentEntry);
 		}
 
 		final Map<String, List<CustomServiceTaskContext>> tasksInDrawers = new HashMap<String, List<CustomServiceTaskContext>>();
