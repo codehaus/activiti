@@ -75,6 +75,8 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
 	public ActivitiToolBehaviorProvider(IDiagramTypeProvider dtp) {
 		super(dtp);
+
+		// Setup tool mappings to palette entries
 		toolMapping.put(CreateStartEventFeature.class, PaletteEntry.START_EVENT);
 		toolMapping.put(CreateEndEventFeature.class, PaletteEntry.END_EVENT);
 		toolMapping.put(CreateExclusiveGatewayFeature.class, PaletteEntry.EXCLUSIVE_GATEWAY);
@@ -248,9 +250,7 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 					entryIterator.remove();
 				} else {
 					if (toolEntry instanceof ObjectCreationToolEntry) {
-						ObjectCreationToolEntry objToolEntry = (ObjectCreationToolEntry) toolEntry;
-						System.out.println("Tool entry "
-								+ objToolEntry.getCreateFeature().getClass().getCanonicalName());
+						final ObjectCreationToolEntry objToolEntry = (ObjectCreationToolEntry) toolEntry;
 						if (toolMapping.containsKey(objToolEntry.getCreateFeature().getClass())) {
 							if (disabledPaletteEntries.contains(toolMapping.get(objToolEntry.getCreateFeature()
 									.getClass()))) {
