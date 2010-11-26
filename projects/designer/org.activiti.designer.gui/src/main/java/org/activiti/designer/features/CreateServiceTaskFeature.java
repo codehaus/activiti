@@ -69,10 +69,7 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 				getDiagram().eResource().getContents().add(customServiceTaskProperty);
 
 				newServiceTask.getCustomProperties().add(customServiceTaskProperty);
-
-				newServiceTask.setImplementation(targetTask.getRuntimeClassname() == null ? "" : targetTask
-						.getRuntimeClassname());
-
+				newServiceTask.setImplementation(targetTask.getRuntimeClassname());
 				newServiceTask.setName(targetTask.getName());
 			}
 

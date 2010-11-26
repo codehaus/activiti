@@ -50,7 +50,7 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
  */
 public final class ExtensionUtil {
 
-	private static final String CUSTOM_PROPERTY_ID_SEPARATOR = ":";
+	private static final String CUSTOM_PROPERTY_ID_SEPARATOR = "_";
 
 	private ExtensionUtil() {
 

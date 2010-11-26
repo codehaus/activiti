@@ -53,11 +53,10 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	 */
 	@Override
 	public final String getRuntimeClassname() {
-		final Class clazz = this.getClass();
-		final Annotation annotation = clazz.getAnnotation(Runtime.class);
+		final Annotation annotation = this.getClass().getAnnotation(Runtime.class);
 
 		if (annotation != null && Runtime.class.isAssignableFrom(annotation.getClass())) {
-			return ((Runtime) annotation).delegationClass().getCanonicalName();
+			return String.format("%s.class", ((Runtime) annotation).delegationClass().getCanonicalName());
 		}
 		return null;
 	}
