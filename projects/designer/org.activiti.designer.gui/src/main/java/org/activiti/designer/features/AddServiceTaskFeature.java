@@ -6,7 +6,6 @@ import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.property.extension.CustomServiceTaskContext;
 import org.activiti.designer.property.extension.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
-import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IFeatureProvider;
 
@@ -22,10 +21,7 @@ public class AddServiceTaskFeature extends AddTaskFeature {
 			final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil
 					.getCustomServiceTaskContexts(ActivitiUiUtil.getProjectFromDiagram(getDiagram()));
 			for (CustomServiceTaskContext customServiceTaskContext : customServiceTaskContexts) {
-				String impl = ((ServiceTask) bo).getImplementation();
-				// TODO: string separator
-				impl = impl.substring(impl.indexOf(":") + 1, impl.length());
-				if (impl.equals(customServiceTaskContext.getServiceTask().getClass().getCanonicalName())) {
+				if (customServiceTaskContext.getServiceTask().getId().equals(ExtensionUtil.getCustomServiceTaskId(bo))) {
 					return customServiceTaskContext.getImageKey();
 				}
 			}

@@ -14,8 +14,8 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 public class CreateCustomServiceTaskFeature extends CreateServiceTaskFeature {
 
 	public CreateCustomServiceTaskFeature(IFeatureProvider fp, String name, String description,
-			String customServiceTaskName) {
-		super(fp, name, description, customServiceTaskName);
+			String customServiceTaskId) {
+		super(fp, name, description, customServiceTaskId);
 	}
 
 }

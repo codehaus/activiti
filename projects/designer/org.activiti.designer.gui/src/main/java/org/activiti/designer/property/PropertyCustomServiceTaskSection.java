@@ -69,9 +69,8 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.ui.views.properties.tabbed.AbstractPropertySection#setInput
-	 * (org.eclipse.ui.IWorkbenchPart, org.eclipse.jface.viewers.ISelection)
+	 * @see org.eclipse.ui.views.properties.tabbed.AbstractPropertySection#setInput (org.eclipse.ui.IWorkbenchPart,
+	 * org.eclipse.jface.viewers.ISelection)
 	 */
 	@Override
 	public void setInput(IWorkbenchPart part, ISelection selection) {
@@ -98,7 +97,7 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 			CustomServiceTask targetTask = null;
 
 			for (final CustomServiceTask customServiceTask : customServiceTasks) {
-				if (ExtensionUtil.unwrapCustomId(serviceTask.getImplementation()).equals(customServiceTask.getId())) {
+				if (customServiceTask.getId().equals(ExtensionUtil.getCustomServiceTaskId(serviceTask))) {
 					targetTask = customServiceTask;
 					break;
 				}
@@ -289,9 +288,9 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 			switch (entry.getValue().getPropertyType()) {
 			case STRING:
 				if (entry.getValue().getControl() instanceof Text) {
-					String value = "default value";
-					if (hasCustomProperty(serviceTask, entry.getKey())) {
-						CustomProperty property = getCustomProperty(serviceTask, entry.getKey());
+					String value = "";
+					if (ExtensionUtil.hasCustomProperty(serviceTask, entry.getKey())) {
+						CustomProperty property = ExtensionUtil.getCustomProperty(serviceTask, entry.getKey());
 						value = property.getSimpleValue();
 					}
 
@@ -348,17 +347,17 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 										CustomProperty property = null;
 
-										if (!hasCustomProperty(task, entry.getKey())) {
+										if (!ExtensionUtil.hasCustomProperty(task, entry.getKey())) {
 
 											property = Bpmn2Factory.eINSTANCE.createCustomProperty();
 											getDiagram().eResource().getContents().add(property);
 											task.getCustomProperties().add(property);
 
 										} else {
-											property = getCustomProperty(task, entry.getKey());
+											property = ExtensionUtil.getCustomProperty(task, entry.getKey());
 										}
 
-										property.setId(task.getId() + ":" + entry.getKey());
+										property.setId(ExtensionUtil.wrapCustomPropertyId(task, entry.getKey()));
 										property.setName(entry.getKey());
 										property.setSimpleValue(value);
 
@@ -374,50 +373,5 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 			}
 		}
 	};
-
-	/**
-	 * Gets the {@link CustomProperty} identified by the provided name from the
-	 * serviceTask.
-	 * 
-	 * @param serviceTask
-	 *            the servicetask that holds the custom property
-	 * @param propertyName
-	 *            the name of the property
-	 * @return the {@link CustomProperty} found or null if no property was found
-	 */
-	private CustomProperty getCustomProperty(final ServiceTask serviceTask, final String propertyName) {
-
-		CustomProperty result = null;
-
-		if (hasCustomProperty(serviceTask, propertyName)) {
-			for (final CustomProperty customProperty : serviceTask.getCustomProperties()) {
-				if (propertyName.equals(customProperty.getName())) {
-					result = customProperty;
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Determines whether the {@link CustomProperty} identified by the provided
-	 * name is held by the serviceTask.
-	 * 
-	 * @param serviceTask
-	 *            the servicetask that holds the custom property
-	 * @param propertyName
-	 *            the name of the property
-	 * @return true if the serviceTask has the property, false otherwise
-	 */
-	private boolean hasCustomProperty(final ServiceTask serviceTask, final String propertyName) {
-		boolean result = false;
-		for (final CustomProperty customProperty : serviceTask.getCustomProperties()) {
-			if (propertyName.equals(customProperty.getName())) {
-				result = true;
-			}
-		}
-
-		return result;
-	}
 
 }

@@ -3,10 +3,12 @@ package org.activiti.designer.features;
 import java.util.List;
 
 import org.activiti.designer.ActivitiImageProvider;
+import org.activiti.designer.eclipse.extension.ExtensionConstants;
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.property.extension.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
@@ -16,15 +18,15 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 
 	private static final String FEATURE_ID_KEY = "servicetask";
 
-	private String customServiceTaskName;
+	private String customServiceTaskId;
 
 	public CreateServiceTaskFeature(IFeatureProvider fp) {
 		super(fp, "ServiceTask", "Add service task");
 	}
 
-	public CreateServiceTaskFeature(IFeatureProvider fp, String name, String description, String customServiceTaskName) {
+	public CreateServiceTaskFeature(IFeatureProvider fp, String name, String description, String customServiceTaskId) {
 		super(fp, name, description);
-		this.customServiceTaskName = customServiceTaskName;
+		this.customServiceTaskId = customServiceTaskId;
 	}
 
 	@Override
@@ -39,8 +41,8 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 		newServiceTask.setId(getNextId());
 		newServiceTask.setName("Service Task");
 
-		if (this.customServiceTaskName != null) {
-			newServiceTask.setImplementation("custom:" + this.customServiceTaskName);
+		// Process custom service tasks
+		if (this.customServiceTaskId != null) {
 
 			// Customize the name displayed by default
 			final List<CustomServiceTask> customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil
@@ -49,13 +51,31 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 			CustomServiceTask targetTask = null;
 
 			for (final CustomServiceTask customServiceTask : customServiceTasks) {
-				if (ExtensionUtil.unwrapCustomId(newServiceTask.getImplementation()).equals(customServiceTask.getId())) {
+				if (this.customServiceTaskId.equals(customServiceTask.getId())) {
 					targetTask = customServiceTask;
 					break;
 				}
 			}
 
-			newServiceTask.setName(targetTask.getName());
+			if (targetTask != null) {
+				// Create custom property containing task name
+				CustomProperty customServiceTaskProperty = Bpmn2Factory.eINSTANCE.createCustomProperty();
+
+				customServiceTaskProperty.setId(ExtensionUtil.wrapCustomPropertyId(newServiceTask,
+						ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK));
+				customServiceTaskProperty.setName(ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK);
+				customServiceTaskProperty.setSimpleValue(this.customServiceTaskId);
+
+				getDiagram().eResource().getContents().add(customServiceTaskProperty);
+
+				newServiceTask.getCustomProperties().add(customServiceTaskProperty);
+
+				newServiceTask.setImplementation(targetTask.getRuntimeClassname() == null ? "" : targetTask
+						.getRuntimeClassname());
+
+				newServiceTask.setName(targetTask.getName());
+			}
+
 		}
 
 		getDiagram().eResource().getContents().add(newServiceTask);

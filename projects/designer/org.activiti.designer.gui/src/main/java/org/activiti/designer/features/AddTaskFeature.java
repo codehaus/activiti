@@ -61,7 +61,7 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 			CustomServiceTask targetTask = null;
 
 			for (final CustomServiceTask customServiceTask : customServiceTasks) {
-				if (ExtensionUtil.unwrapCustomId(serviceTask.getImplementation()).equals(customServiceTask.getId())) {
+				if (customServiceTask.getId().equals(ExtensionUtil.getCustomServiceTaskId(serviceTask))) {
 					targetTask = customServiceTask;
 					break;
 				}
@@ -183,7 +183,7 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.getFont().setBold(true);
-			if(OSUtil.getOperatingSystem() == OSEnum.Mac) {
+			if (OSUtil.getOperatingSystem() == OSEnum.Mac) {
 				text.getFont().setSize(11);
 			}
 

@@ -12,11 +12,13 @@ import java.util.Set;
 import java.util.jar.Manifest;
 
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
+import org.activiti.designer.eclipse.extension.ExtensionConstants;
 import org.activiti.designer.integration.palette.DefaultPaletteCustomizer;
 import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -48,10 +50,7 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
  */
 public final class ExtensionUtil {
 
-	private static final String CUSTOM_IMPLEMENTATION_PREFIX = "custom";
-	private static final String CUSTOM_IMPLEMENTATION_SEPARATOR = ":";
-	private static final String CUSTOM_IMPLEMENTATION_PREFIX_QUALIFIED = CUSTOM_IMPLEMENTATION_PREFIX
-			+ CUSTOM_IMPLEMENTATION_SEPARATOR;
+	private static final String CUSTOM_PROPERTY_ID_SEPARATOR = ":";
 
 	private ExtensionUtil() {
 
@@ -154,12 +153,51 @@ public final class ExtensionUtil {
 		return result;
 	}
 
-	public static final String wrapCustomId(CustomServiceTask task) {
-		return CUSTOM_IMPLEMENTATION_PREFIX_QUALIFIED + task.getId();
+	/**
+	 * Wraps the property id for the provided service tasks.
+	 * 
+	 * @param serviceTask
+	 *            the parent task the property belongs to
+	 * @param propertyId
+	 *            the id of the property to wrap
+	 * @return the wrapped id
+	 */
+	public static final String wrapCustomPropertyId(final ServiceTask serviceTask, final String propertyId) {
+		return serviceTask.getId() + CUSTOM_PROPERTY_ID_SEPARATOR + propertyId;
 	}
 
-	public static final String unwrapCustomId(final String customId) {
-		return StringUtils.substringAfter(customId, CUSTOM_IMPLEMENTATION_SEPARATOR);
+	/**
+	 * Unwraps the provided property id string.
+	 * 
+	 * @param wrappedCustomPropertyId
+	 *            the id string to unwrap
+	 * @return the unwrapped id
+	 */
+	public static final String upWrapCustomPropertyId(final String wrappedCustomPropertyId) {
+		return StringUtils.substringAfter(wrappedCustomPropertyId, CUSTOM_PROPERTY_ID_SEPARATOR);
+	}
+
+	/**
+	 * Gets the id of the {@link CustomServiceTask} in the provided business object, if it is in fact a
+	 * {@link CustomServiceTask}.
+	 * 
+	 * @param bo
+	 *            the business object
+	 * @return the id if the business object is a custom service task, null otherwise
+	 */
+	public static final String getCustomServiceTaskId(final EObject bo) {
+		String result = null;
+
+		if (isCustomServiceTask(bo)) {
+			final ServiceTask serviceTask = (ServiceTask) bo;
+			final CustomProperty prop = getCustomProperty(serviceTask,
+					ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK);
+
+			if (prop != null) {
+				result = prop.getSimpleValue();
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -173,11 +211,53 @@ public final class ExtensionUtil {
 		boolean result = false;
 		if (bo instanceof ServiceTask) {
 			final ServiceTask serviceTask = (ServiceTask) bo;
-			if (serviceTask.getImplementation() != null
-					&& serviceTask.getImplementation().startsWith(CUSTOM_IMPLEMENTATION_PREFIX_QUALIFIED)) {
-				result = true;
+			return hasCustomProperty(serviceTask, ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK);
+		}
+		return result;
+	}
+
+	/**
+	 * Gets the {@link CustomProperty} identified by the provided name from the serviceTask.
+	 * 
+	 * @param serviceTask
+	 *            the servicetask that holds the custom property
+	 * @param propertyName
+	 *            the name of the property
+	 * @return the {@link CustomProperty} found or null if no property was found
+	 */
+	public static final CustomProperty getCustomProperty(final ServiceTask serviceTask, final String propertyName) {
+
+		CustomProperty result = null;
+
+		if (hasCustomProperty(serviceTask, propertyName)) {
+			for (final CustomProperty customProperty : serviceTask.getCustomProperties()) {
+				if (propertyName.equals(customProperty.getName())) {
+					result = customProperty;
+					break;
+				}
 			}
 		}
+		return result;
+	}
+
+	/**
+	 * Determines whether the {@link CustomProperty} identified by the provided name is held by the serviceTask.
+	 * 
+	 * @param serviceTask
+	 *            the servicetask that holds the custom property
+	 * @param propertyName
+	 *            the name of the property
+	 * @return true if the serviceTask has the property, false otherwise
+	 */
+	public static final boolean hasCustomProperty(final ServiceTask serviceTask, final String propertyName) {
+		boolean result = false;
+		for (final CustomProperty customProperty : serviceTask.getCustomProperties()) {
+			if (propertyName.equals(customProperty.getName())) {
+				result = true;
+				break;
+			}
+		}
+
 		return result;
 	}
 
