@@ -133,5 +133,32 @@
             class="org.activiti.designer.eclipse.preferences.ActivitiSavePreferencesPageInitializer">
       </initializer>
    </extension>
-
+ 	<extension 
+   		point="org.eclipse.ui.popupMenus">
+	   <objectContribution
+	      id="org.activiti.designer.eclipse.popupmenus.DeploymentMenu"
+	      objectClass="org.eclipse.core.resources.IFile"
+	      nameFilter="*.diagram">
+	       <action
+              class="org.activiti.designer.eclipse.popupmenu.DeploymentMenu"
+              icon="icons/sample.gif"
+              id="org.activiti.designer.eclipse.popupmenu.DeploymentMenu"
+              label="Deployment"
+              menubarPath="Properties">
+	      </action>
+	   </objectContribution>
+</extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
+            default="false"
+            extensions=".diagram"
+            filenames="*.diagrams"
+            icon="icons/sample.gif"
+            id="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
+            matchingStrategy="org.activiti.designer.eclipse.editor.ActivitiEditorMatchingStrategy"
+            name="Deployment">
+      </editor>
+   </extension>
 </plugin>
