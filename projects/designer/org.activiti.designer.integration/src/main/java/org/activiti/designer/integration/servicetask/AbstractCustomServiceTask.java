@@ -7,17 +7,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import org.activiti.designer.integration.servicetask.annotation.Property;
+import org.activiti.designer.integration.servicetask.annotation.Runtime;
 
 /**
- * Abstract base class for implementing CustomServiceTasks. Defaults provided by
- * this base class:
+ * Abstract base class for implementing CustomServiceTasks. Defaults provided by this base class:
  * 
- * <li>Provides an id which is determined by invoking {@link #getClass()
- * .getCanonicalName}.</li> <li>Don't contribute to a palette drawer (i.e., the
- * "" drawer). Override {@link #contributeToPaletteDrawer()} if you
- * <strong>do</strong> wish to contribute to a drawer.</li> <li>Sets the diagram
- * base shape to {@link DiagramBaseShape#ACTIVITY}. Override
- * {@link #getDiagramBaseShape()} to customize the shape drawn in the diagram.</li>
+ * <li>
+ * Provides an id which is determined by invoking {@link #getClass() .getCanonicalName}. <li>Don't contribute to a
+ * palette drawer (i.e., the "" drawer). Override {@link #contributeToPaletteDrawer()} if you <strong>do</strong> wish
+ * to contribute to a drawer. <li>Sets the diagram base shape to {@link DiagramBaseShape#ACTIVITY}. Override
+ * {@link #getDiagramBaseShape()} to customize the shape drawn in the diagram. <li>
+ * Implements the {@link #getRuntimeClassname()} method using reflection
  * 
  * @author Tiese Barrell
  * @version 1
@@ -29,8 +29,7 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask#
-	 * contributeToPaletteDrawer()
+	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask# contributeToPaletteDrawer()
 	 */
 	@Override
 	public String contributeToPaletteDrawer() {
@@ -40,12 +39,27 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask#
-	 * getId()
+	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask# getId()
 	 */
 	@Override
 	public final String getId() {
 		return getClass().getCanonicalName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask#getRuntimeClassname()
+	 */
+	@Override
+	public final String getRuntimeClassname() {
+		final Class clazz = this.getClass();
+		final Annotation annotation = clazz.getAnnotation(Runtime.class);
+
+		if (annotation != null && Runtime.class.isAssignableFrom(annotation.getClass())) {
+			return ((Runtime) annotation).delegationClass().getCanonicalName();
+		}
+		return null;
 	}
 
 	public abstract String getName();
@@ -102,8 +116,7 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask#
-	 * getSmallIconPath()
+	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask# getSmallIconPath()
 	 */
 	@Override
 	public String getSmallIconPath() {
@@ -113,8 +126,7 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask#
-	 * getDiagramBaseShape()
+	 * @see org.activiti.designer.integration.servicetask.CustomServiceTask# getDiagramBaseShape()
 	 */
 	@Override
 	public DiagramBaseShape getDiagramBaseShape() {

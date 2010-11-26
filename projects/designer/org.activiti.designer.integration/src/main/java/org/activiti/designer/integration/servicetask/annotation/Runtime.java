@@ -12,9 +12,8 @@ import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.engine.delegate.JavaDelegation;
 
 /**
- * Defines the Runtime attributes for a {@link CustomServiceTask}. In
- * particular, defines the Class that implements JavaDelegation and is
- * instantiated by Activiti during runtime when processing a node defined by the
+ * Defines the Runtime attributes for a {@link CustomServiceTask}. In particular, defines the Class that implements
+ * JavaDelegation and is instantiated by Activiti during runtime when processing a node defined by the
  * {@link CustomServiceTask} it is placed on.
  * 
  * @author Tiese Barrell
@@ -31,6 +30,6 @@ public @interface Runtime {
 	 * 
 	 * @return
 	 */
-	Class<? extends JavaDelegation> clazz();
+	Class<? extends JavaDelegation> delegationClass();
 
 }
