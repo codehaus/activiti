@@ -1,5 +1,6 @@
 package org.activiti.designer.property;
 
+import org.activiti.designer.property.ui.FieldExtensionEditor;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.core.resources.IProject;
@@ -23,9 +24,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
@@ -44,6 +47,7 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 	private CLabel classSelectLabel;
 	private Text expressionText;
 	private CLabel expressionLabel;
+	private FieldExtensionEditor fieldEditor;
 
 	@Override
 	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
@@ -187,6 +191,26 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 		data.top = new FormAttachment(expressionText, 0, SWT.TOP);
 		expressionLabel.setVisible(false);
 		expressionLabel.setLayoutData(data);
+		
+		Composite extensionsComposite = factory.createComposite(composite, SWT.WRAP);
+		data = new FormData();
+		data.left = new FormAttachment(0, 120);
+		data.right = new FormAttachment(100, 0);
+		data.top = new FormAttachment(expressionText, VSPACE);
+		extensionsComposite.setLayoutData(data);
+		GridLayout layout = new GridLayout();
+		layout.marginTop = 0;
+		layout.numColumns = 1;
+		extensionsComposite.setLayout(layout);
+		fieldEditor = new FieldExtensionEditor("fieldEditor", extensionsComposite);
+		fieldEditor.getLabelControl(extensionsComposite).setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+		
+		CLabel extensionLabel = factory.createCLabel(composite, "Fields:"); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 0);
+		data.right = new FormAttachment(extensionsComposite, -HSPACE);
+		data.top = new FormAttachment(extensionsComposite, 0, SWT.TOP);
+		extensionLabel.setLayoutData(data);
 
 	}
 
@@ -212,6 +236,11 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 				setVisibleExpressionType(true);
 				expressionText.setText(implementationName == null ? "" : implementationName);
 			}
+			
+			fieldEditor.pictogramElement = pe;
+			fieldEditor.diagramEditor = getDiagramEditor();
+			fieldEditor.diagram = getDiagram();
+			fieldEditor.initialize(serviceTask.getFieldExtensions());
 			expressionText.addFocusListener(listener);
 		}
 	}

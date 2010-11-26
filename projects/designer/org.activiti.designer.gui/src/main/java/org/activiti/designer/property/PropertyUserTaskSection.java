@@ -1,6 +1,7 @@
 package org.activiti.designer.property;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.activiti.designer.util.ActivitiUiUtil;
@@ -186,6 +187,7 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 											userTask.getCandidateUsers().add(candidateUser);
 										}
 									}
+									removeCandidateUsersNotInList(expressionList, userTask);
 									userTask.setAssignee(null);
 									removeCandidateGroups(userTask);
 								} else {
@@ -203,6 +205,7 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 											userTask.getCandidateGroups().add(candidateGroup);
 										}
 									}
+									removeCandidateGroupsNotInList(expressionList, userTask);
 									userTask.setAssignee(null);
 									removeCandidateUsers(userTask);
 								}
@@ -228,6 +231,24 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 			userTask.getCandidateUsers().clear();
 		}
 		
+		private void removeCandidateUsersNotInList(String[] expressionList, UserTask userTask) {
+			Iterator<CandidateUser> entryIterator = userTask.getCandidateUsers().iterator();
+			while(entryIterator.hasNext()) {
+				CandidateUser candidateUser = entryIterator.next();
+				boolean found = false;
+				for (String user : expressionList) {
+					if(user.equals(candidateUser.getUser())) {
+						found = true;
+						break;
+					}
+				}
+				if(found == false) {
+					getDiagram().eResource().getContents().remove(candidateUser);
+					entryIterator.remove();
+				}
+			}
+		}
+		
 		private boolean candidateUserExists(UserTask userTask, String userText) {
 			if(userTask.getCandidateUsers() == null) return false;
 			for(CandidateUser user : userTask.getCandidateUsers()) {
@@ -244,6 +265,24 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
 				getDiagram().eResource().getContents().remove(group);
 			}
 			userTask.getCandidateGroups().clear();
+		}
+		
+		private void removeCandidateGroupsNotInList(String[] expressionList, UserTask userTask) {
+			Iterator<CandidateGroup> entryIterator = userTask.getCandidateGroups().iterator();
+			while(entryIterator.hasNext()) {
+				CandidateGroup candidateGroup = entryIterator.next();
+				boolean found = false;
+				for (String group : expressionList) {
+					if(group.equals(candidateGroup.getGroup())) {
+						found = true;
+						break;
+					}
+				}
+				if(found == false) {
+					getDiagram().eResource().getContents().remove(candidateGroup);
+					entryIterator.remove();
+				}
+			}
 		}
 		
 		private boolean candidateGroupExists(UserTask userTask, String groupText) {

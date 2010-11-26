@@ -19,6 +19,7 @@ import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
+import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.MailTask;
 import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ParallelGateway;
@@ -57,6 +58,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 	private static final String XPATH_NAMESPACE = "http://www.w3.org/1999/XPath";
 	private static final String PROCESS_NAMESPACE = "http://www.activiti.org/test";
 	private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn";
+	private static final String ACTIVITI_EXTENSIONS_PREFIX = "activiti";
 	private static final String VALIDATION_TITLE = "BPMN 2.0 Validation";
 
 	private IProgressMonitor monitor;
@@ -85,9 +87,6 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
 	@Override
 	public void marshallDiagram(Diagram diagram, IProgressMonitor monitor) {
-		System.out
-				.println("Marshalling to " + getFormatName() + " format using " + getMarshallerName() + " marshaller");
-
 		this.monitor = monitor;
 		this.diagram = diagram;
 
@@ -155,7 +154,9 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
 			} else if (object instanceof ServiceTask) {
 				ServiceTask serviceTask = (ServiceTask) object;
-				if (serviceTask.getImplementation() == null || serviceTask.getImplementation().length() == 0) {
+				if ((serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0 || 
+						"classType".equalsIgnoreCase(serviceTask.getImplementationType())) && 
+						serviceTask.getImplementation() == null || serviceTask.getImplementation().length() == 0) {
 					createErrorMessage("ServiceTask " + serviceTask.getName() + " has no class specified");
 					return false;
 				}
@@ -225,7 +226,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			xtw.setDefaultNamespace(BPMN2_NAMESPACE);
 			xtw.writeDefaultNamespace(BPMN2_NAMESPACE);
 			xtw.writeNamespace("xsi", XSI_NAMESPACE);
-			xtw.writeNamespace("activiti", ACTIVITI_EXTENSIONS_NAMESPACE);
+			xtw.writeNamespace(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE);
 			xtw.writeAttribute("typeLanguage", SCHEMA_NAMESPACE);
 			xtw.writeAttribute("expressionLanguage", XPATH_NAMESPACE);
 			xtw.writeAttribute("targetNamespace", PROCESS_NAMESPACE);
@@ -256,7 +257,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			xtw.writeEndElement();
 
 			for (EObject object : contents) {
-				createXML(object, xtw);
+				createXML(object, xtw, "");
 			}
 
 			// start EndEvent element
@@ -291,15 +292,15 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 		}
 	}
 
-	private void createXML(EObject object, XMLStreamWriter xtw) throws Exception {
+	private void createXML(EObject object, XMLStreamWriter xtw, String subProcessId) throws Exception {
 		if (object instanceof SequenceFlow) {
 			SequenceFlow sequenceFlow = (SequenceFlow) object;
 			// start SequenceFlow element
 			xtw.writeStartElement("sequenceFlow");
-			xtw.writeAttribute("id", sequenceFlow.getId());
+			xtw.writeAttribute("id", subProcessId + sequenceFlow.getId());
 			xtw.writeAttribute("name", sequenceFlow.getName());
-			xtw.writeAttribute("sourceRef", sequenceFlow.getSourceRef().getId());
-			xtw.writeAttribute("targetRef", sequenceFlow.getTargetRef().getId());
+			xtw.writeAttribute("sourceRef", subProcessId + sequenceFlow.getSourceRef().getId());
+			xtw.writeAttribute("targetRef", subProcessId + sequenceFlow.getTargetRef().getId());
 			if (sequenceFlow.getConditionExpression() != null
 					&& sequenceFlow.getConditionExpression().getBody() != null
 					&& sequenceFlow.getConditionExpression().getBody().length() > 0) {
@@ -325,31 +326,31 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
 				// start UserTask element
 				xtw.writeStartElement("userTask");
-				xtw.writeAttribute("id", userTask.getId());
+				xtw.writeAttribute("id", subProcessId + userTask.getId());
 				xtw.writeAttribute("name", userTask.getName());
 
 				// TODO revisit once the designer supports mixing these
 				// configurations as they are now exclusive
 				if (userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "assignee", userTask.getAssignee());
+					xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "assignee", userTask.getAssignee());
 				} else if (userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0) {
 					Iterator<CandidateUser> candidateUserIterator = userTask.getCandidateUsers().iterator();
 					String candidateUsers = candidateUserIterator.next().getUser();
 					while (candidateUserIterator.hasNext()) {
 						candidateUsers += ", " + candidateUserIterator.next().getUser();
 					}
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "candidateUsers", candidateUsers);
+					xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "candidateUsers", candidateUsers);
 				} else {
 					Iterator<CandidateGroup> candidateGroupIterator = userTask.getCandidateGroups().iterator();
 					String candidateGroups = candidateGroupIterator.next().getGroup();
 					while (candidateGroupIterator.hasNext()) {
 						candidateGroups += ", " + candidateGroupIterator.next().getGroup();
 					}
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "candidateGroups", candidateGroups);
+					xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "candidateGroups", candidateGroups);
 				}
 
 				if (userTask.getFormKey() != null && userTask.getFormKey().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "formKey", userTask.getFormKey());
+					xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "formKey", userTask.getFormKey());
 				}
 
 				// end UserTask element
@@ -360,7 +361,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			ScriptTask scriptTask = (ScriptTask) object;
 			// start ScriptTask element
 			xtw.writeStartElement("scriptTask");
-			xtw.writeAttribute("id", scriptTask.getId());
+			xtw.writeAttribute("id", subProcessId + scriptTask.getId());
 			xtw.writeAttribute("name", scriptTask.getName());
 			xtw.writeAttribute("scriptFormat", scriptTask.getScriptFormat());
 			xtw.writeStartElement("script");
@@ -374,21 +375,38 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			ServiceTask serviceTask = (ServiceTask) object;
 			// start ServiceTask element
 			xtw.writeStartElement("serviceTask");
-			xtw.writeAttribute("id", serviceTask.getId());
+			xtw.writeAttribute("id", subProcessId + serviceTask.getId());
 			xtw.writeAttribute("name", serviceTask.getName());
 
 			if (serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0
 					|| "classType".equals(serviceTask.getImplementationType())) {
 
 				if (serviceTask.getImplementation() != null && serviceTask.getImplementation().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "class",
+					xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "class",
 							serviceTask.getImplementation());
 				}
 			} else {
 				if (serviceTask.getImplementation() != null && serviceTask.getImplementation().length() > 0) {
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "expression",
+					xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "expression",
 							serviceTask.getImplementation());
 				}
+			}
+			
+			if(serviceTask.getFieldExtensions() != null && serviceTask.getFieldExtensions().size() > 0) {
+				xtw.writeStartElement("extensionElements");
+				for (FieldExtension fieldExtension : serviceTask.getFieldExtensions()) {
+					xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+					xtw.writeAttribute("name", fieldExtension.getFieldname());
+					if(fieldExtension.getExpression().contains("$")) {
+						xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
+					} else {
+						xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "string", ACTIVITI_EXTENSIONS_NAMESPACE);
+					}
+					xtw.writeCharacters(fieldExtension.getExpression());
+					xtw.writeEndElement();
+					xtw.writeEndElement();
+				}
+				xtw.writeEndElement();
 			}
 
 			// end ServiceTask element
@@ -398,54 +416,54 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			MailTask mailTask = (MailTask) object;
 			// start MailTask element
 			xtw.writeStartElement("serviceTask");
-			xtw.writeAttribute("id", mailTask.getId());
+			xtw.writeAttribute("id", subProcessId + mailTask.getId());
 			xtw.writeAttribute("name", mailTask.getName());
-			xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "type", "mail");
+			xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "type", "mail");
 
 			xtw.writeStartElement("extensionElements");
 
 			if (mailTask.getTo() != null && mailTask.getTo().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "to");
 				xtw.writeAttribute("expression", mailTask.getTo());
 				xtw.writeEndElement();
 			}
 			if (mailTask.getFrom() != null && mailTask.getFrom().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "from");
 				xtw.writeAttribute("expression", mailTask.getFrom());
 				xtw.writeEndElement();
 			}
 			if (mailTask.getSubject() != null && mailTask.getSubject().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "subject");
 				xtw.writeAttribute("expression", mailTask.getSubject());
 				xtw.writeEndElement();
 			}
 			if (mailTask.getCc() != null && mailTask.getCc().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "cc");
 				xtw.writeAttribute("expression", mailTask.getCc());
 				xtw.writeEndElement();
 			}
 			if (mailTask.getBcc() != null && mailTask.getBcc().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "bcc");
 				xtw.writeAttribute("expression", mailTask.getBcc());
 				xtw.writeEndElement();
 			}
 			if (mailTask.getHtml() != null && mailTask.getHtml().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "html");
-				xtw.writeStartElement("activiti", "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeCData(mailTask.getHtml());
 				xtw.writeEndElement();
 				xtw.writeEndElement();
 			}
 			if (mailTask.getText() != null && mailTask.getText().length() > 0) {
-				xtw.writeStartElement("activiti", "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeAttribute("name", "text");
-				xtw.writeStartElement("activiti", "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
+				xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
 				xtw.writeCData(mailTask.getText());
 				xtw.writeEndElement();
 				xtw.writeEndElement();
@@ -459,7 +477,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			ManualTask manualTask = (ManualTask) object;
 			// start ManualTask element
 			xtw.writeStartElement("manualTask");
-			xtw.writeAttribute("id", manualTask.getId());
+			xtw.writeAttribute("id", subProcessId + manualTask.getId());
 			xtw.writeAttribute("name", manualTask.getName());
 			// end ManualTask element
 			xtw.writeEndElement();
@@ -468,7 +486,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			ParallelGateway parallelGateway = (ParallelGateway) object;
 			// start ParallelGateway element
 			xtw.writeStartElement("parallelGateway");
-			xtw.writeAttribute("id", parallelGateway.getId());
+			xtw.writeAttribute("id", subProcessId + parallelGateway.getId());
 			xtw.writeAttribute("name", parallelGateway.getName());
 
 			// end ParallelGateway element
@@ -478,7 +496,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 			ExclusiveGateway exclusiveGateway = (ExclusiveGateway) object;
 			// start ExclusiveGateway element
 			xtw.writeStartElement("exclusiveGateway");
-			xtw.writeAttribute("id", exclusiveGateway.getId());
+			xtw.writeAttribute("id", subProcessId + exclusiveGateway.getId());
 			xtw.writeAttribute("name", exclusiveGateway.getName());
 
 			// end ExclusiveGateway element
@@ -519,89 +537,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 		xtw.writeEndElement();
 
 		for (EObject object : contents) {
-
-			if (object instanceof SequenceFlow) {
-				SequenceFlow sequenceFlow = (SequenceFlow) object; // start SequenceFlow element
-				xtw.writeStartElement("sequenceFlow");
-				xtw.writeAttribute("id", subProcessId + "_" + sequenceFlow.getId());
-				xtw.writeAttribute("name", sequenceFlow.getName());
-				xtw.writeAttribute("sourceRef", subProcessId + "_" + sequenceFlow.getSourceRef().getId());
-				xtw.writeAttribute("targetRef", subProcessId + "_" + sequenceFlow.getTargetRef().getId());
-				if (sequenceFlow.getConditionExpression() != null
-						&& sequenceFlow.getConditionExpression().getBody() != null
-						&& sequenceFlow.getConditionExpression().getBody().length() > 0) {
-
-					String condition = sequenceFlow.getConditionExpression().getBody();
-					// start conditionExpression element
-					xtw.writeStartElement("conditionExpression");
-					xtw.writeAttribute("xsi", SCHEMA_NAMESPACE, "type", "tFormalExpression");
-					xtw.writeCData(condition);
-
-					// end conditionExpression element
-					xtw.writeEndElement();
-				}
-
-				// end SequenceFlow element
-				xtw.writeEndElement();
-
-			} else if (object instanceof UserTask) {
-				UserTask userTask = (UserTask) object;
-				if ((userTask.getAssignee() != null && userTask.getAssignee().length() > 0)
-						|| (userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0)
-						|| (userTask.getCandidateGroups() != null && userTask.getCandidateGroups().size() > 0)) {
-
-					// start UserTask element
-					xtw.writeStartElement("userTask");
-					xtw.writeAttribute("id", subProcessId + "_" + userTask.getId());
-					xtw.writeAttribute("name", userTask.getName());
-					xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "assignee", userTask.getAssignee());
-
-					// end UserTask element
-					xtw.writeEndElement();
-				}
-
-			} else if (object instanceof ScriptTask) {
-				ScriptTask scriptTask = (ScriptTask) object; // start ScriptTask element
-				xtw.writeStartElement("scriptTask");
-				xtw.writeAttribute("id", subProcessId + "_" + scriptTask.getId());
-				xtw.writeAttribute("name", scriptTask.getName());
-				xtw.writeAttribute("scriptFormat", scriptTask.getScriptFormat());
-				xtw.writeStartElement("script");
-				xtw.writeCData(scriptTask.getScript());
-				xtw.writeEndElement();
-
-				// end ScriptTask element
-				xtw.writeEndElement();
-
-			} else if (object instanceof ServiceTask) {
-				ServiceTask serviceTask = (ServiceTask) object; // start ServiceTask element
-				xtw.writeStartElement("serviceTask");
-				xtw.writeAttribute("id", subProcessId + "_" + serviceTask.getId());
-				xtw.writeAttribute("name", serviceTask.getName());
-				xtw.writeAttribute("activiti", ACTIVITI_EXTENSIONS_NAMESPACE, "class", serviceTask.getImplementation());
-
-				// end ServiceTask element
-				xtw.writeEndElement();
-
-			} else if (object instanceof ParallelGateway) {
-				ParallelGateway parallelGateway = (ParallelGateway) object; // start ParallelGateway element
-				xtw.writeStartElement("parallelGateway");
-				xtw.writeAttribute("id", subProcessId + "_" + parallelGateway.getId());
-				xtw.writeAttribute("name", parallelGateway.getName());
-
-				// end ParallelGateway element
-				xtw.writeEndElement();
-
-			} else if (object instanceof ExclusiveGateway) {
-				ExclusiveGateway exclusiveGateway = (ExclusiveGateway) object;
-				// start ExclusiveGateway element
-				xtw.writeStartElement("exclusiveGateway");
-				xtw.writeAttribute("id", subProcessId + "_" + exclusiveGateway.getId());
-				xtw.writeAttribute("name", exclusiveGateway.getName());
-
-				// end ExclusiveGateway element
-				xtw.writeEndElement();
-			}
+			createXML(object, xtw, subProcessId + "_");
 		}
 
 		// start EndEvent element
