@@ -26,5 +26,10 @@ public class ActivitiSavePreferencesPageInitializer extends AbstractPreferenceIn
 		store.setDefault(
 				PreferencesUtil.getExportMarshallerPreferenceId(ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME),
 				true);
+
+		// Image Marshaller
+		store.setDefault(
+				PreferencesUtil.getExportMarshallerPreferenceId(ActivitiBPMNDiagramConstants.IMAGE_MARSHALLER_NAME),
+				true);
 	}
 }

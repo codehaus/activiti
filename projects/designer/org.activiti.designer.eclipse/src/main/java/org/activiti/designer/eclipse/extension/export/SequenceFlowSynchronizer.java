@@ -12,8 +12,8 @@ import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 
 /**
- * Utility class to synchronize differences between the graphical representation
- * and business model objects of a diagram.
+ * Utility class to synchronize differences between the graphical representation and business model objects of a
+ * diagram.
  * 
  * @author Tiese Barrell
  * @since 0.5.1
@@ -27,19 +27,16 @@ public class SequenceFlowSynchronizer {
 	}
 
 	/**
-	 * Synchronizes the provided list of {@link Connection}s by inspecting any
-	 * differences between the graphical representation and business model
-	 * objects. For any {@link Connection} where the ids of corresponding
-	 * graphical and business objects don't match, the business objects are
-	 * relinked in the model so they accurately reflect the graphical
-	 * representation.
+	 * Synchronizes the provided list of {@link Connection}s by inspecting any differences between the graphical
+	 * representation and business model objects. For any {@link Connection} where the ids of corresponding graphical
+	 * and business objects don't match, the business objects are relinked in the model so they accurately reflect the
+	 * graphical representation.
 	 * 
 	 * @param connections
-	 *            the list of {@link Connection} objects to inspect. In most
-	 *            cases, this list would contain all connections of the diagram
+	 *            the list of {@link Connection} objects to inspect. In most cases, this list would contain all
+	 *            connections of the diagram
 	 * @param diagramEditor
-	 *            the {@link DiagramEditor} of which the diagram is currently
-	 *            being inspected
+	 *            the {@link DiagramEditor} of which the diagram is currently being inspected
 	 */
 	public static void synchronize(final List<Connection> connections, final DiagramEditor diagramEditor) {
 
@@ -110,7 +107,7 @@ public class SequenceFlowSynchronizer {
 										graphicalStartId, graphicalEndId, businessStartId, businessEndId));
 
 				TransactionalEditingDomain editingDomain = this.diagramEditor.getEditingDomain();
-				editingDomain.getCommandStack().execute(new RecordingCommand(editingDomain, "LALALA") {
+				editingDomain.getCommandStack().execute(new RecordingCommand(editingDomain, "ConnectionUpdate") {
 					protected void doExecute() {
 						businessModelObjectToUpdate.setSourceRef((FlowNode) targetStartObject);
 						businessModelObjectToUpdate.setTargetRef((FlowNode) targetEndObject);

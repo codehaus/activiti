@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.graphiti.ui.editor.DiagramEditorInput;
@@ -40,6 +41,8 @@ import org.eclipse.ui.progress.IProgressService;
  */
 public class SaveHandler extends AbstractHandler implements IHandler {
 
+	private static GraphicalViewer activeGraphicalViewer;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -53,6 +56,9 @@ public class SaveHandler extends AbstractHandler implements IHandler {
 				.getActiveEditor();
 
 		final DiagramEditorInput editorInput = (DiagramEditorInput) editorPart.getEditorInput();
+
+		activeGraphicalViewer = (GraphicalViewer) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.getActiveEditor().getAdapter(GraphicalViewer.class);
 
 		SequenceFlowSynchronizer.synchronize(editorInput.getDiagram().getConnections(), (DiagramEditor) editorPart);
 
@@ -188,6 +194,13 @@ public class SaveHandler extends AbstractHandler implements IHandler {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	/**
+	 * @return the activeGraphicalViewer
+	 */
+	public static GraphicalViewer getActiveGraphicalViewer() {
+		return activeGraphicalViewer;
 	}
 
 }

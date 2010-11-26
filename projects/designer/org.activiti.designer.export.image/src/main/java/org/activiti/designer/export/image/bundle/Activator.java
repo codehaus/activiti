@@ -1,4 +1,4 @@
-package org.activiti.designer.export.bpmn20.bundle;
+package org.activiti.designer.export.image.bundle;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class Activator implements BundleActivator {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.activiti.designer.export.bpmn2.0"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.activiti.designer.export.image"; //$NON-NLS-1$
 
 	private static BundleContext context;
 

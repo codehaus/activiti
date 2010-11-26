@@ -212,13 +212,18 @@ public abstract class AbstractExportMarshaller implements ExportMarshaller {
 			if (file.exists() && IResource.FORCE == overwriteFlag) {
 				// delete first
 				monitor.beginTask("delete", 10);
-				// file.delete(overwriteFlag, monitor);
+				file.delete(overwriteFlag, monitor);
+				monitor.worked(10);
 			}
 			monitor.beginTask("create", 10);
 			file.create(content, overwriteFlag, monitor);
 			file.refreshLocal(IResource.DEPTH_INFINITE, null);
+			monitor.worked(10);
 		} catch (CoreException e) {
 			// TODO
+			e.printStackTrace();
+			// addProblemToDiagram(diagram, "A problem occured while exectuing the export marshaller: " +
+			// e.getMessage(), null);
 		}
 	}
 

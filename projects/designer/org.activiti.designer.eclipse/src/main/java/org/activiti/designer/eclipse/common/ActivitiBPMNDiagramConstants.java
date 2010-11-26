@@ -14,6 +14,7 @@ public final class ActivitiBPMNDiagramConstants {
 	public static final String DIAGRAM_EXTENSION = ".diagram";
 
 	public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";
+	public static final String IMAGE_MARSHALLER_NAME = "Activiti Designer Image";
 
 	private ActivitiBPMNDiagramConstants() {
 	}
