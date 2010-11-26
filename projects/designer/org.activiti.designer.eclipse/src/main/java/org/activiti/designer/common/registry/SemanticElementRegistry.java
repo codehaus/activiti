@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.Platform;
 
 public class SemanticElementRegistry {
 
-	private Map elementNameMap = new HashMap();
+	private Map<String, IConfigurationElement> elementNameMap = new HashMap<String, IConfigurationElement>();
 	private Map elementIdMap = new HashMap();
 	
 	public SemanticElementRegistry(String language) {

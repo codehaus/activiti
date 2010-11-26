@@ -10,9 +10,9 @@ import org.eclipse.core.runtime.Platform;
 
 public class RegistryRegistry {
 	
-	private static HashMap editorRegistry = new HashMap();
-	private static HashMap semanticElementRegistries = new HashMap();
-	private static HashMap xmlAdapterRegistries = new HashMap();
+	private static HashMap<String, String> editorRegistry = new HashMap<String, String>();
+	private static HashMap<String, SemanticElementRegistry> semanticElementRegistries = new HashMap<String, SemanticElementRegistry>();
+	private static HashMap<String, XmlAdapterRegistry> xmlAdapterRegistries = new HashMap<String, XmlAdapterRegistry>();
 	
 	static {
 		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("org.activiti.designer.eclipse.dsl");

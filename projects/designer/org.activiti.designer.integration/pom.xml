@@ -13,21 +13,5 @@
 	<version>0.5.1</version>
 	<packaging>eclipse-plugin</packaging>
 	<name>Activiti Designer - Integration</name>
-	
-	<repositories>
-		<repository>
-			<id>activiti</id>
-			<name>Activiti Repository</name>
-			<url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
-		</repository>
-	</repositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-engine</artifactId>
-			<version>${activiti-version}</version>
-		</dependency>
-	</dependencies>
 
 </project>

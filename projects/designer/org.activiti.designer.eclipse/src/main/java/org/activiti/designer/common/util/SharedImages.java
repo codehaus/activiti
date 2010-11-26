@@ -32,7 +32,7 @@ public class SharedImages {
 	
 	public static final SharedImages INSTANCE = new SharedImages();
 
-	private final Map imageMap = new HashMap();
+	private final Map<ImageDescriptor, Image> imageMap = new HashMap<ImageDescriptor, Image>();
 	
 	public Image getImage(ImageDescriptor imageDescriptor) {
 		if (imageDescriptor == null) {
@@ -47,9 +47,9 @@ public class SharedImages {
 	}
 	
 	public void dispose() {
-		Iterator iter = imageMap.values().iterator();
+		Iterator<Image> iter = imageMap.values().iterator();
 		while (iter.hasNext()) {
-			((Image)iter.next()).dispose();
+			iter.next().dispose();
 		}
 		imageMap.clear();
 	}

@@ -9,7 +9,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
-import org.activiti.engine.delegate.JavaDelegation;
 
 /**
  * Defines the Runtime attributes for a {@link CustomServiceTask}. In particular, defines the Class that implements
@@ -25,11 +24,6 @@ import org.activiti.engine.delegate.JavaDelegation;
 @Target(value = { ElementType.TYPE })
 public @interface Runtime {
 
-	/**
-	 * The {@link JavaDelegation}
-	 * 
-	 * @return
-	 */
-	Class<? extends JavaDelegation> delegationClass();
+	Class delegationClass();
 
 }

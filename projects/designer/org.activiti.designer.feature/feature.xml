@@ -87,6 +87,13 @@
          install-size="0"
          version="0.5.1"
          unpack="false"/>
+         
+   <plugin
+         id="org.activiti.designer.integration"
+         download-size="0"
+         install-size="0"
+         version="0.5.1"
+         unpack="false"/>
 
    <plugin
          id="javax.xml"
