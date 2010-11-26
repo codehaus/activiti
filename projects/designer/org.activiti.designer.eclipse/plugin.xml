@@ -120,6 +120,79 @@
 	       </activeWhen>
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.eclipse.graphiti.ui.editor.DiagramEditor"
+            default="true"
+            extensions="add"
+            icon="community_icon.png"
+            id="org.activiti.designer.editor.diagram"
+            matchingStrategy="org.eclipse.graphiti.ui.editor.DiagramEditorFactory$DiagramEditorMatchingStrategy"
+            name="Activiti Diagram Editor">
+         <contentTypeBinding
+               contentTypeId="org.activiti.designer.editor.diagram.contenttype">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart"
+            default="false"
+            extensions="xml"
+            icon="community_icon.png"
+            id="org.activiti.designer.editor.bpmn"
+            name="Activiti BPMN Editor">
+         <contentTypeBinding
+               contentTypeId="org.activiti.designer.editor.bpmn.contenttype">
+         </contentTypeBinding>
+      </editor>
+ 		<editor
+            class="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
+            default="false"
+            extensions=".diagram"
+            filenames="*.diagrams"
+            icon="icons/sample.gif"
+            id="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
+            matchingStrategy="org.activiti.designer.eclipse.editor.ActivitiEditorMatchingStrategy"
+            name="Deployment">
+      </editor>
+   </extension>
+ <extension
+       point="org.eclipse.wst.xml.core.catalogContributions">
+       <catalogContribution> 
+         <uri
+               name="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+               uri="xsd/BPMN20.xsd"/> 
+      </catalogContribution> 
+        <catalogContribution> 
+         <uri
+               name="http://activiti.org/bpmn" 
+               uri="xsd/activiti-bpmn-extensions-5.0.xsd"/> 
+      </catalogContribution> 
+ </extension>
+ <extension
+       point="org.eclipse.core.contenttype.contentTypes">
+    <content-type
+          base-type="org.eclipse.core.runtime.xml"
+          file-extensions="xml"
+          id="org.activiti.designer.editor.bpmn.contenttype"
+          name="Activiti BPMN Editor File"
+          priority="normal">
+       <describer
+             class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
+          <parameter
+                name="element"
+                value="definitions">
+          </parameter>
+       </describer>
+    </content-type>
+    <content-type
+          base-type="org.eclipse.core.runtime.xml"
+          file-extensions="add"
+          id="org.activiti.designer.editor.diagram.contenttype"
+          name="Activiti Diagram Editor File"
+          priority="normal">
+    </content-type>
+ </extension>
    <extension id="activitiMarker" point="org.eclipse.core.resources.markers"/>
 	<extension id="activitiProblem" point="org.eclipse.core.resources.markers">
 	   <super type="org.eclipse.core.resources.problemmarker"/>
@@ -148,17 +221,4 @@
 	      </action>
 	   </objectContribution>
 </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
-            default="false"
-            extensions=".diagram"
-            filenames="*.diagrams"
-            icon="icons/sample.gif"
-            id="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
-            matchingStrategy="org.activiti.designer.eclipse.editor.ActivitiEditorMatchingStrategy"
-            name="Deployment">
-      </editor>
-   </extension>
 </plugin>

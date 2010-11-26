@@ -1,6 +1,8 @@
 package org.activiti.designer.eclipse.common;
 
 import java.net.URL;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import org.activiti.designer.eclipse.outline.ContentOutlinePageAdapterFactory;
 import org.eclipse.core.resources.IWorkspace;
@@ -23,18 +25,25 @@ public class ActivitiPlugin extends AbstractUIPlugin {
 	 */
 	public static final String USER_LIBRARY_NAME_EXTENSIONS = "Activiti Designer Extensions";
 
-	public static final String DESIGNER_EXTENSIONS_USER_LIB_PATH = "org.eclipse.jdt.USER_LIBRARY/"
-			+ USER_LIBRARY_NAME_EXTENSIONS;
+	public static final String DESIGNER_EXTENSIONS_USER_LIB_PATH = "org.eclipse.jdt.USER_LIBRARY/" + USER_LIBRARY_NAME_EXTENSIONS;
 
 	public static final String EXPORT_MARSHALLER_EXTENSIONPOINT_ID = "org.activiti.designer.eclipse.extension.export.ExportMarshaller";
 
 	private static ActivitiPlugin _plugin;
+
+	private ResourceBundle resourceBundle;
 
 	/**
 	 * Creates the Plugin and caches its default instance.
 	 */
 	public ActivitiPlugin() {
 		_plugin = this;
+		try {
+			resourceBundle = ResourceBundle
+					.getBundle("ActivitiPluginResources");
+		} catch (MissingResourceException x) {
+			resourceBundle = null;
+		}
 	}
 
 	// ============ overwritten methods of AbstractUIPlugin ====================
@@ -116,5 +125,25 @@ public class ActivitiPlugin extends AbstractUIPlugin {
 	 */
 	public static Shell getShell() {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
+	}
+
+	/**
+	 * Returns the string from the plugin's resource bundle, or 'key' if not
+	 * found.
+	 */
+	public static String getResourceString(String key) {
+		ResourceBundle bundle = ActivitiPlugin.getDefault().getResourceBundle();
+		try {
+			return (bundle != null) ? bundle.getString(key) : key;
+		} catch (MissingResourceException e) {
+			return key;
+		}
+	}
+
+	/**
+	 * Returns the plugin's resource bundle,
+	 */
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
 	}
 }
