@@ -15,6 +15,7 @@ import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.extension.ExtensionConstants;
 import org.activiti.designer.integration.palette.DefaultPaletteCustomizer;
 import org.activiti.designer.integration.palette.PaletteEntry;
+import org.activiti.designer.integration.servicetask.AbstractCustomServiceTask;
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.apache.commons.lang.StringUtils;
@@ -95,6 +96,8 @@ public final class ExtensionUtil {
 
 							// Create a JarClassLoader to load any classes we
 							// find for this extension
+							System.out.println("loading " + packageFragmentRoot.getPath()
+									.toPortableString());
 							final JarClassLoader cl = new JarClassLoader(packageFragmentRoot.getPath()
 									.toPortableString());
 
@@ -110,9 +113,12 @@ public final class ExtensionUtil {
 											if (classFile.isClass()) {
 
 												final IType type = classFile.getType();
+												boolean isCustomService = isCustomService(type);
+												if(isCustomService == false) {
+													continue;
+												}
 
 												try {
-
 													Class<DefaultPaletteCustomizer> clazz = (Class<DefaultPaletteCustomizer>) cl
 															.loadClass(type.getFullyQualifiedName());
 
@@ -151,6 +157,24 @@ public final class ExtensionUtil {
 		}
 
 		return result;
+	}
+	
+	private static boolean isCustomService(IType type) {
+		boolean customserviceFound = false;
+		try {
+			if(AbstractCustomServiceTask.class.getCanonicalName().equalsIgnoreCase(type.getSuperclassName())) {
+				customserviceFound = true;
+			} else if(type.getSuperInterfaceNames() != null && type.getSuperInterfaceNames().length > 0) {
+				for (String interfaceName : type.getSuperInterfaceNames()) {
+					if(CustomServiceTask.class.getCanonicalName().equalsIgnoreCase(interfaceName)) {
+						customserviceFound = true;
+					}
+				}
+			}
+		} catch(Exception e) {
+			// nothing
+		}
+		return customserviceFound;
 	}
 
 	/**
@@ -399,7 +423,10 @@ public final class ExtensionUtil {
 											if (classFile.isClass()) {
 
 												final IType type = classFile.getType();
-
+												boolean isCustomService = isCustomService(type);
+												if(isCustomService == false) {
+													continue;
+												}
 												try {
 													Class<CustomServiceTask> clazz = (Class<CustomServiceTask>) cl
 															.loadClass(type.getFullyQualifiedName());

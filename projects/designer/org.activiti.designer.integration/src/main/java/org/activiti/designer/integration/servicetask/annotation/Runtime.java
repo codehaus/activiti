@@ -24,6 +24,6 @@ import org.activiti.designer.integration.servicetask.CustomServiceTask;
 @Target(value = { ElementType.TYPE })
 public @interface Runtime {
 
-	Class delegationClass();
+	String delegationClass();
 
 }

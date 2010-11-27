@@ -56,7 +56,7 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 		final Annotation annotation = this.getClass().getAnnotation(Runtime.class);
 
 		if (annotation != null && Runtime.class.isAssignableFrom(annotation.getClass())) {
-			return String.format("%s.class", ((Runtime) annotation).delegationClass().getCanonicalName());
+			return ((Runtime) annotation).delegationClass();
 		}
 		return null;
 	}

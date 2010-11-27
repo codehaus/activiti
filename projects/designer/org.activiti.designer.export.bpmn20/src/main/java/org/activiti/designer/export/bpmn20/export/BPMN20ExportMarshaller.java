@@ -12,11 +12,13 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.eclipse.extension.ExtensionConstants;
 import org.activiti.designer.eclipse.extension.export.AbstractExportMarshaller;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
 import org.activiti.designer.eclipse.util.Util;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
+import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FieldExtension;
@@ -397,7 +399,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 				for (FieldExtension fieldExtension : serviceTask.getFieldExtensions()) {
 					xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
 					xtw.writeAttribute("name", fieldExtension.getFieldname());
-					if(fieldExtension.getExpression().contains("$")) {
+					if(fieldExtension.getExpression().contains("${")) {
 						xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "expression", ACTIVITI_EXTENSIONS_NAMESPACE);
 					} else {
 						xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "string", ACTIVITI_EXTENSIONS_NAMESPACE);
@@ -407,6 +409,28 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 					xtw.writeEndElement();
 				}
 				xtw.writeEndElement();
+			}
+			
+			if(serviceTask.getCustomProperties() != null && serviceTask.getCustomProperties().size() > 0) {
+				boolean firstCustomProperty = true;
+				for (CustomProperty customProperty : serviceTask.getCustomProperties()) {
+					if(ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK.equals(customProperty.getName())) {
+						continue;
+					}
+					if(firstCustomProperty == true) {
+						xtw.writeStartElement("extensionElements");
+						firstCustomProperty = false;
+					}
+					xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
+					xtw.writeAttribute("name", customProperty.getName());
+					xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "string", ACTIVITI_EXTENSIONS_NAMESPACE);
+					xtw.writeCharacters(customProperty.getSimpleValue());
+					xtw.writeEndElement();
+					xtw.writeEndElement();
+				}
+				if(firstCustomProperty == false) {
+					xtw.writeEndElement();
+				}
 			}
 
 			// end ServiceTask element

@@ -50,7 +50,6 @@ public class SaveHandler extends AbstractHandler implements IHandler {
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-
 		// Get a reference to the editor part
 		final IEditorPart editorPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getActiveEditor();
