@@ -35,7 +35,7 @@ public class ActivitiSavePreferencesPage extends FieldEditorPreferencePage imple
 				}
 			}
 		} catch (CoreException ex) {
-			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 

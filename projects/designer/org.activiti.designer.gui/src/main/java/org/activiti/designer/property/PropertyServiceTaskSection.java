@@ -163,7 +163,7 @@ public class PropertyServiceTaskSection extends GFPropertySection implements ITa
 						ActivitiUiUtil.doProjectReferenceChange(currentProject, containerProject, className);
 					}
 				} catch (Exception ex) {
-					System.out.println(ex.getMessage());
+					ex.printStackTrace();
 				}
 			}
 		});

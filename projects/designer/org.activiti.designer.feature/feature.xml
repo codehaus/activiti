@@ -2,7 +2,7 @@
 <feature
       id="org.activiti.designer.feature"
       label="Activiti Eclipse BPMN 2.0 Designer"
-      version="0.5.1"
+      version="0.6.0"
       provider-name="Activiti">
 
    <description url="http://www.activiti.org">
@@ -71,28 +71,28 @@
          id="org.activiti.designer.gui"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
 
    <plugin
          id="org.activiti.designer.eclipse"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
 
    <plugin
          id="org.activiti.designer.model"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
          
    <plugin
          id="org.activiti.designer.integration"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
 
    <plugin
@@ -113,21 +113,21 @@
          id="org.activiti.designer.help"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
 
    <plugin
          id="org.activiti.designer.export.bpmn20"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
 
    <plugin
          id="org.activiti.designer.export.image"
          download-size="0"
          install-size="0"
-         version="0.5.1"
+         version="0.6.0"
          unpack="false"/>
 
 </feature>

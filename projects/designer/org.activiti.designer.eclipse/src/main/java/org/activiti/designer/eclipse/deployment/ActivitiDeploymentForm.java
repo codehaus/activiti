@@ -74,7 +74,6 @@ public class ActivitiDeploymentForm {
 	private IncludeInDeploymentTreeViewer includeClassesTreeViewer;
 	
 	public ActivitiDeploymentForm(FormToolkit toolkit, Composite composite, IFolder processFolder, ActivitiEditor editor) {
-		System.out.println("login-----"+defaultLocation);
 		this.toolkit = toolkit;
 		this.composite = composite;
 		this.processFolder = processFolder;

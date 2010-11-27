@@ -40,13 +40,11 @@ public class FieldExtensionEditor extends TableFieldEditor {
 
 	@Override
 	protected String createList(String[][] items) {
-		System.out.println("createList");
 		return null;
 	}
 
 	@Override
 	protected String[][] parseString(String string) {
-		System.out.println("parseString");
 		return null;
 	}
 

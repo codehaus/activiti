@@ -58,7 +58,6 @@ public class JarClassLoader extends ClassLoader {
 			String className = name.replace('.', File.separatorChar) + ".class";
 
 			try {
-				System.out.println("loading jar " + jarFilePath + ", class " + className);
 				// Load class data from file and save in byte array
 				byte data[] = loadClassData(jarFilePath, className);
 

@@ -95,7 +95,6 @@ public class ActivitiUiUtil {
 			throws CoreException {
 
 		if (currentProject.equals(containerProject.getProject())) {
-			System.out.println("Service class is within current project");
 			return;
 		}
 

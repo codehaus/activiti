@@ -96,8 +96,6 @@ public final class ExtensionUtil {
 
 							// Create a JarClassLoader to load any classes we
 							// find for this extension
-							System.out.println("loading " + packageFragmentRoot.getPath()
-									.toPortableString());
 							final JarClassLoader cl = new JarClassLoader(packageFragmentRoot.getPath()
 									.toPortableString());
 

@@ -10,7 +10,6 @@ public class IncludeClassesViewerFilter extends ViewerFilter {
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		if(element instanceof IPackageFragment) {
 			IPackageFragment packageFragment = (IPackageFragment) element;
-			System.out.println("resource name " + packageFragment.getElementName());
 			if("diagrams".equalsIgnoreCase(packageFragment.getElementName()) == true) {
 				return false;
 			}

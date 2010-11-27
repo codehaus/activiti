@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Activiti Designer - Export BPMN 2.0
 Bundle-SymbolicName: org.activiti.designer.export.bpmn20;singleton:=true
-Bundle-Version: 0.5.1
+Bundle-Version: 0.6.0
 Bundle-Activator: org.activiti.designer.export.bpmn20.bundle.Activator
 Bundle-Vendor: Activiti
 Require-Bundle: org.eclipse.core.runtime,
- org.activiti.designer.eclipse;bundle-version="0.5.1",
- org.activiti.designer.model;bundle-version="0.5.1",
+ org.activiti.designer.eclipse;bundle-version="0.6.0",
+ org.activiti.designer.model;bundle-version="0.6.0",
  org.eclipse.emf;bundle-version="2.6.0",
  org.eclipse.graphiti.mm;bundle-version="0.7.0",
  org.eclipse.graphiti.ui;bundle-version="0.7.0",
