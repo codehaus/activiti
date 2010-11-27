@@ -11,7 +11,7 @@ package org.activiti.designer.eclipse.common;
 public final class ActivitiBPMNDiagramConstants {
 
 	public static final String DIAGRAM_FOLDER = "src/main/resources/diagrams/";
-	public static final String DIAGRAM_EXTENSION = ".add";
+	public static final String DIAGRAM_EXTENSION = ".activiti";
 	public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.editor.diagram";
 	
 	public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";

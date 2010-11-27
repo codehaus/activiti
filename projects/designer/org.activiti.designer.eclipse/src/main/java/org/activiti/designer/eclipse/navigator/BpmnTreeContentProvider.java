@@ -3,6 +3,7 @@ package org.activiti.designer.eclipse.navigator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiProjectNature;
 import org.activiti.designer.eclipse.navigator.nodes.BpmnElementsNode;
 import org.activiti.designer.eclipse.navigator.nodes.base.IContainerNode;
@@ -122,7 +123,7 @@ public class BpmnTreeContentProvider implements ITreeContentProvider, IResourceC
 						return true;
 					case IResource.FILE:
 						final IFile file = (IFile) resource;
-						if (file.getName().endsWith(".diagram") || file.getName().equals("Predefined.data")) { //$NON-NLS-1$
+						if (file.getName().endsWith(ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION) || file.getName().equals("Predefined.data")) { //$NON-NLS-1$
 							UIJob job = new UIJob("Update Viewer") { //$NON-NLS-1$
 								@Override
 								public IStatus runInUIThread(IProgressMonitor monitor) {

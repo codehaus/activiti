@@ -125,7 +125,7 @@
       <editor
             class="org.eclipse.graphiti.ui.editor.DiagramEditor"
             default="true"
-            extensions="add"
+            extensions="activiti"
             icon="community_icon.png"
             id="org.activiti.designer.editor.diagram"
             matchingStrategy="org.eclipse.graphiti.ui.editor.DiagramEditorFactory$DiagramEditorMatchingStrategy"
@@ -148,8 +148,7 @@
  		<editor
             class="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
             default="false"
-            extensions=".diagram"
-            filenames="*.diagrams"
+            extensions=".activiti"
             icon="icons/sample.gif"
             id="org.activiti.designer.eclipse.editor.ActivitiDeploymentEditorPage"
             matchingStrategy="org.activiti.designer.eclipse.editor.ActivitiEditorMatchingStrategy"
@@ -187,7 +186,7 @@
     </content-type>
     <content-type
           base-type="org.eclipse.core.runtime.xml"
-          file-extensions="add"
+          file-extensions="activiti"
           id="org.activiti.designer.editor.diagram.contenttype"
           name="Activiti Diagram Editor File"
           priority="normal">
@@ -209,9 +208,9 @@
  	<extension 
    		point="org.eclipse.ui.popupMenus">
 	   <objectContribution
-	      id="org.activiti.designer.eclipse.popupmenus.DeploymentMenu"
-	      objectClass="org.eclipse.core.resources.IFile"
-	      nameFilter="*.diagram">
+          id="org.activiti.designer.eclipse.popupmenus.DeploymentMenu"
+          nameFilter="*.activiti"
+          objectClass="org.eclipse.core.resources.IFile">
 	       <action
               class="org.activiti.designer.eclipse.popupmenu.DeploymentMenu"
               icon="icons/sample.gif"
