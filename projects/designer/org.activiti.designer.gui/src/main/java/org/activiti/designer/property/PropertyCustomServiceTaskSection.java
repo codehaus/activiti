@@ -42,7 +42,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
@@ -173,7 +172,7 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 							switch (property.type()) {
 
-							case STRING:
+							case TEXT:
 								final Text propertyText = factory.createText(workParent, "", SWT.BORDER_SOLID);
 								data = new FormData();
 								data.top = new FormAttachment(previousAnchor, VSPACE);
@@ -196,16 +195,29 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 								break;
 
-							case CALENDAR:
+							case MULTILINE_TEXT:
 
-								final DateTime propertyCalendar = new DateTime(workParent, SWT.CALENDAR);
+								final Text propertyMultiText = factory.createText(workParent, "", SWT.MULTI | SWT.WRAP
+										| SWT.V_SCROLL | SWT.BORDER_SOLID);
 								data = new FormData();
 								data.top = new FormAttachment(previousAnchor, VSPACE);
 								data.left = new FormAttachment(0, 200);
-								data.right = new FormAttachment(25, 0);
-								propertyCalendar.setEnabled(true);
-								propertyCalendar.setLayoutData(data);
-								createdControl = propertyCalendar;
+								data.right = new FormAttachment(80, 25);
+								data.height = 80;
+								propertyMultiText.setEnabled(true);
+								propertyMultiText.setLayoutData(data);
+
+								if (property.required()) {
+									propertyMultiText.addFocusListener(new FieldValidatorListener(propertyMultiText,
+											RequiredFieldValidator.class));
+								}
+
+								if (!property.fieldValidator().equals(FieldValidator.class)) {
+									propertyMultiText.addFocusListener(new FieldValidatorListener(propertyMultiText,
+											property.fieldValidator()));
+								}
+
+								createdControl = propertyMultiText;
 
 								break;
 
@@ -286,7 +298,19 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 		for (Entry<String, FieldWrapper> entry : fieldControls.entrySet()) {
 
 			switch (entry.getValue().getPropertyType()) {
-			case STRING:
+			case TEXT:
+				if (entry.getValue().getControl() instanceof Text) {
+					String value = "";
+					if (ExtensionUtil.hasCustomProperty(serviceTask, entry.getKey())) {
+						CustomProperty property = ExtensionUtil.getCustomProperty(serviceTask, entry.getKey());
+						value = property.getSimpleValue();
+					}
+
+					((Text) entry.getValue().getControl()).setText(value);
+
+				}
+				break;
+			case MULTILINE_TEXT:
 				if (entry.getValue().getControl() instanceof Text) {
 					String value = "";
 					if (ExtensionUtil.hasCustomProperty(serviceTask, entry.getKey())) {
@@ -341,7 +365,7 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 							for (Entry<String, FieldWrapper> entry : fieldControls.entrySet()) {
 
 								switch (entry.getValue().getPropertyType()) {
-								case STRING:
+								case TEXT:
 									if (entry.getValue().getControl() instanceof Text) {
 										String value = ((Text) entry.getValue().getControl()).getText();
 
@@ -363,6 +387,29 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 									}
 									break;
+								case MULTILINE_TEXT:
+									if (entry.getValue().getControl() instanceof Text) {
+										String value = ((Text) entry.getValue().getControl()).getText();
+
+										CustomProperty property = null;
+
+										if (!ExtensionUtil.hasCustomProperty(task, entry.getKey())) {
+
+											property = Bpmn2Factory.eINSTANCE.createCustomProperty();
+											getDiagram().eResource().getContents().add(property);
+											task.getCustomProperties().add(property);
+
+										} else {
+											property = ExtensionUtil.getCustomProperty(task, entry.getKey());
+										}
+
+										property.setId(ExtensionUtil.wrapCustomPropertyId(task, entry.getKey()));
+										property.setName(entry.getKey());
+										property.setSimpleValue(value);
+
+									}
+									break;
+
 								}
 
 							}

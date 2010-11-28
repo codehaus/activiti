@@ -4,11 +4,13 @@
 package org.activiti.designer.integration.servicetask;
 
 /**
- * @author a139923
+ * @author Tiese Barrell
+ * @since 0.6.0
+ * @version 1
  * 
  */
 public enum PropertyType {
 
-	STRING, DATE, CALENDAR, INTEGER;
+	TEXT, MULTILINE_TEXT;
 
 }

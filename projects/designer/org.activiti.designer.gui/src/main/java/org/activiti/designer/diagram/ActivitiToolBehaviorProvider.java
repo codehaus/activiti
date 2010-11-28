@@ -173,13 +173,13 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
 		// add compartments from super class if not disabled
 		IPaletteCompartmentEntry[] superCompartments = super.getPalette();
-		
+
 		// create new compartments
 		IPaletteCompartmentEntry connectionCompartmentEntry = new PaletteCompartmentEntry("Connection", null);
 		IPaletteCompartmentEntry eventCompartmentEntry = new PaletteCompartmentEntry("Event", null);
 		IPaletteCompartmentEntry taskCompartmentEntry = new PaletteCompartmentEntry("Task", null);
 		IPaletteCompartmentEntry gatewayCompartmentEntry = new PaletteCompartmentEntry("Gateway", null);
-		
+
 		for (int i = 0; i < superCompartments.length; i++) {
 
 			final IPaletteCompartmentEntry entry = superCompartments[i];
@@ -191,35 +191,38 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		}
 
 		for (IPaletteCompartmentEntry iPaletteCompartmentEntry : superCompartments) {
-			for(IToolEntry toolEntry : iPaletteCompartmentEntry.getToolEntries()) {
-				if("sequenceflow".equalsIgnoreCase(toolEntry.getLabel())) {
+			for (IToolEntry toolEntry : iPaletteCompartmentEntry.getToolEntries()) {
+				if ("sequenceflow".equalsIgnoreCase(toolEntry.getLabel())) {
 					connectionCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("startevent".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("startevent".equalsIgnoreCase(toolEntry.getLabel())) {
 					eventCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("endevent".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("endevent".equalsIgnoreCase(toolEntry.getLabel())) {
 					eventCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("usertask".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("usertask".equalsIgnoreCase(toolEntry.getLabel())) {
 					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("scripttask".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("scripttask".equalsIgnoreCase(toolEntry.getLabel())) {
 					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("servicetask".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("servicetask".equalsIgnoreCase(toolEntry.getLabel())) {
 					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("mailtask".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("mailtask".equalsIgnoreCase(toolEntry.getLabel())) {
 					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("manualtask".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("manualtask".equalsIgnoreCase(toolEntry.getLabel())) {
 					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
 					gatewayCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
 					gatewayCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if("subprocess".equalsIgnoreCase(toolEntry.getLabel())) {
+				} else if ("subprocess".equalsIgnoreCase(toolEntry.getLabel())) {
 					taskCompartmentEntry.getToolEntries().add(toolEntry);
 				}
 			}
 		}
-		
+		// Always add the connection compartment
 		ret.add(connectionCompartmentEntry);
-		ret.add(eventCompartmentEntry);
+
+		if (eventCompartmentEntry.getToolEntries().size() > 0) {
+			ret.add(eventCompartmentEntry);
+		}
 		if (taskCompartmentEntry.getToolEntries().size() > 0) {
 			ret.add(taskCompartmentEntry);
 		}

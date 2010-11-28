@@ -13,6 +13,7 @@ import java.util.jar.Manifest;
 
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.extension.ExtensionConstants;
+import org.activiti.designer.integration.palette.AbstractDefaultPaletteCustomizer;
 import org.activiti.designer.integration.palette.DefaultPaletteCustomizer;
 import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.integration.servicetask.AbstractCustomServiceTask;
@@ -58,6 +59,7 @@ public final class ExtensionUtil {
 	}
 
 	public static final Set<PaletteEntry> getDisabledPaletteEntries(IProject project) {
+
 		Set<PaletteEntry> result = new HashSet<PaletteEntry>();
 
 		// Determine the project
@@ -111,8 +113,7 @@ public final class ExtensionUtil {
 											if (classFile.isClass()) {
 
 												final IType type = classFile.getType();
-												boolean isCustomService = isCustomService(type);
-												if(isCustomService == false) {
+												if (!isConcretePaletteCustomizer(type)) {
 													continue;
 												}
 
@@ -156,23 +157,78 @@ public final class ExtensionUtil {
 
 		return result;
 	}
-	
-	private static boolean isCustomService(IType type) {
-		boolean customserviceFound = false;
+
+	private static boolean isConcreteCustomService(IType type) {
+
+		boolean customserviceFound = containsAbstractClassOrInterface(type, AbstractCustomServiceTask.class,
+				CustomServiceTask.class);
+
 		try {
-			if(AbstractCustomServiceTask.class.getCanonicalName().equalsIgnoreCase(type.getSuperclassName())) {
+			if (customserviceFound && !Modifier.isAbstract(type.getFlags())) {
 				customserviceFound = true;
-			} else if(type.getSuperInterfaceNames() != null && type.getSuperInterfaceNames().length > 0) {
+			} else {
+				customserviceFound = false;
+			}
+		} catch (JavaModelException e) {
+			customserviceFound = false;
+			e.printStackTrace();
+		}
+
+		return customserviceFound;
+
+	}
+
+	private static boolean isConcretePaletteCustomizer(IType type) {
+
+		boolean paletteCustomizerFound = containsAbstractClassOrInterface(type, AbstractDefaultPaletteCustomizer.class,
+				DefaultPaletteCustomizer.class);
+
+		try {
+			if (paletteCustomizerFound && !Modifier.isAbstract(type.getFlags())) {
+				paletteCustomizerFound = true;
+			} else {
+				paletteCustomizerFound = false;
+			}
+		} catch (JavaModelException e) {
+			paletteCustomizerFound = false;
+			e.printStackTrace();
+		}
+
+		return paletteCustomizerFound;
+
+	}
+
+	// TODO: utilize type hierarchy in efficient manner
+	private static boolean containsAbstractClassOrInterface(IType type, Class targetAbstractClass, Class targetInterface) {
+
+		boolean result = false;
+
+		try {
+			// 1. Check whether the super classname of the type matches the abstract superclass we favor
+			// 2. Check whether the type implements the interface itself
+			// 3. If the type has *other* superclasses than the one we favor, recursively inspect the hierarchy
+			// using
+			// the same method
+			if (targetAbstractClass.getCanonicalName().equalsIgnoreCase(type.getSuperclassName())) {
+				result = true;
+			} else if (type.getSuperInterfaceNames() != null && type.getSuperInterfaceNames().length > 0) {
 				for (String interfaceName : type.getSuperInterfaceNames()) {
-					if(CustomServiceTask.class.getCanonicalName().equalsIgnoreCase(interfaceName)) {
-						customserviceFound = true;
+					if (targetInterface.getCanonicalName().equalsIgnoreCase(interfaceName)) {
+						result = true;
 					}
 				}
 			}
-		} catch(Exception e) {
-			// nothing
+			// } else if (type.getSuperclassName() != null) {
+			// result = containsAbstractClassOrInterface(hierarchy.getSuperclass(type),
+			// targetAbstractClass, targetInterface);
+			// }
+
+		} catch (Exception e) {
+			result = false;
 		}
-		return customserviceFound;
+
+		return result;
+
 	}
 
 	/**
@@ -337,6 +393,7 @@ public final class ExtensionUtil {
 				result.add(customServiceTaskContext.getServiceTask());
 			}
 		}
+
 		return result;
 	}
 
@@ -421,10 +478,14 @@ public final class ExtensionUtil {
 											if (classFile.isClass()) {
 
 												final IType type = classFile.getType();
-												boolean isCustomService = isCustomService(type);
-												if(isCustomService == false) {
+
+												if (!isConcreteCustomService(type)) {
 													continue;
 												}
+												// if (type.getFullyQualifiedName() !=
+												// "com.atosorigin.esuite.editors.servicetasks.ESuiteEndNode") {
+												// continue;
+												// }
 												try {
 													Class<CustomServiceTask> clazz = (Class<CustomServiceTask>) cl
 															.loadClass(type.getFullyQualifiedName());
@@ -452,6 +513,7 @@ public final class ExtensionUtil {
 															result.add(new CustomServiceTaskContextImpl(
 																	customServiceTask, extensionName, classpathEntry
 																			.getPath().toPortableString()));
+
 														} catch (InstantiationException e) {
 															// TODO
 															// Auto-generated
@@ -481,7 +543,6 @@ public final class ExtensionUtil {
 				// lib for example?
 				e.printStackTrace();
 			}
-
 		}
 
 		return result;
