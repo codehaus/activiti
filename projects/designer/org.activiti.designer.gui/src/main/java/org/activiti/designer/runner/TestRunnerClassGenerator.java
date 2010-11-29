@@ -54,7 +54,7 @@ public class TestRunnerClassGenerator {
 		buffer.append("import java.util.HashMap;\n");
 		buffer.append("import java.util.Map;\n\n");
 		buffer.append("import org.activiti.engine.ProcessEngine;\n");
-		buffer.append("import org.activiti.engine.ProcessEngineConfiguration;;\n");
+		buffer.append("import org.activiti.engine.ProcessEngineConfiguration;\n");
 		buffer.append("import org.activiti.engine.RepositoryService;\n");
 		buffer.append("import org.activiti.engine.RuntimeService;\n");
 		buffer.append("import org.activiti.engine.runtime.ProcessInstance;\n");
