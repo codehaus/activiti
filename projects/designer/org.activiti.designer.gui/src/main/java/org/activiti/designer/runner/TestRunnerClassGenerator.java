@@ -54,7 +54,7 @@ public class TestRunnerClassGenerator {
 		buffer.append("import java.util.HashMap;\n");
 		buffer.append("import java.util.Map;\n\n");
 		buffer.append("import org.activiti.engine.ProcessEngine;\n");
-		buffer.append("import org.activiti.engine.ProcessEngineBuilder;\n");
+		buffer.append("import org.activiti.engine.ProcessEngineConfiguration;;\n");
 		buffer.append("import org.activiti.engine.RepositoryService;\n");
 		buffer.append("import org.activiti.engine.RuntimeService;\n");
 		buffer.append("import org.activiti.engine.runtime.ProcessInstance;\n");
@@ -62,8 +62,8 @@ public class TestRunnerClassGenerator {
 		buffer.append("public class ProcessTest {\n\n");
 		buffer.append("\t@Test\n");
 		buffer.append("\tpublic void testProcess() {\n");
-		buffer.append("\t\tProcessEngine processEngine = new ProcessEngineBuilder()\n"); 
-		buffer.append("\t\t\t\t.configureFromResource(\"activiti.cfg.xml\")\n"); 
+		buffer.append("\t\tProcessEngine processEngine = ProcessEngineConfiguration\n");
+		buffer.append("\t\t\t\t.createStandaloneInMemProcessEngineConfiguration()\n");
 		buffer.append("\t\t\t\t.buildProcessEngine();\n");
 		buffer.append("\t\tRuntimeService runtimeService = processEngine.getRuntimeService();\n");
 		buffer.append("\t\tRepositoryService repositoryService = processEngine.getRepositoryService();\n");
