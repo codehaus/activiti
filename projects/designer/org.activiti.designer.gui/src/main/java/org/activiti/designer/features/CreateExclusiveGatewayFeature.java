@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateExclusiveGatewayFeature extends AbstractCreateBPMNFeature {
 
-	private static final String FEATURE_ID_KEY = "exclusivegateway";
+	public static final String FEATURE_ID_KEY = "exclusivegateway";
 
 	public CreateExclusiveGatewayFeature(IFeatureProvider fp) {
 		// set name and description of the creation feature

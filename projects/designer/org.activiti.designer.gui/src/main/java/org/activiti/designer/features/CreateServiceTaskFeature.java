@@ -16,86 +16,84 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 
-	private static final String FEATURE_ID_KEY = "servicetask";
+  public static final String FEATURE_ID_KEY = "servicetask";
 
-	private String customServiceTaskId;
+  private String customServiceTaskId;
 
-	public CreateServiceTaskFeature(IFeatureProvider fp) {
-		super(fp, "ServiceTask", "Add service task");
-	}
+  public CreateServiceTaskFeature(IFeatureProvider fp) {
+    super(fp, "ServiceTask", "Add service task");
+  }
 
-	public CreateServiceTaskFeature(IFeatureProvider fp, String name, String description, String customServiceTaskId) {
-		super(fp, name, description);
-		this.customServiceTaskId = customServiceTaskId;
-	}
+  public CreateServiceTaskFeature(IFeatureProvider fp, String name, String description, String customServiceTaskId) {
+    super(fp, name, description);
+    this.customServiceTaskId = customServiceTaskId;
+  }
 
-	@Override
-	public boolean canCreate(ICreateContext context) {
-		return context.getTargetContainer() instanceof Diagram;
-	}
+  @Override
+  public boolean canCreate(ICreateContext context) {
+    return context.getTargetContainer() instanceof Diagram;
+  }
 
-	@Override
-	public Object[] create(ICreateContext context) {
-		ServiceTask newServiceTask = Bpmn2Factory.eINSTANCE.createServiceTask();
+  @Override
+  public Object[] create(ICreateContext context) {
+    ServiceTask newServiceTask = Bpmn2Factory.eINSTANCE.createServiceTask();
 
-		newServiceTask.setId(getNextId());
-		newServiceTask.setName("Service Task");
+    newServiceTask.setId(getNextId());
+    newServiceTask.setName("Service Task");
 
-		// Process custom service tasks
-		if (this.customServiceTaskId != null) {
+    // Process custom service tasks
+    if (this.customServiceTaskId != null) {
 
-			// Customize the name displayed by default
-			final List<CustomServiceTask> customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil
-					.getProjectFromDiagram(getDiagram()));
+      // Customize the name displayed by default
+      final List<CustomServiceTask> customServiceTasks = ExtensionUtil.getCustomServiceTasks(ActivitiUiUtil.getProjectFromDiagram(getDiagram()));
 
-			CustomServiceTask targetTask = null;
+      CustomServiceTask targetTask = null;
 
-			for (final CustomServiceTask customServiceTask : customServiceTasks) {
-				if (this.customServiceTaskId.equals(customServiceTask.getId())) {
-					targetTask = customServiceTask;
-					break;
-				}
-			}
+      for (final CustomServiceTask customServiceTask : customServiceTasks) {
+        if (this.customServiceTaskId.equals(customServiceTask.getId())) {
+          targetTask = customServiceTask;
+          break;
+        }
+      }
 
-			if (targetTask != null) {
-				// Create custom property containing task name
-				CustomProperty customServiceTaskProperty = Bpmn2Factory.eINSTANCE.createCustomProperty();
+      if (targetTask != null) {
+        // Create custom property containing task name
+        CustomProperty customServiceTaskProperty = Bpmn2Factory.eINSTANCE.createCustomProperty();
 
-				customServiceTaskProperty.setId(ExtensionUtil.wrapCustomPropertyId(newServiceTask,
-						ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK));
-				customServiceTaskProperty.setName(ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK);
-				customServiceTaskProperty.setSimpleValue(this.customServiceTaskId);
+        customServiceTaskProperty.setId(ExtensionUtil.wrapCustomPropertyId(newServiceTask, ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK));
+        customServiceTaskProperty.setName(ExtensionConstants.PROPERTY_ID_CUSTOM_SERVICE_TASK);
+        customServiceTaskProperty.setSimpleValue(this.customServiceTaskId);
 
-				getDiagram().eResource().getContents().add(customServiceTaskProperty);
+        getDiagram().eResource().getContents().add(customServiceTaskProperty);
 
-				newServiceTask.getCustomProperties().add(customServiceTaskProperty);
-				newServiceTask.setImplementation(targetTask.getRuntimeClassname());
-				newServiceTask.setName(targetTask.getName());
-			}
+        newServiceTask.getCustomProperties().add(customServiceTaskProperty);
+        newServiceTask.setImplementation(targetTask.getRuntimeClassname());
+        newServiceTask.setName(targetTask.getName());
+      }
 
-		}
+    }
 
-		getDiagram().eResource().getContents().add(newServiceTask);
+    getDiagram().eResource().getContents().add(newServiceTask);
 
-		// do the add
-		addGraphicalRepresentation(context, newServiceTask);
-		return new Object[] { newServiceTask };
-	}
+    // do the add
+    addGraphicalRepresentation(context, newServiceTask);
+    return new Object[] { newServiceTask };
+  }
 
-	@Override
-	public String getCreateImageId() {
-		return ActivitiImageProvider.IMG_SERVICETASK;
-	}
+  @Override
+  public String getCreateImageId() {
+    return ActivitiImageProvider.IMG_SERVICETASK;
+  }
 
-	@Override
-	protected String getFeatureIdKey() {
-		return FEATURE_ID_KEY;
-	}
+  @Override
+  protected String getFeatureIdKey() {
+    return FEATURE_ID_KEY;
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	protected Class getFeatureClass() {
-		return Bpmn2Factory.eINSTANCE.createServiceTask().getClass();
-	}
+  @SuppressWarnings("rawtypes")
+  @Override
+  protected Class getFeatureClass() {
+    return Bpmn2Factory.eINSTANCE.createServiceTask().getClass();
+  }
 
 }

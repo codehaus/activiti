@@ -16,7 +16,7 @@ import org.eclipse.graphiti.mm.pictograms.Connection;
 
 public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeature {
 
-	private static final String FEATURE_ID_KEY = "flow";
+	public static final String FEATURE_ID_KEY = "flow";
 
 	public CreateSequenceFlowFeature(IFeatureProvider fp) {
 		// provide name and description for the UI, e.g. the palette

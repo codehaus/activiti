@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateSubProcessFeature extends AbstractCreateBPMNFeature {
 
-	private static final String FEATURE_ID_KEY = "subprocess";
+	public static final String FEATURE_ID_KEY = "subprocess";
 
 	public CreateSubProcessFeature(IFeatureProvider fp) {
 		super(fp, "SubProcess", "Add sub process");

@@ -13,10 +13,11 @@ import org.activiti.designer.integration.servicetask.annotation.Runtime;
  * Abstract base class for implementing CustomServiceTasks. Defaults provided by this base class:
  * 
  * <li>
- * Provides an id which is determined by invoking {@link #getClass() .getCanonicalName}. <li>Don't contribute to a
- * palette drawer (i.e., the "" drawer). Override {@link #contributeToPaletteDrawer()} if you <strong>do</strong> wish
- * to contribute to a drawer. <li>Sets the diagram base shape to {@link DiagramBaseShape#ACTIVITY}. Override
- * {@link #getDiagramBaseShape()} to customize the shape drawn in the diagram. <li>
+ * Provides an id which is determined by invoking {@link #getClass() .getCanonicalName}. <li>Contribute to a default
+ * palette drawer (i.e., the "Extensions" drawer). Override {@link #contributeToPaletteDrawer()} if you
+ * <strong>do</strong> wish to contribute to a drawer with a name of your own. <li>Sets the diagram base shape to
+ * {@link DiagramBaseShape#ACTIVITY}. Override {@link #getDiagramBaseShape()} to customize the shape drawn in the
+ * diagram. <li>
  * Implements the {@link #getRuntimeClassname()} method using reflection
  * 
  * @author Tiese Barrell
@@ -26,6 +27,8 @@ import org.activiti.designer.integration.servicetask.annotation.Runtime;
  */
 public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 
+	private static final String DEFAULT_EXTENSIONS_DRAWER_NAME = "Extensions";
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -33,7 +36,7 @@ public abstract class AbstractCustomServiceTask implements CustomServiceTask {
 	 */
 	@Override
 	public String contributeToPaletteDrawer() {
-		return "";
+		return DEFAULT_EXTENSIONS_DRAWER_NAME;
 	}
 
 	/*

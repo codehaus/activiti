@@ -11,6 +11,7 @@ import org.activiti.designer.features.AddServiceTaskFeature;
 import org.activiti.designer.features.AddStartEventFeature;
 import org.activiti.designer.features.AddSubProcessFeature;
 import org.activiti.designer.features.AddUserTaskFeature;
+import org.activiti.designer.features.CopyFlowElementFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
 import org.activiti.designer.features.CreateMailTaskFeature;
@@ -24,6 +25,7 @@ import org.activiti.designer.features.CreateSubProcessFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
 import org.activiti.designer.features.DeleteFlowElementFeature;
 import org.activiti.designer.features.DirectEditFlowElementFeature;
+import org.activiti.designer.features.PasteFlowElementFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
 import org.activiti.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.EndEvent;
@@ -40,16 +42,20 @@ import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.features.IAddFeature;
+import org.eclipse.graphiti.features.ICopyFeature;
 import org.eclipse.graphiti.features.ICreateConnectionFeature;
 import org.eclipse.graphiti.features.ICreateFeature;
 import org.eclipse.graphiti.features.IDeleteFeature;
 import org.eclipse.graphiti.features.IDirectEditingFeature;
 import org.eclipse.graphiti.features.IFeature;
+import org.eclipse.graphiti.features.IPasteFeature;
 import org.eclipse.graphiti.features.IUpdateFeature;
 import org.eclipse.graphiti.features.context.IAddContext;
+import org.eclipse.graphiti.features.context.ICopyContext;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.IDeleteContext;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
+import org.eclipse.graphiti.features.context.IPasteContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
@@ -94,15 +100,10 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 
 	@Override
 	public ICreateFeature[] getCreateFeatures() {
-		return new ICreateFeature[] { new CreateStartEventFeature(this), 
-				new CreateEndEventFeature(this),
-				new CreateUserTaskFeature(this), 
-				new CreateScriptTaskFeature(this), 
-				new CreateServiceTaskFeature(this),
-				new CreateMailTaskFeature(this), 
-				new CreateManualTaskFeature(this), 
-				new CreateParallelGatewayFeature(this), 
-				new CreateExclusiveGatewayFeature(this),
+		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this),
+				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
+				new CreateMailTaskFeature(this), new CreateManualTaskFeature(this),
+				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this),
 				new CreateSubProcessFeature(this) };
 	}
 
@@ -110,6 +111,16 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 	public IDeleteFeature getDeleteFeature(IDeleteContext context) {
 		IDeleteFeature ret = new DeleteFlowElementFeature(this);
 		return ret;
+	}
+
+	@Override
+	public ICopyFeature getCopyFeature(ICopyContext context) {
+		return new CopyFlowElementFeature(this);
+	}
+
+	@Override
+	public IPasteFeature getPasteFeature(IPasteContext context) {
+		return new PasteFlowElementFeature(this);
 	}
 
 	@Override
@@ -125,8 +136,6 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			if (bo instanceof FlowElement) {
 				return new UpdateFlowElementFeature(this);
 			}
-			// } else if (pictogramElement instanceof Connection) {
-			// return new SequenceFlowSynchronizer(this);
 		}
 		return super.getUpdateFeature(context);
 	}

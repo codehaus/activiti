@@ -11,6 +11,6 @@ package org.activiti.designer.integration.servicetask;
  */
 public enum PropertyType {
 
-	TEXT, MULTILINE_TEXT;
+	TEXT, MULTILINE_TEXT, PERIOD;
 
 }

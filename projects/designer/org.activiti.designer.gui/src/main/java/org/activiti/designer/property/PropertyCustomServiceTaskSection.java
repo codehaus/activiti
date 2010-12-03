@@ -13,11 +13,13 @@ import org.activiti.designer.integration.servicetask.annotation.Help;
 import org.activiti.designer.integration.servicetask.annotation.Property;
 import org.activiti.designer.integration.servicetask.validator.FieldValidator;
 import org.activiti.designer.integration.servicetask.validator.RequiredFieldValidator;
+import org.activiti.designer.property.custom.PeriodPropertyElement;
 import org.activiti.designer.property.extension.ExtensionUtil;
 import org.activiti.designer.property.extension.FieldValidatorListener;
 import org.activiti.designer.property.extension.FieldWrapper;
 import org.activiti.designer.property.extension.FormToolTip;
 import org.activiti.designer.util.ActivitiUiUtil;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.ServiceTask;
@@ -42,6 +44,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
@@ -51,6 +54,8 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
 public class PropertyCustomServiceTaskSection extends GFPropertySection implements ITabbedPropertyConstants {
+
+	private static final String PROPERTY_REQUIRED_DISPLAY = " (*)";
 
 	private List<CustomServiceTask> customServiceTasks;
 
@@ -221,16 +226,91 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 								break;
 
+							case PERIOD:
+
+								final Composite parent = factory.createFlatFormComposite(workParent);
+								data = new FormData();
+								data.top = new FormAttachment(previousAnchor, VSPACE);
+								data.left = new FormAttachment(0, 200);
+								data.right = new FormAttachment(80, 25);
+								parent.setLayoutData(data);
+
+								Control previousGroupAnchor = previousAnchor;
+
+								int i = 0;
+
+								PeriodPropertyElement[] properties = PeriodPropertyElement.values();
+
+								for (final PeriodPropertyElement element : properties) {
+
+									final Spinner spinner = new Spinner(parent, SWT.BORDER);
+
+									spinner.setData("PERIOD_KEY", element.getShortFormat());
+									data = new FormData();
+									data.top = new FormAttachment(previousAnchor, VSPACE);
+									data.left = new FormAttachment(previousGroupAnchor);
+									data.width = 30;
+									spinner.setEnabled(true);
+									spinner.setLayoutData(data);
+
+									if (property.required()) {
+										spinner.addFocusListener(new FieldValidatorListener(spinner,
+												RequiredFieldValidator.class));
+									}
+
+									if (!property.fieldValidator().equals(FieldValidator.class)) {
+										spinner.addFocusListener(new FieldValidatorListener(spinner, property
+												.fieldValidator()));
+									}
+
+									String labelText = element.getShortFormat();
+									if (i != properties.length - 1) {
+										labelText += " ,  ";
+									}
+
+									CLabel labelShort = factory.createCLabel(parent, labelText, SWT.NONE);
+
+									data = new FormData();
+									data.left = new FormAttachment(spinner);
+									data.top = new FormAttachment(spinner, 0, SWT.CENTER);
+									labelShort.setLayoutData(data);
+									labelShort.setToolTipText(element.getLongFormat());
+
+									previousGroupAnchor = labelShort;
+
+									spinner.addFocusListener(listener);
+
+									i++;
+								}
+
+								createdControl = parent;
+
+								break;
+
 							}
 
 							final FieldWrapper wrapper = new FieldWrapper(createdControl, property.type());
 							fieldControls.put(field.getName(), wrapper);
-							createdControl.addFocusListener(listener);
+							// Only add a focus listener if the created control isn't a composite. Composites will have
+							// set listeners for their own child controls
+							if (!(createdControl instanceof Composite)) {
+								createdControl.addFocusListener(listener);
+							}
 
 							previousAnchor = createdControl;
 
-							final CLabel propertyLabel = factory.createCLabel(workParent, property.displayName()
-									.equals("") ? field.getName() + ":" : property.displayName() + ":"); //$NON-NLS-1$
+							String displayName = property.displayName();
+							if (StringUtils.isBlank(property.displayName())) {
+								displayName = field.getName();
+							}
+
+							if (property.required()) {
+								displayName += PROPERTY_REQUIRED_DISPLAY;
+							}
+
+							displayName += ": ";
+
+							final CLabel propertyLabel = factory.createCLabel(workParent, displayName); //$NON-NLS-1$
 							data = new FormData();
 							data.top = new FormAttachment(createdControl, 0, SWT.CENTER);
 							data.left = new FormAttachment(0, 0);
@@ -322,10 +402,41 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 
 				}
 				break;
+
+			case PERIOD:
+
+				if (entry.getValue().getControl() instanceof Composite) {
+
+					Composite periodParent = (Composite) entry.getValue().getControl();
+
+					String value = "";
+					if (ExtensionUtil.hasCustomProperty(serviceTask, entry.getKey())) {
+						CustomProperty property = ExtensionUtil.getCustomProperty(serviceTask, entry.getKey());
+						value = property.getSimpleValue();
+
+						if (StringUtils.isNotEmpty(value)) {
+
+							String[] elementValues = value.split(" ");
+
+							for (final Control childControl : periodParent.getChildren()) {
+								if (childControl instanceof Spinner) {
+									Spinner actualControl = (Spinner) childControl;
+									String periodKey = (String) childControl.getData("PERIOD_KEY");
+									PeriodPropertyElement element = PeriodPropertyElement.byShortFormat(periodKey);
+									if (element != null) {
+										int order = element.getOrder();
+										final String stripped = StringUtils.substringBeforeLast(elementValues[order],
+												element.getShortFormat());
+										actualControl.setSelection(Integer.parseInt(stripped));
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
 			}
-
 		}
-
 	}
 
 	private ServiceTask getServiceTask() {
@@ -408,6 +519,56 @@ public class PropertyCustomServiceTaskSection extends GFPropertySection implemen
 										property.setSimpleValue(value);
 
 									}
+									break;
+
+								case PERIOD:
+
+									if (entry.getValue().getControl() instanceof Composite) {
+
+										Composite periodParent = (Composite) entry.getValue().getControl();
+
+										String[] values = new String[PeriodPropertyElement.values().length];
+
+										for (final Control control : periodParent.getChildren()) {
+											if (control instanceof Spinner) {
+												final String periodKey = (String) control.getData("PERIOD_KEY");
+												final PeriodPropertyElement element = PeriodPropertyElement
+														.byShortFormat(periodKey);
+
+												if (element != null) {
+													final int elementValue = ((Spinner) control).getSelection();
+													final String elementStringValue = elementValue
+															+ element.getShortFormat();
+													values[element.getOrder()] = elementStringValue;
+												}
+											}
+										}
+
+										StringBuilder builder = new StringBuilder();
+										for (final String elementValue : values) {
+											builder.append(elementValue).append(" ");
+										}
+
+										String value = builder.toString();
+
+										CustomProperty property = null;
+
+										if (!ExtensionUtil.hasCustomProperty(task, entry.getKey())) {
+
+											property = Bpmn2Factory.eINSTANCE.createCustomProperty();
+											getDiagram().eResource().getContents().add(property);
+											task.getCustomProperties().add(property);
+
+										} else {
+											property = ExtensionUtil.getCustomProperty(task, entry.getKey());
+										}
+
+										property.setId(ExtensionUtil.wrapCustomPropertyId(task, entry.getKey()));
+										property.setName(entry.getKey());
+										property.setSimpleValue(value);
+
+									}
+
 									break;
 
 								}

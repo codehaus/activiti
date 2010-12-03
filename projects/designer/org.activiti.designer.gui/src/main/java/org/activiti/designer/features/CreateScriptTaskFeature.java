@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateScriptTaskFeature extends AbstractCreateBPMNFeature {
 	
-	private static final String FEATURE_ID_KEY = "scripttask";
+	public static final String FEATURE_ID_KEY = "scripttask";
 
 	public CreateScriptTaskFeature(IFeatureProvider fp) {
 		super(fp, "ScriptTask", "Add script task");

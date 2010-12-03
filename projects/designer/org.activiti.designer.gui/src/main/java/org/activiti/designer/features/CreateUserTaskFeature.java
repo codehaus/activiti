@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateUserTaskFeature extends AbstractCreateBPMNFeature {
 
-	private static final String FEATURE_ID_KEY = "usertask";
+	public static final String FEATURE_ID_KEY = "usertask";
 
 	public CreateUserTaskFeature(IFeatureProvider fp) {
 		super(fp, "UserTask", "Add user task");

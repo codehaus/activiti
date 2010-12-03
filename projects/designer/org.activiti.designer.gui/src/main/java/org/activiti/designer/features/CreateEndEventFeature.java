@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateEndEventFeature extends AbstractCreateBPMNFeature {
 	
-	private static final String FEATURE_ID_KEY = "endevent";
+	public static final String FEATURE_ID_KEY = "endevent";
 
 	public CreateEndEventFeature(IFeatureProvider fp) {
 		// set name and description of the creation feature

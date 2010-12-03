@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateParallelGatewayFeature extends AbstractCreateBPMNFeature {
 	
-	private static final String FEATURE_ID_KEY = "parallelgateway";
+	public static final String FEATURE_ID_KEY = "parallelgateway";
 
 	public CreateParallelGatewayFeature(IFeatureProvider fp) {
 		// set name and description of the creation feature

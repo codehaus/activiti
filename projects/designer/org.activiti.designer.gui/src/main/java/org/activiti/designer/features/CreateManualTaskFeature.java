@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateManualTaskFeature extends AbstractCreateBPMNFeature {
 	
-	private static final String FEATURE_ID_KEY = "manualtask";
+	public static final String FEATURE_ID_KEY = "manualtask";
 
 	public CreateManualTaskFeature(IFeatureProvider fp) {
 		super(fp, "ManualTask", "Add manual task");

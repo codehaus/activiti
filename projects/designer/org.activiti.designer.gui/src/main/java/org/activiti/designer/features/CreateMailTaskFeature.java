@@ -9,7 +9,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateMailTaskFeature extends AbstractCreateBPMNFeature {
 	
-	private static final String FEATURE_ID_KEY = "mailtask";
+	public static final String FEATURE_ID_KEY = "mailtask";
 
 	public CreateMailTaskFeature(IFeatureProvider fp) {
 		super(fp, "MailTask", "Add mail task");
