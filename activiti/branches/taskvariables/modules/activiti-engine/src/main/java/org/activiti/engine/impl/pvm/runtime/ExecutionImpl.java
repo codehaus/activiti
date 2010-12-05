@@ -43,7 +43,8 @@ public class ExecutionImpl implements
         ActivityExecution, 
         ExecutionListenerExecution, 
         PvmProcessInstance,
-        PvmExecution {
+        PvmExecution,
+        InterpretableExecution {
   
   private static final long serialVersionUID = 1L;
   
@@ -187,8 +188,8 @@ public class ExecutionImpl implements
   }
 
   /** all updates need to go through this setter as subclasses can override this method */
-  protected void setParent(ExecutionImpl parent) {
-    this.parent = parent;
+  public void setParent(InterpretableExecution parent) {
+    this.parent = (ExecutionImpl) parent;
   }
 
   /** must be called before memberfield parent is used. 
@@ -225,8 +226,8 @@ public class ExecutionImpl implements
     return subProcessInstance;
   }
   
-  public void setSubProcessInstance(ExecutionImpl subProcessInstance) {
-    this.subProcessInstance = subProcessInstance;
+  public void setSubProcessInstance(InterpretableExecution subProcessInstance) {
+    this.subProcessInstance = (ExecutionImpl) subProcessInstance;
   }
 
   // Meant to be overridden by persistent subclasses
@@ -508,7 +509,7 @@ public class ExecutionImpl implements
     }
   }
   
-  protected void performOperation(AtomicOperation executionOperation) {
+  public void performOperation(AtomicOperation executionOperation) {
     this.nextOperation = executionOperation;
     if (!isOperating) {
       isOperating = true;
@@ -696,10 +697,13 @@ public class ExecutionImpl implements
   public ExecutionImpl getReplacedBy() {
     return replacedBy;
   }
-  public void setReplacedBy(ExecutionImpl replacedBy) {
-    this.replacedBy = replacedBy;
+  public void setReplacedBy(InterpretableExecution replacedBy) {
+    this.replacedBy = (ExecutionImpl) replacedBy;
   }
   public void setExecutions(List<ExecutionImpl> executions) {
     this.executions = executions;
+  }
+  public boolean isDeleteRoot() {
+    return deleteRoot;
   }
 }

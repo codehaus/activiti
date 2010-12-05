@@ -26,7 +26,7 @@ import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.pvm.runtime.ExecutionImpl;
 import org.activiti.engine.impl.runtime.ExecutionEntity;
-import org.activiti.engine.impl.runtime.VariableMap;
+import org.activiti.engine.impl.runtime.VariableScope;
 import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.repository.ProcessDefinition;
 
@@ -79,8 +79,8 @@ public class ProcessDefinitionEntity extends ProcessDefinitionImpl implements Pr
 	      processInstance.setVariable(initiatorVariableName, authenticatedUserId);
 	    }
 	    
-	    VariableMap variableMap = VariableMap.createNewInitialized(processInstance.getId(), processInstance.getId());
-	    processInstance.setVariables(variableMap);
+	    VariableScope variableScope = VariableScope.createNewInitialized(processInstance.getId(), processInstance.getId());
+	    processInstance.setVariables(variableScope);
 
 	    int historyLevel = commandContext.getProcessEngineConfiguration().getHistoryLevel();
 	    if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
