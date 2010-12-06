@@ -13,7 +13,7 @@
 
 package org.activiti.engine.impl.el;
 
-import org.activiti.engine.impl.runtime.VariableScope;
+import org.activiti.engine.delegate.VariableScope;
 
 
 /**

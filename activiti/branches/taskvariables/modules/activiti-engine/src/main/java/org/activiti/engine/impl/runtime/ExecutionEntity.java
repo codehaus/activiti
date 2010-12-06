@@ -34,7 +34,6 @@ import org.activiti.engine.impl.db.PersistentObject;
 import org.activiti.engine.impl.history.HistoricActivityInstanceEntity;
 import org.activiti.engine.impl.history.HistoricProcessInstanceEntity;
 import org.activiti.engine.impl.interceptor.CommandContext;
-import org.activiti.engine.impl.javax.el.ELContext;
 import org.activiti.engine.impl.jobexecutor.TimerDeclarationImpl;
 import org.activiti.engine.impl.pvm.PvmActivity;
 import org.activiti.engine.impl.pvm.PvmException;
@@ -63,7 +62,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 /**
  * @author Tom Baeyens
  */
-public class ExecutionEntity extends VariableScope implements ActivityExecution, ExecutionListenerExecution, Execution, PvmExecution, ProcessInstance, PvmProcessInstance, InterpretableExecution, PersistentObject {
+public class ExecutionEntity extends VariableScopeImpl implements ActivityExecution, ExecutionListenerExecution, Execution, PvmExecution, ProcessInstance, InterpretableExecution, PersistentObject {
 
   private static final long serialVersionUID = 1L;
   
@@ -192,8 +191,6 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
    */
   protected String superExecutionId;
   
-  protected ELContext cachedElContext;
-  
   protected boolean forcedUpdate;
 
   public ExecutionEntity() {
@@ -303,7 +300,7 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
     }
 
     if (variableInstances!=null) {
-      variableInstances.clear();
+      removeVariablesLocal();
     }
 
     List<TimerDeclarationImpl> timerDeclarations = (List<TimerDeclarationImpl>) scope.getProperty(BpmnParse.PROPERTYNAME_TIMER_DECLARATION);
@@ -614,10 +611,10 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
     }
   }
 
-  public void setProcessInstance(ExecutionEntity processInstance) {
-    this.processInstance = processInstance;
+  public void setProcessInstance(InterpretableExecution processInstance) {
+    this.processInstance = (ExecutionEntity) processInstance;
     if (processInstance != null) {
-      this.processInstanceId = ((ExecutionEntity)processInstance).getId();
+      this.processInstanceId = this.processInstance.getId();
     }
   }
   
@@ -666,8 +663,8 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
     }
   }
 
-  public void setParent(ExecutionEntity parent) {
-    this.parent = parent;
+  public void setParent(InterpretableExecution parent) {
+    this.parent = (ExecutionEntity) parent;
 
     if (parent != null) {
       this.parentId = ((ExecutionEntity)parent).getId();
@@ -759,7 +756,7 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
 
     // delete all the variable instances
     ensureVariableInstancesInitialized();
-    variableInstances.clear();
+    removeVariablesLocal();
     
     // TODO add cancellation of timers
 
@@ -839,7 +836,7 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
   }
 
   @Override
-  protected VariableScope getParentVariableScope() {
+  protected VariableScopeImpl getParentVariableScope() {
     return getParent();
   }
 
@@ -905,12 +902,6 @@ public class ExecutionEntity extends VariableScope implements ActivityExecution,
   }
   public void setRevision(int revision) {
     this.revision = revision;
-  }
-  public ELContext getCachedElContext() {
-    return cachedElContext;
-  }
-  public void setCachedElContext(ELContext cachedElContext) {
-    this.cachedElContext = cachedElContext;
   }
   public String getActivityId() {
     return activityId;

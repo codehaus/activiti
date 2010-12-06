@@ -14,6 +14,7 @@
 package org.activiti.engine.impl.pvm.runtime;
 
 import org.activiti.engine.impl.pvm.PvmProcessElement;
+import org.activiti.engine.impl.pvm.PvmProcessInstance;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.pvm.delegate.ExecutionListenerExecution;
@@ -25,7 +26,7 @@ import org.activiti.engine.impl.pvm.process.TransitionImpl;
 /**
  * @author Tom Baeyens
  */
-public interface InterpretableExecution extends ActivityExecution, ExecutionListenerExecution {
+public interface InterpretableExecution extends ActivityExecution, ExecutionListenerExecution, PvmProcessInstance {
 
   void take(PvmTransition transition);
 
@@ -66,4 +67,8 @@ public interface InterpretableExecution extends ActivityExecution, ExecutionList
   void initialize();
 
   void setParent(InterpretableExecution parent);
+
+  void setProcessDefinition(ProcessDefinitionImpl processDefinitionImpl);
+
+  void setProcessInstance(InterpretableExecution processInstance);
 }

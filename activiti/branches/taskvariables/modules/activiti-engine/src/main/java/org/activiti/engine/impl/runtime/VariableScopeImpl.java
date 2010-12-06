@@ -13,6 +13,7 @@
 package org.activiti.engine.impl.runtime;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +21,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.delegate.VariableScope;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.history.HistoricVariableUpdateEntity;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.javax.el.ELContext;
 import org.activiti.engine.impl.variable.VariableType;
 import org.activiti.engine.impl.variable.VariableTypes;
 
@@ -32,16 +35,17 @@ import org.activiti.engine.impl.variable.VariableTypes;
 /**
  * @author Tom Baeyens
  */
-public abstract class VariableScope implements Serializable {
+public abstract class VariableScopeImpl implements Serializable, VariableScope {
   
   private static final long serialVersionUID = 1L;
   
   protected Map<String, VariableInstanceEntity> variableInstances = null;
+  
+  protected ELContext cachedElContext;
 
   protected abstract List<VariableInstanceEntity> loadVariableInstances();
-  protected abstract VariableScope getParentVariableScope();
+  protected abstract VariableScopeImpl getParentVariableScope();
   protected abstract void initializeVariableInstanceBackPointer(VariableInstanceEntity variableInstance);
-
 
   protected void ensureVariableInstancesInitialized() {
     if (variableInstances==null) {
@@ -60,13 +64,22 @@ public abstract class VariableScope implements Serializable {
   public Map<String, Object> getVariables() {
     return collectVariables(new HashMap<String, Object>());
   }
+  
+  public Map<String, Object> getVariablesLocal() {
+    Map<String, Object> variables = new HashMap<String, Object>();
+    ensureVariableInstancesInitialized();
+    for (VariableInstanceEntity variableInstance: variableInstances.values()) {
+      variables.put(variableInstance.getName(), variableInstance.getValue());
+    }
+    return variables;
+  }
 
   protected Map<String, Object> collectVariables(HashMap<String, Object> variables) {
     ensureVariableInstancesInitialized();
     for (VariableInstanceEntity variableInstance: variableInstances.values()) {
       variables.put(variableInstance.getName(), variableInstance.getValue());
     }
-    VariableScope parentScope = getParentVariableScope();
+    VariableScopeImpl parentScope = getParentVariableScope();
     if (parentScope!=null) {
       return parentScope.collectVariables(variables);
     }
@@ -74,6 +87,7 @@ public abstract class VariableScope implements Serializable {
   }
   
   public Object getVariable(String variableName) {
+    ensureVariableInstancesInitialized();
     VariableInstanceEntity variableInstance = variableInstances.get(variableName);
     if (variableInstance!=null) {
       return variableInstance.getValue();
@@ -179,7 +193,7 @@ public abstract class VariableScope implements Serializable {
     }
   }
 
-  public VariableInstanceEntity createVariableLocal(String variableName, Object value) {
+  public void createVariableLocal(String variableName, Object value) {
     ensureVariableInstancesInitialized();
     
     if (variableInstances.containsKey(variableName)) {
@@ -198,7 +212,14 @@ public abstract class VariableScope implements Serializable {
     variableInstances.put(variableName, variableInstance);
     
     setVariableInstanceValue(value, variableInstance);
-    return variableInstance;
+  }
+
+  public void createVariablesLocal(Map<String, ? extends Object> variables) {
+    if (variables!=null) {
+      for (Map.Entry<String, ? extends Object> entry: variables.entrySet()) {
+        createVariableLocal(entry.getKey(), entry.getValue());
+      }
+    }
   }
 
   public void removeVariable(String variableName) {
@@ -213,10 +234,28 @@ public abstract class VariableScope implements Serializable {
       parentVariableScope.removeVariable(variableName);
     }
   }
+  
+  public void removeVariableLocal(String variableName) {
+    ensureVariableInstancesInitialized();
+    VariableInstanceEntity variableInstance = variableInstances.remove(variableName);
+    if (variableInstance != null) {
+      variableInstance.delete();
+    }
+  }
 
-  public void setVariables(Map< ? extends String, ? extends Object> variables) {
-    for (String variableName: variables.keySet()) {
-      setVariable(variableName, variables.get(variableName));
+  public void setVariables(Map<String, ? extends Object> variables) {
+    if (variables!=null) {
+      for (String variableName : variables.keySet()) {
+        setVariable(variableName, variables.get(variableName));
+      }
+    }
+  }
+  
+  public void setVariablesLocal(Map<String, ? extends Object> variables) {
+    if (variables!=null) {
+      for (String variableName : variables.keySet()) {
+        setVariableLocal(variableName, variables.get(variableName));
+      }
     }
   }
 
@@ -226,5 +265,19 @@ public abstract class VariableScope implements Serializable {
     for (String variableName: variableNames) {
       removeVariable(variableName);
     }
+  }
+
+  public void removeVariablesLocal() {
+    List<String> variableNames = new ArrayList<String>(getVariableNamesLocal());
+    for (String variableName: variableNames) {
+      removeVariableLocal(variableName);
+    }
+  }
+
+  public ELContext getCachedElContext() {
+    return cachedElContext;
+  }
+  public void setCachedElContext(ELContext cachedElContext) {
+    this.cachedElContext = cachedElContext;
   }
 }
