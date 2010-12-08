@@ -55,7 +55,7 @@ public class JarClassLoader extends ClassLoader {
 		if (c == null) {
 			// Convert class name argument to filename
 			// Convert package names into subdirectories
-			String className = name.replace('.', File.separatorChar) + ".class";
+			String className = name.replace('.', '/') + ".class";
 
 			try {
 				// Load class data from file and save in byte array
