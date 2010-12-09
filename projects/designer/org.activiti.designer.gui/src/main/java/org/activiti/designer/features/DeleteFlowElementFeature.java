@@ -5,8 +5,12 @@ import java.util.List;
 
 import org.activiti.designer.property.extension.ExtensionUtil;
 import org.eclipse.bpmn2.CustomProperty;
+import org.eclipse.bpmn2.Event;
+import org.eclipse.bpmn2.FlowNode;
+import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.Task;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -20,16 +24,16 @@ public class DeleteFlowElementFeature extends DefaultDeleteFeature {
 	}
 
 	protected void deleteBusinessObject(Object bo) {
-		if (bo instanceof Task) {
+		if (bo instanceof Task || bo instanceof Gateway || bo instanceof Event || bo instanceof SubProcess) {
 			List<EObject> toDeleteSequenceFlows = new ArrayList<EObject>();
-			Task task = (Task) bo;
-			for (SequenceFlow incomingSequenceFlow : task.getIncoming()) {
+			FlowNode flowNode = (FlowNode) bo;
+			for (SequenceFlow incomingSequenceFlow : flowNode.getIncoming()) {
 				EObject toDeleteObject = deleteSequenceFlow(incomingSequenceFlow);
 				if (toDeleteObject != null) {
 					toDeleteSequenceFlows.add(toDeleteObject);
 				}
 			}
-			for (SequenceFlow outgoingSequenceFlow : task.getOutgoing()) {
+			for (SequenceFlow outgoingSequenceFlow : flowNode.getOutgoing()) {
 				EObject toDeleteObject = deleteSequenceFlow(outgoingSequenceFlow);
 				if (toDeleteObject != null) {
 					toDeleteSequenceFlows.add(toDeleteObject);
