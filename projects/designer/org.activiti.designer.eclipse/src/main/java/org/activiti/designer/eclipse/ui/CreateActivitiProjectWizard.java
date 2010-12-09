@@ -122,31 +122,12 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 		buffer.append("    <activiti-version>5.0</activiti-version>\n");
 		buffer.append("  </properties>\n");
 		buffer.append("  <dependencies>\n");
-		buffer.append("    <dependency>\n");
-		buffer.append("      <groupId>org.activiti</groupId>\n");
-		buffer.append("      <artifactId>activiti-engine</artifactId>\n");
-		buffer.append("      <version>${activiti-version}</version>\n");
-		buffer.append("    </dependency>\n");
-		buffer.append("    <dependency>\n");
-		buffer.append("      <groupId>org.activiti</groupId>\n");
-		buffer.append("      <artifactId>activiti-spring</artifactId>\n");
-		buffer.append("      <version>${activiti-version}</version>\n");
-		buffer.append("    </dependency>\n");
-		buffer.append("    <dependency>\n");
-		buffer.append("      <groupId>hsqldb</groupId>\n");
-		buffer.append("      <artifactId>hsqldb</artifactId>\n");
-		buffer.append("      <version>1.8.0.7</version>\n");
-		buffer.append("	   </dependency>\n");
-		buffer.append("    <dependency>\n");
-		buffer.append("	     <groupId>com.h2database</groupId>\n");
-		buffer.append("	     <artifactId>h2</artifactId>\n");
-		buffer.append("	     <version>1.2.132</version>\n");
-		buffer.append("    </dependency>\n");
-		buffer.append("	   <dependency>\n");
-		buffer.append("      <groupId>junit</groupId>\n");
-		buffer.append("      <artifactId>junit</artifactId>\n");
-		buffer.append("      <version>4.8.1</version>\n");
-		buffer.append("	   </dependency>\n");
+		addDependency(buffer, "org.activiti", "activiti-engine", "${activiti-version}");
+		addDependency(buffer, "org.activiti", "activiti-spring", "${activiti-version}");
+		addDependency(buffer, "org.codehaus.groovy", "groovy", "1.7.5");
+		addDependency(buffer, "hsqldb", "hsqldb", "1.8.0.7");
+		addDependency(buffer, "com.h2database", "h2", "1.2.132");
+		addDependency(buffer, "junit", "junit", "4.8.1");
 		buffer.append("  </dependencies>\n");
 		buffer.append("	 <repositories>\n");
 		buffer.append("    <repository>\n");
@@ -181,6 +162,20 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 		buffer.append("	 </build>\n");
 		buffer.append("</project>\n");
 		return buffer.toString();
+	}
+	
+	private void addDependency(StringBuffer buffer, String groupId, String artifactId, String version) {
+		buffer.append("    <dependency>\n")
+			.append("      <groupId>")
+			.append(groupId)
+			.append("</groupId>\n")
+			.append("      <artifactId>")
+			.append(artifactId)
+			.append("</artifactId>\n")
+			.append("      <version>)")
+			.append(version)
+			.append("</version>\n")
+			.append("    </dependency>\n");
 	}
 
 }

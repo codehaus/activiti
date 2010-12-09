@@ -106,34 +106,7 @@
       </imageProvider>
    </extension>
    <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="org.activiti.designer.eclipse.extension.export.SaveHandler"
-            commandId="org.eclipse.ui.file.save">
-            <activeWhen>
-	          <with
-	                variable="activePartId">
-	             <equals
-	                   value="org.activiti.designer.editor.diagram">
-	             </equals>
-	          </with>
-	       </activeWhen>
-      </handler>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors">
-      <editor
-            class="org.eclipse.graphiti.ui.editor.DiagramEditor"
-            default="true"
-            extensions="activiti"
-            icon="community_icon.png"
-            id="org.activiti.designer.editor.diagram"
-            matchingStrategy="org.eclipse.graphiti.ui.editor.DiagramEditorFactory$DiagramEditorMatchingStrategy"
-            name="Activiti Diagram Editor">
-         <contentTypeBinding
-               contentTypeId="org.activiti.designer.editor.diagram.contenttype">
-         </contentTypeBinding>
-      </editor>
       <editor
             class="org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart"
             default="false"
@@ -154,6 +127,17 @@
             matchingStrategy="org.activiti.designer.eclipse.editor.ActivitiEditorMatchingStrategy"
             name="Deployment">
       </editor>
+   <editor
+         class="org.activiti.designer.eclipse.ui.ActivitiDiagramEditor"
+         default="true"
+         extensions="activiti"
+         icon="community_icon.png"
+         id="org.activiti.designer.bpmneditor"
+         name="Activiti editor">
+      <contentTypeBinding
+            contentTypeId="org.activiti.designer.editor.diagram.contenttype">
+      </contentTypeBinding>
+   </editor>
    </extension>
  <extension
        point="org.eclipse.wst.xml.core.catalogContributions">
@@ -192,7 +176,6 @@
           priority="normal">
     </content-type>
  </extension>
-   <extension id="activitiMarker" point="org.eclipse.core.resources.markers"/>
 	<extension id="activitiProblem" point="org.eclipse.core.resources.markers">
 	   <super type="org.eclipse.core.resources.problemmarker"/>
 	   <super type="org.activiti.designer.eclipse.activitiMarker"/>

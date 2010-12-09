@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.export.AbstractExportMarshaller;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
-import org.activiti.designer.eclipse.extension.export.SaveHandler;
+import org.activiti.designer.eclipse.ui.ActivitiDiagramEditor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.SWTGraphics;
@@ -88,7 +88,7 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
 		try {
 
 			// Retrieve GraphicalViewer from the save handler
-			final GraphicalViewer graphicalViewer = SaveHandler.getActiveGraphicalViewer();
+			final GraphicalViewer graphicalViewer = ActivitiDiagramEditor.getActiveGraphicalViewer();
 
 			final ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer
 					.getEditPartRegistry().get(LayerManager.ID);
@@ -142,7 +142,7 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
 			saveResource(getRelativeURIForDiagram(diagram, getFilenamePattern()), bais, this.monitor);
 
 		} catch (Exception e) {
-			addProblemToDiagram(diagram, "An exception occurred while creating the image: " + e.getMessage(), null);
+			addProblemToDiagram(diagram, "An exception occurred while creating the image: " + e.getCause(), null);
 		}
 	}
 }
