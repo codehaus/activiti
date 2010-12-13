@@ -39,100 +39,107 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
 public class PropertyBpmnSection extends GFPropertySection implements ITabbedPropertyConstants {
 
-	private Text idText;
-	private Text nameText;
+  private Text idText;
+  private Text nameText;
 
-	@Override
-	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
-		super.createControls(parent, tabbedPropertySheetPage);
+  @Override
+  public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
+    super.createControls(parent, tabbedPropertySheetPage);
 
-		TabbedPropertySheetWidgetFactory factory = getWidgetFactory();
-		Composite composite = factory.createFlatFormComposite(parent);
-		FormData data;
+    TabbedPropertySheetWidgetFactory factory = getWidgetFactory();
+    Composite composite = factory.createFlatFormComposite(parent);
+    FormData data;
 
-		idText = factory.createText(composite, "", SWT.READ_ONLY); //$NON-NLS-1$
-		idText.setEnabled(false);
-		data = new FormData();
-		data.left = new FormAttachment(0, 120);
-		data.right = new FormAttachment(100, 0);
-		data.top = new FormAttachment(0, VSPACE);
-		idText.setLayoutData(data);
+    idText = factory.createText(composite, "", SWT.READ_ONLY); //$NON-NLS-1$
+    idText.setEnabled(false);
+    data = new FormData();
+    data.left = new FormAttachment(0, 120);
+    data.right = new FormAttachment(100, HSPACE);
+    data.top = new FormAttachment(0, VSPACE);
+    idText.setLayoutData(data);
 
-		CLabel idLabel = factory.createCLabel(composite, "Id:"); //$NON-NLS-1$
-		data = new FormData();
-		data.left = new FormAttachment(0, 0);
-		data.right = new FormAttachment(idText, -HSPACE);
-		data.top = new FormAttachment(idText, 0, SWT.CENTER);
-		idLabel.setLayoutData(data);
+    CLabel idLabel = factory.createCLabel(composite, "Id:", SWT.WRAP); //$NON-NLS-1$
+    data = new FormData();
+    data.left = new FormAttachment(0, 0);
+    data.right = new FormAttachment(idText, -HSPACE);
+    data.top = new FormAttachment(idText, 0, SWT.CENTER);
+    idLabel.setLayoutData(data);
 
-		nameText = factory.createText(composite, ""); //$NON-NLS-1$
-		data = new FormData();
-		data.left = new FormAttachment(0, 120);
-		data.right = new FormAttachment(100, 0);
-		data.top = new FormAttachment(idText, VSPACE);
-		nameText.setLayoutData(data);
-		nameText.addFocusListener(listener);
+    nameText = factory.createText(composite, ""); //$NON-NLS-1$
+    data = new FormData();
+    data.left = new FormAttachment(0, 120);
+    data.right = new FormAttachment(100, HSPACE);
+    data.top = new FormAttachment(idText, VSPACE);
+    nameText.setLayoutData(data);
+    nameText.addFocusListener(listener);
 
-		CLabel valueLabel = factory.createCLabel(composite, "Name:"); //$NON-NLS-1$
-		data = new FormData();
-		data.left = new FormAttachment(0, 0);
-		data.right = new FormAttachment(nameText, -HSPACE);
-		data.top = new FormAttachment(nameText, 0, SWT.CENTER);
-		valueLabel.setLayoutData(data);
-	}
+    CLabel valueLabel = factory.createCLabel(composite, "Name:", SWT.WRAP); //$NON-NLS-1$
+    data = new FormData();
+    data.left = new FormAttachment(0, 0);
+    data.right = new FormAttachment(nameText, -HSPACE);
+    data.top = new FormAttachment(nameText, 0, SWT.CENTER);
+    valueLabel.setLayoutData(data);
+  }
 
-	@Override
-	public void refresh() {
-		nameText.removeFocusListener(listener);
+  @Override
+  public void refresh() {
+    nameText.removeFocusListener(listener);
 
-		PictogramElement pe = getSelectedPictogramElement();
+    PictogramElement pe = getSelectedPictogramElement();
 
-		if (pe != null) {
-			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-			// the filter assured, that it is a EClass
-			if (bo == null)
-				return;
-			String name = ((FlowElement) bo).getName();
-			idText.setText(((FlowElement) bo).getId());
-			nameText.setText(name == null ? "" : name); //$NON-NLS-1$
-			nameText.addFocusListener(listener);
-		}
-	}
+    if (pe != null) {
+      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      // the filter assured, that it is a EClass
+      if (bo == null)
+        return;
+      String name = ((FlowElement) bo).getName();
+      idText.setText(((FlowElement) bo).getId());
+      nameText.setText(name == null ? "" : name); //$NON-NLS-1$
+      nameText.addFocusListener(listener);
+    }
+  }
 
-	private FocusListener listener = new FocusListener() {
+  private FocusListener listener = new FocusListener() {
 
-		public void focusGained(final FocusEvent e) {
-		}
+    public void focusGained(final FocusEvent e) {
+    }
 
-		public void focusLost(final FocusEvent e) {
-			PictogramElement pe = getSelectedPictogramElement();
-			if (pe == null) return;
-			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-			
-			if (!(bo instanceof FlowElement)) return;
-				
-			DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
-			ActivitiUiUtil.runModelChange(new Runnable() {
-				public void run() {
-					Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-					if (bo == null) return;
-					
-					String name = nameText.getText();
-					if (name == null) return;
-					if (!(bo instanceof FlowElement)) return;
-					((FlowElement) bo).setName(name);
-					if(!(getSelectedPictogramElement() instanceof FreeFormConnection)) return;
-					EList<ConnectionDecorator> decoratorList = ((FreeFormConnection) getSelectedPictogramElement()).getConnectionDecorators();
-					for(ConnectionDecorator decorator : decoratorList) {
-						if(decorator.getGraphicsAlgorithm() instanceof org.eclipse.graphiti.mm.algorithms.Text) {
-							org.eclipse.graphiti.mm.algorithms.Text text = (org.eclipse.graphiti.mm.algorithms.Text) decorator.getGraphicsAlgorithm();
-							text.setValue(name);
-						}
-					}
-				}
-			}, editingDomain, "Model Update");
-		}
-	};
+    public void focusLost(final FocusEvent e) {
+      PictogramElement pe = getSelectedPictogramElement();
+      if (pe == null)
+        return;
+      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+
+      if (!(bo instanceof FlowElement))
+        return;
+
+      DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
+      TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
+      ActivitiUiUtil.runModelChange(new Runnable() {
+
+        public void run() {
+          Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
+          if (bo == null)
+            return;
+
+          String name = nameText.getText();
+          if (name == null)
+            return;
+          if (!(bo instanceof FlowElement))
+            return;
+          ((FlowElement) bo).setName(name);
+          if (!(getSelectedPictogramElement() instanceof FreeFormConnection))
+            return;
+          EList<ConnectionDecorator> decoratorList = ((FreeFormConnection) getSelectedPictogramElement()).getConnectionDecorators();
+          for (ConnectionDecorator decorator : decoratorList) {
+            if (decorator.getGraphicsAlgorithm() instanceof org.eclipse.graphiti.mm.algorithms.Text) {
+              org.eclipse.graphiti.mm.algorithms.Text text = (org.eclipse.graphiti.mm.algorithms.Text) decorator.getGraphicsAlgorithm();
+              text.setValue(name);
+            }
+          }
+        }
+      }, editingDomain, "Model Update");
+    }
+  };
 
 }

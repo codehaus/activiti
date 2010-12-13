@@ -21,12 +21,12 @@ import org.activiti.designer.integration.servicetask.validator.FieldValidator;
 @Target(ElementType.FIELD)
 public @interface Property {
 
-	abstract PropertyType type();
+  abstract PropertyType type();
 
-	String displayName() default "";
+  String displayName() default "";
 
-	Class<? extends FieldValidator> fieldValidator() default FieldValidator.class;
+  Class< ? extends FieldValidator> fieldValidator() default FieldValidator.class;
 
-	boolean required() default false;
+  boolean required() default false;
 
 }
