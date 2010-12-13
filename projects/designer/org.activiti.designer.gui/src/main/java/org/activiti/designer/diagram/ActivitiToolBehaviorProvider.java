@@ -1,6 +1,7 @@
 package org.activiti.designer.diagram;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -71,288 +72,294 @@ import org.eclipse.ui.PlatformUI;
 
 public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
-	private static final Map<Class<? extends ICreateFeature>, PaletteEntry> toolMapping = new HashMap<Class<? extends ICreateFeature>, PaletteEntry>();
+  private static final Map<Class< ? extends ICreateFeature>, PaletteEntry> toolMapping = new HashMap<Class< ? extends ICreateFeature>, PaletteEntry>();
 
-	public ActivitiToolBehaviorProvider(IDiagramTypeProvider dtp) {
-		super(dtp);
+  public ActivitiToolBehaviorProvider(IDiagramTypeProvider dtp) {
+    super(dtp);
 
-		// Setup tool mappings to palette entries
-		toolMapping.put(CreateStartEventFeature.class, PaletteEntry.START_EVENT);
-		toolMapping.put(CreateEndEventFeature.class, PaletteEntry.END_EVENT);
-		toolMapping.put(CreateExclusiveGatewayFeature.class, PaletteEntry.EXCLUSIVE_GATEWAY);
-		toolMapping.put(CreateMailTaskFeature.class, PaletteEntry.MAIL_TASK);
-		toolMapping.put(CreateManualTaskFeature.class, PaletteEntry.MANUAL_TASK);
-		toolMapping.put(CreateParallelGatewayFeature.class, PaletteEntry.PARALLEL_GATEWAY);
-		toolMapping.put(CreateScriptTaskFeature.class, PaletteEntry.SCRIPT_TASK);
-		toolMapping.put(CreateServiceTaskFeature.class, PaletteEntry.SERVICE_TASK);
-		toolMapping.put(CreateSubProcessFeature.class, PaletteEntry.SUBPROCESS);
-		toolMapping.put(CreateUserTaskFeature.class, PaletteEntry.USER_TASK);
-	}
+    // Setup tool mappings to palette entries
+    toolMapping.put(CreateStartEventFeature.class, PaletteEntry.START_EVENT);
+    toolMapping.put(CreateEndEventFeature.class, PaletteEntry.END_EVENT);
+    toolMapping.put(CreateExclusiveGatewayFeature.class, PaletteEntry.EXCLUSIVE_GATEWAY);
+    toolMapping.put(CreateMailTaskFeature.class, PaletteEntry.MAIL_TASK);
+    toolMapping.put(CreateManualTaskFeature.class, PaletteEntry.MANUAL_TASK);
+    toolMapping.put(CreateParallelGatewayFeature.class, PaletteEntry.PARALLEL_GATEWAY);
+    toolMapping.put(CreateScriptTaskFeature.class, PaletteEntry.SCRIPT_TASK);
+    toolMapping.put(CreateServiceTaskFeature.class, PaletteEntry.SERVICE_TASK);
+    toolMapping.put(CreateSubProcessFeature.class, PaletteEntry.SUBPROCESS);
+    toolMapping.put(CreateUserTaskFeature.class, PaletteEntry.USER_TASK);
+  }
 
-	@Override
-	public ICustomFeature getDoubleClickFeature(IDoubleClickContext context) {
-		ICustomFeature customFeature = new ExpandCollapseSubProcessFeature(getFeatureProvider());
-		if (customFeature.canExecute(context)) {
-			return customFeature;
-		}
-		return super.getDoubleClickFeature(context);
-	}
+  @Override
+  public ICustomFeature getDoubleClickFeature(IDoubleClickContext context) {
+    ICustomFeature customFeature = new ExpandCollapseSubProcessFeature(getFeatureProvider());
+    if (customFeature.canExecute(context)) {
+      return customFeature;
+    }
+    return super.getDoubleClickFeature(context);
+  }
 
-	@Override
-	public IContextButtonPadData getContextButtonPad(IPictogramElementContext context) {
-		IContextButtonPadData data = super.getContextButtonPad(context);
-		PictogramElement pe = context.getPictogramElement();
+  @Override
+  public IContextButtonPadData getContextButtonPad(IPictogramElementContext context) {
+    IContextButtonPadData data = super.getContextButtonPad(context);
+    PictogramElement pe = context.getPictogramElement();
 
-		setGenericContextButtons(data, pe, CONTEXT_BUTTON_DELETE | CONTEXT_BUTTON_UPDATE);
+    setGenericContextButtons(data, pe, CONTEXT_BUTTON_DELETE | CONTEXT_BUTTON_UPDATE);
 
-		CreateConnectionContext ccc = new CreateConnectionContext();
-		ccc.setSourcePictogramElement(pe);
-		Anchor anchor = null;
-		if (pe instanceof Anchor) {
-			anchor = (Anchor) pe;
-		} else if (pe instanceof AnchorContainer) {
-			anchor = Graphiti.getPeService().getChopboxAnchor((AnchorContainer) pe);
-		}
-		ccc.setSourceAnchor(anchor);
+    CreateConnectionContext ccc = new CreateConnectionContext();
+    ccc.setSourcePictogramElement(pe);
+    Anchor anchor = null;
+    if (pe instanceof Anchor) {
+      anchor = (Anchor) pe;
+    } else if (pe instanceof AnchorContainer) {
+      anchor = Graphiti.getPeService().getChopboxAnchor((AnchorContainer) pe);
+    }
+    ccc.setSourceAnchor(anchor);
 
-		ContextButtonEntry button = new ContextButtonEntry(null, context);
-		button.setText("Create connection"); //$NON-NLS-1$
-		button.setIconId(ActivitiImageProvider.IMG_EREFERENCE);
-		ICreateConnectionFeature[] features = getFeatureProvider().getCreateConnectionFeatures();
-		for (ICreateConnectionFeature feature : features) {
-			if (feature.isAvailable(ccc) && feature.canStartConnection(ccc))
-				button.addDragAndDropFeature(feature);
-		}
+    ContextButtonEntry button = new ContextButtonEntry(null, context);
+    button.setText("Create connection"); //$NON-NLS-1$
+    button.setIconId(ActivitiImageProvider.IMG_EREFERENCE);
+    ICreateConnectionFeature[] features = getFeatureProvider().getCreateConnectionFeatures();
+    for (ICreateConnectionFeature feature : features) {
+      if (feature.isAvailable(ccc) && feature.canStartConnection(ccc))
+        button.addDragAndDropFeature(feature);
+    }
 
-		Object bo = getFeatureProvider().getBusinessObjectForPictogramElement(pe);
-		if (bo instanceof SubProcess) {
+    Object bo = getFeatureProvider().getBusinessObjectForPictogramElement(pe);
+    if (bo instanceof SubProcess) {
 
-			CustomContext newContext = new CustomContext(new PictogramElement[] { pe });
-			newContext.setInnerGraphicsAlgorithm(pe.getGraphicsAlgorithm());
-			newContext.setInnerPictogramElement(pe);
+      CustomContext newContext = new CustomContext(new PictogramElement[] { pe });
+      newContext.setInnerGraphicsAlgorithm(pe.getGraphicsAlgorithm());
+      newContext.setInnerPictogramElement(pe);
 
-			ExpandCollapseSubProcessFeature feature = new ExpandCollapseSubProcessFeature(getFeatureProvider());
+      ExpandCollapseSubProcessFeature feature = new ExpandCollapseSubProcessFeature(getFeatureProvider());
 
-			ContextButtonEntry drillDownButton = new ContextButtonEntry(feature, newContext);
-			drillDownButton.setText("Expand subprocess"); //$NON-NLS-1$
-			drillDownButton.setDescription("Drill down into this subprocess and edit its diagram"); //$NON-NLS-1$
-			drillDownButton.setIconId(ActivitiImageProvider.IMG_ACTION_ZOOM);
+      ContextButtonEntry drillDownButton = new ContextButtonEntry(feature, newContext);
+      drillDownButton.setText("Expand subprocess"); //$NON-NLS-1$
+      drillDownButton.setDescription("Drill down into this subprocess and edit its diagram"); //$NON-NLS-1$
+      drillDownButton.setIconId(ActivitiImageProvider.IMG_ACTION_ZOOM);
 
-			data.getDomainSpecificContextButtons().add(drillDownButton);
-		}
+      data.getDomainSpecificContextButtons().add(drillDownButton);
+    }
 
-		if (button.getDragAndDropFeatures().size() > 0) {
-			data.getDomainSpecificContextButtons().add(button);
-		}
+    if (button.getDragAndDropFeatures().size() > 0) {
+      data.getDomainSpecificContextButtons().add(button);
+    }
 
-		return data;
-	}
+    return data;
+  }
 
-	@Override
-	public IContextMenuEntry[] getContextMenu(ICustomContext context) {
+  @Override
+  public IContextMenuEntry[] getContextMenu(ICustomContext context) {
 
-		ContextMenuEntry subMenuExport = new ContextMenuEntry(new SaveBpmnModelFeature(getFeatureProvider()), context);
-		subMenuExport.setText("Export to BPMN 2.0 XML"); //$NON-NLS-1$
-		subMenuExport.setSubmenu(false);
+    ContextMenuEntry subMenuExport = new ContextMenuEntry(new SaveBpmnModelFeature(getFeatureProvider()), context);
+    subMenuExport.setText("Export to BPMN 2.0 XML"); //$NON-NLS-1$
+    subMenuExport.setSubmenu(false);
 
-		ContextMenuEntry subMenuExpandOrCollapse = new ContextMenuEntry(new ExpandCollapseSubProcessFeature(
-				getFeatureProvider()), context);
-		subMenuExpandOrCollapse.setText("Expand/Collapse Subprocess"); //$NON-NLS-1$
-		subMenuExpandOrCollapse.setSubmenu(false);
+    ContextMenuEntry subMenuExpandOrCollapse = new ContextMenuEntry(new ExpandCollapseSubProcessFeature(getFeatureProvider()), context);
+    subMenuExpandOrCollapse.setText("Expand/Collapse Subprocess"); //$NON-NLS-1$
+    subMenuExpandOrCollapse.setSubmenu(false);
 
-		IContextMenuEntry ret[] = new IContextMenuEntry[] { subMenuExport };
-		return ret;
-	}
+    IContextMenuEntry ret[] = new IContextMenuEntry[] { subMenuExport };
+    return ret;
+  }
 
-	@Override
-	public IPaletteCompartmentEntry[] getPalette() {
+  @Override
+  public IPaletteCompartmentEntry[] getPalette() {
 
-		final IProject project = ActivitiUiUtil.getProjectFromDiagram(getDiagramTypeProvider().getDiagram());
+    final IProject project = ActivitiUiUtil.getProjectFromDiagram(getDiagramTypeProvider().getDiagram());
 
-		final List<IPaletteCompartmentEntry> ret = new ArrayList<IPaletteCompartmentEntry>();
+    final List<IPaletteCompartmentEntry> ret = new ArrayList<IPaletteCompartmentEntry>();
 
-		// add compartments from super class if not disabled
-		IPaletteCompartmentEntry[] superCompartments = super.getPalette();
+    // add compartments from super class if not disabled
+    IPaletteCompartmentEntry[] superCompartments = super.getPalette();
 
-		// create new compartments
-		IPaletteCompartmentEntry connectionCompartmentEntry = new PaletteCompartmentEntry("Connection", null);
-		IPaletteCompartmentEntry eventCompartmentEntry = new PaletteCompartmentEntry("Event", null);
-		IPaletteCompartmentEntry taskCompartmentEntry = new PaletteCompartmentEntry("Task", null);
-		IPaletteCompartmentEntry gatewayCompartmentEntry = new PaletteCompartmentEntry("Gateway", null);
+    // create new compartments
+    IPaletteCompartmentEntry connectionCompartmentEntry = new PaletteCompartmentEntry("Connection", null);
+    IPaletteCompartmentEntry eventCompartmentEntry = new PaletteCompartmentEntry("Event", null);
+    IPaletteCompartmentEntry taskCompartmentEntry = new PaletteCompartmentEntry("Task", null);
+    IPaletteCompartmentEntry gatewayCompartmentEntry = new PaletteCompartmentEntry("Gateway", null);
 
-		for (int i = 0; i < superCompartments.length; i++) {
+    for (int i = 0; i < superCompartments.length; i++) {
 
-			final IPaletteCompartmentEntry entry = superCompartments[i];
+      final IPaletteCompartmentEntry entry = superCompartments[i];
 
-			// Prune any disabled palette entries in the Objects compartment
-			if ("Objects".equals(entry.getLabel())) {
-				pruneDisabledPaletteEntries(project, entry);
-			}
-		}
+      // Prune any disabled palette entries in the Objects compartment
+      if ("Objects".equals(entry.getLabel())) {
+        pruneDisabledPaletteEntries(project, entry);
+      }
+    }
 
-		for (IPaletteCompartmentEntry iPaletteCompartmentEntry : superCompartments) {
-			for (IToolEntry toolEntry : iPaletteCompartmentEntry.getToolEntries()) {
-				if ("sequenceflow".equalsIgnoreCase(toolEntry.getLabel())) {
-					connectionCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("startevent".equalsIgnoreCase(toolEntry.getLabel())) {
-					eventCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("endevent".equalsIgnoreCase(toolEntry.getLabel())) {
-					eventCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("usertask".equalsIgnoreCase(toolEntry.getLabel())) {
-					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("scripttask".equalsIgnoreCase(toolEntry.getLabel())) {
-					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("servicetask".equalsIgnoreCase(toolEntry.getLabel())) {
-					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("mailtask".equalsIgnoreCase(toolEntry.getLabel())) {
-					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("manualtask".equalsIgnoreCase(toolEntry.getLabel())) {
-					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
-					gatewayCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
-					gatewayCompartmentEntry.getToolEntries().add(toolEntry);
-				} else if ("subprocess".equalsIgnoreCase(toolEntry.getLabel())) {
-					taskCompartmentEntry.getToolEntries().add(toolEntry);
-				}
-			}
-		}
-		// Always add the connection compartment
-		ret.add(connectionCompartmentEntry);
+    for (IPaletteCompartmentEntry iPaletteCompartmentEntry : superCompartments) {
+      for (IToolEntry toolEntry : iPaletteCompartmentEntry.getToolEntries()) {
+        if ("sequenceflow".equalsIgnoreCase(toolEntry.getLabel())) {
+          connectionCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("startevent".equalsIgnoreCase(toolEntry.getLabel())) {
+          eventCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("endevent".equalsIgnoreCase(toolEntry.getLabel())) {
+          eventCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("usertask".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("scripttask".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("servicetask".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("mailtask".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("manualtask".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
+          gatewayCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
+          gatewayCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("subprocess".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        }
+      }
+    }
+    // Always add the connection compartment
+    ret.add(connectionCompartmentEntry);
 
-		if (eventCompartmentEntry.getToolEntries().size() > 0) {
-			ret.add(eventCompartmentEntry);
-		}
-		if (taskCompartmentEntry.getToolEntries().size() > 0) {
-			ret.add(taskCompartmentEntry);
-		}
-		if (gatewayCompartmentEntry.getToolEntries().size() > 0) {
-			ret.add(gatewayCompartmentEntry);
-		}
+    if (eventCompartmentEntry.getToolEntries().size() > 0) {
+      ret.add(eventCompartmentEntry);
+    }
+    if (taskCompartmentEntry.getToolEntries().size() > 0) {
+      ret.add(taskCompartmentEntry);
+    }
+    if (gatewayCompartmentEntry.getToolEntries().size() > 0) {
+      ret.add(gatewayCompartmentEntry);
+    }
 
-		final Map<String, List<CustomServiceTaskContext>> tasksInDrawers = new HashMap<String, List<CustomServiceTaskContext>>();
+    final Map<String, List<CustomServiceTaskContext>> tasksInDrawers = new HashMap<String, List<CustomServiceTaskContext>>();
 
-		final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil
-				.getCustomServiceTaskContexts(project);
+    final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil.getCustomServiceTaskContexts(project);
 
-		final ImageRegistry reg = GraphitiUIPlugin.getDefault().getImageRegistry();
-		for (final CustomServiceTaskContext taskContext : customServiceTaskContexts) {
-			if (reg.get(taskContext.getImageKey()) == null) {
-				reg.put(taskContext.getImageKey(), new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getShell().getDisplay(), taskContext.getSmallIconStream()));
-			}
-		}
+    final ImageRegistry reg = GraphitiUIPlugin.getDefault().getImageRegistry();
+    for (final CustomServiceTaskContext taskContext : customServiceTaskContexts) {
+      if (reg.get(taskContext.getSmallImageKey()) == null) {
+        reg.put(taskContext.getSmallImageKey(),
+                new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), taskContext.getSmallIconStream()));
+      }
+      if (reg.get(taskContext.getLargeImageKey()) == null) {
+        reg.put(taskContext.getLargeImageKey(),
+                new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), taskContext.getLargeIconStream()));
+      }
+      if (reg.get(taskContext.getShapeImageKey()) == null) {
+        reg.put(taskContext.getShapeImageKey(),
+                new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), taskContext.getShapeIconStream()));
+      }
+    }
 
-		for (final CustomServiceTaskContext taskContext : customServiceTaskContexts) {
-			if (!tasksInDrawers.containsKey(taskContext.getServiceTask().contributeToPaletteDrawer())) {
-				tasksInDrawers.put(taskContext.getServiceTask().contributeToPaletteDrawer(),
-						new ArrayList<CustomServiceTaskContext>());
-			}
-			tasksInDrawers.get(taskContext.getServiceTask().contributeToPaletteDrawer()).add(taskContext);
-		}
+    for (final CustomServiceTaskContext taskContext : customServiceTaskContexts) {
+      if (!tasksInDrawers.containsKey(taskContext.getServiceTask().contributeToPaletteDrawer())) {
+        tasksInDrawers.put(taskContext.getServiceTask().contributeToPaletteDrawer(), new ArrayList<CustomServiceTaskContext>());
+      }
+      tasksInDrawers.get(taskContext.getServiceTask().contributeToPaletteDrawer()).add(taskContext);
+    }
 
-		for (final Entry<String, List<CustomServiceTaskContext>> drawer : tasksInDrawers.entrySet()) {
+    for (final Entry<String, List<CustomServiceTaskContext>> drawer : tasksInDrawers.entrySet()) {
 
-			final IPaletteCompartmentEntry paletteCompartmentEntry = new PaletteCompartmentEntry(drawer.getKey(), null);
+      // Sort the list
+      Collections.sort(drawer.getValue());
 
-			for (final CustomServiceTaskContext currentDrawerItem : drawer.getValue()) {
-				final CreateCustomServiceTaskFeature feature = new CreateCustomServiceTaskFeature(getFeatureProvider(),
-						currentDrawerItem.getServiceTask().getName(), currentDrawerItem.getServiceTask().getName(),
-						currentDrawerItem.getServiceTask().getClass().getCanonicalName());
-				final IToolEntry entry = new ObjectCreationToolEntry(currentDrawerItem.getServiceTask().getName(),
-						currentDrawerItem.getServiceTask().getName(), currentDrawerItem.getImageKey(), null, feature);
-				paletteCompartmentEntry.getToolEntries().add(entry);
-			}
-			ret.add(paletteCompartmentEntry);
-		}
+      final IPaletteCompartmentEntry paletteCompartmentEntry = new PaletteCompartmentEntry(drawer.getKey(), null);
 
-		return ret.toArray(new IPaletteCompartmentEntry[ret.size()]);
-	}
+      for (final CustomServiceTaskContext currentDrawerItem : drawer.getValue()) {
+        final CreateCustomServiceTaskFeature feature = new CreateCustomServiceTaskFeature(getFeatureProvider(), currentDrawerItem.getServiceTask().getName(),
+                currentDrawerItem.getServiceTask().getDescription(), currentDrawerItem.getServiceTask().getClass().getCanonicalName());
+        final IToolEntry entry = new ObjectCreationToolEntry(currentDrawerItem.getServiceTask().getName(), currentDrawerItem.getServiceTask().getDescription(),
+                currentDrawerItem.getSmallImageKey(), null, feature);
+        paletteCompartmentEntry.getToolEntries().add(entry);
+      }
+      ret.add(paletteCompartmentEntry);
+    }
 
-	/**
-	 * Prunes the disabled palette entries from the {@link IPaletteCompartmentEntry}.
-	 * 
-	 * @param entry
-	 *            the compartment being pruned
-	 */
-	private void pruneDisabledPaletteEntries(final IProject project, final IPaletteCompartmentEntry entry) {
+    return ret.toArray(new IPaletteCompartmentEntry[ret.size()]);
+  }
 
-		final Set<PaletteEntry> disabledPaletteEntries = ExtensionUtil.getDisabledPaletteEntries(project);
+  /**
+   * Prunes the disabled palette entries from the
+   * {@link IPaletteCompartmentEntry}.
+   * 
+   * @param entry
+   *          the compartment being pruned
+   */
+  private void pruneDisabledPaletteEntries(final IProject project, final IPaletteCompartmentEntry entry) {
 
-		if (!disabledPaletteEntries.isEmpty()) {
+    final Set<PaletteEntry> disabledPaletteEntries = ExtensionUtil.getDisabledPaletteEntries(project);
 
-			final Iterator<IToolEntry> entryIterator = entry.getToolEntries().iterator();
+    if (!disabledPaletteEntries.isEmpty()) {
 
-			while (entryIterator.hasNext()) {
+      final Iterator<IToolEntry> entryIterator = entry.getToolEntries().iterator();
 
-				final IToolEntry toolEntry = entryIterator.next();
+      while (entryIterator.hasNext()) {
 
-				if (disabledPaletteEntries.contains(PaletteEntry.ALL)) {
-					entryIterator.remove();
-				} else {
-					if (toolEntry instanceof ObjectCreationToolEntry) {
-						final ObjectCreationToolEntry objToolEntry = (ObjectCreationToolEntry) toolEntry;
-						if (toolMapping.containsKey(objToolEntry.getCreateFeature().getClass())) {
-							if (disabledPaletteEntries.contains(toolMapping.get(objToolEntry.getCreateFeature()
-									.getClass()))) {
-								entryIterator.remove();
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+        final IToolEntry toolEntry = entryIterator.next();
 
-	@Override
-	public IDecorator[] getDecorators(PictogramElement pe) {
-		IFeatureProvider featureProvider = getFeatureProvider();
-		Object bo = featureProvider.getBusinessObjectForPictogramElement(pe);
-		if (bo instanceof StartEvent) {
-			StartEvent startEvent = (StartEvent) bo;
-			if (startEvent.getOutgoing().size() != 1) {
-				IDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
-				imageRenderingDecorator.setMessage("A start event should have exactly one outgoing sequence flow"); //$NON-NLS-1$
-				return new IDecorator[] { imageRenderingDecorator };
-			}
-		} else if (bo instanceof SubProcess) {
-			SubProcess subProcess = (SubProcess) bo;
+        if (disabledPaletteEntries.contains(PaletteEntry.ALL)) {
+          entryIterator.remove();
+        } else {
+          if (toolEntry instanceof ObjectCreationToolEntry) {
+            final ObjectCreationToolEntry objToolEntry = (ObjectCreationToolEntry) toolEntry;
+            if (toolMapping.containsKey(objToolEntry.getCreateFeature().getClass())) {
+              if (disabledPaletteEntries.contains(toolMapping.get(objToolEntry.getCreateFeature().getClass()))) {
+                entryIterator.remove();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
-			if (!subProcessDiagramExists(subProcess)) {
-				IDecorator imageRenderingDecorator = new ImageDecorator(
-						IPlatformImageConstants.IMG_ECLIPSE_INFORMATION_TSK);
-				imageRenderingDecorator.setMessage("This subprocess does not have a diagram model yet");//$NON-NLS-1$
-				return new IDecorator[] { imageRenderingDecorator };
-			}
-		}
-		return super.getDecorators(pe);
-	}
+  @Override
+  public IDecorator[] getDecorators(PictogramElement pe) {
+    IFeatureProvider featureProvider = getFeatureProvider();
+    Object bo = featureProvider.getBusinessObjectForPictogramElement(pe);
+    if (bo instanceof StartEvent) {
+      StartEvent startEvent = (StartEvent) bo;
+      if (startEvent.getOutgoing().size() != 1) {
+        IDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
+        imageRenderingDecorator.setMessage("A start event should have exactly one outgoing sequence flow"); //$NON-NLS-1$
+        return new IDecorator[] { imageRenderingDecorator };
+      }
+    } else if (bo instanceof SubProcess) {
+      SubProcess subProcess = (SubProcess) bo;
 
-	private boolean subProcessDiagramExists(SubProcess subProcess) {
-		Resource resource = getDiagramTypeProvider().getDiagram().eResource();
+      if (!subProcessDiagramExists(subProcess)) {
+        IDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_INFORMATION_TSK);
+        imageRenderingDecorator.setMessage("This subprocess does not have a diagram model yet");//$NON-NLS-1$
+        return new IDecorator[] { imageRenderingDecorator };
+      }
+    }
+    return super.getDecorators(pe);
+  }
 
-		URI uri = resource.getURI();
-		URI uriTrimmed = uri.trimFragment();
+  private boolean subProcessDiagramExists(SubProcess subProcess) {
+    Resource resource = getDiagramTypeProvider().getDiagram().eResource();
 
-		if (uriTrimmed.isPlatformResource()) {
+    URI uri = resource.getURI();
+    URI uriTrimmed = uri.trimFragment();
 
-			String platformString = uriTrimmed.toPlatformString(true);
+    if (uriTrimmed.isPlatformResource()) {
 
-			IResource fileResource = ResourcesPlugin.getWorkspace().getRoot().findMember(platformString);
+      String platformString = uriTrimmed.toPlatformString(true);
 
-			if (fileResource != null) {
-				IProject project = fileResource.getProject();
-				final String parentDiagramName = uriTrimmed.trimFileExtension().lastSegment();
+      IResource fileResource = ResourcesPlugin.getWorkspace().getRoot().findMember(platformString);
 
-				IFile file = project.getFile(String.format(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER + "%s.%s"
-						+ ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION, parentDiagramName, subProcess.getId()));
+      if (fileResource != null) {
+        IProject project = fileResource.getProject();
+        final String parentDiagramName = uriTrimmed.trimFileExtension().lastSegment();
 
-				Diagram diagram = GraphitiUiInternal.getEmfService().getDiagramFromFile(file, new ResourceSetImpl());
+        IFile file = project.getFile(String.format(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER + "%s.%s" + ActivitiBPMNDiagramConstants.DIAGRAM_EXTENSION,
+                parentDiagramName, subProcess.getId()));
 
-				return diagram != null;
-			}
-		}
-		// Safe default assumption
-		return true;
-	}
+        Diagram diagram = GraphitiUiInternal.getEmfService().getDiagramFromFile(file, new ResourceSetImpl());
+
+        return diagram != null;
+      }
+    }
+    // Safe default assumption
+    return true;
+  }
 }

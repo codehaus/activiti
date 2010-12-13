@@ -11,21 +11,21 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 
 public class AddServiceTaskFeature extends AddTaskFeature {
 
-	public AddServiceTaskFeature(IFeatureProvider fp) {
-		super(fp);
-	}
+  public AddServiceTaskFeature(IFeatureProvider fp) {
+    super(fp);
+  }
 
-	protected String getIcon(EObject bo) {
+  protected String getIcon(EObject bo) {
 
-		if (ExtensionUtil.isCustomServiceTask(bo)) {
-			final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil
-					.getCustomServiceTaskContexts(ActivitiUiUtil.getProjectFromDiagram(getDiagram()));
-			for (CustomServiceTaskContext customServiceTaskContext : customServiceTaskContexts) {
-				if (customServiceTaskContext.getServiceTask().getId().equals(ExtensionUtil.getCustomServiceTaskId(bo))) {
-					return customServiceTaskContext.getImageKey();
-				}
-			}
-		}
-		return ActivitiImageProvider.IMG_SERVICETASK;
-	}
+    if (ExtensionUtil.isCustomServiceTask(bo)) {
+      final List<CustomServiceTaskContext> customServiceTaskContexts = ExtensionUtil.getCustomServiceTaskContexts(ActivitiUiUtil
+              .getProjectFromDiagram(getDiagram()));
+      for (CustomServiceTaskContext customServiceTaskContext : customServiceTaskContexts) {
+        if (customServiceTaskContext.getServiceTask().getId().equals(ExtensionUtil.getCustomServiceTaskId(bo))) {
+          return customServiceTaskContext.getShapeImageKey();
+        }
+      }
+    }
+    return ActivitiImageProvider.IMG_SERVICETASK;
+  }
 }

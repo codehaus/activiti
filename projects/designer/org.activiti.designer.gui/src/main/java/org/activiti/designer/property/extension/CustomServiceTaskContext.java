@@ -11,16 +11,18 @@ import org.activiti.designer.integration.servicetask.CustomServiceTask;
  * @author a139923
  * 
  */
-public interface CustomServiceTaskContext {
+public interface CustomServiceTaskContext extends Comparable<CustomServiceTaskContext> {
 
-	String getExtensionName();
+  String getExtensionName();
 
-	InputStream getSmallIconStream();
+  CustomServiceTask getServiceTask();
 
-	InputStream getLargeIconStream();
+  String getSmallImageKey();
+  String getLargeImageKey();
+  String getShapeImageKey();
 
-	CustomServiceTask getServiceTask();
-
-	String getImageKey();
+  InputStream getSmallIconStream();
+  InputStream getLargeIconStream();
+  InputStream getShapeIconStream();
 
 }
