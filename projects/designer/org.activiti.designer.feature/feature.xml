@@ -205,4 +205,11 @@
          version="2.6.0"
          unpack="false"/>
 
+   <plugin
+         id="org.activiti.designer.validation.bpmn20"
+         download-size="0"
+         install-size="0"
+         version="0.6.0"
+         unpack="false"/>
+
 </feature>

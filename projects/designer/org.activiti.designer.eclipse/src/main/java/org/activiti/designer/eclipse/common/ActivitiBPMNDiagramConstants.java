@@ -5,21 +5,26 @@ package org.activiti.designer.eclipse.common;
  * 
  * @author Tiese Barrell
  * @since 0.5.0
- * @version 1
+ * @version 2
  * 
  */
 public final class ActivitiBPMNDiagramConstants {
 
-	public static final String DIAGRAM_FOLDER = "src/main/resources/diagrams/";
-	public static final String DIAGRAM_EXTENSION = ".activiti";
-	//public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.editor.diagram";
+  public static final String DIAGRAM_FOLDER = "src/main/resources/diagrams/";
+  public static final String DIAGRAM_EXTENSION = ".activiti";
+  //public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.editor.diagram";
 	public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.bpmneditor";
-	
-	public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";
-	public static final String IMAGE_MARSHALLER_NAME = "Activiti Designer Image";
 
-	private ActivitiBPMNDiagramConstants() {
+  public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";
+  public static final String BPMN_VALIDATOR_ID = "ActivitiDesignerBPMNValidator";
+  public static final String BPMN_VALIDATOR_NAME = "Activiti Designer BPMN Validator";
+  public static final String IMAGE_MARSHALLER_NAME = "Activiti Designer Image";
 
-	}
+  public static final String BPMN_MARSHALLER_VALIDATION_SKIP = "skip";
+  public static final String BPMN_MARSHALLER_VALIDATION_ATTEMPT = "attempt";
+
+  private ActivitiBPMNDiagramConstants() {
+
+  }
 
 }
