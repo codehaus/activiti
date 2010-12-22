@@ -175,7 +175,35 @@
            </with>
      </activeWhen>
   </handler>
-</extension> 
+</extension>
+<extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:edit">
+         <command
+               commandId="org.activiti.designer.gui.actions.copyCommand"
+               label="Copy diagram item(s)"
+               style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                     <with variable="activePartId">
+           				<equals value="org.activiti.designer.bpmneditor"/>
+           		     </with>
+               </visibleWhen>
+         </command>
+         <command
+               commandId="org.activiti.designer.gui.actions.pasteCommand"
+               label="Paste diagram item(s)"
+               style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                     <with variable="activePartId">
+           				<equals value="org.activiti.designer.bpmneditor"/>
+           		     </with>
+               </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
 <extension point="org.eclipse.ui.bindings">
   <key
         commandId="org.activiti.designer.gui.actions.copyCommand"
