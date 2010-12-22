@@ -243,14 +243,26 @@ public abstract class AbstractDiagramWorker {
     }
   }
 
+  /**
+   * Adds a marker to the {@link Diagram} provided that has an
+   * {@link IMarker#SEVERITY_INFO} severity (info).
+   */
   protected void addInfoToDiagram(Diagram diagram, String message, String nodeId) {
     addMarkerToDiagram(diagram, message, nodeId, IMarker.SEVERITY_INFO);
   }
 
+  /**
+   * Adds a marker to the {@link Diagram} provided that has an
+   * {@link IMarker#SEVERITY_WARNING} severity (warning).
+   */
   protected void addWarningToDiagram(Diagram diagram, String message, String nodeId) {
     addMarkerToDiagram(diagram, message, nodeId, IMarker.SEVERITY_WARNING);
   }
 
+  /**
+   * Adds a marker to the {@link Diagram} provided that has an
+   * {@link IMarker#SEVERITY_ERROR} severity (error).
+   */
   protected void addProblemToDiagram(Diagram diagram, String message, String nodeId) {
     addMarkerToDiagram(diagram, message, nodeId, IMarker.SEVERITY_ERROR);
   }
