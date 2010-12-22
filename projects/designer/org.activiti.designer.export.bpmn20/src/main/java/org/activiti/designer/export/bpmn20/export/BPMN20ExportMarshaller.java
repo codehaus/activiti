@@ -96,7 +96,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     monitor.beginTask("", 100);
 
     // Clear problems for this diagram first
-    clearProblems(getResource(diagram.eResource().getURI()));
+    clearMarkers(getResource(diagram.eResource().getURI()));
 
     URI diagramURI = getURIForDiagram(diagram);
 

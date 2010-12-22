@@ -12,8 +12,9 @@ public final class ActivitiBPMNDiagramConstants {
 
   public static final String DIAGRAM_FOLDER = "src/main/resources/diagrams/";
   public static final String DIAGRAM_EXTENSION = ".activiti";
-  //public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.editor.diagram";
-	public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.bpmneditor";
+  // public static final String DIAGRAM_EDITOR_ID =
+  // "org.activiti.designer.editor.diagram";
+  public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.bpmneditor";
 
   public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";
   public static final String BPMN_VALIDATOR_ID = "ActivitiDesignerBPMNValidator";
@@ -22,6 +23,8 @@ public final class ActivitiBPMNDiagramConstants {
 
   public static final String BPMN_MARSHALLER_VALIDATION_SKIP = "skip";
   public static final String BPMN_MARSHALLER_VALIDATION_ATTEMPT = "attempt";
+
+  public static final String ACTIVITI_GENERAL_MARKER_ID = "org.activiti.designer.eclipse.activitiGeneralMarker";
 
   private ActivitiBPMNDiagramConstants() {
 

@@ -64,7 +64,7 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
     monitor.beginTask("", 100);
 
     // Clear problems for this diagram first
-    clearProblems(getResource(diagram.eResource().getURI()));
+    clearMarkers(getResource(diagram.eResource().getURI()));
 
     URI diagramURI = getURIForDiagram(diagram);
     // TODO: marshall parent instead

@@ -36,113 +36,112 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ImageExportMarshaller extends AbstractExportMarshaller {
 
-	private static final String FILENAME_PATTERN = ExportMarshaller.PLACEHOLDER_ORIGINAL_FILENAME + ".processimage.jpg";
+  private static final String FILENAME_PATTERN = ExportMarshaller.PLACEHOLDER_ORIGINAL_FILENAME + ".processimage.jpg";
 
-	private IProgressMonitor monitor;
-	private Diagram diagram;
+  private IProgressMonitor monitor;
+  private Diagram diagram;
 
-	/**
+  /**
 	 * 
 	 */
-	public ImageExportMarshaller() {
-	}
+  public ImageExportMarshaller() {
+  }
 
-	@Override
-	public String getMarshallerName() {
-		return ActivitiBPMNDiagramConstants.IMAGE_MARSHALLER_NAME;
-	}
+  @Override
+  public String getMarshallerName() {
+    return ActivitiBPMNDiagramConstants.IMAGE_MARSHALLER_NAME;
+  }
 
-	@Override
-	public String getFormatName() {
-		return "Activiti Designer Image";
-	}
+  @Override
+  public String getFormatName() {
+    return "Activiti Designer Image";
+  }
 
-	@Override
-	public String getFilenamePattern() {
-		return FILENAME_PATTERN;
-	}
+  @Override
+  public String getFilenamePattern() {
+    return FILENAME_PATTERN;
+  }
 
-	@Override
-	public void marshallDiagram(Diagram diagram, IProgressMonitor monitor) {
-		System.out
-				.println("Marshalling to " + getFormatName() + " format using " + getMarshallerName() + " marshaller");
+  @Override
+  public void marshallDiagram(Diagram diagram, IProgressMonitor monitor) {
 
-		this.monitor = monitor;
-		this.diagram = diagram;
+    this.monitor = monitor;
+    this.diagram = diagram;
 
-		monitor.beginTask("", 100);
+    monitor.beginTask("", 100);
 
-		// Clear problems for this marshaller first
-		clearProblems(getResource(diagram.eResource().getURI()));
+    // Clear problems for this marshaller first
+    clearMarkers(getResource(diagram.eResource().getURI()));
 
-		monitor.worked(10);
+    monitor.worked(10);
 
-		marshallImage();
+    marshallImage();
 
-		monitor.worked(90);
+    monitor.worked(90);
 
-		monitor.done();
-	}
+    monitor.done();
+  }
 
-	private void marshallImage() {
-		try {
+  private void marshallImage() {
+    try {
 
-			// Retrieve GraphicalViewer from the save handler
-			final GraphicalViewer graphicalViewer = ActivitiDiagramEditor.getActiveGraphicalViewer();
+      // Retrieve GraphicalViewer from the save handler
+      final GraphicalViewer graphicalViewer = ActivitiDiagramEditor.getActiveGraphicalViewer();
 
-			final ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer
-					.getEditPartRegistry().get(LayerManager.ID);
-			final IFigure rootFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.PRINTABLE_LAYERS);
-			final IFigure gridFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.GRID_LAYER);
-			final Rectangle rootFigureBounds = rootFigure.getBounds();
+      final ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer.getEditPartRegistry().get(LayerManager.ID);
+      final IFigure rootFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.PRINTABLE_LAYERS);
+      final IFigure gridFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.GRID_LAYER);
+      final Rectangle rootFigureBounds = rootFigure.getBounds();
 
-			final boolean toggleRequired = gridFigure.isShowing();
+      final boolean toggleRequired = gridFigure.isShowing();
 
-			final Display display = Display.getDefault();
+      final Display display = Display.getDefault();
 
-			final Image img = new Image(display, rootFigureBounds.width, rootFigureBounds.height);
-			final GC imageGC = new GC(img);
-			final SWTGraphics grap = new SWTGraphics(imageGC);
+      final Image img = new Image(display, rootFigureBounds.width, rootFigureBounds.height);
+      final GC imageGC = new GC(img);
+      final SWTGraphics grap = new SWTGraphics(imageGC);
 
-			// Access UI thread from runnable to print the canvas to the image
-			display.syncExec(new Runnable() {
-				public void run() {
-					if (toggleRequired) {
-						// Disable any grids temporarily
-						gridFigure.setVisible(false);
-					}
-					// Deselect any selections
-					graphicalViewer.deselectAll();
-					rootFigure.paint(grap);
-				}
-			});
+      // Access UI thread from runnable to print the canvas to the image
+      display.syncExec(new Runnable() {
 
-			ImageLoader imgLoader = new ImageLoader();
-			imgLoader.data = new ImageData[] { img.getImageData() };
+        public void run() {
+          if (toggleRequired) {
+            // Disable any grids temporarily
+            gridFigure.setVisible(false);
+          }
+          // Deselect any selections
+          graphicalViewer.deselectAll();
+          rootFigure.paint(grap);
+        }
+      });
 
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(imgLoader.data.length);
+      ImageLoader imgLoader = new ImageLoader();
+      imgLoader.data = new ImageData[] { img.getImageData() };
 
-			imgLoader.save(baos, SWT.IMAGE_JPEG);
+      ByteArrayOutputStream baos = new ByteArrayOutputStream(imgLoader.data.length);
 
-			imageGC.dispose();
-			img.dispose();
+      imgLoader.save(baos, SWT.IMAGE_JPEG);
 
-			// Access UI thread from runnable
-			display.syncExec(new Runnable() {
-				public void run() {
-					if (toggleRequired) {
-						// Re-enable any grids
-						gridFigure.setVisible(true);
-					}
-				}
-			});
+      imageGC.dispose();
+      img.dispose();
 
-			final byte[] bytes = baos.toByteArray();
-			final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-			saveResource(getRelativeURIForDiagram(diagram, getFilenamePattern()), bais, this.monitor);
+      // Access UI thread from runnable
+      display.syncExec(new Runnable() {
 
-		} catch (Exception e) {
-			addProblemToDiagram(diagram, "An exception occurred while creating the image: " + e.getCause(), null);
-		}
-	}
+        public void run() {
+          if (toggleRequired) {
+            // Re-enable any grids
+            gridFigure.setVisible(true);
+          }
+        }
+      });
+
+      final byte[] bytes = baos.toByteArray();
+      final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      saveResource(getRelativeURIForDiagram(diagram, getFilenamePattern()), bais, this.monitor);
+
+    } catch (Exception e) {
+      addProblemToDiagram(diagram, "An exception occurred while creating the image: " + e.getCause(), null);
+    }
+  }
 }
