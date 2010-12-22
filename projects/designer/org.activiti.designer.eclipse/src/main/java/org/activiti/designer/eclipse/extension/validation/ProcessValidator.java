@@ -18,7 +18,7 @@ public interface ProcessValidator {
    * The identifier for problems created by the Activiti Designer for
    * {@link ProcessValidator}s.
    */
-  public static final String PROBLEM_ID = "org.activiti.designer.eclipse.activitiProblem";
+  public static final String MARKER_ID = "org.activiti.designer.eclipse.activitiValidatorMarker";
 
   /**
    * Gets an identifier for the validator.

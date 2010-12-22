@@ -17,7 +17,9 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
+import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -37,8 +39,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
  */
 public abstract class AbstractDiagramWorker {
 
-  private static final String ATTRIBUTE_MARSHALLER_ID = "marshallerId";
-  private static final String ATTRIBUTE_VALIDATOR_ID = "validatorId";
+  private static final String ATTRIBUTE_WORKER_ID = "workerId";
   private static final String ATTRIBUTE_NODE_ID = "nodeId";
 
   private static final String DATE_TIME_PATTERN = "yyyy-MM-dd-HH-mm-ss";
@@ -242,24 +243,44 @@ public abstract class AbstractDiagramWorker {
     }
   }
 
+  protected void addInfoToDiagram(Diagram diagram, String message, String nodeId) {
+    addMarkerToDiagram(diagram, message, nodeId, IMarker.SEVERITY_INFO);
+  }
+
+  protected void addWarningToDiagram(Diagram diagram, String message, String nodeId) {
+    addMarkerToDiagram(diagram, message, nodeId, IMarker.SEVERITY_WARNING);
+  }
+
   protected void addProblemToDiagram(Diagram diagram, String message, String nodeId) {
+    addMarkerToDiagram(diagram, message, nodeId, IMarker.SEVERITY_ERROR);
+  }
+
+  private void addMarkerToDiagram(Diagram diagram, String message, String nodeId, final int severity) {
 
     final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
     final IFile file = workspace.getRoot().getFile(new Path(getURIForDiagram(diagram).toPlatformString(true)));
 
+    // Determine marker id
+    String markerId = ActivitiBPMNDiagramConstants.ACTIVITI_GENERAL_MARKER_ID;
+    if (this instanceof ExportMarshaller) {
+      markerId = ExportMarshaller.MARKER_ID;
+    } else if (this instanceof ProcessValidator) {
+      markerId = ProcessValidator.MARKER_ID;
+    }
+
     IMarker m;
     try {
-      m = file.createMarker(ExportMarshaller.PROBLEM_ID);
+      m = file.createMarker(markerId);
       if (nodeId != null) {
         m.setAttribute(ATTRIBUTE_NODE_ID, nodeId);
       }
 
-      m.setAttribute(ATTRIBUTE_MARSHALLER_ID, this.getClass().getCanonicalName());
+      m.setAttribute(ATTRIBUTE_WORKER_ID, this.getClass().getCanonicalName());
 
       m.setAttribute(IMarker.MESSAGE, message);
       m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-      m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+      m.setAttribute(IMarker.SEVERITY, severity);
     } catch (CoreException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -267,11 +288,20 @@ public abstract class AbstractDiagramWorker {
 
   }
 
-  protected void clearProblems(IResource resource) {
+  protected void clearMarkers(IResource resource) {
+
+    // Determine marker id
+    String markerId = ActivitiBPMNDiagramConstants.ACTIVITI_GENERAL_MARKER_ID;
+    if (this instanceof ExportMarshaller) {
+      markerId = ExportMarshaller.MARKER_ID;
+    } else if (this instanceof ProcessValidator) {
+      markerId = ProcessValidator.MARKER_ID;
+    }
+
     try {
-      final IMarker[] markers = resource.findMarkers(ExportMarshaller.PROBLEM_ID, true, IResource.DEPTH_INFINITE);
+      final IMarker[] markers = resource.findMarkers(markerId, true, IResource.DEPTH_INFINITE);
       for (final IMarker marker : markers) {
-        if (marker.getAttribute(ATTRIBUTE_MARSHALLER_ID).equals(this.getClass().getCanonicalName())) {
+        if (marker.getAttribute(ATTRIBUTE_WORKER_ID).equals(this.getClass().getCanonicalName())) {
           marker.delete();
         }
       }
