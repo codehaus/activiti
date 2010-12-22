@@ -378,10 +378,8 @@ public class CustomPropertyDataGridField extends AbstractCustomPropertyField {
 
               @Override
               public void mouseDoubleClick(MouseEvent e) {
-                System.out.println("Mouse click in field " + fieldName);
                 PeriodDialog dialog = new PeriodDialog(dataGridControl.getDisplay().getActiveShell(), getHelpAnnotation(), periodControl.getText());
-                // open dialog and wait for return status
-                // code.
+                // open dialog and wait for return status code.
                 if (dialog.open() == IStatus.OK) {
                   // If user clicks ok display message box
                   String value = dialog.getValue();

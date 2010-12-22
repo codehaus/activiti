@@ -162,7 +162,7 @@
         commandId="org.activiti.designer.gui.actions.copyCommand">
      <activeWhen>
         <with variable="activePartId">
-           <equals value="org.activiti.designer.editor.diagram"/>
+           <equals value="org.activiti.designer.bpmneditor"/>
            </with>
      </activeWhen>
   </handler>
@@ -171,7 +171,7 @@
         commandId="org.activiti.designer.gui.actions.pasteCommand">
      <activeWhen>
         <with variable="activePartId">
-           <equals value="org.activiti.designer.editor.diagram"/>
+           <equals value="org.activiti.designer.bpmneditor"/>
            </with>
      </activeWhen>
   </handler>

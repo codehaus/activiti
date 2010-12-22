@@ -13,7 +13,11 @@ import org.activiti.designer.features.CreateStartEventFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.ComplexDataType;
 import org.eclipse.bpmn2.CustomProperty;
+import org.eclipse.bpmn2.DataGrid;
+import org.eclipse.bpmn2.DataGridField;
+import org.eclipse.bpmn2.DataGridRow;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FlowElement;
@@ -285,14 +289,33 @@ public final class CloneUtil {
 
     result.setId(original.getId());
     if (original.getComplexValue() != null) {
-      // TODO
-      // result.setComplexValue(original.getComplexValue().clone());
+      result.setComplexValue(clone(original.getComplexValue()));
     }
     result.setName(original.getName());
     result.setSimpleValue(original.getSimpleValue());
 
     return result;
 
+  }
+
+  private static ComplexDataType clone(ComplexDataType complexValue) {
+    if (complexValue instanceof DataGrid) {
+      final DataGrid dataGrid = (DataGrid) complexValue;
+      DataGrid result = Bpmn2Factory.eINSTANCE.createDataGrid();
+      for (final DataGridRow dataGridRow : dataGrid.getRow()) {
+        final DataGridRow rowClone = Bpmn2Factory.eINSTANCE.createDataGridRow();
+        rowClone.setIndex(dataGridRow.getIndex());
+        for (final DataGridField dataGridField : dataGridRow.getField()) {
+          final DataGridField fieldClone = Bpmn2Factory.eINSTANCE.createDataGridField();
+          fieldClone.setName(dataGridField.getName());
+          fieldClone.setSimpleValue(dataGridField.getSimpleValue());
+          rowClone.getField().add(fieldClone);
+        }
+        result.getRow().add(rowClone);
+      }
+      return result;
+    }
+    return null;
   }
 
 }
