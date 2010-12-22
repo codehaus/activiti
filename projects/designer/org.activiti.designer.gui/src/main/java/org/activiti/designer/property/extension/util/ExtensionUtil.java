@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.activiti.designer.property.extension;
+package org.activiti.designer.property.extension.util;
 
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
@@ -18,6 +18,9 @@ import org.activiti.designer.integration.palette.DefaultPaletteCustomizer;
 import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.integration.servicetask.AbstractCustomServiceTask;
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
+import org.activiti.designer.property.extension.CustomServiceTaskContext;
+import org.activiti.designer.property.extension.CustomServiceTaskContextImpl;
+import org.activiti.designer.property.extension.JarClassLoader;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.bpmn2.CustomProperty;

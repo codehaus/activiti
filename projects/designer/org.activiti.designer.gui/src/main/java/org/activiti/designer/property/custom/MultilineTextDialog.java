@@ -14,36 +14,38 @@
 package org.activiti.designer.property.custom;
 
 import org.activiti.designer.integration.servicetask.annotation.Help;
-import org.activiti.designer.property.extension.util.ExtensionPropertyUtil;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 /**
- * Dialog that enables the user to provide a value for a period field.
+ * Dialog that enables the user to provide a value for a multiline text field.
  * 
  * @author Tiese Barrell
  * @since 0.6.1
  * @version 1
  */
-public class PeriodDialog extends Dialog {
+public class MultilineTextDialog extends Dialog {
+
+  private static final int SPACING = 10;
 
   private Help help;
   private FormToolkit toolkit;
   private Composite composite;
   private String originalValue;
   private String value;
+  private Text textControl;
 
-  public PeriodDialog(Shell parentShell, Help help, final String originalValue) {
+  public MultilineTextDialog(Shell parentShell, Help help, final String originalValue) {
     super(parentShell);
     this.help = help;
     this.originalValue = originalValue;
@@ -53,7 +55,7 @@ public class PeriodDialog extends Dialog {
   @Override
   protected void configureShell(Shell shell) {
     super.configureShell(shell);
-    shell.setText("Specify period");
+    shell.setText("Specify text");
   }
 
   @Override
@@ -62,63 +64,54 @@ public class PeriodDialog extends Dialog {
     this.composite = (Composite) super.createDialogArea(parent);
     composite.setBackground(ColorConstants.white);
 
-    final int numberOfColumns = PeriodPropertyElement.values().length * 2;
+    final FormLayout formLayout = new FormLayout();
+    composite.setLayout(formLayout);
 
-    final GridLayout gridLayout = new GridLayout(numberOfColumns, false);
-    composite.setLayout(gridLayout);
+    FormData data;
 
-    GridData data;
-
-    final Label instructionLabel = toolkit.createLabel(composite, "Specify a value for the period");
-    data = new GridData();
-    data.horizontalSpan = numberOfColumns;
+    final Label instructionLabel = toolkit.createLabel(composite, "Specify a value for the text");
+    data = new FormData();
+    data.top = new FormAttachment(composite, SPACING);
+    data.left = new FormAttachment(composite, SPACING);
+    data.right = new FormAttachment(100, -SPACING);
     instructionLabel.setLayoutData(data);
+
+    Control previousAnchor = instructionLabel;
 
     if (this.help != null) {
       final Label helpShort = toolkit.createLabel(composite, help.displayHelpShort());
-      data = new GridData();
-      data.horizontalSpan = numberOfColumns;
+      data = new FormData();
+      data.top = new FormAttachment(previousAnchor, SPACING);
+      data.left = new FormAttachment(composite, SPACING);
+      data.right = new FormAttachment(100, -SPACING);
       helpShort.setLayoutData(data);
+      previousAnchor = helpShort;
 
-      final Label helpLong = toolkit.createLabel(composite, help.displayHelpLong());
-      data = new GridData();
-      data.horizontalSpan = numberOfColumns;
+      final Label helpLong = toolkit.createLabel(composite, help.displayHelpLong(), SWT.WRAP);
+      data = new FormData();
+      data.top = new FormAttachment(previousAnchor, SPACING);
+      data.left = new FormAttachment(composite, SPACING);
+      data.right = new FormAttachment(100, -SPACING);
       helpLong.setLayoutData(data);
+      previousAnchor = helpLong;
     }
 
-    int i = 0;
+    textControl = toolkit.createText(composite, originalValue, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER_SOLID);
+    textControl.setEnabled(true);
 
-    PeriodPropertyElement[] properties = PeriodPropertyElement.values();
+    data = new FormData();
+    data.top = new FormAttachment(previousAnchor, SPACING);
+    data.left = new FormAttachment(composite, SPACING);
+    data.right = new FormAttachment(100, -SPACING);
+    data.height = 120;
+    textControl.setLayoutData(data);
 
-    for (final PeriodPropertyElement element : properties) {
-
-      final Spinner spinner = new Spinner(composite, SWT.BORDER);
-
-      spinner.setData("PERIOD_KEY", element.getShortFormat());
-      if (StringUtils.isNotBlank(originalValue)) {
-        spinner.setSelection(ExtensionPropertyUtil.getPeriodPropertyElementFromValue(originalValue, element));
-      }
-      spinner.setEnabled(true);
-      data = new GridData();
-      data.widthHint = 30;
-      spinner.setLayoutData(data);
-
-      String labelText = element.getLongFormat();
-      if (i != properties.length - 1) {
-        labelText += " ,  ";
-      }
-
-      Label labelShort = toolkit.createLabel(composite, labelText, SWT.NONE);
-      labelShort.setToolTipText(element.getLongFormat());
-
-      i++;
-    }
     return composite;
   }
   @Override
   protected void okPressed() {
     // store the value from the spinners so it can be set in the text control
-    value = ExtensionPropertyUtil.getPeriodValueFromParent(composite);
+    value = textControl.getText();
     super.okPressed();
   }
 

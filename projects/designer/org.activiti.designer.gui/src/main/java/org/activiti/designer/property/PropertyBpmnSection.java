@@ -54,7 +54,7 @@ public class PropertyBpmnSection extends GFPropertySection implements ITabbedPro
     idText.setEnabled(false);
     data = new FormData();
     data.left = new FormAttachment(0, 120);
-    data.right = new FormAttachment(100, HSPACE);
+    data.right = new FormAttachment(100, -HSPACE);
     data.top = new FormAttachment(0, VSPACE);
     idText.setLayoutData(data);
 
@@ -68,7 +68,7 @@ public class PropertyBpmnSection extends GFPropertySection implements ITabbedPro
     nameText = factory.createText(composite, ""); //$NON-NLS-1$
     data = new FormData();
     data.left = new FormAttachment(0, 120);
-    data.right = new FormAttachment(100, HSPACE);
+    data.right = new FormAttachment(100, -HSPACE);
     data.top = new FormAttachment(idText, VSPACE);
     nameText.setLayoutData(data);
     nameText.addFocusListener(listener);

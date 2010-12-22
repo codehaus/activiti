@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.designer.property.extension;
+package org.activiti.designer.property.extension.util;
 
 import org.activiti.designer.integration.servicetask.PropertyType;
 import org.activiti.designer.property.custom.PeriodPropertyElement;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.property.extension.CustomServiceTaskContext;
-import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IFeatureProvider;

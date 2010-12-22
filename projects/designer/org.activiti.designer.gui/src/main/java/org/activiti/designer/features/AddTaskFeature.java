@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.integration.servicetask.DiagramBaseShape;
-import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.activiti.designer.util.OSEnum;
 import org.activiti.designer.util.OSUtil;

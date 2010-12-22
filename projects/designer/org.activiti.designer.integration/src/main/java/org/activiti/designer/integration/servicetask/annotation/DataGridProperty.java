@@ -25,8 +25,13 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface GridDataProperty {
+public @interface DataGridProperty {
 
   abstract Class< ? extends Object> itemClass();
+
+  /**
+   * Whether the grid should have controls to (re-)order the rows.
+   */
+  abstract boolean orderable() default false;
 
 }

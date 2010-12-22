@@ -3,7 +3,7 @@ package org.activiti.designer.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.Event;
 import org.eclipse.bpmn2.FlowNode;

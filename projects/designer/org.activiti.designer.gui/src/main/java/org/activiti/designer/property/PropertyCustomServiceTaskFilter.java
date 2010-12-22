@@ -1,6 +1,6 @@
 package org.activiti.designer.property;
 
-import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;

@@ -11,7 +11,7 @@ import org.activiti.designer.features.CreateScriptTaskFeature;
 import org.activiti.designer.features.CreateServiceTaskFeature;
 import org.activiti.designer.features.CreateStartEventFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
-import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.EndEvent;
@@ -285,7 +285,8 @@ public final class CloneUtil {
 
     result.setId(original.getId());
     if (original.getComplexValue() != null) {
-      result.setComplexValue(original.getComplexValue().clone());
+      // TODO
+      // result.setComplexValue(original.getComplexValue().clone());
     }
     result.setName(original.getName());
     result.setSimpleValue(original.getSimpleValue());

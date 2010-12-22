@@ -16,23 +16,22 @@ package org.eclipse.bpmn2;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Custom Property</b></em>'.
+ * A representation of the model object '<em><b>Data Grid Field</b></em>'.
  * <!-- end-user-doc -->
  *
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.eclipse.bpmn2.CustomProperty#getName <em>Name</em>}</li>
- *   <li>{@link org.eclipse.bpmn2.CustomProperty#getSimpleValue <em>Simple Value</em>}</li>
- *   <li>{@link org.eclipse.bpmn2.CustomProperty#getComplexValue <em>Complex Value</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.DataGridField#getName <em>Name</em>}</li>
+ *   <li>{@link org.eclipse.bpmn2.DataGridField#getSimpleValue <em>Simple Value</em>}</li>
  * </ul>
  * </p>
  *
- * @see org.eclipse.bpmn2.Bpmn2Package#getCustomProperty()
+ * @see org.eclipse.bpmn2.Bpmn2Package#getDataGridField()
  * @model
  * @generated
  */
-public interface CustomProperty extends BaseElement {
+public interface DataGridField extends BaseElement {
 
   /**
    * Returns the value of the '<em><b>Name</b></em>' attribute.
@@ -44,14 +43,14 @@ public interface CustomProperty extends BaseElement {
    * <!-- end-user-doc -->
    * @return the value of the '<em>Name</em>' attribute.
    * @see #setName(String)
-   * @see org.eclipse.bpmn2.Bpmn2Package#getCustomProperty_Name()
-   * @model
+   * @see org.eclipse.bpmn2.Bpmn2Package#getDataGridField_Name()
+   * @model required="true"
    * @generated
    */
   String getName();
 
   /**
-   * Sets the value of the '{@link org.eclipse.bpmn2.CustomProperty#getName <em>Name</em>}' attribute.
+   * Sets the value of the '{@link org.eclipse.bpmn2.DataGridField#getName <em>Name</em>}' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @param value the new value of the '<em>Name</em>' attribute.
@@ -70,14 +69,14 @@ public interface CustomProperty extends BaseElement {
    * <!-- end-user-doc -->
    * @return the value of the '<em>Simple Value</em>' attribute.
    * @see #setSimpleValue(String)
-   * @see org.eclipse.bpmn2.Bpmn2Package#getCustomProperty_SimpleValue()
-   * @model
+   * @see org.eclipse.bpmn2.Bpmn2Package#getDataGridField_SimpleValue()
+   * @model required="true"
    * @generated
    */
   String getSimpleValue();
 
   /**
-   * Sets the value of the '{@link org.eclipse.bpmn2.CustomProperty#getSimpleValue <em>Simple Value</em>}' attribute.
+   * Sets the value of the '{@link org.eclipse.bpmn2.DataGridField#getSimpleValue <em>Simple Value</em>}' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @param value the new value of the '<em>Simple Value</em>' attribute.
@@ -86,30 +85,4 @@ public interface CustomProperty extends BaseElement {
    */
   void setSimpleValue(String value);
 
-  /**
-   * Returns the value of the '<em><b>Complex Value</b></em>' containment reference.
-   * <!-- begin-user-doc -->
-   * <p>
-   * If the meaning of the '<em>Complex Value</em>' reference isn't clear,
-   * there really should be more of a description here...
-   * </p>
-   * <!-- end-user-doc -->
-   * @return the value of the '<em>Complex Value</em>' containment reference.
-   * @see #setComplexValue(ComplexDataType)
-   * @see org.eclipse.bpmn2.Bpmn2Package#getCustomProperty_ComplexValue()
-   * @model containment="true"
-   * @generated
-   */
-  ComplexDataType getComplexValue();
-
-  /**
-   * Sets the value of the '{@link org.eclipse.bpmn2.CustomProperty#getComplexValue <em>Complex Value</em>}' containment reference.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @param value the new value of the '<em>Complex Value</em>' containment reference.
-   * @see #getComplexValue()
-   * @generated
-   */
-  void setComplexValue(ComplexDataType value);
-
-} // CustomProperty
+} // DataGridField

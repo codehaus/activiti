@@ -26,7 +26,7 @@ import org.activiti.designer.features.ExpandCollapseSubProcessFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
 import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.property.extension.CustomServiceTaskContext;
-import org.activiti.designer.property.extension.ExtensionUtil;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;

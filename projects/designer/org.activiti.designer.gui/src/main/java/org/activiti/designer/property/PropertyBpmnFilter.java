@@ -23,12 +23,13 @@ import org.eclipse.graphiti.ui.platform.AbstractPropertySectionFilter;
 
 public class PropertyBpmnFilter extends AbstractPropertySectionFilter {
 
-	@Override
-	protected boolean accept(PictogramElement pe) {
-		EObject bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-		if (bo instanceof FlowElement) {
-			return true;
-		}
-		return false;
-	}
+  @Override
+  protected boolean accept(PictogramElement pe) {
+    EObject bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+    if (bo instanceof FlowElement) {
+      // && !ExtensionUtil.isCustomServiceTask(bo)
+      return true;
+    }
+    return false;
+  }
 }
