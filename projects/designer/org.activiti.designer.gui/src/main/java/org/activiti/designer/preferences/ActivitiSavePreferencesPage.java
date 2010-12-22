@@ -1,17 +1,14 @@
 package org.activiti.designer.preferences;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
 import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.designer.eclipse.preferences.PreferencesUtil;
+import org.activiti.designer.eclipse.util.ExtensionPointUtil;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -30,29 +27,7 @@ public class ActivitiSavePreferencesPage extends FieldEditorPreferencePage imple
 
   public void createFieldEditors() {
 
-    final IConfigurationElement[] marshallerConfiguration = Platform.getExtensionRegistry().getConfigurationElementsFor(
-            ActivitiPlugin.EXPORT_MARSHALLER_EXTENSIONPOINT_ID);
-
-    ExportMarshaller bpmnMarshaller = null;
-    final List<ExportMarshaller> additionalMarshallers = new ArrayList<ExportMarshaller>();
-
-    try {
-
-      for (final IConfigurationElement e : marshallerConfiguration) {
-        final Object o = e.createExecutableExtension("class");
-        if (o instanceof ExportMarshaller) {
-          final ExportMarshaller exportMarshaller = (ExportMarshaller) o;
-
-          if (StringUtils.equals(exportMarshaller.getMarshallerName(), ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME)) {
-            bpmnMarshaller = exportMarshaller;
-          } else {
-            additionalMarshallers.add(exportMarshaller);
-          }
-        }
-      }
-    } catch (CoreException ex) {
-      ex.printStackTrace();
-    }
+    ExportMarshaller bpmnMarshaller = ExtensionPointUtil.getExportMarshaller(ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME);
 
     if (bpmnMarshaller != null) {
       Group group = new Group(getFieldEditorParent(), SWT.BORDER);
@@ -70,14 +45,18 @@ public class ActivitiSavePreferencesPage extends FieldEditorPreferencePage imple
                   { "Attempt to save to BPMN 2.0 format anyway if validation fails", ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_VALIDATION_ATTEMPT } }, group));
     }
 
-    if (additionalMarshallers.size() > 0) {
+    final Collection<ExportMarshaller> marshallers = ExtensionPointUtil.getExportMarshallers();
+
+    if (marshallers.size() > 0) {
       Group group = new Group(getFieldEditorParent(), SWT.BORDER);
       group.setText("Additional Export formats");
       group.setLayoutData(new GridData(SWT.FILL, SWT.NULL, true, false));
 
-      for (final ExportMarshaller exportMarshaller : additionalMarshallers) {
-        addField(new BooleanFieldEditor(PreferencesUtil.getPreferenceId(exportMarshaller), "Automatically save to " + exportMarshaller.getFormatName()
-                + " format when saving diagrams", group));
+      for (final ExportMarshaller exportMarshaller : marshallers) {
+        if (!StringUtils.equals(exportMarshaller.getMarshallerName(), ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME)) {
+          addField(new BooleanFieldEditor(PreferencesUtil.getPreferenceId(exportMarshaller), "Automatically save to " + exportMarshaller.getFormatName()
+                  + " format when saving diagrams", group));
+        }
       }
     }
 

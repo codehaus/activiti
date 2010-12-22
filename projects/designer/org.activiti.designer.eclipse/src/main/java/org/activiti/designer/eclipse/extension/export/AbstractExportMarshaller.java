@@ -4,17 +4,12 @@
 package org.activiti.designer.eclipse.extension.export;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.extension.AbstractDiagramWorker;
 import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
+import org.activiti.designer.eclipse.util.ExtensionPointUtil;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 /**
@@ -45,34 +40,15 @@ public abstract class AbstractExportMarshaller extends AbstractDiagramWorker imp
     boolean overallResult = true;
 
     if (validatorIds.size() > 0) {
-      final Map<String, ProcessValidator> availableValidators = new HashMap<String, ProcessValidator>();
-
-      final IConfigurationElement[] validatorConfiguration = Platform.getExtensionRegistry().getConfigurationElementsFor(
-              ActivitiPlugin.PROCESS_VALIDATOR_EXTENSIONPOINT_ID);
-
-      if (validatorConfiguration.length > 0) {
-        for (final IConfigurationElement e : validatorConfiguration) {
-
-          try {
-            final Object o = e.createExecutableExtension("class");
-            if (o instanceof ProcessValidator) {
-              final ProcessValidator processValidator = (ProcessValidator) o;
-              availableValidators.put(processValidator.getValidatorId(), processValidator);
-            }
-          } catch (CoreException e1) {
-            e1.printStackTrace();
-          }
-
-        }
-      }
 
       monitor.worked(20);
 
       for (final String validatorId : validatorIds) {
-        // get validator, else skip
-        if (availableValidators.containsKey(validatorId)) {
 
-          final ProcessValidator processValidator = availableValidators.get(validatorId);
+        // get validator, else skip
+        final ProcessValidator processValidator = ExtensionPointUtil.getProcessValidator(validatorId);
+
+        if (processValidator != null) {
 
           monitor.beginTask("Invoking " + processValidator.getValidatorName(), 10);
 
