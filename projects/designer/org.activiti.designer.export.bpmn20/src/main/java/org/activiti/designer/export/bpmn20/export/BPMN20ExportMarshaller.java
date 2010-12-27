@@ -84,11 +84,6 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
   }
 
   @Override
-  public String getFilenamePattern() {
-    return FILENAME_PATTERN;
-  }
-
-  @Override
   public void marshallDiagram(Diagram diagram, IProgressMonitor monitor) {
     this.monitor = monitor;
     this.diagram = diagram;
@@ -224,7 +219,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
       final byte[] bytes = baos.toByteArray();
       final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-      saveResource(getRelativeURIForDiagram(diagram, getFilenamePattern()), bais, this.monitor);
+      saveResource(getRelativeURIForDiagram(diagram, FILENAME_PATTERN), bais, this.monitor);
 
       xtw.close();
     } catch (Exception e) {

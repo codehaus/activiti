@@ -58,11 +58,6 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
   }
 
   @Override
-  public String getFilenamePattern() {
-    return FILENAME_PATTERN;
-  }
-
-  @Override
   public void marshallDiagram(Diagram diagram, IProgressMonitor monitor) {
 
     this.monitor = monitor;
@@ -138,7 +133,7 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
 
       final byte[] bytes = baos.toByteArray();
       final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-      saveResource(getRelativeURIForDiagram(diagram, getFilenamePattern()), bais, this.monitor);
+      saveResource(getRelativeURIForDiagram(diagram, FILENAME_PATTERN), bais, this.monitor);
 
     } catch (Exception e) {
       addProblemToDiagram(diagram, "An exception occurred while creating the image: " + e.getCause(), null);

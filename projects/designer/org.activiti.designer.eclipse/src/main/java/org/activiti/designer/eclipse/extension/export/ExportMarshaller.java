@@ -53,27 +53,6 @@ public interface ExportMarshaller {
   String getFormatName();
 
   /**
-   * <p>
-   * Gets the pattern used to create filenames with when exporting with this
-   * marshaller. You can use a number of placeholder strings to fill certain
-   * parts of your result.
-   * 
-   * <p>
-   * This method must be implemented in such a way, that it cannot return a null
-   * value for the filename pattern. This would result in files with invalid
-   * file names and therefore results in the marshaller being ignored (i.e.,
-   * skipped) when attempting to invoke the marshaller.
-   * 
-   * @see ExportMarshaller#PLACEHOLDER_ORIGINAL_FILENAME
-   * @see ExportMarshaller#PLACEHOLDER_ORIGINAL_FILE_EXTENSION
-   * @see ExportMarshaller#PLACEHOLDER_DATE_TIME
-   * 
-   * @return the filename pattern
-   * 
-   */
-  String getFilenamePattern();
-
-  /**
    * Transforms content in the original diagram into this marshaller's own
    * format.
    * 

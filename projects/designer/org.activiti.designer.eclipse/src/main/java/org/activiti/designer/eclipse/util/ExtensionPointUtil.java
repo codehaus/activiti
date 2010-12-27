@@ -48,7 +48,7 @@ public final class ExtensionPointUtil {
     for (final Entry<String, ExportMarshaller> entry : marshallers.entrySet()) {
       final boolean invokeMarshaller = PreferencesUtil.getBooleanPreference(PreferencesUtil.getPreferenceId(entry.getValue()));
 
-      if (invokeMarshaller && entry.getValue().getFilenamePattern() != null) {
+      if (invokeMarshaller) {
         result.add(entry.getValue());
       }
     }
