@@ -21,6 +21,7 @@ import org.activiti.designer.eclipse.util.Util;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.CustomProperty;
+import org.eclipse.bpmn2.Documentation;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FieldExtension;
@@ -285,6 +286,28 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
         if (userTask.getFormKey() != null && userTask.getFormKey().length() > 0) {
           xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "formKey", userTask.getFormKey());
+        }
+
+        if (userTask.getDocumentation() != null && userTask.getDocumentation().size() > 0) {
+
+          final Documentation documentation = userTask.getDocumentation().get(0);
+
+          if (documentation.getText() != null && !"".equals(documentation.getText())) {
+
+            // start documentation element
+            xtw.writeStartElement("documentation");
+
+            if (documentation.getId() != null) {
+              xtw.writeAttribute("id", documentation.getId());
+            }
+            xtw.writeAttribute("textFormat", "text/plain");
+
+            xtw.writeCharacters(documentation.getText());
+
+            // end documentation element
+            xtw.writeEndElement();
+          }
+
         }
 
         // end UserTask element
