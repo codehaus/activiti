@@ -251,7 +251,6 @@ public class PropertyUserTaskSection extends GFPropertySection implements ITabbe
                 if (userTask.getDocumentation().size() < 1) {
                   documentationModel = Bpmn2Factory.eINSTANCE.createDocumentation();
                   userTask.getDocumentation().add(documentationModel);
-                  // getDiagram().eResource().getContents().add(documentationModel);
                 } else {
                   documentationModel = userTask.getDocumentation().get(0);
                 }
