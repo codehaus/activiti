@@ -57,11 +57,13 @@ public final class ExtensionPropertyUtil {
       }
     }
 
-    StringBuilder builder = new StringBuilder();
-    for (final String elementValue : values) {
-      builder.append(elementValue).append(" ");
+    final StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < values.length; i++) {
+      builder.append(values[i]);
+      if (i != values.length - 1) {
+        builder.append(" ");
+      }
     }
-
     String value = builder.toString();
     return value;
   }
