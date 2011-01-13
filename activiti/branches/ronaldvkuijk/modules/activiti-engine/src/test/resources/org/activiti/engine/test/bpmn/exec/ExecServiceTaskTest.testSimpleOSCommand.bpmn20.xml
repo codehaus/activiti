@@ -1,0 +1,30 @@
+<definitions 
+  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:activiti="http://activiti.org/bpmn"
+  targetNamespace="Examples">
+
+  <process id="simpleOSCommand" >
+
+    <startEvent id="theStart" />
+    <sequenceFlow sourceRef="theStart" targetRef="doCommand" />
+    
+    <serviceTask id="doCommand" activiti:type="exec">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>echo Hello World</activiti:string>
+        </activiti:field>
+        <activiti:field name="path">
+          <activiti:string>/</activiti:string>
+        </activiti:field>
+        <activiti:field name="params">
+          <activiti:string>param1 param2 param3</activiti:string>
+        </activiti:field>      
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow sourceRef="doCommand" targetRef="theEnd" />
+    
+    <endEvent id="theEnd" />
+
+  </process>
+
+</definitions>

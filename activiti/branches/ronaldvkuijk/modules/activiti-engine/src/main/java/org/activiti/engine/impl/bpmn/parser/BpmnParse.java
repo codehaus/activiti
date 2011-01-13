@@ -40,6 +40,7 @@ import org.activiti.engine.impl.bpmn.DelegateExpressionExecutionListener;
 import org.activiti.engine.impl.bpmn.DelegateExpressionTaskListener;
 import org.activiti.engine.impl.bpmn.ErrorEndEventActivityBehavior;
 import org.activiti.engine.impl.bpmn.ExclusiveGatewayActivity;
+import org.activiti.engine.impl.bpmn.ExecActivityBehavior;
 import org.activiti.engine.impl.bpmn.ExpressionExecutionListener;
 import org.activiti.engine.impl.bpmn.ExpressionTaskListener;
 import org.activiti.engine.impl.bpmn.IOSpecification;
@@ -875,9 +876,12 @@ public class BpmnParse extends Parse {
     if (type != null) {
       if (type.equalsIgnoreCase("mail")) {
         parseEmailServiceTask(activity, serviceTaskElement, parseFieldDeclarations(serviceTaskElement));
+      } else if (type.equalsIgnoreCase("exec")) {
+        parseExecServiceTask(activity, serviceTaskElement, parseFieldDeclarations(serviceTaskElement));
       } else {
         addError("Invalid usage of type attribute: '" + type + "'", serviceTaskElement);
       }
+      
     
     } else if (className != null && className.trim().length() > 0) {
       if (resultVariableName != null) {
@@ -1087,6 +1091,38 @@ public class BpmnParse extends Parse {
     }
     if (!textOrHtmlDefined) {
       addError("Text or html field should be provided", serviceTaskElement);
+    }
+  }
+  
+  protected void parseExecServiceTask(ActivityImpl activity, Element serviceTaskElement, List<FieldDeclaration> fieldDeclarations) {
+    validateFieldDeclarationsForExec(serviceTaskElement, fieldDeclarations);
+    activity.setActivityBehavior((ExecActivityBehavior) ClassDelegate.instantiateDelegate(ExecActivityBehavior.class, fieldDeclarations));
+  }
+  
+  protected void validateFieldDeclarationsForExec(Element serviceTaskElement, List<FieldDeclaration> fieldDeclarations) {
+    boolean command=false;
+    boolean path=false;
+    boolean params=false;
+    for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
+      if (fieldDeclaration.getName().equals("command")) {
+        command=true;
+      }
+      if (!fieldDeclaration.getName().equals("path")) {
+        path=true;
+      }
+      if (fieldDeclaration.getName().equals("params")) {
+        params=true;
+      }
+    }
+    
+    if (!command) {
+      addError("No command is defined on the exec activity", serviceTaskElement);
+    }
+    if (!path) {
+      addError("No path is defined on the exec activity", serviceTaskElement);
+    }
+    if (!params) {
+      addError("No params are defined on the exec activity", serviceTaskElement);
     }
   }
     
