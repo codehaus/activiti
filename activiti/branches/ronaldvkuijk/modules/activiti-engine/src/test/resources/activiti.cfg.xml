@@ -4,13 +4,20 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
+  <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneMySQLProcessEngineConfiguration">
   
-    <property name="databaseType" value="h2" />
-    <property name="jdbcUrl" value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000" />
+    <!--property name="databaseType" value="h2" />
+    <property name="jdbcUrl" value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=10000" />
     <property name="jdbcDriver" value="org.h2.Driver" />
-    <property name="jdbcUsername" value="sa" />
+    <property name="jdbcUsername" value="sa" /-->
+    <property name="databaseType" value="mysql" />
+    <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/test" />
+    <property name="jdbcDriver" value="com.mysql.jdbc.Driver" />
+    <property name="jdbcUsername" value="root" />
     <property name="jdbcPassword" value="" />
+    <property name="jdbcMaxActiveConnections" value="140" />
+    <!-- property name="jdbcMaxCheckoutTime" value="60000" />
+    <property name="jdbcMaxWaitTime" value="100" /-->
     
     <!-- Database configurations -->
     <property name="databaseSchemaUpdate" value="true" />

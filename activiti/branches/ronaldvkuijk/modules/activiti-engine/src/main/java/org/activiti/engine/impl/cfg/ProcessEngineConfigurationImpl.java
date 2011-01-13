@@ -75,6 +75,7 @@ import org.activiti.engine.impl.interceptor.CommandContextFactory;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.interceptor.CommandInterceptor;
 import org.activiti.engine.impl.interceptor.SessionFactory;
+import org.activiti.engine.impl.jobexecutor.AsyncActivityJobHandler;
 import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.impl.jobexecutor.JobExecutorMessageSessionFactory;
 import org.activiti.engine.impl.jobexecutor.JobExecutorTimerSessionFactory;
@@ -490,7 +491,9 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     jobHandlers = new HashMap<String, JobHandler>();
     TimerExecuteNestedActivityJobHandler timerExecuteNestedActivityJobHandler = new TimerExecuteNestedActivityJobHandler();
     jobHandlers.put(timerExecuteNestedActivityJobHandler.getType(), timerExecuteNestedActivityJobHandler);
-    
+    AsyncActivityJobHandler asyncActivityJobHandler = new AsyncActivityJobHandler();
+    jobHandlers.put(asyncActivityJobHandler.getType(), asyncActivityJobHandler);
+
     jobExecutor.setCommandExecutor(commandExecutorTxRequired);
     jobExecutor.setAutoActivate(jobExecutorActivate);
   }

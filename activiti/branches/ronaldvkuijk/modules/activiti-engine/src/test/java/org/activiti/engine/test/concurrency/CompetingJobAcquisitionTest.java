@@ -72,7 +72,7 @@ public class CompetingJobAcquisitionTest extends PluggableActivitiTestCase {
 
     log.fine("test thread notifies thread 2");
     threadTwo.proceedAndWaitTillDone();
-    assertNotNull(threadTwo.exception);
+    assertNotNull("Thread 2 should have an exception but it has not", threadTwo.exception);
     assertTextPresent("was updated by another transaction concurrently", threadTwo.exception.getMessage());
   }
 

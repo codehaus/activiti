@@ -13,6 +13,7 @@
 package org.activiti.engine.impl.db;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,8 @@ import org.activiti.engine.impl.task.TaskEntity;
 import org.activiti.engine.impl.util.ClockUtil;
 import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.ProcessInstance;
+
+import org.apache.ibatis.mapping.*;
 
 /**
  * @author Joram Barrez
@@ -131,10 +134,26 @@ public class DbRuntimeSession implements Session, RuntimeSession {
     Date now = ClockUtil.getCurrentTime();
     return dbSqlSession.selectList("selectNextJobsToExecute", now, page);
   }
-
+  
+  @SuppressWarnings("unchecked")  
+  public List<JobEntity> findNextJobsToExecutePerQueue(String queue, String lockOwner, Page page) {
+    Date now = ClockUtil.getCurrentTime();
+    Map paramM = new HashMap<String, Object>();  
+    paramM.put("queue", queue);  
+    paramM.put("lockOwner", lockOwner);
+    paramM.put("now", now); 
+    return dbSqlSession.selectList("selectNextJobsToExecutePerQueue", paramM, page);
+  }
+  
   @SuppressWarnings("unchecked")
   public List<TimerEntity> findUnlockedTimersByDuedate(Date duedate, Page page) {
   	final String query = "selectUnlockedTimersByDuedate";
+    return dbSqlSession.selectList(query, duedate, page);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<JobEntity> findUnlockedJobTimersByDuedate(Date duedate, Page page) {
+    final String query = "selectUnlockedTimersByDuedate";
     return dbSqlSession.selectList(query, duedate, page);
   }
 
@@ -148,14 +167,26 @@ public class DbRuntimeSession implements Session, RuntimeSession {
     final String query = "org.activiti.persistence.selectJobByQueryCriteria";
     return dbSqlSession.selectList(query, jobQuery, page);
   }
+  
+  @SuppressWarnings("unchecked")
+  public List<JobEntity> findJobEntitiesByQueryCriteria(JobQueryImpl jobQuery, Page page) {
+    final String query = "org.activiti.persistence.selectJobByQueryCriteria";
+    return dbSqlSession.selectList(query, jobQuery, page);
+  }
 
   public long findJobCountByQueryCriteria(JobQueryImpl jobQuery) {
     return (Long) dbSqlSession.selectOne("org.activiti.persistence.selectJobCountByQueryCriteria", jobQuery);
   }
-
+  
+  @SuppressWarnings("unchecked")
+  public List<String> findJobQueueNames() {
+    return dbSqlSession.selectListUnfiltered("org.activiti.persistence.selectJobQueueNames");
+  }
+  
   public void close() {
   }
 
   public void flush() {
   }
+
 }

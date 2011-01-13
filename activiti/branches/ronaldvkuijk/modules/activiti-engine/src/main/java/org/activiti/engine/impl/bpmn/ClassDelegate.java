@@ -24,6 +24,7 @@ import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.pvm.delegate.ExecutionListener;
 import org.activiti.engine.impl.pvm.delegate.ExecutionListenerExecution;
+import org.activiti.engine.impl.pvm.delegate.SignallableActivityBehavior;
 import org.activiti.engine.impl.pvm.delegate.TaskListener;
 import org.activiti.engine.impl.util.ReflectUtil;
 
@@ -35,7 +36,7 @@ import org.activiti.engine.impl.util.ReflectUtil;
  * 
  * @author Joram Barrez
  */
-public class ClassDelegate implements ActivityBehavior, TaskListener, ExecutionListener {
+public class ClassDelegate implements SignallableActivityBehavior, TaskListener, ExecutionListener {
   
   protected String className;
   protected List<FieldDeclaration> fieldDeclarations;
@@ -98,7 +99,10 @@ public class ClassDelegate implements ActivityBehavior, TaskListener, ExecutionL
 
   protected ActivityBehavior getActivityBehaviorInstance() {
     Object delegateInstance = instantiateDelegate(className, fieldDeclarations);
-    if (delegateInstance instanceof ActivityBehavior) {
+    
+    if (delegateInstance instanceof SignallableActivityBehavior) {
+      return (SignallableActivityBehavior) delegateInstance;
+    } else if (delegateInstance instanceof ActivityBehavior) {
       return (ActivityBehavior) delegateInstance;
     } else if (delegateInstance instanceof JavaDelegate) {
       return new JavaDelegateDelegate((JavaDelegate) delegateInstance);
@@ -141,6 +145,14 @@ public class ClassDelegate implements ActivityBehavior, TaskListener, ExecutionL
       // Null can be set any field type
       return true;
     }
+  }
+
+  public void signal(ActivityExecution execution, String signalEvent, Object signalData) throws Exception {
+      
+      if (activityBehaviorInstance == null) {
+        activityBehaviorInstance = getActivityBehaviorInstance();
+      }
+      ((SignallableActivityBehavior) activityBehaviorInstance).signal(execution,null,null);
   }
 
 }

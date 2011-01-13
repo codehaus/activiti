@@ -26,13 +26,23 @@ public class MessageAddedNotification implements TransactionListener {
   private static Logger log = Logger.getLogger(MessageAddedNotification.class.getName());
   
   private final JobExecutor jobExecutor;
+  private final String queueName;
+  private final String jobId;
 
   public MessageAddedNotification(JobExecutor jobExecutor) {
     this.jobExecutor = jobExecutor;
+    this.queueName = null;
+    this.jobId = null;
+  }
+  
+  public MessageAddedNotification(JobExecutor jobExecutor, String queueName, String jobId) {
+    this.jobExecutor = jobExecutor;
+    this.queueName = queueName;
+    this.jobId = jobId;
   }
 
   public void execute(CommandContext commandContext) {
     log.fine("notifying job executor of new job");
-    jobExecutor.jobWasAdded();
+    jobExecutor.enqueue(queueName, jobId);
   }
 }

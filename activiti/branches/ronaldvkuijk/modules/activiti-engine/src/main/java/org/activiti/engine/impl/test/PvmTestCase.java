@@ -37,7 +37,8 @@ public class PvmTestCase extends TestCase {
   
   private static Logger log = Logger.getLogger(PvmTestCase.class.getName());
 
-  protected static final ThreadLogMode DEFAULT_THREAD_LOG_MODE = ThreadLogMode.INDENT;
+  //protected static final ThreadLogMode DEFAULT_THREAD_LOG_MODE = ThreadLogMode.INDENT;
+  protected static final ThreadLogMode DEFAULT_THREAD_LOG_MODE = ThreadLogMode.PRINT_ID;
   
   protected ThreadLogMode threadRenderingMode;
   protected boolean isEmptyLinesEnabled = true;

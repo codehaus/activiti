@@ -12,8 +12,9 @@
  */
 package org.activiti.engine.impl.jobexecutor;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -21,15 +22,33 @@ import java.util.List;
  */
 public class AcquiredJobs {
 
-  protected List<List<String>> acquiredJobs = new ArrayList<List<String>>();
+  protected Map<String,List<String>> acquiredJobs = new HashMap<String,List<String>>();
+  protected boolean retryImmediate = false;
 
-  public List<List<String>> getJobIdsList() {
+  public Map<String,List<String>> getJobIdsList() {
     return acquiredJobs;
   }
+  
+  public List<String> getJobIdListForQueue(String queueName) {
+	  return acquiredJobs.get(queueName);
+  }
 
-  public void addJobIds(List<String> jobIds) {
-    acquiredJobs.add(jobIds);
+  public void addJobIds(String queueName, List<String> jobIds) {
+	  List<String> existingJobs = acquiredJobs.get(queueName);
+	  if (existingJobs != null) {
+		  existingJobs.addAll(jobIds);
+		  acquiredJobs.put(queueName, existingJobs);
+	  } else {
+		  acquiredJobs.put(queueName, jobIds);	  
+	  }		  
   }
   
+  public boolean getRetryImmediate() {
+    return retryImmediate;
+  }
+
+  public void setRetryImmediate(boolean retryImmediate) {
+    this.retryImmediate = retryImmediate;
+  }
   
 }

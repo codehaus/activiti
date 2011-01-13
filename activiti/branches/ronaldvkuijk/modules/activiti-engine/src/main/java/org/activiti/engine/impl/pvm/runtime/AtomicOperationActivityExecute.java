@@ -14,9 +14,11 @@ package org.activiti.engine.impl.pvm.runtime;
 
 import java.util.logging.Logger;
 
+import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.pvm.PvmException;
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.impl.runtime.MessageEntity;
 
 
 /**
@@ -29,19 +31,32 @@ public class AtomicOperationActivityExecute implements AtomicOperation {
   public void execute(InterpretableExecution execution) {
     ActivityImpl activity = (ActivityImpl) execution.getActivity();
     
-    ActivityBehavior activityBehavior = activity.getActivityBehavior();
-    if (activityBehavior==null) {
-      throw new PvmException("no behavior specified in "+activity);
-    }
-
-    log.fine(execution+" executes "+activity+": "+activityBehavior.getClass().getName());
+    if ("async".equals(activity.getContinuation())) {
+        MessageEntity me = new MessageEntity();
+        me.setExecutionId(execution.getId());
+        //TODO RKU me.setQueue((String)activity.getProperty("name"));
+        me.setProcessInstanceId(execution.getId());
+        me.setJobHandlerType("async-cont");
+        CommandContext
+        .getCurrent()
+        .getDbSqlSession()
+        .insert(me);
+    } else {
     
-    try {
-      activityBehavior.execute(execution);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new PvmException("couldn't execute activity <"+activity.getProperty("type")+" id=\""+activity.getId()+"\" ...>: "+e.getMessage(), e);
+      ActivityBehavior activityBehavior = activity.getActivityBehavior();
+      if (activityBehavior==null) {
+        throw new PvmException("no behavior specified in "+activity);
+      }
+
+      log.fine(execution+" executes "+activity+": "+activityBehavior.getClass().getName());
+    
+      try {
+        activityBehavior.execute(execution);
+      } catch (RuntimeException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new PvmException("couldn't execute activity <"+activity.getProperty("type")+" id=\""+activity.getId()+"\" ...>: "+e.getMessage(), e);
+      }
     }
   }
 }

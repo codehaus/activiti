@@ -6,7 +6,7 @@
 	<name>Activiti - Engine</name>
 	<groupId>org.activiti</groupId>
 	<artifactId>activiti-engine</artifactId>
-
+	
 	<parent>
 		<groupId>org.activiti</groupId>
 		<artifactId>activiti-root</artifactId>
@@ -15,10 +15,18 @@
 	</parent>
 
 	<dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-email</artifactId>
-    </dependency>
+	
+	<dependency>
+	  <groupId>nl.intercommit.mario</groupId>
+	  <artifactId>common</artifactId>
+	  <version>4.0.5</version>
+	</dependency>
+
+
+   <dependency>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-email</artifactId>
+   </dependency>
     <dependency>
       <!-- required for building with JDK 5 -->
       <groupId>org.livetribe</groupId>
@@ -57,6 +65,11 @@
 	  <groupId>org.drools</groupId>
 	  <artifactId>drools-compiler</artifactId>
 	  <scope>provided</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.drools</groupId>
+		<artifactId>drools-api</artifactId>
+		<scope>provided</scope>
 	</dependency>
 		<dependency>
 	    <groupId>javax.persistence</groupId>
@@ -98,9 +111,151 @@
 	  <groupId>postgresql</groupId>
 	  <artifactId>postgresql</artifactId>
       <scope>test</scope>
+	</dependency><!--
+	<dependency>
+		<groupId>org.apache.geronimo.specs</groupId>
+		<artifactId>geronimo-ejb_3.0_spec</artifactId>
+		<version>1.0.1</version>
+		<scope>provided</scope>
 	</dependency>
-
-</dependencies>
+	--><dependency>
+		<groupId>org.jboss.jbossas</groupId>
+		<artifactId>jboss-as-client</artifactId>
+		<version>5.1.0.GA</version>
+		<type>pom</type>
+		<scope>test</scope>
+		<exclusions>
+				<exclusion>
+					<groupId>jboss.web</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jboss.test</groupId>
+					<artifactId>jboss-test</artifactId>
+				</exclusion>
+			</exclusions>
+	</dependency>
+	
+				<!-- JBoss client jars, non-ejb -->
+			<!-- dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-j2se</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-javaee</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-logging-spi</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jbosssx-client</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-security-spi</artifactId>
+				<version>${jboss.version.security}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>concurrent</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-aop-client</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-client</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-common-core</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-integration</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-mdr</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-remoting</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jboss-serialization</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jmx-invoker-adaptor-client</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>jnp-client</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone</groupId>
+				<artifactId>trove</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone.ejb</groupId>
+				<artifactId>jboss-ejb3-common-client</artifactId>
+				<version>${jboss.version.ejb3}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone.ejb</groupId>
+				<artifactId>jboss-aspect-jdk50-client</artifactId>
+				<version>${jboss.version.standalone}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone.ejb</groupId>
+				<artifactId>jboss-ejb3-core-client</artifactId>
+				<version>${jboss.version.ejb3}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone.ejb</groupId>
+				<artifactId>jboss-ejb3-proxy-impl-client</artifactId>
+				<version>${jboss.version.ejb3}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone.ejb</groupId>
+				<artifactId>jboss-ejb3-proxy-spi-client</artifactId>
+				<version>${jboss.version.ejb3}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.client.standalone.ejb</groupId>
+				<artifactId>jboss-ejb3-security-client</artifactId>
+				<version>${jboss.version.ejb3}</version>
+			</dependency-->
+	
+	
+	
+	</dependencies>
 
 
     <properties>
@@ -114,6 +269,9 @@
             org.apache.tools.ant*;resolution:=optional,
             org.apache.xerces*;resolution:=optional,
         </activiti.osgi.import.additional>
+        <jboss.version.standalone>5.1.0.GA</jboss.version.standalone> <!-- The jars compiled with programs running outside of JBoss  -->
+		<jboss.version.ejb3>5.1.0.GA.19</jboss.version.ejb3>
+		<jboss.version.security>5.1.0.GA.SP3</jboss.version.security>
     </properties>
 
     <repositories>

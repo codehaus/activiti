@@ -31,7 +31,9 @@
     </discriminator>
   </resultMap>
 
-  <resultMap id="messageResultMap" type="org.activiti.engine.impl.runtime.MessageEntity" extends="jobResultMap"/>
+  <resultMap id="messageResultMap" type="org.activiti.engine.impl.runtime.MessageEntity" extends="jobResultMap">
+      <result property="queue" column="QUEUE_" jdbcType="VARCHAR" />
+  </resultMap>
 
   <resultMap id="timerResultMap" type="org.activiti.engine.impl.runtime.TimerEntity" extends="jobResultMap">
     <result property="duedate" column="DUEDATE_" jdbcType="TIMESTAMP" />
@@ -55,6 +57,16 @@
       and (LOCK_OWNER_ is null or LOCK_EXP_TIME_ &lt; #{now, jdbcType=TIMESTAMP})
       and (RETRIES_ &gt; 0)
   </select>
+    
+  <select id="selectNextJobsToExecutePerQueue" parameterType="java.util.Map" resultMap="jobResultMap">
+    select * 
+    from ACT_RU_JOB 
+    where (RETRIES_ &gt; 0)
+      and (DUEDATE_ is null or DUEDATE_ &lt; #{now, jdbcType=TIMESTAMP})
+      and (LOCK_OWNER_ is null or LOCK_EXP_TIME_ &lt; #{now, jdbcType=TIMESTAMP})
+      and (RETRIES_ &gt; 0)
+      and (QUEUE_ = {#queue})
+  </select>
   
   <select id="selectLockedJobs" resultMap="jobResultMap">
     select * 
@@ -74,6 +86,10 @@
   <select id="selectJobCountByQueryCriteria" parameterType="org.activiti.engine.impl.JobQueryImpl" resultType="long">
     select count(distinct ID_)
     <include refid="selectJobByQueryCriteriaSql"/>
+  </select>
+  
+  <select id="selectJobQueueNames" resultType="java.lang.String">
+    select distinct QUEUE_ from ACT_RU_JOB
   </select>
   
   <sql id="selectJobByQueryCriteriaSql">
@@ -113,6 +129,9 @@
       <if test="duedateLowerThenOrEqual != null">
         and J.DUEDATE_ &lt;= #{duedateLowerThenOrEqual}
       </if>
+      <if test="queue != null">
+        and J.QUEUE_ = #{queue}
+      </if>
     </where>
   </sql>
 
@@ -124,7 +143,16 @@
       and (DUEDATE_ is null or DUEDATE_ &lt;= #{now, jdbcType=TIMESTAMP})
       and (LOCK_OWNER_ is null or LOCK_EXP_TIME_ &lt;= #{now, jdbcType=TIMESTAMP})
   </select>
-  
+
+  <!--  SELECT DEPENDENT -->  
+   <select id="selectNextJobsToExecutePerQueue_mysql" parameterType="java.util.Map" resultMap="jobResultMap">
+    select * 
+    from ACT_RU_JOB 
+    where (RETRIES_ &gt; 0)
+      and (DUEDATE_ is null or DUEDATE_ &lt;= #{now, jdbcType=TIMESTAMP})
+      and (LOCK_OWNER_ = #{lockOwner} and (LOCK_EXP_TIME_ is null or LOCK_EXP_TIME_ &lt;= #{now, jdbcType=TIMESTAMP}))
+      and (QUEUE_ = #{queue})
+  </select>  
 
 
   <!-- TIMER INSERT -->
@@ -219,7 +247,8 @@
             EXCEPTION_STACK_ID_,
             EXCEPTION_MSG_,
             HANDLER_TYPE_,
-            HANDLER_CFG_)
+            HANDLER_CFG_,
+            QUEUE_)
     values (#{id, jdbcType=VARCHAR},
             1,
             'message',
@@ -232,7 +261,8 @@
             #{exceptionByteArrayId, jdbcType=VARCHAR},
             #{exceptionMessage, jdbcType=VARCHAR},
             #{jobHandlerType, jdbcType=VARCHAR},
-            #{jobHandlerConfiguration, jdbcType=VARCHAR}
+            #{jobHandlerConfiguration, jdbcType=VARCHAR},
+            #{queue, jdbcType=VARCHAR}
     )
   </insert>
   

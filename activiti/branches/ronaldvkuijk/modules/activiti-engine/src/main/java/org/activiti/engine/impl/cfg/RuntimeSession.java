@@ -49,8 +49,12 @@ public interface RuntimeSession {
 
   JobEntity findJobById(String jobId);
   List<JobEntity> findNextJobsToExecute(Page page);
+  List<JobEntity> findNextJobsToExecutePerQueue(String queue, String lockOwner, Page page);
+  List<JobEntity> findUnlockedJobTimersByDuedate(Date duedate, Page page);
   List<TimerEntity> findUnlockedTimersByDuedate(Date duedate, Page page);
   List<TimerEntity> findTimersByExecutionId(String executionId);
   List<Job> findJobsByQueryCriteria(JobQueryImpl jobQuery, Page page);
+  List<JobEntity> findJobEntitiesByQueryCriteria(JobQueryImpl jobQuery, Page page);
   long findJobCountByQueryCriteria(JobQueryImpl jobQuery);
+  List<String> findJobQueueNames();
 }

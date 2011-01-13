@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:activiti="http://activiti.org/bpmn"
+  targetNamespace="Examples">
+
+  <process id="ejbMethodExpressionProcess" name="EJB Method Expression Process">
+  
+    <startEvent id="theStart" />
+    <sequenceFlow id="flow1" sourceRef="theStart" targetRef="servicetask1" />
+    <serviceTask id="servicetask1" name="ServiceTask 1" activiti:expression="#{AttStore__remote.openAttachment('2011011212-ada4a32824b742ebb0386a19d35fdbbc.gz',true)}" />       
+    <sequenceFlow id="flow2" sourceRef="servicetask1" targetRef="theEnd" />
+    <endEvent id="theEnd" />
+    
+  </process>
+
+</definitions>

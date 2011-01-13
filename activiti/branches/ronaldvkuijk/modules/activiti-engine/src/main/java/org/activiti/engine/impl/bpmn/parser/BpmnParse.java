@@ -50,6 +50,8 @@ import org.activiti.engine.impl.bpmn.ManualTaskActivity;
 import org.activiti.engine.impl.bpmn.MessageDefinition;
 import org.activiti.engine.impl.bpmn.MessageImplicitDataInputAssociation;
 import org.activiti.engine.impl.bpmn.MessageImplicitDataOutputAssociation;
+import org.activiti.engine.impl.bpmn.MultiInstanceLoopActivity;
+import org.activiti.engine.impl.bpmn.MultiInstanceLoopCharacteristics;
 import org.activiti.engine.impl.bpmn.NoneEndEventActivity;
 import org.activiti.engine.impl.bpmn.NoneStartEventActivity;
 import org.activiti.engine.impl.bpmn.Operation;
@@ -60,6 +62,8 @@ import org.activiti.engine.impl.bpmn.ScriptTaskActivity;
 import org.activiti.engine.impl.bpmn.ServiceTaskDelegateExpressionActivityBehavior;
 import org.activiti.engine.impl.bpmn.ServiceTaskExpressionActivityBehavior;
 import org.activiti.engine.impl.bpmn.SimpleDataInputAssociation;
+import org.activiti.engine.impl.bpmn.StandardLoopActivity;
+import org.activiti.engine.impl.bpmn.StandardLoopCharacteristics;
 import org.activiti.engine.impl.bpmn.StructureDefinition;
 import org.activiti.engine.impl.bpmn.SubProcessActivity;
 import org.activiti.engine.impl.bpmn.TaskActivity;
@@ -100,6 +104,7 @@ import org.activiti.engine.impl.variable.VariableDeclaration;
  * @author Christian Stettler
  * @author Frederik Heremans
  * @author Falko Menge
+ * @author Ronald van Kuijk
  */
 public class BpmnParse extends Parse {
 
@@ -727,6 +732,7 @@ public class BpmnParse extends Parse {
     String id = activityElement.attribute("id");
     String name = activityElement.attribute("name");
     String documentation = parseDocumentation(activityElement);
+    ActivityImpl innerActivity = null;
     if (LOG.isLoggable(Level.FINE)) {
       LOG.fine("Parsing activity " + id);
     }
@@ -735,7 +741,60 @@ public class BpmnParse extends Parse {
     activity.setProperty("documentation", documentation);
     activity.setProperty("type", activityElement.getTagName());
     activity.setProperty("line", activityElement.getLine());
-    return activity;
+    
+    String cont = activityElement.attributeNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "continue");
+    if ("async".equals(cont) ) {
+        activity.setContinuation(cont);
+    } else if (cont != null) {
+        addError("Invalid usage of continue attribute: '" + cont + "'", activityElement);
+    }
+    
+    Element loopCharacteristics = activityElement.element("multiInstanceLoopCharacteristics");
+    if (loopCharacteristics!=null) {
+        MultiInstanceLoopCharacteristics milc = new MultiInstanceLoopCharacteristics();
+        milc.setBehaviour(loopCharacteristics.attribute("behaviour"));
+        milc.setSequential(Boolean.parseBoolean(loopCharacteristics.attribute("sequential")));
+        milc.setForEach(loopCharacteristics.attributeNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "forEach"));
+        milc.setVar(loopCharacteristics.attributeNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "var"));
+
+        if (loopCharacteristics.element("loopCardinality") != null) {
+            milc.setLoopCardinality(loopCharacteristics.element("loopCardinality").getText());
+        }
+        if (loopCharacteristics.element("inputDataItem") != null) {
+            milc.setLoopCardinality(loopCharacteristics.element("inputDataItem").getText());
+        }
+        if (loopCharacteristics.element("loopDataInputRef") != null) {
+            milc.setLoopCardinality(loopCharacteristics.element("loopDataInputRef").getText());
+        }
+        
+        activity.setScope(true);
+        innerActivity = scopeElement.createActivity();
+        activity.setActivityBehavior(new MultiInstanceLoopActivity(innerActivity, milc));
+
+        
+    } else {
+        loopCharacteristics = activityElement.element("standardLoopCharacteristics");
+        if (loopCharacteristics != null) {
+            StandardLoopCharacteristics slc = new StandardLoopCharacteristics();
+            
+            slc.setTestBefore(Boolean.parseBoolean(loopCharacteristics.attribute("testBefore")));
+            if (loopCharacteristics.element("loopCondition") != null) {
+              slc.setLoopCondition(loopCharacteristics.element("loopCondition").getText());
+            }
+            String loopMax = loopCharacteristics.attribute("loopMaximum");
+            if (loopMax != null) {
+                slc.setLoopMaximum(Integer.parseInt(loopMax));
+            } else {
+                slc.setLoopMaximum(0);
+            }
+            activity.setScope(true);
+            innerActivity = scopeElement.createActivity();
+            activity.setActivityBehavior(new StandardLoopActivity(innerActivity, slc));
+        }
+        
+    }
+    
+    return innerActivity !=null?innerActivity:activity;
   }
 
   /**

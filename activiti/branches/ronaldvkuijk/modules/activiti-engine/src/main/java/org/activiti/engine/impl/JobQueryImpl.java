@@ -41,6 +41,7 @@ public class JobQueryImpl extends AbstractQuery<JobQuery, Job> implements JobQue
   protected Date duedateLowerThen;
   protected Date duedateHigherThenOrEqual;
   protected Date duedateLowerThenOrEqual;
+  protected String queue;
   
   public JobQueryImpl() {
   }
@@ -128,6 +129,14 @@ public class JobQueryImpl extends AbstractQuery<JobQuery, Job> implements JobQue
       throw new ActivitiException("Provided date is null");
     }
     this.duedateLowerThenOrEqual = date;
+    return this;
+  }
+  
+  public JobQuery queue(String queue) {
+    if (queue == null) {
+      throw new ActivitiException("Provided service is null");
+    }
+    this.queue = queue;
     return this;
   }
   

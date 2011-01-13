@@ -14,10 +14,13 @@
 package org.activiti.engine.impl.test;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -176,38 +179,104 @@ public abstract class AbstractActivitiTestCase extends PvmTestCase {
   }
 
   public void waitForJobExecutorToProcessAllJobs(long maxMillisToWait, long intervalMillis) {
+    waitForJobExecutorToProcessAllJobs(maxMillisToWait, intervalMillis, true);
+  }
+    
+  public void waitForJobExecutorToProcessAllJobs(long maxMillisToWait, long intervalMillis, boolean shutdown) {
     JobExecutor jobExecutor = ((ProcessEngineImpl)processEngine).getJobExecutor();
     jobExecutor.start();
-
+    
     try {
       Timer timer = new Timer();
       InteruptTask task = new InteruptTask(Thread.currentThread());
       timer.schedule(task, maxMillisToWait);
-      boolean areJobsAvailable = true;
+      boolean areJobsInDB = true;
       try {
-        while (areJobsAvailable && !task.isTimeLimitExceeded()) {
+        while (areJobsInDB && !task.isTimeLimitExceeded()) {
           Thread.sleep(intervalMillis);
-          areJobsAvailable = areJobsAvailable();
+          
+          areJobsInDB = areJobsInProcess(jobExecutor) || areExecutableJobsAvailable();          
+          log.info("Timer: " + (task.scheduledExecutionTime() - System.currentTimeMillis()) + "ms left, waiting for " + countJobs() + " jobs");
         }
       } catch (InterruptedException e) {
       } finally {
         timer.cancel();
       }
-      if (areJobsAvailable) {
+      if (areJobsInDB) {
         throw new ActivitiException("time limit of " + maxMillisToWait + " was exceeded");
       }
 
     } finally {
-      jobExecutor.shutdown();
+      log.info(jobExecutor.dumpStatistics());
+      if (shutdown) {
+        jobExecutor.shutdown();
+      } else {
+        System.out.println("JE still active: " + jobExecutor.isActive());
+      }
     }
   }
 
-  public boolean areJobsAvailable() {
+  public void waitForAllJobsToAppear(int jobsToAppear, long maxMillisToWait, long intervalMillis) {
+    
+    try {
+      Timer timer = new Timer();
+      InteruptTask task = new InteruptTask(Thread.currentThread());
+      timer.schedule(task, maxMillisToWait);
+      boolean areJobsInDB = true;
+      try {
+        while (areJobsInDB && !task.isTimeLimitExceeded()) {
+          Thread.sleep(intervalMillis);
+          
+          areJobsInDB = countJobs() < jobsToAppear;          
+          log.info("Timer: " + (task.scheduledExecutionTime() - System.currentTimeMillis()) + "ms left, waiting for " + jobsToAppear +  " current: " + countJobs() + " jobs");
+        }
+      } catch (InterruptedException e) {
+      } finally {
+        timer.cancel();
+      }
+      if (areJobsInDB) {
+        throw new ActivitiException("time limit of " + maxMillisToWait + " was exceeded");
+      }
+
+    } finally {
+
+    }
+  }
+  
+  
+  public boolean areJobsInProcess(JobExecutor jobExecutor) {
+    
+    boolean areJobsInProcess = false;
+    for(String queue : jobExecutor.getQueueNames()) {
+      areJobsInProcess = areJobsInProcess || (jobExecutor.getLogicalQueue(queue).getTasksInProcess().get() > 0);
+    }
+    return areJobsInProcess;
+  }
+  
+  public boolean areJobsInDB() {
+    return !managementService
+    .createJobQuery().list().isEmpty();
+  }
+
+  public boolean areExecutableJobsAvailable() {
     return !managementService
       .createJobQuery()
       .executable()
       .list()
       .isEmpty();
+  }
+  
+  public boolean areJobsWaiting() {
+    return !managementService
+      .createJobQuery()
+      .duedateHigherThen(new Date())
+      .list()
+      .isEmpty();
+  }
+  
+  public long countJobs() {
+    return managementService
+      .createJobQuery().count();
   }
 
   private static class InteruptTask extends TimerTask {

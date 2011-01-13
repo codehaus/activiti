@@ -39,6 +39,14 @@ public class JobExecutorTestCase extends PluggableActivitiTestCase {
     message.setJobHandlerConfiguration(msg);
     return message;
   }
+  
+  protected MessageEntity createTweetMessage(String queueName, String msg) {
+	    MessageEntity message = new MessageEntity();
+	    message.setJobHandlerType("tweet");
+	    message.setQueue(queueName);
+	    message.setJobHandlerConfiguration(msg);
+	    return message;
+	  }
 
   protected TimerEntity createTweetTimer(String msg, Date duedate) {
     TimerEntity timer = new TimerEntity();

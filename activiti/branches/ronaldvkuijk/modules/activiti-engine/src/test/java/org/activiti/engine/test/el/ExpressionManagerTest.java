@@ -43,6 +43,16 @@ public class ExpressionManagerTest extends PluggableActivitiTestCase {
   }
   
   @Deployment
+  public void testEJBMethodExpressions() {
+    // Process contains 2 service tasks. one containing a method with no params, the other
+    // contains a method with 2 params. When the process completes without exception,
+    // test passed.
+    runtimeService.startProcessInstanceByKey("ejbMethodExpressionProcess");
+    
+    assertEquals(0, runtimeService.createProcessInstanceQuery().processDefinitionKey("ejbMethodExpressionProcess").count());
+  }
+  
+  @Deployment
   public void testExecutionAvailable() {
     Map<String, Object> vars = new HashMap<String, Object>();
    

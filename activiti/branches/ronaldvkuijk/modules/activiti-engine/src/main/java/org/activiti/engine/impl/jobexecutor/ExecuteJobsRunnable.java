@@ -36,4 +36,8 @@ public class ExecuteJobsRunnable implements Runnable {
       commandExecutor.execute(new ExecuteJobsCmd(jobId));
     }
   }
+  
+  public int getSize() {
+	  return this.jobIds.size();
+  }
 }

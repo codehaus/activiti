@@ -23,7 +23,6 @@ import org.activiti.engine.impl.pvm.PvmException;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 
-
 /**
  * @author Tom Baeyens
  */
@@ -36,13 +35,14 @@ public class ActivityImpl extends ScopeImpl implements PvmActivity {
   protected ActivityBehavior activityBehavior;
   protected ScopeImpl parent;
   protected boolean isScope;
-  
+  protected String continuation;
+
   // Graphical information
   protected int x = -1;
   protected int y = -1;
   protected int width = -1;
   protected int height = -1;
-  
+
   public ActivityImpl(String id, ProcessDefinitionImpl processDefinition) {
     super(id, processDefinition);
   }
@@ -55,25 +55,25 @@ public class ActivityImpl extends ScopeImpl implements PvmActivity {
     TransitionImpl transition = new TransitionImpl(transitionId, processDefinition);
     transition.setSource(this);
     outgoingTransitions.add(transition);
-    
-    if (transitionId!=null) {
+
+    if (transitionId != null) {
       if (namedOutgoingTransitions.containsKey(transitionId)) {
-        throw new PvmException("activity '"+id+" has duplicate transition '"+transitionId+"'");
+        throw new PvmException("activity '" + id + " has duplicate transition '" + transitionId + "'");
       }
       namedOutgoingTransitions.put(transitionId, transition);
     }
-    
+
     return transition;
   }
-  
+
   public TransitionImpl findOutgoingTransition(String transitionId) {
     return namedOutgoingTransitions.get(transitionId);
   }
-  
+
   public String toString() {
-    return "Activity("+id+")";
+    return "Activity(" + id + ")";
   }
-  
+
   public ActivityImpl getParentActivity() {
     if (parent instanceof ActivityImpl) {
       return (ActivityImpl) parent;
@@ -81,9 +81,8 @@ public class ActivityImpl extends ScopeImpl implements PvmActivity {
     return null;
   }
 
-
   // restricted setters ///////////////////////////////////////////////////////
-  
+
   protected void setOutgoingTransitions(List<TransitionImpl> outgoingTransitions) {
     this.outgoingTransitions = outgoingTransitions;
   }
@@ -128,10 +127,18 @@ public class ActivityImpl extends ScopeImpl implements PvmActivity {
     this.isScope = isScope;
   }
 
+  public String getContinuation() {
+    return continuation;
+  }
+
+  public void setContinuation(String continuation) {
+    this.continuation = continuation;
+  }
+
   public int getX() {
     return x;
   }
-  
+
   public void setX(int x) {
     this.x = x;
   }
@@ -159,5 +166,5 @@ public class ActivityImpl extends ScopeImpl implements PvmActivity {
   public void setHeight(int height) {
     this.height = height;
   }
-  
+
 }

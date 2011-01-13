@@ -19,12 +19,14 @@ import org.activiti.engine.impl.interceptor.CommandContext;
 
 /**
  * @author Tom Baeyens
+ * @author Ronald van Kuijk
  */
 public class MessageEntity extends JobEntity {
 
   private static final long serialVersionUID = 1L;
 
   private String repeat = null;
+  private String queueName = null;
   
   @Override
   public void execute(CommandContext commandContext) {
@@ -44,5 +46,12 @@ public class MessageEntity extends JobEntity {
   }
   public void setRepeat(String repeat) {
     this.repeat = repeat;
+  }
+
+  public String getQueue() {
+    return queueName;
+  }
+  public void setQueue(String queueName) {
+    this.queueName = queueName;
   }
 }

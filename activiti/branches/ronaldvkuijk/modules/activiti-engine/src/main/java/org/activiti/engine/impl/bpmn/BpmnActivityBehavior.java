@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
 
 /**
  * helper class for implementing BPMN 2.0 activities, offering convenience
@@ -29,6 +30,7 @@ import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
  * This class can be used by inheritance or aggregation.
  * 
  * @author Joram Barrez
+ * @author Ronald van Kuijk
  */
 public class BpmnActivityBehavior {
   
@@ -44,7 +46,11 @@ public class BpmnActivityBehavior {
    * multiple, parallel paths of executions are created.
    */
   public void performDefaultOutgoingBehavior(ActivityExecution activityExceution) {
-    performOutgoingBehavior(activityExceution, true);
+    performOutgoingBehavior(activityExceution, true, false);
+  }
+  
+  public void performDefaultOutgoingBehavior(ActivityExecution activityExceution, boolean lastOfLoop) {
+      performOutgoingBehavior(activityExceution, true, lastOfLoop);
   }
   
   /**
@@ -58,15 +64,22 @@ public class BpmnActivityBehavior {
    * be created.
    */
   public void performIgnoreConditionsOutgoingBehavior(ActivityExecution activityExecution) {
-    performOutgoingBehavior(activityExecution, false);
+    performOutgoingBehavior(activityExecution, false, false);
   }
   
   /**
    * Actual implementation of leaving an activity.
    */
-  protected void performOutgoingBehavior(ActivityExecution execution, boolean checkConditions) {
+  protected void performOutgoingBehavior(ActivityExecution execution, boolean checkConditions, boolean lastOfLoop) {
 
-    if (log.isLoggable(Level.FINE)) {
+      if (((ActivityImpl)execution.getActivity()).getActivityBehavior() instanceof LoopActivity && !lastOfLoop) {
+          if (log.isLoggable(Level.FINE)) {
+              log.fine("Not leaving activity '" + execution.getActivity().getId() + "' since it is in a loop");
+            }          
+          return;
+      }
+      
+      if (log.isLoggable(Level.FINE)) {
         log.fine("Leaving activity '" + execution.getActivity().getId() + "'");
       }
       

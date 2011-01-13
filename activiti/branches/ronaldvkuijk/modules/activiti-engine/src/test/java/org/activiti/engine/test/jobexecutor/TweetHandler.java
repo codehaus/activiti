@@ -12,9 +12,12 @@
  */
 package org.activiti.engine.test.jobexecutor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.jobexecutor.JobHandler;
 import org.activiti.engine.impl.runtime.ExecutionEntity;
@@ -22,18 +25,49 @@ import org.junit.Assert;
 
 public class TweetHandler implements JobHandler {
 
-  List<String> messages = new ArrayList<String>();
+  private static Logger log = Logger.getLogger(TweetHandler.class.getName());
+
+  ConcurrentSkipListSet<String> messages = new ConcurrentSkipListSet<String>();
 
   public String getType() {
     return "tweet";
   }
 
   public void execute(String configuration, ExecutionEntity execution, CommandContext commandContext) {
-    messages.add(configuration);
+
+//    try {
+//     Thread.sleep(new Random().nextInt(51));
+//     } catch (InterruptedException e) {
+     log.fine("Thread" + Thread.currentThread().getName());
+//     log.severe("Message: " + configuration);
+//     log.severe("Error: " + e.getMessage());
+//     throw (new RuntimeException("Error processing " + configuration,e));
+//     }
+    try {
+      
+//      if (new Random().nextInt(200) == 100) {
+//        throw new RuntimeException("Bla " + configuration);
+//      }
+      
+      if (messages.contains(configuration)) {
+        log.severe("Duplicate insertion of " + configuration + ". (Not so) Silently ignoring" );
+      } else {
+        messages.add(configuration);
+      }
+
+    } catch (RuntimeException e) {
+      log.log(Level.SEVERE, "exception during timer execution", e);
+      throw e;
+
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "exception during timer execution", e);
+      throw new ActivitiException("exception during timer execution: " + e.getMessage(), e);
+    }
+
     Assert.assertNotNull(commandContext);
   }
-  
-  public List<String> getMessages() {
+
+  public ConcurrentSkipListSet<String> getMessages() {
     return messages;
   }
 }

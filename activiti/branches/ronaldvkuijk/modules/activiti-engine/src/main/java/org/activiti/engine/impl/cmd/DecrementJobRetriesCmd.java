@@ -40,8 +40,8 @@ public class DecrementJobRetriesCmd implements Command<Object> {
     RuntimeSession runtimeSession = commandContext.getRuntimeSession();
     JobEntity job = runtimeSession.findJobById(jobId);
     job.setRetries(job.getRetries() - 1);
-    job.setLockOwner(null);
-    job.setLockExpirationTime(null);
+    //job.setLockOwner(null); Leave lockOwner since it is pinned!!!!
+    job.setLockExpirationTime(null);// Should probably be changed also since it is automagically added again? 
     
     if(exception != null) {
       job.setExceptionMessage(exception.getMessage());

@@ -24,6 +24,7 @@ import org.activiti.engine.impl.pvm.delegate.SignallableActivityBehavior;
  * Corresponds with the notion of the 'flownode' in BPMN 2.0.
  * 
  * @author Joram Barrez
+ * @author Ronald van Kuijk
  */
 public abstract class AbstractBpmnActivity implements SignallableActivityBehavior {
   
@@ -41,11 +42,15 @@ public abstract class AbstractBpmnActivity implements SignallableActivityBehavio
    * outgoing sequence flow and take those that evaluate to true.
    */
   protected void leave(ActivityExecution execution) {
-    bpmnActivityBehavior.performDefaultOutgoingBehavior(execution);
+    bpmnActivityBehavior.performDefaultOutgoingBehavior(execution, false);
   }
   
   protected void leaveIgnoreConditions(ActivityExecution activityContext) {
     bpmnActivityBehavior.performIgnoreConditionsOutgoingBehavior(activityContext);
+  }
+
+  protected void leaveLast(ActivityExecution execution) {
+      bpmnActivityBehavior.performDefaultOutgoingBehavior(execution, true);
   }
 
   public void signal(ActivityExecution execution, String signalName, Object signalData) throws Exception {

@@ -14,8 +14,12 @@ package org.activiti.engine.impl.cmd;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.interceptor.Command;
@@ -23,31 +27,78 @@ import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.jobexecutor.AcquiredJobs;
 import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.impl.runtime.JobEntity;
+import org.activiti.engine.impl.runtime.MessageEntity;
+import org.activiti.engine.impl.runtime.TimerEntity;
 import org.activiti.engine.impl.util.ClockUtil;
-
 
 /**
  * @author Nick Burch
+ * @author Ronald van Kuijk
  */
 public class AcquireJobsCmd implements Command<AcquiredJobs> {
+
+  private static Logger log = Logger.getLogger(AcquireJobsCmd.class.getName());
 
   private final JobExecutor jobExecutor;
 
   public AcquireJobsCmd(JobExecutor jobExecutor) {
     this.jobExecutor = jobExecutor;
   }
-  
+
   public AcquiredJobs execute(CommandContext commandContext) {
+
+    int maxJobsPerAcquisition = jobExecutor.getMaxJobsPerAcquisition();
+    int free;
+    int jobsToAcquire;
+
+    AcquiredJobs acquiredJobs = new AcquiredJobs();
+
+    int totalJobsAcquired = 0;
+
+    log.log(Level.INFO, "Current status: " + jobExecutor.dumpStatistics());
+
+    if (jobExecutor.isAcquisitionPerQueue()) {
+
+      for (String openQueue : jobExecutor.getOpenQueueNames()) {
+
+        free = jobExecutor.getLogicalQueue(openQueue).getQueue().remainingCapacity();
+        jobsToAcquire = free > maxJobsPerAcquisition ? maxJobsPerAcquisition : free; 
+        if (openQueue != "Timers") {
+            List<JobEntity> jobs = commandContext.getRuntimeSession().findNextJobsToExecutePerQueue(openQueue, jobExecutor.getLockOwner(),
+                    new Page(0, maxJobsPerAcquisition));
+            lockJobs(openQueue, acquiredJobs, jobs);
+            totalJobsAcquired = totalJobsAcquired + jobs.size();
+            log.log(Level.INFO, "Jobs acquired for '" + openQueue + "': " + jobs.size()); 
+            // TODO, something per queue
+            if ((jobsToAcquire < maxJobsPerAcquisition && jobs.size() != 0) || jobs.size() == maxJobsPerAcquisition) acquiredJobs.setRetryImmediate(true);
+        }
+      }
+
+      List<JobEntity> jobs = commandContext.getRuntimeSession().findUnlockedJobTimersByDuedate(ClockUtil.getCurrentTime(), new Page(0, maxJobsPerAcquisition));
+      lockJobs("Timers", acquiredJobs, jobs);
+      totalJobsAcquired = totalJobsAcquired + jobs.size();
+      log.log(Level.INFO, "Jobs acquired for 'Timers': " + jobs.size());
+    } else {
+      List<JobEntity> jobs = commandContext.getRuntimeSession().findNextJobsToExecute(new Page(0, maxJobsPerAcquisition));
+      lockJobs(null, acquiredJobs, jobs);
+      totalJobsAcquired = jobs.size();
+      if (totalJobsAcquired == maxJobsPerAcquisition) acquiredJobs.setRetryImmediate(true);
+    }
+    log.log(Level.INFO, "Total Jobs Acquired: " + totalJobsAcquired);
+    return acquiredJobs;
+  }
+
+  void lockJobs(String openQueue, AcquiredJobs acquiredJobs, List<JobEntity> jobs) {
+
+    if (jobs.size() == 0)
+      return;
+
+    log.log(Level.INFO, "Locking " + jobs.size() + " retrieved jobs for " + openQueue);
     String lockOwner = jobExecutor.getLockOwner();
     int lockTimeInMillis = jobExecutor.getLockTimeInMillis();
-    int maxJobsPerAcquisition = jobExecutor.getMaxJobsPerAcquisition();
-    
-    
-    AcquiredJobs acquiredJobs = new AcquiredJobs();
-    List<JobEntity> jobs = commandContext
-      .getRuntimeSession()
-      .findNextJobsToExecute(new Page(0, maxJobsPerAcquisition));
-    for (JobEntity job: jobs) {
+
+    String localQueue = openQueue;
+    for (JobEntity job : jobs) {
       List<String> jobIds = new ArrayList<String>();
 
       if (job != null) {
@@ -61,10 +112,24 @@ public class AcquireJobsCmd implements Command<AcquiredJobs> {
           // TODO acquire other exclusive jobs for the same process instance.
         }
       }
-      
-      acquiredJobs.addJobIds(jobIds);
+      if (openQueue == null) {
+        localQueue = (job instanceof MessageEntity) ? ((MessageEntity) job).getQueue() : (job instanceof TimerEntity ? "Timers" : "Default");
+      } else {
+        localQueue = openQueue;
+      }
+
+      // This will only be true if all jobs are retrieved in one queuery.
+      // Otherwise these messaged for closed queues are not even retrieved
+      // Job IS locked to prevent it showing up in the next 'acquire'...
+      // Should be done differently if performance bottleneck of retrieving per
+      // queue remains.
+      // Maybe pausing/resuming queueus should only be allowed if retrieval is
+      // also done per queue. Due to the changed way op putting job's in the
+      // queue this can be done.
+      // getLogicalQueue is null if queue does not exist yet.
+      if (jobExecutor.getLogicalQueue(localQueue) == null || !jobExecutor.getLogicalQueue(localQueue).isPaused()) {
+        acquiredJobs.addJobIds(localQueue, jobIds);
+      }
     }
-    
-    return acquiredJobs;
   }
 }

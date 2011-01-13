@@ -3,10 +3,12 @@
  */
 package org.activiti.engine.test.jobexecutor;
 
+import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.cmd.DeleteJobsCmd;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
+import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.impl.runtime.MessageEntity;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 
@@ -18,6 +20,7 @@ public class JobExecutorCmdExceptionTest extends PluggableActivitiTestCase {
   protected TweetExceptionHandler tweetExceptionHandler = new TweetExceptionHandler();
 
   private CommandExecutor commandExecutor;
+  private JobExecutor jobExecutor;
 
   public void setUp() throws Exception {
     processEngineConfiguration.getJobHandlers().put(tweetExceptionHandler.getType(), tweetExceptionHandler);
@@ -29,6 +32,11 @@ public class JobExecutorCmdExceptionTest extends PluggableActivitiTestCase {
   }
 
   public void testJobCommandsWith2Exceptions() {
+    
+    // Create but do not start. Will be done in waitFor... we just need the jobExecutor lockowner here
+    jobExecutor = processEngineConfiguration.getJobExecutor();
+    jobExecutor.hasAcquisitionPerQueue(true);
+    
     commandExecutor.execute(new Command<String>() {
 
       public String execute(CommandContext commandContext) {
@@ -38,10 +46,17 @@ public class JobExecutorCmdExceptionTest extends PluggableActivitiTestCase {
       }
     });
 
-    waitForJobExecutorToProcessAllJobs(5000L, 50L);
+    waitForJobExecutorToProcessAllJobs(20000L, 500L);
   }
 
   public void testJobCommandsWith3Exceptions() {
+    
+    // Create but do not start. Will be done in waitFor... we just need the jobExecutor lockowner here
+    // A new one since the previous test has shut it down!!!! maybe new convenince method??? 
+    //JobExecutor jobExecutor = new JobExecutor();
+    JobExecutor jobExecutor = ((ProcessEngineImpl)processEngine).getJobExecutor();
+    jobExecutor.hasAcquisitionPerQueue(true);
+
     tweetExceptionHandler.setExceptionsRemaining(3);
 
     String jobId = commandExecutor.execute(new Command<String>() {
@@ -53,7 +68,7 @@ public class JobExecutorCmdExceptionTest extends PluggableActivitiTestCase {
       }
     });
 
-    waitForJobExecutorToProcessAllJobs(5000L, 50L);
+    waitForJobExecutorToProcessAllJobs(20000L, 500L);
 
     // TODO check if there is a failed job in the DLQ
 

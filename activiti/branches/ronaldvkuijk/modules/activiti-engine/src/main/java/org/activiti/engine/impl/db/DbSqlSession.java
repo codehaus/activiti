@@ -168,7 +168,18 @@ public class DbSqlSession implements Session {
     }
     return filterLoadedObjects(loadedObjects);
   }
-
+  
+  @SuppressWarnings("unchecked")
+  public List selectListUnfiltered(String statement) {
+    statement = dbSqlSessionFactory.mapStatement(statement);
+    List loadedObjects = sqlSession.selectList(statement);
+    //TODO Check out why MyBatis returns a list of size 1 with one element 'null' if nothing is found.
+    //     Can be my mistake too
+    if (loadedObjects.size() == 1 && loadedObjects.get(0) == null) { 
+      loadedObjects.remove(0);
+    }
+    return loadedObjects;
+  }
 
   public Object selectOne(String statement, Object parameter) {
     statement = dbSqlSessionFactory.mapStatement(statement);
