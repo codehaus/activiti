@@ -90,12 +90,14 @@ public abstract class AbstractCustomPropertyField implements CustomPropertyField
   @Override
   public void validate() {
     for (final Entry<Control, List<FieldValidator>> controlValidator : this.validators.entrySet()) {
-      for (final FieldValidator validator : controlValidator.getValue()) {
-        try {
-          validator.validate(controlValidator.getKey());
-          handleRemoveExceptionForControl(controlValidator.getKey());
-        } catch (ValidationException e) {
-          handleAddExceptionForControl(controlValidator.getKey(), e);
+      if (!controlValidator.getKey().isDisposed()) {
+        for (final FieldValidator validator : controlValidator.getValue()) {
+          try {
+            validator.validate(controlValidator.getKey());
+            handleRemoveExceptionForControl(controlValidator.getKey());
+          } catch (ValidationException e) {
+            handleAddExceptionForControl(controlValidator.getKey(), e);
+          }
         }
       }
     }
