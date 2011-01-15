@@ -16,6 +16,8 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ClasspathContainerInitializer;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -50,6 +52,37 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 			InputStream pomSource = new ByteArrayInputStream(createPOMFile().getBytes()); 
 			pomFile.create(pomSource, true, null);
 			pomSource.close();
+			
+			String[] userLibraryNames = JavaCore.getUserLibraryNames();
+			boolean activitiExtensionLibraryPresent = false;
+			if(userLibraryNames != null && userLibraryNames.length > 0) {
+			  for(String userLibraryName : userLibraryNames) {
+			    if(ActivitiPlugin.USER_LIBRARY_NAME_EXTENSIONS.equals(userLibraryName)) {
+			      activitiExtensionLibraryPresent = true;
+			    }
+			  }
+			}
+			
+			if(activitiExtensionLibraryPresent == false) {
+  			ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
+  			IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
+  			initializer.requestClasspathContainerUpdate(containerPath.append(ActivitiPlugin.USER_LIBRARY_NAME_EXTENSIONS), 
+  			        null, new IClasspathContainer() {
+  			  
+  			  public IPath getPath() {
+  			    return new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(ActivitiPlugin.USER_LIBRARY_NAME_EXTENSIONS) ;
+  			  }
+  			  public int getKind() {
+  			    return K_APPLICATION;
+  			  }
+  			  public String getDescription() {
+  			    return ActivitiPlugin.USER_LIBRARY_NAME_EXTENSIONS;
+  			  }
+  			  public IClasspathEntry[] getClasspathEntries() {
+  			    return new IClasspathEntry[] {};
+  			  }
+  			});
+			}
 
 			IClasspathEntry[] entries = createClasspathEntries(javaProject);
 

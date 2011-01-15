@@ -6,7 +6,9 @@ package org.activiti.designer.export.bpmn20.export;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,10 +27,12 @@ import org.eclipse.bpmn2.Documentation;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FieldExtension;
+import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.MailTask;
 import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ParallelGateway;
 import org.eclipse.bpmn2.Process;
+import org.eclipse.bpmn2.ReceiveTask;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
@@ -43,8 +47,12 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
-import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.mm.pictograms.Shape;
+import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.graphiti.services.ILinkService;
 import org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal;
 
 /**
@@ -64,6 +72,12 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
   private static final String PROCESS_NAMESPACE = "http://www.activiti.org/test";
   private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn";
   private static final String ACTIVITI_EXTENSIONS_PREFIX = "activiti";
+  private static final String BPMNDI_NAMESPACE = "http://www.omg.org/spec/BPMN/20100524/DI";
+  private static final String BPMNDI_PREFIX = "bpmndi";
+  private static final String OMGDC_NAMESPACE = "http://www.omg.org/spec/DD/20100524/DC";
+  private static final String OMGDC_PREFIX = "omgdc";
+  private static final String OMGDI_NAMESPACE = "http://www.omg.org/spec/DD/20100524/DI";
+  private static final String OMGDI_PREFIX = "omgdi";
 
   private IProgressMonitor monitor;
   private Diagram diagram;
@@ -141,7 +155,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       OutputStreamWriter out = new OutputStreamWriter(baos, "UTF-8");
 
       XMLStreamWriter xtw = xof.createXMLStreamWriter(out);
-
+      
       final EList<EObject> contents = diagram.eResource().getContents();
 
       Process process = null;
@@ -165,6 +179,9 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       xtw.writeDefaultNamespace(BPMN2_NAMESPACE);
       xtw.writeNamespace("xsi", XSI_NAMESPACE);
       xtw.writeNamespace(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE);
+      xtw.writeNamespace(BPMNDI_PREFIX, BPMNDI_NAMESPACE);
+      xtw.writeNamespace(OMGDC_PREFIX, OMGDC_NAMESPACE);
+      xtw.writeNamespace(OMGDI_PREFIX, OMGDI_NAMESPACE);
       xtw.writeAttribute("typeLanguage", SCHEMA_NAMESPACE);
       xtw.writeAttribute("expressionLanguage", XPATH_NAMESPACE);
       xtw.writeAttribute("targetNamespace", PROCESS_NAMESPACE);
@@ -181,36 +198,14 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         xtw.writeEndElement();
       }
 
-      // start StartEvent element
-      xtw.writeStartElement("startEvent");
-      StartEvent startEvent = getStartEvent(contents);
-
-      if (startEvent == null)
-        addProblemToDiagram(diagram, "start event cannot be null", null);
-      xtw.writeAttribute("id", startEvent.getId());
-      xtw.writeAttribute("name", startEvent.getName());
-
-      // end StartEvent element
-      xtw.writeEndElement();
-
       for (EObject object : contents) {
         createXML(object, xtw, "");
       }
 
-      // start EndEvent element
-      xtw.writeStartElement("endEvent");
-      EndEvent endEvent = getEndEvent(contents);
-
-      if (endEvent == null)
-        addProblemToDiagram(diagram, "end event cannot be null", null);
-      xtw.writeAttribute("id", endEvent.getId());
-      xtw.writeAttribute("name", endEvent.getName());
-
-      // end EndEvent element
-      xtw.writeEndElement();
-
       // end process element
       xtw.writeEndElement();
+      
+      createDIXML(diagram, xtw, process);
 
       // end definitions root element
       xtw.writeEndElement();
@@ -229,7 +224,27 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
   }
 
   private void createXML(EObject object, XMLStreamWriter xtw, String subProcessId) throws Exception {
-    if (object instanceof SequenceFlow) {
+    if (object instanceof StartEvent) {
+      StartEvent startEvent = (StartEvent) object;
+      // start StartEvent element
+      xtw.writeStartElement("startEvent");
+      xtw.writeAttribute("id", startEvent.getId());
+      xtw.writeAttribute("name", startEvent.getName());
+
+      // end StartEvent element
+      xtw.writeEndElement();
+
+    } else if(object instanceof EndEvent) {
+      EndEvent endEvent = (EndEvent) object;
+      // start EndEvent element
+      xtw.writeStartElement("endEvent");
+      xtw.writeAttribute("id", endEvent.getId());
+      xtw.writeAttribute("name", endEvent.getName());
+
+      // end EndEvent element
+      xtw.writeEndElement();
+      
+    } else if (object instanceof SequenceFlow) {
       SequenceFlow sequenceFlow = (SequenceFlow) object;
       // start SequenceFlow element
       xtw.writeStartElement("sequenceFlow");
@@ -458,6 +473,15 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       xtw.writeAttribute("name", manualTask.getName());
       // end ManualTask element
       xtw.writeEndElement();
+    
+    } else if (object instanceof ReceiveTask) {
+      ReceiveTask receiveTask = (ReceiveTask) object;
+      // start ReceiveTask element
+      xtw.writeStartElement("receiveTask");
+      xtw.writeAttribute("id", subProcessId + receiveTask.getId());
+      xtw.writeAttribute("name", receiveTask.getName());
+      // end ReceiveTask element
+      xtw.writeEndElement();
 
     } else if (object instanceof ParallelGateway) {
       ParallelGateway parallelGateway = (ParallelGateway) object;
@@ -502,49 +526,79 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
     EList<EObject> contents = diagram.eResource().getContents();
 
-    // start StartEvent element
-    xtw.writeStartElement("startEvent");
-    StartEvent startEvent = getStartEvent(contents);
-    if (startEvent == null)
-      addProblemToDiagram(diagram, "Start event for sub process cannot be null", null);
-    xtw.writeAttribute("id", subProcessId + "_" + startEvent.getId());
-    xtw.writeAttribute("name", startEvent.getName());
-
-    // end StartEvent element
-    xtw.writeEndElement();
-
     for (EObject object : contents) {
       createXML(object, xtw, subProcessId + "_");
     }
-
-    // start EndEvent element
-    xtw.writeStartElement("endEvent");
-    EndEvent endEvent = getEndEvent(contents);
-    if (endEvent == null)
-      addProblemToDiagram(diagram, "End event for subprocess cannot be null", null);
-    xtw.writeAttribute("id", subProcessId + "_" + endEvent.getId());
-    xtw.writeAttribute("name", endEvent.getName());
-
-    // end EndEvent element
+  }
+  
+  private void createDIXML(Diagram diagram, XMLStreamWriter xtw, Process process) throws Exception {
+    ILinkService linkService = Graphiti.getLinkService();
+    EList<EObject> contents = diagram.eResource().getContents();
+    EList<Shape> shapes = diagram.getChildren();
+    xtw.writeStartElement(BPMNDI_PREFIX, "BPMNDiagram", BPMNDI_NAMESPACE);
+    xtw.writeAttribute("id", "BPMNDiagram_" + process.getId());
+    
+    xtw.writeStartElement(BPMNDI_PREFIX, "BPMNPlane", BPMNDI_NAMESPACE);
+    xtw.writeAttribute("bpmnElement", process.getId());
+    xtw.writeAttribute("id", "BPMNPlane_" + process.getId());
+    
+    Map<String, GraphicsAlgorithm> flowNodeMap = new HashMap<String, GraphicsAlgorithm>();
+    
+    for (EObject bpmnObject : contents) {
+      
+      if(bpmnObject instanceof FlowNode) {
+        FlowNode flowNode = (FlowNode) bpmnObject;
+        xtw.writeStartElement(BPMNDI_PREFIX, "BPMNShape", BPMNDI_NAMESPACE);
+        xtw.writeAttribute("bpmnElement", flowNode.getId());
+        xtw.writeAttribute("id", "BPMNShape_" + flowNode.getId());
+        
+        xtw.writeStartElement(OMGDC_PREFIX, "Bounds", OMGDC_NAMESPACE);
+        for (Shape shape : shapes) {
+          ContainerShape containerShape = (ContainerShape) shape;
+          EObject shapeBO = linkService.getBusinessObjectForLinkedPictogramElement(containerShape.getGraphicsAlgorithm().getPictogramElement());
+          if(shapeBO instanceof FlowNode) {
+            FlowNode shapeFlowNode = (FlowNode) shapeBO;
+            if(shapeFlowNode.getId().equals(flowNode.getId())) {
+              flowNodeMap.put(flowNode.getId(), containerShape.getGraphicsAlgorithm());
+              xtw.writeAttribute("height", "" + containerShape.getGraphicsAlgorithm().getHeight());
+              xtw.writeAttribute("width", "" + containerShape.getGraphicsAlgorithm().getWidth());
+              xtw.writeAttribute("x", "" + containerShape.getGraphicsAlgorithm().getX());
+              xtw.writeAttribute("y", "" + containerShape.getGraphicsAlgorithm().getY());
+            }
+          }
+        }
+        
+        xtw.writeEndElement();
+        xtw.writeEndElement();
+        
+      }
+    }
+    
+    for (EObject bpmnObject : contents) {
+      if(bpmnObject instanceof SequenceFlow) {
+        SequenceFlow sequenceFlow = (SequenceFlow) bpmnObject;
+        xtw.writeStartElement(BPMNDI_PREFIX, "BPMNEdge", BPMNDI_NAMESPACE);
+        xtw.writeAttribute("bpmnElement", sequenceFlow.getId());
+        xtw.writeAttribute("id", "BPMNEdge_" + sequenceFlow.getId());
+        if(flowNodeMap.containsKey(sequenceFlow.getSourceRef().getId()) && flowNodeMap.containsKey(sequenceFlow.getTargetRef().getId())) {
+          GraphicsAlgorithm sourceConnection = flowNodeMap.get(sequenceFlow.getSourceRef().getId());
+          GraphicsAlgorithm targetConnection = flowNodeMap.get(sequenceFlow.getTargetRef().getId());
+          xtw.writeStartElement(OMGDI_PREFIX, "waypoint", OMGDI_NAMESPACE);
+          xtw.writeAttribute("x", "" + (sourceConnection.getX() + sourceConnection.getWidth()));
+          xtw.writeAttribute("y", "" + (sourceConnection.getY() + (sourceConnection.getHeight() / 2)));
+          xtw.writeEndElement();
+          xtw.writeStartElement(OMGDI_PREFIX, "waypoint", OMGDI_NAMESPACE);
+          xtw.writeAttribute("x", "" + targetConnection.getX());
+          xtw.writeAttribute("y", "" + (targetConnection.getY() + (targetConnection.getHeight() / 2)));
+          xtw.writeEndElement();
+        }
+        xtw.writeEndElement();
+      }
+    }
+    
     xtw.writeEndElement();
-  }
-
-  private static StartEvent getStartEvent(EList<EObject> contents) {
-    for (EObject object : contents) {
-      if (object instanceof StartEvent && !(object instanceof PictogramElement)) {
-        return (StartEvent) object;
-      }
-    }
-    return null;
-  }
-
-  private static EndEvent getEndEvent(EList<EObject> contents) {
-    for (EObject object : contents) {
-      if (object instanceof EndEvent && !(object instanceof PictogramElement)) {
-        return (EndEvent) object;
-      }
-    }
-    return null;
+    
+    xtw.writeEndElement();
   }
 
   @Deprecated

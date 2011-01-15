@@ -6,11 +6,9 @@ package org.activiti.designer.validation.bpmn20.validation;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.validation.AbstractProcessValidator;
 import org.activiti.designer.eclipse.util.Util;
-import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
-import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,7 +16,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
-import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
 /**
  * @author Tiese Barrell
@@ -84,16 +81,8 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
 
   private boolean validateDiagram(EList<EObject> contents) {
 
-    int countStartEvents = 0;
-    int countEndEvents = 0;
     for (EObject object : contents) {
-      if (object instanceof StartEvent && !(object instanceof PictogramElement)) {
-        countStartEvents++;
-
-      } else if (object instanceof EndEvent && !(object instanceof PictogramElement)) {
-        countEndEvents++;
-
-      } else if (object instanceof UserTask) {
+      if (object instanceof UserTask) {
         UserTask userTask = (UserTask) object;
         boolean potentialOwnerIsSet = false;
         if (userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
@@ -153,32 +142,9 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
         }
       }
     }
-    if (countStartEvents != 1) {
-      createErrorMessage("Only 1 start event is allowed for BPMN 2.0 generation");
-      return false;
-    }
     return true;
   }
 
-  private static StartEvent getStartEvent(EList<EObject> contents) {
-    for (EObject object : contents) {
-      if (object instanceof StartEvent && !(object instanceof PictogramElement)) {
-        return (StartEvent) object;
-      }
-    }
-    return null;
-  }
-
-  private static EndEvent getEndEvent(EList<EObject> contents) {
-    for (EObject object : contents) {
-      if (object instanceof EndEvent && !(object instanceof PictogramElement)) {
-        return (EndEvent) object;
-      }
-    }
-    return null;
-  }
-
-  @Deprecated
   private void createErrorMessage(String message) {
     addProblemToDiagram(diagram, message, null);
   }

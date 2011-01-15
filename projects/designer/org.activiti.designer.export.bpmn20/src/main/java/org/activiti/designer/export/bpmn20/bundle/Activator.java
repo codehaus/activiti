@@ -8,31 +8,33 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator implements BundleActivator {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.activiti.designer.export.bpmn2.0"; //$NON-NLS-1$
+  // The plug-in ID
+  public static final String PLUGIN_ID = "org.activiti.designer.export.bpmn2.0"; //$NON-NLS-1$
 
-	private static BundleContext context;
+  private static BundleContext context;
 
-	static BundleContext getContext() {
-		return context;
-	}
+  static BundleContext getContext() {
+    return context;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
-	}
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
+   */
+  public void start(BundleContext bundleContext) throws Exception {
+    Activator.context = bundleContext;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
-	}
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+   */
+  public void stop(BundleContext bundleContext) throws Exception {
+    Activator.context = null;
+  }
 
 }

@@ -208,6 +208,8 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("manualtask".equalsIgnoreCase(toolEntry.getLabel())) {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("receivetask".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
           gatewayCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
