@@ -136,6 +136,7 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
       saveResource(getRelativeURIForDiagram(diagram, FILENAME_PATTERN), bais, this.monitor);
 
     } catch (Exception e) {
+      e.printStackTrace();
       addProblemToDiagram(diagram, "An exception occurred while creating the image: " + e.getCause(), null);
     }
   }

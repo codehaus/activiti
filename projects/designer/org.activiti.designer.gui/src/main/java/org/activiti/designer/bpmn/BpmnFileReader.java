@@ -248,6 +248,12 @@ public class BpmnFileReader {
       } else {
         addContext.setY(graphicInfo.y);
       }
+    } else if(flowElement instanceof ExclusiveGateway) {
+      if(graphicInfo.height < 60) {
+        addContext.setY(graphicInfo.y - 20);
+      } else {
+        addContext.setY(graphicInfo.y);
+      }
     } else {
       addContext.setY(graphicInfo.y);
     }

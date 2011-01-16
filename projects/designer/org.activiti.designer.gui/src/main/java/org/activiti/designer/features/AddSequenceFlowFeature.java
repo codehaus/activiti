@@ -51,11 +51,14 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
       EList<Shape> shapeList = getDiagram().getChildren();
       for (Shape shape : shapeList) {
         FlowNode flowNode = (FlowNode) getBusinessObjectForPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
+        if(flowNode == null || flowNode.getId() == null || addedSequenceFlow.getSourceRef() == null ||
+                addedSequenceFlow.getTargetRef() == null) continue;
         if(flowNode.getId().equals(addedSequenceFlow.getSourceRef().getId())) {
           EList<Anchor> anchorList = ((ContainerShape) shape).getAnchors();
           for (Anchor anchor : anchorList) {
             if(anchor instanceof ChopboxAnchor) {
               sourceAnchor = anchor;
+              break;
             }
           }
         }
@@ -65,6 +68,7 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
           for (Anchor anchor : anchorList) {
             if(anchor instanceof ChopboxAnchor) {
               targetAnchor = anchor;
+              break;
             }
           }
         }
@@ -72,6 +76,10 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 		} else {
 		  sourceAnchor = addConContext.getSourceAnchor();
 		  targetAnchor = addConContext.getTargetAnchor();
+		}
+		
+		if(sourceAnchor == null || targetAnchor == null) {
+		  return null;
 		}
 
 		IPeCreateService peCreateService = Graphiti.getPeCreateService();

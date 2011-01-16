@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
+import org.activiti.designer.eclipse.ui.ExportMarshallerRunnable;
 import org.activiti.designer.util.OSEnum;
 import org.activiti.designer.util.OSUtil;
 import org.eclipse.core.resources.IFile;
@@ -29,6 +30,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.progress.IProgressService;
 
 public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
 
@@ -59,11 +61,9 @@ public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
     fd.setFilterExtensions(filterExt);
     String bpmnFile = fd.open();
     
-    System.out.println("bpmnFile " + bpmnFile);
     String processName = bpmnFile.substring(bpmnFile.lastIndexOf(File.separator) + 1);
     processName = processName.replace(".xml", "");
     processName = processName.replace(".bpmn20", "");
-    System.out.println("processName " + processName);
 
     // Get the default resource set to hold the new resource
     ResourceSet resourceSet = new ResourceSetImpl();
@@ -89,6 +89,16 @@ public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
 
     // Dispose the editing domain to eliminate memory leak
     editingDomain.dispose();
+    
+    IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
+
+    ExportMarshallerRunnable runnable = new ExportMarshallerRunnable(operation.getDiagram(), 
+            ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME);
+    try {
+      progressService.busyCursorWhile(runnable);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     // Open the editor
     String platformString = operation.getCreatedResource().getURI().toPlatformString(true);

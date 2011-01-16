@@ -22,6 +22,7 @@ public class ImportBpmnElementsCommand extends RecordingCommand {
 	private String diagramName;
 	private String bpmnFileName;
 	private Resource createdResource;
+	private Diagram diagram;
 
 	public ImportBpmnElementsCommand(IProject project, TransactionalEditingDomain editingDomain, 
 	        String diagramName, String bpmnFileName) {
@@ -35,7 +36,7 @@ public class ImportBpmnElementsCommand extends RecordingCommand {
 	@Override
 	protected void doExecute() {
 	  // Create the diagram and its file
-    Diagram diagram = Graphiti.getPeCreateService().createDiagram("BPMNdiagram", diagramName, true); //$NON-NLS-1$
+    diagram = Graphiti.getPeCreateService().createDiagram("BPMNdiagram", diagramName, true); //$NON-NLS-1$
     IFolder diagramFolder = project.getFolder(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER); //$NON-NLS-1$
     IFile diagramFile = diagramFolder.getFile(diagramName + ".activiti"); //$NON-NLS-1$
     URI uri = URI.createPlatformResourceURI(diagramFile.getFullPath().toString(), true);
@@ -53,5 +54,9 @@ public class ImportBpmnElementsCommand extends RecordingCommand {
 	 */
 	public Resource getCreatedResource() {
 		return createdResource;
+	}
+	
+	public Diagram getDiagram() {
+	  return diagram;
 	}
 }
