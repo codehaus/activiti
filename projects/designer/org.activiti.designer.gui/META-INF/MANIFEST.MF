@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.lang;bundle-version="2.3.0",
  org.activiti.designer.eclipse;bundle-version="0.6.0",
  org.activiti.designer.model;bundle-version="0.6.0",
- org.activiti.designer.integration;bundle-version="0.6.0"
+ org.activiti.designer.integration;bundle-version="0.6.0",
+ org.eclipse.ui.ide;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.activiti.designer,

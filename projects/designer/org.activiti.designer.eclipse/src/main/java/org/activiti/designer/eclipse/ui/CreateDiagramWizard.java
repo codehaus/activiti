@@ -79,7 +79,6 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 	 * 
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
-	@SuppressWarnings("restriction")
 	@Override
 	public boolean performFinish() {
 

@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.activiti.designer.util.StyleUtil;
+import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.SequenceFlow;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -20,10 +22,14 @@ import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.algorithms.styles.LineStyle;
 import org.eclipse.graphiti.mm.algorithms.styles.Point;
 import org.eclipse.graphiti.mm.algorithms.styles.StylesFactory;
+import org.eclipse.graphiti.mm.pictograms.Anchor;
+import org.eclipse.graphiti.mm.pictograms.ChopboxAnchor;
 import org.eclipse.graphiti.mm.pictograms.ConnectionDecorator;
+import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.PictogramLink;
+import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
@@ -38,12 +44,43 @@ public class AddSequenceFlowFeature extends AbstractAddFeature {
 	public PictogramElement add(IAddContext context) {
 		IAddConnectionContext addConContext = (IAddConnectionContext) context;
 		SequenceFlow addedSequenceFlow = (SequenceFlow) context.getNewObject();
+		
+		Anchor sourceAnchor = null;
+    Anchor targetAnchor = null;
+		if(addConContext.getSourceAnchor() == null) {
+      EList<Shape> shapeList = getDiagram().getChildren();
+      for (Shape shape : shapeList) {
+        FlowNode flowNode = (FlowNode) getBusinessObjectForPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
+        if(flowNode.getId().equals(addedSequenceFlow.getSourceRef().getId())) {
+          EList<Anchor> anchorList = ((ContainerShape) shape).getAnchors();
+          for (Anchor anchor : anchorList) {
+            if(anchor instanceof ChopboxAnchor) {
+              sourceAnchor = anchor;
+            }
+          }
+        }
+        
+        if(flowNode.getId().equals(addedSequenceFlow.getTargetRef().getId())) {
+          EList<Anchor> anchorList = ((ContainerShape) shape).getAnchors();
+          for (Anchor anchor : anchorList) {
+            if(anchor instanceof ChopboxAnchor) {
+              targetAnchor = anchor;
+            }
+          }
+        }
+      }
+		} else {
+		  sourceAnchor = addConContext.getSourceAnchor();
+		  targetAnchor = addConContext.getTargetAnchor();
+		}
 
 		IPeCreateService peCreateService = Graphiti.getPeCreateService();
 		// CONNECTION WITH POLYLINE
 		FreeFormConnection connection = peCreateService.createFreeFormConnection(getDiagram());
-		connection.setStart(addConContext.getSourceAnchor());
-		connection.setEnd(addConContext.getTargetAnchor());
+		connection.setStart(sourceAnchor);
+		connection.setEnd(targetAnchor);
+		sourceAnchor.getOutgoingConnections().add(connection);
+		targetAnchor.getIncomingConnections().add(connection);
 
 		if (addedSequenceFlow.getSourceRef() instanceof Gateway) {
 			GraphicsAlgorithm sourceGraphics = getPictogramElement(addedSequenceFlow.getSourceRef())

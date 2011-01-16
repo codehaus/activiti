@@ -219,6 +219,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
       xtw.close();
     } catch (Exception e) {
+      e.printStackTrace();
       addProblemToDiagram(diagram, "An exception occurred while creating the BPMN 2.0 XML: " + e.getMessage(), null);
     }
   }
@@ -249,7 +250,11 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       // start SequenceFlow element
       xtw.writeStartElement("sequenceFlow");
       xtw.writeAttribute("id", subProcessId + sequenceFlow.getId());
-      xtw.writeAttribute("name", sequenceFlow.getName());
+      if(sequenceFlow.getName() == null) {
+        xtw.writeAttribute("name", "");
+      } else {
+        xtw.writeAttribute("name", sequenceFlow.getName());
+      }
       xtw.writeAttribute("sourceRef", subProcessId + sequenceFlow.getSourceRef().getId());
       xtw.writeAttribute("targetRef", subProcessId + sequenceFlow.getTargetRef().getId());
       if (sequenceFlow.getConditionExpression() != null && sequenceFlow.getConditionExpression().getBody() != null
