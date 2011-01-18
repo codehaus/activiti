@@ -23,6 +23,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  org.activiti.designer.eclipse.common,
+ org.activiti.designer.eclipse.editor,
  org.activiti.designer.eclipse.extension,
  org.activiti.designer.eclipse.extension.export,
  org.activiti.designer.eclipse.extension.validation,
@@ -38,7 +39,6 @@ Export-Package:
  org.activiti.designer.eclipse.property,
  org.activiti.designer.eclipse.ui,
  org.activiti.designer.eclipse.util,
- org.activiti.designer.eclipse.util.uiprovider,
- org.activiti.designer.eclipse.editor
+ org.activiti.designer.eclipse.util.uiprovider
 Bundle-Activator: org.activiti.designer.eclipse.common.ActivitiPlugin
 Bundle-ClassPath: .
