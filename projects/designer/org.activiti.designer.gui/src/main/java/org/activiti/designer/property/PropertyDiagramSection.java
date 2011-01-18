@@ -20,7 +20,6 @@ import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.Documentation;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
-import org.eclipse.graphiti.ui.platform.GFPropertySection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.FocusEvent;
@@ -33,7 +32,7 @@ import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
-public class PropertyDiagramSection extends GFPropertySection implements ITabbedPropertyConstants {
+public class PropertyDiagramSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
 	private Text idText;
 	private Text nameText;

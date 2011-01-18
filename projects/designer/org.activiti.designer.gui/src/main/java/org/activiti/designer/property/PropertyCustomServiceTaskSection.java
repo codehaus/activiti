@@ -50,7 +50,7 @@ import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
-public class PropertyCustomServiceTaskSection extends GFPropertySection implements ITabbedPropertyConstants {
+public class PropertyCustomServiceTaskSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
   public static Font boldFont;
   public static Font italicFont;

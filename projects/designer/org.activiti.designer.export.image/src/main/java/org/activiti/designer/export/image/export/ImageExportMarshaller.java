@@ -7,9 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.eclipse.editor.ActivitiDiagramEditor;
 import org.activiti.designer.eclipse.extension.export.AbstractExportMarshaller;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
-import org.activiti.designer.eclipse.ui.ActivitiDiagramEditor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.SWTGraphics;

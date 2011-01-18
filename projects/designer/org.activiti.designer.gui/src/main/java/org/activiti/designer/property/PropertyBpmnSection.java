@@ -37,7 +37,7 @@ import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
-public class PropertyBpmnSection extends GFPropertySection implements ITabbedPropertyConstants {
+public class PropertyBpmnSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
   private Text idText;
   private Text nameText;

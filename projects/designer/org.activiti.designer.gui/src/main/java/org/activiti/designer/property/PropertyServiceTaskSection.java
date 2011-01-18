@@ -8,7 +8,6 @@ import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
-import org.eclipse.graphiti.ui.platform.GFPropertySection;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -36,7 +35,7 @@ import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
-public class PropertyServiceTaskSection extends GFPropertySection implements ITabbedPropertyConstants {
+public class PropertyServiceTaskSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
 	private final static String CLASS_TYPE = "classType";
 	private final static String EXPRESSION_TYPE = "expressionType";

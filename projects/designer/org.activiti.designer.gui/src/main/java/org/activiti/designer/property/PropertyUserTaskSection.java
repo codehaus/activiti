@@ -28,7 +28,7 @@ import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
-public class PropertyUserTaskSection extends GFPropertySection implements ITabbedPropertyConstants {
+public class PropertyUserTaskSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
   private CCombo performerTypeCombo;
   private List<String> performerTypes = Arrays.asList("Assignee", "Candidate users", "Candidate groups");
