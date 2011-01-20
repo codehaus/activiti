@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.activiti.designer</groupId>
 	<artifactId>org.activiti.designer.parent</artifactId>
-	<version>0.6.0</version>
+	<version>0.7.0</version>
 	<packaging>pom</packaging>
 	<name>Activiti Designer - Parent project</name>
 
@@ -33,7 +33,7 @@
 		<repository>
 			<id>Graphiti</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/graphiti/updates/0.7.0/</url>
+			<url>http://download.eclipse.org/graphiti/updates/0.7.1/</url>
 		</repository>
 		<repository>
 			<id>Oribit</id>

@@ -93,14 +93,27 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements
 	}
 
 	public void doSave(IProgressMonitor monitor) {
-		getEditor(0).doSave(monitor);
+	  int activePage = getActivePage();
+	  if(activePage == 0) {
+	    getEditor(0).doSave(monitor);
+	  } else if(activePage == 1) {
+	    getEditor(1).doSave(monitor);
+	  }
 	}
 
 	public void doSaveAs() {
-		IEditorPart editor = getEditor(0);
-		editor.doSaveAs();
-		setPageText(0, editor.getTitle());
-		setInput(editor.getEditorInput());
+	  int activePage = getActivePage();
+    if(activePage == 0) {
+  		IEditorPart editor = getEditor(0);
+  		editor.doSaveAs();
+  		setPageText(0, editor.getTitle());
+  		setInput(editor.getEditorInput());
+    } else if(activePage == 1) {
+      IEditorPart editor = getEditor(1);
+      editor.doSaveAs();
+      setPageText(1, editor.getTitle());
+      setInput(editor.getEditorInput());
+    }
 	}
 
 	public void gotoMarker(IMarker marker) {
