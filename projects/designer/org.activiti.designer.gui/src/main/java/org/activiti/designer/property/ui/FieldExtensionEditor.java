@@ -12,6 +12,7 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.platform.IDiagramEditor;
 import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -47,6 +48,14 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	protected String[][] parseString(String string) {
 		return null;
 	}
+	
+	protected void addTableItem(String name, String value) {
+    if(table != null) {
+      TableItem tableItem = new TableItem(table, SWT.NONE);
+      tableItem.setText(0, name);
+      tableItem.setText(1, value);
+    }
+  }
 
 	@Override
 	protected String[] getNewInputObject() {
@@ -64,6 +73,26 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	}
 	
 	@Override
+  protected String[] getChangedInputObject(TableItem tableItem) {
+    FieldExtensionDialog dialog = new FieldExtensionDialog(parent.getShell(), getItems(), 
+            tableItem.getText(0), tableItem.getText(1));
+    dialog.open();
+    String fieldNameInput = dialog.fieldNameInput;
+    String fieldValueInput = dialog.fieldValueInput;
+    if(fieldNameInput != null && fieldNameInput.length() > 0 &&
+        fieldValueInput != null && fieldValueInput.length() > 0) {
+      
+      if(tableItem.getText(0).equals(fieldNameInput) && tableItem.getText(1).equals(fieldValueInput)) {
+        return null;
+      }
+      
+      return new String[] { fieldNameInput, fieldValueInput };
+    } else {
+      return null;
+    }
+  }
+	
+	@Override
 	protected void selectionChanged() {
 		super.selectionChanged();
 		saveFieldExtensions();
@@ -72,6 +101,7 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	private void saveFieldExtensions() {
 		if (pictogramElement != null && getNumberOfItems() > 0) {
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pictogramElement);
+			System.out.println("save bo " + bo);
 			if (bo instanceof ServiceTask) {
 				TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 				ActivitiUiUtil.runModelChange(new Runnable() {

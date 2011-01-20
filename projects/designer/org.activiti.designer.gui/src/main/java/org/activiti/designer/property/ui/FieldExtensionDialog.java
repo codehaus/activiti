@@ -19,12 +19,20 @@ public class FieldExtensionDialog extends Dialog {
 	
 	public String fieldNameInput;
 	public String fieldValueInput;
+	private String savedFieldName;
+	private String savedFieldValue;
 	private TableItem[] fieldList;
 
 	public FieldExtensionDialog(Shell parent, TableItem[] fieldList) {
 		// Pass the default styles here
 		this(parent, fieldList, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 	}
+	
+	public FieldExtensionDialog(Shell parent, TableItem[] fieldList, String savedFieldName, String savedFieldValue) {
+    this(parent, fieldList, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+    this.savedFieldName = savedFieldName;
+    this.savedFieldValue = savedFieldValue;
+  }
 
 	public FieldExtensionDialog(Shell parent, TableItem[] fieldList, int style) {
 		// Let users override the default styles
@@ -42,6 +50,7 @@ public class FieldExtensionDialog extends Dialog {
 		// Create the dialog window
 		Shell shell = new Shell(getParent(), getStyle());
 		shell.setText(getText());
+		shell.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		shell.setSize(500, 150);
 		Point location = getParent().getShell().getLocation();
 		Point size = getParent().getShell().getSize();
@@ -68,15 +77,23 @@ public class FieldExtensionDialog extends Dialog {
 
 		Label fieldLabel = new Label(shell, SWT.NONE);
 		fieldLabel.setText("Field name");
+		fieldLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
 		final Text fieldText = new Text(shell, SWT.BORDER);
+		if(savedFieldName != null) {
+		  fieldText.setText(savedFieldName);
+		}
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		fieldText.setLayoutData(data);
 		
 		Label valueLabel = new Label(shell, SWT.NONE);
 		valueLabel.setText("Expression");
+		valueLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
 		final Text valueText = new Text(shell, SWT.BORDER);
+		if(savedFieldValue != null) {
+		  valueText.setText(savedFieldValue);
+    }
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		valueText.setLayoutData(data);
 
@@ -96,6 +113,10 @@ public class FieldExtensionDialog extends Dialog {
 				}
 				if(fieldList != null) {
 					for (TableItem item : fieldList) {
+					  if(savedFieldName != null && savedFieldName.equals(item.getText(0)) &&
+					          savedFieldValue != null && savedFieldValue.equals(item.getText(1))) {
+		          continue;
+		        }
 						if(fieldText.getText().equals(item.getText(0))) {
 							MessageDialog.openError(shell, "Validation error", "Field name is already used.");
 							return;

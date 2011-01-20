@@ -3838,6 +3838,8 @@
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral=""/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="executionListeners" upperBound="-1"
+        eType="#//ExecutionListener" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="ProcessType">
     <eLiterals name="None"/>
@@ -4149,6 +4151,8 @@
         <details key="name" value="targetRef"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="executionListeners" upperBound="-1"
+        eType="#//ExecutionListener" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ServiceTask" eSuperTypes="#//Task">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -4309,6 +4313,8 @@
       <details key="name" value="tTask"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="executionListeners" upperBound="-1"
+        eType="#//ExecutionListener" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TerminateEventDefinition" eSuperTypes="#//EventDefinition">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -4456,6 +4462,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="candidateGroups" upperBound="-1"
         eType="#//CandidateGroup"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="formKey" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="taskListeners" upperBound="-1"
+        eType="#//TaskListener" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CandidateUser" eSuperTypes="#//BaseElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="user" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -4498,5 +4506,19 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="simpleValue" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ExecutionListener" eSuperTypes="#//BaseElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="implementationType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="implementation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="event" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fieldExtensions" upperBound="-1"
+        eType="#//FieldExtension" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TaskListener" eSuperTypes="#//BaseElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="implementationType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="implementation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="event" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fieldExtensions" upperBound="-1"
+        eType="#//FieldExtension" containment="true"/>
   </eClassifiers>
 </ecore:EPackage>

@@ -10,21 +10,16 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
 public abstract class TableFieldEditor extends FieldEditor {
@@ -33,7 +28,7 @@ public abstract class TableFieldEditor extends FieldEditor {
 	 * The table widget; <code>null</code> if none (before creation or after
 	 * disposal).
 	 */
-	private Table table;
+	protected Table table;
 
 	/**
 	 * The button box containing the Add, Remove, Up, and Down buttons;
@@ -45,6 +40,11 @@ public abstract class TableFieldEditor extends FieldEditor {
 	 * The Add button.
 	 */
 	private Button addButton;
+	
+	/**
+   * The Edit button.
+   */
+  private Button editButton;
 
 	/**
 	 * The Remove button.
@@ -129,6 +129,8 @@ public abstract class TableFieldEditor extends FieldEditor {
 	 * @return a new item
 	 */
 	protected abstract String[] getNewInputObject();
+	
+	protected abstract String[] getChangedInputObject(TableItem tableItem);
 
 	/**
 	 * Creates the Add, Remove, Up, and Down button in the given button box.
@@ -139,6 +141,7 @@ public abstract class TableFieldEditor extends FieldEditor {
 	private void createButtons(Composite box) {
 		box.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		addButton = createPushButton(box, "New");
+		editButton = createPushButton(box, "Edit");
 		removeButton = createPushButton(box, "Remove");
 	}
 
@@ -150,6 +153,15 @@ public abstract class TableFieldEditor extends FieldEditor {
 	protected Button getAddButton() {
 		return addButton;
 	}
+	
+	/**
+   * Return the Edit button.
+   * 
+   * @return the button
+   */
+  protected Button getEditButton() {
+    return editButton;
+  }
 
 	/**
 	 * Return the Remove button.
@@ -201,6 +213,8 @@ public abstract class TableFieldEditor extends FieldEditor {
 				Widget widget = event.widget;
 				if (widget == addButton) {
 					addPressed();
+				} else if (widget == editButton) {
+          editPressed();
 				} else if (widget == removeButton) {
 					removePressed();
 				} else if (widget == table) {
@@ -258,14 +272,6 @@ public abstract class TableFieldEditor extends FieldEditor {
 		return items;
 	}
 	
-	protected void addTableItem(String name, String value) {
-		if(table != null) {
-			TableItem tableItem = new TableItem(table, SWT.NONE);
-			tableItem.setText(0, name);
-			tableItem.setText(1, value);
-		}
-	}
-	
 	protected void removeTableItems() {
 		if(table != null) {
 			table.removeAll();
@@ -311,6 +317,7 @@ public abstract class TableFieldEditor extends FieldEditor {
 			buttonBox.addDisposeListener(new DisposeListener() {
 				public void widgetDisposed(DisposeEvent event) {
 					addButton = null;
+					editButton = null;
 					removeButton = null;
 					buttonBox = null;
 				}
@@ -365,60 +372,7 @@ public abstract class TableFieldEditor extends FieldEditor {
 			final TableEditor editor = new TableEditor(table);
 			editor.horizontalAlignment = SWT.LEFT;
 			editor.grabHorizontal = true;
-			table.addListener(SWT.MouseDoubleClick, new Listener() {
-				public void handleEvent(Event event) {
-					Rectangle clientArea = table.getClientArea();
-					Point pt = new Point(event.x, event.y);
-					int index = table.getTopIndex();
-					while (index < table.getItemCount()) {
-						boolean visible = false;
-						final TableItem item = table.getItem(index);
-						for (int i = 0; i < table.getColumnCount(); i++) {
-							Rectangle rect = item.getBounds(i);
-							if (rect.contains(pt)) {
-								final int column = i;
-								final Text text = new Text(table, SWT.NONE);
-								Listener textListener = new Listener() {
-									public void handleEvent(final Event e) {
-										switch (e.type) {
-										case SWT.FocusOut:
-											item
-													.setText(column, text
-															.getText());
-											text.dispose();
-											break;
-										case SWT.Traverse:
-											switch (e.detail) {
-											case SWT.TRAVERSE_RETURN:
-												item.setText(column, text
-														.getText());
-												// FALL THROUGH
-											case SWT.TRAVERSE_ESCAPE:
-												text.dispose();
-												e.doit = false;
-											}
-											break;
-										}
-									}
-								};
-								text.addListener(SWT.FocusOut, textListener);
-								text.addListener(SWT.Traverse, textListener);
-								editor.setEditor(text, item, i);
-								text.setText(item.getText(i));
-								text.selectAll();
-								text.setFocus();
-								return;
-							}
-							if (!visible && rect.intersects(clientArea)) {
-								visible = true;
-							}
-						}
-						if (!visible)
-							return;
-						index++;
-					}
-				}
-			});
+		
 		} else {
 			checkParent(table, parent);
 		}
@@ -473,6 +427,17 @@ public abstract class TableFieldEditor extends FieldEditor {
 			selectionChanged();
 		}
 	}
+	
+	private void editPressed() {
+	  setPresentsDefaultValue(false);
+	  int index = table.getSelectionIndex();
+	  TableItem tableItem = table.getItem(index);
+    String[] changedInputObject = getChangedInputObject(tableItem);
+    if(changedInputObject != null) {
+      tableItem.setText(changedInputObject);
+      selectionChanged();
+    }
+	}
 
 	/**
 	 * Notifies that the Remove button has been pressed.
@@ -504,6 +469,7 @@ public abstract class TableFieldEditor extends FieldEditor {
 		int index = table.getSelectionIndex();
 		int size = table.getItemCount();
 
+		editButton.setEnabled(index >= 0);
 		removeButton.setEnabled(index >= 0);
 	}
 
@@ -523,6 +489,7 @@ public abstract class TableFieldEditor extends FieldEditor {
 		super.setEnabled(enabled, parent);
 		getTableControl(parent).setEnabled(enabled);
 		addButton.setEnabled(enabled);
+		editButton.setEnabled(enabled);
 		removeButton.setEnabled(enabled);
 	}
 
