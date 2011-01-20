@@ -1,0 +1,9 @@
+.view-process-diagram span.first-child button
+{
+  background: url("../../images/process-view-icon.png") no-repeat center transparent;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-indent: -1000em;
+
+}
