@@ -38,7 +38,9 @@
   "id": "${processInstance.id}",
   "processDefinitionId": "${processInstance.processDefinitionId}",
   "businessKey": <#if processInstance.businessKey??>"${processInstance.businessKey}"<#else>null</#if>,
-  "ended": ${processInstance.ended?string}
+  "startTime": ${processInstance.startTime?date},
+  "startUserId": <#if processInstance.startUserId??>"${processInstance.startUserId}"<#else>null</#if>
+
 }
 </#macro>
 </#escape>

@@ -40,7 +40,7 @@
   Activiti.component.ProcessInstances = function ProcessInstances_constructor(htmlId)
   {
     Activiti.component.ProcessInstances.superclass.constructor.call(this, "Activiti.component.ProcessInstances", htmlId);
-    this.services.managementService = new Activiti.service.ManagementService(this);
+    this.services.processService = new Activiti.service.ProcessService(this);
 
     this.onEvent(Activiti.event.selectProcess, this.onSelectProcessEvent);
 
@@ -71,8 +71,8 @@
             [
               { key: "id", label: this.msg("label.id"), sortable:true },
               { key: "businessKey", label: this.msg("label.businessKey"), sortable:true },
-              { key: "ended", label: this.msg("label.ended"), sortable:true },
-              { key: "display", label: this.msg("label.display") }
+              { key: "startTime", label: this.msg("label.startTime"), sortable:true },
+              { key: "display", label: this.msg("label.actions") }
 
             ]
           );
@@ -97,7 +97,7 @@
      */
     onDataTableCreateURL: function ProcessInstances_onDataTableCreateURL(dataTable, eventName, eventValue)
     {
-      return this.services.managementService.loadProcessInstancesURL(_currentProcessId, eventValue);
+      return this.services.processService.loadProcessInstancesURL(_currentProcessId, eventValue);
     },
 
     /**
@@ -128,10 +128,27 @@
      */
     onViewProcessDiagram: function Processes_onViewProcessDiagram(data, datatable)
     {
-      var url = Activiti.service.REST_PROXY_URI_RELATIVE + '/processInstance/' + $html(data.id) + '/diagram';
+      
+      var url = Activiti.service.REST_PROXY_URI_RELATIVE + '/processInstance/' + $html(data.id) + '/diagram?noCache=' + (new Date().getTime());
       Activiti.widget.PopupManager.displayImage(url);
     },
-
+    /**
+     *
+     * Activiti.widget.DataTable-callback that is called to render the content of each cell in the StartTime row
+     *
+     * This funtion formats the time according to a property string prior to display.
+     *
+     * @method onDataTableRenderCellStartTime
+     * @param {Object} dataTable
+     * @param {Object} el
+     * @param {Object} oRecord
+     * @param {Object} oColumn
+     * @param {Object} oData
+     */
+    onDataTableRenderCellStartTime: function Processes_onDataTableRenderCellStartTime(dataTable, el, oRecord, oColumn, oData)
+    {
+      el.innerHTML = Activiti.thirdparty.dateFormat(Activiti.thirdparty.fromISO8601(oRecord.getData().startTime), this.msg("Activiti.date-format.default"));
+    }
 
   });
 

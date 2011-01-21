@@ -1172,15 +1172,6 @@ Activiti.event = function() {
      */
     clickFormEventButton: "clickFormEventButton",
 
-
-    /**
-     * Shall be fired when process has been selected.
-     *
-     * @property selectProcess
-     * @type string
-     */
-    selectProcess : "selectProcess",
-
     /**
  		 * Shall be fired when a tree node is selected.
  		 * 

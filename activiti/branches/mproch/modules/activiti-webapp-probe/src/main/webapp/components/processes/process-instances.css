@@ -7,3 +7,16 @@
   text-indent: -1000em;
 
 }
+
+.processInstances h1 {
+  float: left;
+}
+
+.processInstances .yui-pg-container {
+  float: right;
+}
+
+.processInstances .activiti-datalist.yui-dt {
+  clear: both;
+}
+

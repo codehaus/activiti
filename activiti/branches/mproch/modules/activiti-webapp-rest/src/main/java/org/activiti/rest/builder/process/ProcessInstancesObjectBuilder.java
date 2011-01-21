@@ -1,5 +1,6 @@
 package org.activiti.rest.builder.process;
 
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.rest.builder.BaseJSONObjectBuilder;
 import org.activiti.rest.util.JSONUtil;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 public class ProcessInstancesObjectBuilder extends BaseJSONObjectBuilder {
 
-  private ProcessInstanceJSONConverter converter = new ProcessInstanceJSONConverter();
+  private HistoricProcessInstanceJSONConverter converter = new HistoricProcessInstanceJSONConverter();
 
   @SuppressWarnings("unchecked")
   public JSONObject createJsonObject(Object modelObject) throws JSONException {
@@ -21,9 +22,9 @@ public class ProcessInstancesObjectBuilder extends BaseJSONObjectBuilder {
     JSONObject result = new JSONObject();
     JSONUtil.putPagingInfo(result, model);
 
-    List<ProcessInstance> definitions = (List<ProcessInstance>) model.get("processInstances");
+    List<HistoricProcessInstance> definitions = (List<HistoricProcessInstance>) model.get("processInstances");
     JSONArray dataArray = JSONUtil.putNewArray(result, "data");
-    for (ProcessInstance processDefinition : definitions) {
+    for (HistoricProcessInstance processDefinition : definitions) {
       JSONObject jsonTask = converter.getJSONObject(processDefinition);
       dataArray.put(jsonTask);
     }

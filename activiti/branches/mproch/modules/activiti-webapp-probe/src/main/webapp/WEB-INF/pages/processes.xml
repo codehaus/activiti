@@ -7,7 +7,7 @@
   <components>
     <component>
       <region-id>left1</region-id>
-      <url>/component/processes</url>
+      <url>/component/process-definitions</url>
     </component>
     <component>
       <region-id>main1</region-id>
