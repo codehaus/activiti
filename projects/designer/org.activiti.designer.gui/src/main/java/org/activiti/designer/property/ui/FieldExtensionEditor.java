@@ -3,6 +3,7 @@ package org.activiti.designer.property.ui;
 import java.util.Iterator;
 import java.util.List;
 
+import org.activiti.designer.model.FieldExtensionModel;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.FieldExtension;
@@ -37,6 +38,14 @@ public class FieldExtensionEditor extends TableFieldEditor {
 		for (FieldExtension fieldExtension : fieldList) {
 			addTableItem(fieldExtension.getFieldname(), fieldExtension.getExpression());
 		}
+	}
+	
+	public void initializeModel(List<FieldExtensionModel> fieldList) {
+	  removeTableItems();
+    if(fieldList == null || fieldList.size() == 0) return;
+    for (FieldExtensionModel fieldExtension : fieldList) {
+      addTableItem(fieldExtension.fieldName, fieldExtension.expression);
+    }
 	}
 
 	@Override
@@ -101,7 +110,6 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	private void saveFieldExtensions() {
 		if (pictogramElement != null && getNumberOfItems() > 0) {
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pictogramElement);
-			System.out.println("save bo " + bo);
 			if (bo instanceof ServiceTask) {
 				TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 				ActivitiUiUtil.runModelChange(new Runnable() {
@@ -133,7 +141,6 @@ public class FieldExtensionEditor extends TableFieldEditor {
 					}
 				}, editingDomain, "Model Update");
 			}
-
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package org.activiti.designer.property.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.designer.model.FieldExtensionModel;
@@ -43,6 +44,7 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 	private String savedImplementationType;
   private String savedImplementation;
   private String savedEventName;
+  private String savedFields;
 	
 	private TableItem[] fieldList;
 	
@@ -65,12 +67,13 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 	}
 	
 	public ExecutionListenerDialog(Shell parent, TableItem[] fieldList, String savedImplementationType, 
-	        String savedImplementation, String savedEventName) {
+	        String savedImplementation, String savedEventName, String savedFields) {
     // Pass the default styles here
     this(parent, fieldList, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
     this.savedImplementationType = savedImplementationType;
     this.savedImplementation = savedImplementation;
     this.savedEventName = savedEventName;
+    this.savedFields = savedFields;
   }
 
 	public ExecutionListenerDialog(Shell parent, TableItem[] fieldList, int style) {
@@ -300,6 +303,20 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
     extensionsComposite.setLayout(fieldLayout);
     fieldEditor = new FieldExtensionEditor("fieldEditor", extensionsComposite);
     fieldEditor.getLabelControl(extensionsComposite).setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+    if(savedFields != null && savedFields.length() > 0) {
+      String[] fieldStringList = savedFields.split(", ");
+      List<FieldExtensionModel> fieldList = new ArrayList<FieldExtensionModel>();
+      for (String field : fieldStringList) {
+        String[] fieldExtensionStringList = field.split(":");
+        if(fieldExtensionStringList != null && fieldExtensionStringList.length == 2) {
+          FieldExtensionModel fieldExtension = new FieldExtensionModel();
+          fieldExtension.fieldName = fieldExtensionStringList[0];
+          fieldExtension.expression = fieldExtensionStringList[1];
+          fieldList.add(fieldExtension);
+        }
+      }
+      fieldEditor.initializeModel(fieldList);
+    }
     
     CLabel extensionLabel = new CLabel(shell, SWT.NONE);
     extensionLabel.setText("Fields");
@@ -347,6 +364,15 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 				  implementation = classNameText.getText();
 				} else {
 				  implementation = expressionText.getText();
+				}
+				fieldExtensionList = new ArrayList<FieldExtensionModel>();
+				if(fieldEditor.getItems() != null) {
+				  for (TableItem tableItem : fieldEditor.getItems()) {
+				    FieldExtensionModel fieldModel = new FieldExtensionModel();
+				    fieldModel.fieldName = tableItem.getText(0);
+				    fieldModel.expression = tableItem.getText(1);
+				    fieldExtensionList.add(fieldModel);
+          }
 				}
 				shell.close();
 			}

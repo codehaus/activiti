@@ -3,6 +3,7 @@ package org.activiti.designer.property.ui;
 import java.util.Iterator;
 import java.util.List;
 
+import org.activiti.designer.model.FieldExtensionModel;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.activiti.designer.util.BpmnBOUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
@@ -27,7 +28,7 @@ public class ExecutionListenerEditor extends TableFieldEditor {
 	public ExecutionListenerEditor(String key, Composite parent) {
 		
         super(key, "", new String[] {"Listener implementation", "Type", "Event", "Fields"},
-        		new int[] {200, 100, 100, 300}, parent);
+        		new int[] {200, 150, 100, 300}, parent);
         this.parent = parent;
 	}
 	
@@ -61,6 +62,9 @@ public class ExecutionListenerEditor extends TableFieldEditor {
       String fieldString = "";
       if(fieldExtensions != null) {
         for (FieldExtension fieldExtension : fieldExtensions) {
+          if(fieldString.length() > 0) {
+            fieldString += ", ";
+          }
           fieldString += fieldExtension.getFieldname() + ":" + fieldExtension.getExpression();
         }
       }
@@ -76,7 +80,7 @@ public class ExecutionListenerEditor extends TableFieldEditor {
 		        dialog.implementation != null && dialog.implementation.length() > 0 &&
 		        dialog.implementationType != null && dialog.implementationType.length() > 0) {
 			
-			return new String[] { dialog.implementation, dialog.implementationType, dialog.eventName };
+			return new String[] { dialog.implementation, dialog.implementationType, dialog.eventName, getFieldString(dialog.fieldExtensionList) };
 		} else {
 			return null;
 		}
@@ -84,17 +88,31 @@ public class ExecutionListenerEditor extends TableFieldEditor {
 	
 	@Override
   protected String[] getChangedInputObject(TableItem item) {
-    ExecutionListenerDialog dialog = new ExecutionListenerDialog(parent.getShell(), getItems());
+    ExecutionListenerDialog dialog = new ExecutionListenerDialog(parent.getShell(), getItems(), 
+            item.getText(1), item.getText(0), item.getText(2), item.getText(3));
     dialog.open();
     if(dialog.eventName != null && dialog.eventName.length() > 0 &&
             dialog.implementation != null && dialog.implementation.length() > 0 &&
             dialog.implementationType != null && dialog.implementationType.length() > 0) {
       
-      return new String[] { dialog.implementation, dialog.implementationType, dialog.eventName };
+      return new String[] { dialog.implementation, dialog.implementationType, dialog.eventName, getFieldString(dialog.fieldExtensionList) };
     } else {
       return null;
     }
   }
+	
+	private String getFieldString(List<FieldExtensionModel> fieldList) {
+	  String fieldString = "";
+    if(fieldList != null) {
+      for (FieldExtensionModel fieldExtension : fieldList) {
+        if(fieldString.length() > 0) {
+          fieldString += ", ";
+        }
+        fieldString += fieldExtension.fieldName + ":" + fieldExtension.expression;
+      }
+    }
+    return fieldString;
+	}
 	
 	@Override
 	protected void selectionChanged() {
@@ -124,11 +142,13 @@ public class ExecutionListenerEditor extends TableFieldEditor {
 							  executionListener.setEvent(event);
 							  executionListener.setImplementation(implementation);
 							  executionListener.setImplementationType(implementationType);
+							  setFieldsInListener(executionListener, fields);
 							} else {
 							  ExecutionListener newExecutionListener = Bpmn2Factory.eINSTANCE.createExecutionListener();
 							  newExecutionListener.setEvent(event);
 							  newExecutionListener.setImplementationType(implementationType);
 							  newExecutionListener.setImplementation(implementation);
+							  setFieldsInListener(executionListener, fields);
 								BpmnBOUtil.addExecutionListener(bo, newExecutionListener);
 							}
 						}
@@ -137,6 +157,56 @@ public class ExecutionListenerEditor extends TableFieldEditor {
 				}
 			}, editingDomain, "Model Update");
 		}
+	}
+	
+	private void setFieldsInListener(ExecutionListener executionListener, String fieldString) {
+	  if(fieldString == null || fieldString.length() == 0) {
+	    removeFieldExtensionsNotInList(executionListener.getFieldExtensions(), null);
+	    return;
+	  }
+	  String[] fieldStringList = fieldString.split(", ");
+	  for (String field : fieldStringList) {
+	    String[] fieldExtensionStringList = field.split(":");
+	    FieldExtension fieldExtension = fieldExtensionExists(executionListener.getFieldExtensions(), fieldExtensionStringList[0]);
+	    if(fieldExtension == null) {
+	      fieldExtension = Bpmn2Factory.eINSTANCE.createFieldExtension();
+	      executionListener.getFieldExtensions().add(fieldExtension);
+	    }
+	    fieldExtension.setFieldname(fieldExtensionStringList[0]);
+	    fieldExtension.setExpression(fieldExtensionStringList[1]);
+    }
+	  removeFieldExtensionsNotInList(executionListener.getFieldExtensions(), fieldStringList);
+	}
+	
+	private FieldExtension fieldExtensionExists(List<FieldExtension> fieldList, String fieldname) {
+	  if(fieldList == null) return null;
+	  for(FieldExtension fieldExtension : fieldList) {
+      if(fieldname.equalsIgnoreCase(fieldExtension.getFieldname())) {
+        return fieldExtension;
+      }
+    }
+    return null;
+	}
+	
+	private void removeFieldExtensionsNotInList(List<FieldExtension> fieldList, String[] fieldStringList) {
+	  Iterator<FieldExtension> entryIterator = fieldList.iterator();
+    while(entryIterator.hasNext()) {
+      FieldExtension fieldExtension = entryIterator.next();
+      boolean found = false;
+      if(fieldStringList != null && fieldStringList.length > 0) {
+        for (String field : fieldStringList) {
+          String[] fieldExtensionStringList = field.split(":");
+          if(fieldExtensionStringList[0].equals(fieldExtension.getFieldname())) {
+            found = true;
+            break;
+          }
+        }
+      }
+      if(found == false) {
+        diagram.eResource().getContents().remove(fieldExtension);
+        entryIterator.remove();
+      }
+    }
 	}
 	
 	private ExecutionListener executionListenerExists(Object bo, String event, String implementationType, String implementation) {
