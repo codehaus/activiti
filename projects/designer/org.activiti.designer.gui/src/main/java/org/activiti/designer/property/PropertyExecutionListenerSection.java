@@ -4,9 +4,8 @@ import java.util.List;
 
 import org.activiti.designer.property.ui.ExecutionListenerEditor;
 import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.util.BpmnBOUtil;
 import org.eclipse.bpmn2.ExecutionListener;
-import org.eclipse.bpmn2.SequenceFlow;
-import org.eclipse.bpmn2.Task;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
@@ -60,23 +59,11 @@ public class PropertyExecutionListenerSection extends ActivitiPropertySection im
     
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = null;
-      if(pe instanceof Diagram) {
-        bo = ActivitiUiUtil.getProcessObject(getDiagram());
-      } else {
-        bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-      }
+      Object bo = BpmnBOUtil.getExecutionLisenerBO(pe, getDiagram());
       if (bo == null)
         return;
       
-      List<ExecutionListener> executionListenerList = null;
-      if(bo instanceof Task) {
-        executionListenerList = ((Task) bo).getExecutionListeners();
-      } else if(bo instanceof SequenceFlow) {
-        executionListenerList = ((SequenceFlow) bo).getExecutionListeners();
-      } else if(bo instanceof org.eclipse.bpmn2.Process) {
-        executionListenerList = ((org.eclipse.bpmn2.Process) bo).getExecutionListeners();
-      }
+      List<ExecutionListener> executionListenerList = BpmnBOUtil.getExecutionListeners(bo);
       
       listenerEditor.pictogramElement = pe;
       listenerEditor.diagramEditor = getDiagramEditor();

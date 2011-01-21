@@ -32,8 +32,8 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	}
 	
 	public void initialize(List<FieldExtension> fieldList) {
+	  removeTableItems();
 		if(fieldList == null || fieldList.size() == 0) return;
-		removeTableItems();
 		for (FieldExtension fieldExtension : fieldList) {
 			addTableItem(fieldExtension.getFieldname(), fieldExtension.getExpression());
 		}

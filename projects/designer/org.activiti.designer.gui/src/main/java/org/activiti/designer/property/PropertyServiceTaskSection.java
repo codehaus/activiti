@@ -215,7 +215,6 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 
 	@Override
 	public void refresh() {
-		
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
 			expressionText.removeFocusListener(listener);

@@ -40,6 +40,10 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 	public String eventName;
 	public List<FieldExtensionModel> fieldExtensionList;
 	
+	private String savedImplementationType;
+  private String savedImplementation;
+  private String savedEventName;
+	
 	private TableItem[] fieldList;
 	
 	private Combo eventDropDown;
@@ -59,6 +63,15 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 		// Pass the default styles here
 		this(parent, fieldList, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 	}
+	
+	public ExecutionListenerDialog(Shell parent, TableItem[] fieldList, String savedImplementationType, 
+	        String savedImplementation, String savedEventName) {
+    // Pass the default styles here
+    this(parent, fieldList, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+    this.savedImplementationType = savedImplementationType;
+    this.savedImplementation = savedImplementation;
+    this.savedEventName = savedEventName;
+  }
 
 	public ExecutionListenerDialog(Shell parent, TableItem[] fieldList, int style) {
 		// Let users override the default styles
@@ -108,7 +121,12 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 	  eventDropDown = new Combo(shell, SWT.DROP_DOWN | SWT.BORDER);
 	  eventDropDown.add("Start");
 	  eventDropDown.add("End");
-	  eventDropDown.setText("Start");
+	  
+	  if(savedEventName != null) {
+	    eventDropDown.setText(savedEventName);
+	  } else {
+	    eventDropDown.setText("Start");
+	  }
     data = new FormData();
     data.left = new FormAttachment(0, 120);
     data.right = new FormAttachment(100, 0);
@@ -135,8 +153,6 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
       
     classTypeButton = new Button(radioTypeComposite, SWT.RADIO);
     classTypeButton.setText("Java class");
-    classTypeButton.setSelection(true);
-    setImplementationType(CLASS_TYPE);
     classTypeButton.addSelectionListener(new SelectionListener() {
 
       @Override
@@ -177,7 +193,11 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
     typeLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
     classNameText = new Text(shell, SWT.BORDER);
-    classNameText.setText("");
+    if(CLASS_TYPE.equals(savedImplementationType)) {
+      classNameText.setText(savedImplementation);
+    } else {
+      classNameText.setText("");
+    }
     data = new FormData();
     data.left = new FormAttachment(0, 120);
     data.right = new FormAttachment(70, 0);
@@ -248,8 +268,11 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
     classSelectLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
     
     expressionText = new Text(shell, SWT.BORDER);
-    expressionText.setText("");
-    expressionText.setVisible(false);
+    if(EXPRESSION_TYPE.equals(savedImplementationType)) {
+      expressionText.setText(savedImplementation);
+    } else {
+      expressionText.setText("");
+    }
     data = new FormData();
     data.left = new FormAttachment(0, 120);
     data.right = new FormAttachment(100, 0);
@@ -258,7 +281,6 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
     
     expressionLabel = new CLabel(shell, SWT.NONE);
     expressionLabel.setText("Expression");
-    expressionLabel.setVisible(false);
     data = new FormData();
     data.left = new FormAttachment(0, 0);
     data.right = new FormAttachment(expressionText, -HSPACE);
@@ -321,6 +343,11 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
           return;
         }
 				eventName = eventDropDown.getText();
+				if(CLASS_TYPE.equals(implementationType)) {
+				  implementation = classNameText.getText();
+				} else {
+				  implementation = expressionText.getText();
+				}
 				shell.close();
 			}
 		});
@@ -329,6 +356,18 @@ public class ExecutionListenerDialog extends Dialog implements ITabbedPropertyCo
 		// user can type input and press Enter
 		// to dismiss
 		shell.setDefaultButton(ok);
+		
+		if(savedImplementationType == null || CLASS_TYPE.equals(savedImplementationType)) {
+      classTypeButton.setSelection(true);
+      setImplementationType(CLASS_TYPE);
+      setVisibleClassType(true);
+      setVisibleExpressionType(false);
+    } else {
+      expressionTypeButton.setSelection(true);
+      setImplementationType(EXPRESSION_TYPE);
+      setVisibleClassType(false);
+      setVisibleExpressionType(true);
+    }
 	}
 	
 	private void setImplementationType(final String type) {
