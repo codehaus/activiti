@@ -10,6 +10,7 @@ import org.activiti.designer.integration.servicetask.annotation.Help;
 import org.activiti.designer.integration.servicetask.annotation.Property;
 import org.activiti.designer.property.extension.FormToolTip;
 import org.activiti.designer.property.extension.field.CustomPropertyBooleanChoiceField;
+import org.activiti.designer.property.extension.field.CustomPropertyComboboxChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyDataGridField;
 import org.activiti.designer.property.extension.field.CustomPropertyField;
 import org.activiti.designer.property.extension.field.CustomPropertyMultilineTextField;
@@ -220,6 +221,16 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
 
           case BOOLEAN_CHOICE:
             createdCustomPropertyField = new CustomPropertyBooleanChoiceField(this, serviceTask, fieldInfo.getField());
+            createdControl = createdCustomPropertyField.render(workParent, factory, listener);
+            data = new FormData();
+            data.top = new FormAttachment(previousAnchor, VSPACE);
+            data.left = new FormAttachment(0, LABEL_COLUMN_WIDTH);
+            data.right = new FormAttachment(100, -HELP_COLUMN_WIDTH);
+            createdControl.setLayoutData(data);
+            break;
+
+          case COMBOBOX_CHOICE:
+            createdCustomPropertyField = new CustomPropertyComboboxChoiceField(this, serviceTask, fieldInfo.getField());
             createdControl = createdCustomPropertyField.render(workParent, factory, listener);
             data = new FormData();
             data.top = new FormAttachment(previousAnchor, VSPACE);
