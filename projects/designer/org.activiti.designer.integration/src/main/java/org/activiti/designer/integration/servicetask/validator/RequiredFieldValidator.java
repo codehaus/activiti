@@ -45,7 +45,7 @@ public class RequiredFieldValidator implements FieldValidator {
       }
 
     } else {
-      throw new ValidationException("The value provided must be of type string from a Text control");
+      throw new ValidationException("The value provided must be of type string from a supported control");
     }
   }
 

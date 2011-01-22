@@ -20,15 +20,17 @@ import java.util.Map.Entry;
 
 import org.activiti.designer.integration.servicetask.PropertyType;
 import org.activiti.designer.integration.servicetask.annotation.PropertyItems;
-import org.activiti.designer.integration.servicetask.validator.RequiredFieldValidator;
 import org.activiti.designer.property.PropertyCustomServiceTaskSection;
+import org.activiti.designer.property.extension.field.validator.RadioRequiredFieldValidator;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
 /**
@@ -36,20 +38,22 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
  * @since 0.7.0
  * @version 1
  */
-public class CustomPropertyComboboxChoiceField extends AbstractCustomPropertyField {
+public class CustomPropertyRadioChoiceField extends AbstractCustomPropertyField {
 
-  private CCombo comboControl;
+  private static final String STORAGE_VALUE = "storageValue";
+
+  private Composite parentControl;
   private PropertyItems propertyItemsAnnotation;
 
   private Map<String, String> values;
 
-  public CustomPropertyComboboxChoiceField(final PropertyCustomServiceTaskSection section, final ServiceTask serviceTask, final Field field) {
+  public CustomPropertyRadioChoiceField(final PropertyCustomServiceTaskSection section, final ServiceTask serviceTask, final Field field) {
     super(section, serviceTask, field);
   }
 
   @Override
   public PropertyType getPrimaryPropertyType() {
-    return PropertyType.COMBOBOX_CHOICE;
+    return PropertyType.RADIO_CHOICE;
   }
 
   @Override
@@ -57,19 +61,38 @@ public class CustomPropertyComboboxChoiceField extends AbstractCustomPropertyFie
     final String storedValue = getSimpleValueFromModel();
     for (final Entry<String, String> entry : values.entrySet()) {
       if (entry.getKey().equals(storedValue)) {
-        comboControl.setText(entry.getValue());
-        break;
+        for (final Control currentControl : parentControl.getChildren()) {
+
+          if (currentControl instanceof Button) {
+            final Object data = currentControl.getData(STORAGE_VALUE);
+            if (data != null && data instanceof String) {
+              if (StringUtils.equals(entry.getKey(), (String) data)) {
+                ((Button) currentControl).setSelection(true);
+              }
+            } else {
+              ((Button) currentControl).setSelection(false);
+            }
+          }
+        }
       }
     }
   }
-
   @Override
   public String getSimpleValue() {
     String result = "";
-    for (final Entry<String, String> entry : values.entrySet()) {
-      if (entry.getValue().equals(comboControl.getText())) {
-        result = entry.getKey();
-        break;
+
+    for (final Control currentControl : parentControl.getChildren()) {
+
+      if (currentControl instanceof Button) {
+        boolean selected = ((Button) currentControl).getSelection();
+        if (selected) {
+          final Object data = currentControl.getData(STORAGE_VALUE);
+          if (data != null && data instanceof String) {
+            result = (String) data;
+            break;
+          }
+        }
+
       }
     }
     return result;
@@ -78,10 +101,8 @@ public class CustomPropertyComboboxChoiceField extends AbstractCustomPropertyFie
   @Override
   public Composite render(final Composite parent, final TabbedPropertySheetWidgetFactory factory, final FocusListener listener) {
 
-    final Composite result = factory.createFlatFormComposite(parent);
+    parentControl = factory.createFlatFormComposite(parent);
     FormData data;
-
-    String[] labels = null;
 
     if (propertyItemsAnnotation == null) {
       propertyItemsAnnotation = getField().getAnnotation(PropertyItems.class);
@@ -90,36 +111,45 @@ public class CustomPropertyComboboxChoiceField extends AbstractCustomPropertyFie
         final String[] itemValues = propertyItemsAnnotation.value();
 
         values = new HashMap<String, String>();
-        labels = new String[itemValues.length / 2];
 
         for (int i = 0; i < itemValues.length; i += 2) {
           values.put(itemValues[i + 1], itemValues[i]);
-          labels[i / 2] = itemValues[i];
         }
       }
     }
 
-    comboControl = factory.createCCombo(result, SWT.DROP_DOWN);
-    comboControl.setEnabled(true);
+    Control previousAnchor = parentControl;
 
-    comboControl.setItems(labels);
+    for (final Entry<String, String> currentItem : values.entrySet()) {
+      final Button currentButton = factory.createButton(parentControl, currentItem.getValue(), SWT.RADIO | SWT.BORDER_SOLID);
+      currentButton.setData(STORAGE_VALUE, currentItem.getKey());
+      currentButton.setEnabled(true);
+
+      data = new FormData();
+      data.left = new FormAttachment(previousAnchor);
+      currentButton.setLayoutData(data);
+
+      previousAnchor = currentButton;
+
+      currentButton.addFocusListener(listener);
+    }
 
     if (getPropertyAnnotation().required()) {
-      addFieldValidator(comboControl, RequiredFieldValidator.class);
+      addFieldValidator(parentControl, RadioRequiredFieldValidator.class);
     }
 
     if (getPropertyAnnotation().fieldValidator() != null) {
-      addFieldValidator(comboControl, getPropertyAnnotation().fieldValidator());
+      addFieldValidator(parentControl, getPropertyAnnotation().fieldValidator());
     }
 
-    comboControl.addFocusListener(listener);
+    parentControl.addFocusListener(listener);
 
     data = new FormData();
     data.left = new FormAttachment(0);
     data.top = new FormAttachment(0);
     data.right = new FormAttachment(100);
-    comboControl.setLayoutData(data);
+    parentControl.setLayoutData(data);
 
-    return result;
+    return parentControl;
   }
 }

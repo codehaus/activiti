@@ -15,6 +15,7 @@ import org.activiti.designer.property.extension.field.CustomPropertyDataGridFiel
 import org.activiti.designer.property.extension.field.CustomPropertyField;
 import org.activiti.designer.property.extension.field.CustomPropertyMultilineTextField;
 import org.activiti.designer.property.extension.field.CustomPropertyPeriodField;
+import org.activiti.designer.property.extension.field.CustomPropertyRadioChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyTextField;
 import org.activiti.designer.property.extension.field.FieldInfo;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
@@ -231,6 +232,16 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
 
           case COMBOBOX_CHOICE:
             createdCustomPropertyField = new CustomPropertyComboboxChoiceField(this, serviceTask, fieldInfo.getField());
+            createdControl = createdCustomPropertyField.render(workParent, factory, listener);
+            data = new FormData();
+            data.top = new FormAttachment(previousAnchor, VSPACE);
+            data.left = new FormAttachment(0, LABEL_COLUMN_WIDTH);
+            data.right = new FormAttachment(100, -HELP_COLUMN_WIDTH);
+            createdControl.setLayoutData(data);
+            break;
+
+          case RADIO_CHOICE:
+            createdCustomPropertyField = new CustomPropertyRadioChoiceField(this, serviceTask, fieldInfo.getField());
             createdControl = createdCustomPropertyField.render(workParent, factory, listener);
             data = new FormData();
             data.top = new FormAttachment(previousAnchor, VSPACE);
