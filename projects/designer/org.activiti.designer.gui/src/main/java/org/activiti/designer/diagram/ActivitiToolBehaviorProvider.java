@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.eclipse.extension.AbstractDiagramWorker;
+import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
 import org.activiti.designer.features.CreateCustomServiceTaskFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
@@ -28,13 +30,18 @@ import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.property.extension.CustomServiceTaskContext;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.activiti.designer.util.ActivitiUiUtil;
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
@@ -333,10 +340,75 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
         imageRenderingDecorator.setMessage("This subprocess does not have a diagram model yet");//$NON-NLS-1$
         return new IDecorator[] { imageRenderingDecorator };
       }
+    } else if (bo instanceof ServiceTask && bo instanceof EObject && ExtensionUtil.isCustomServiceTask((EObject) bo)) {
+
+      final Resource resource = pe.getLink().eResource();
+      final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(resource.getURI().toPlatformString(true));
+
+      final List<IMarker> markers = getMarkers(res, (ServiceTask) bo);
+
+      if (markers.size() > 0) {
+
+        int maximumSeverity = 0;
+
+        try {
+          for (final IMarker marker : markers) {
+            final Object severity = marker.getAttribute(IMarker.SEVERITY);
+            if (severity != null && severity instanceof Integer) {
+              maximumSeverity = Math.max(maximumSeverity, (Integer) severity);
+            }
+          }
+        } catch (CoreException e) {
+          e.printStackTrace();
+        }
+
+        String decoratorImagePath = null;
+
+        switch (maximumSeverity) {
+        case IMarker.SEVERITY_INFO:
+          decoratorImagePath = IPlatformImageConstants.IMG_ECLIPSE_INFORMATION_TSK;
+          break;
+        case IMarker.SEVERITY_WARNING:
+          decoratorImagePath = IPlatformImageConstants.IMG_ECLIPSE_WARNING_TSK;
+          break;
+        default:
+          decoratorImagePath = IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK;
+        }
+
+        final ImageDecorator imageRenderingDecorator = new ImageDecorator(decoratorImagePath);
+        imageRenderingDecorator.setMessage("There are validation markers for the properties of this node");//$NON-NLS-1$ 
+        imageRenderingDecorator.setX(pe.getGraphicsAlgorithm().getWidth() / 2 - 10);
+        imageRenderingDecorator.setY(4);
+
+        return new IDecorator[] { imageRenderingDecorator };
+
+      } else {
+        return new IDecorator[] {};
+      }
     }
     return super.getDecorators(pe);
   }
+  protected List<IMarker> getMarkers(IResource resource, ServiceTask serviceTask) {
 
+    final List<IMarker> result = new ArrayList<IMarker>();
+
+    try {
+      final IMarker[] markers = resource.findMarkers(ProcessValidator.MARKER_ID, true, IResource.DEPTH_INFINITE);
+      for (final IMarker marker : markers) {
+        Object attribute = marker.getAttribute(AbstractDiagramWorker.ATTRIBUTE_NODE_ID);
+        if (attribute != null) {
+          if (StringUtils.equals((String) attribute, serviceTask.getId())) {
+            result.add(marker);
+          }
+        }
+
+      }
+    } catch (CoreException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
   private boolean subProcessDiagramExists(SubProcess subProcess) {
     Resource resource = getDiagramTypeProvider().getDiagram().eResource();
 

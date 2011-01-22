@@ -69,6 +69,7 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
       if (!DiagramBaseShape.ACTIVITY.equals(targetTask.getDiagramBaseShape())) {
         baseShape = targetTask.getDiagramBaseShape();
       }
+
     }
 
     int width = 0;
