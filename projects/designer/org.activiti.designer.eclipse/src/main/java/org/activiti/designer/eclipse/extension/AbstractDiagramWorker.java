@@ -39,8 +39,8 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
  */
 public abstract class AbstractDiagramWorker {
 
-  private static final String ATTRIBUTE_WORKER_ID = "workerId";
-  private static final String ATTRIBUTE_NODE_ID = "nodeId";
+  public static final String ATTRIBUTE_NODE_ID = "nodeId";
+  public static final String ATTRIBUTE_WORKER_ID = "workerId";
 
   private static final String DATE_TIME_PATTERN = "yyyy-MM-dd-HH-mm-ss";
 

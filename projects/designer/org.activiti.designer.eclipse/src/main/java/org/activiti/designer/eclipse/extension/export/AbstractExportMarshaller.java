@@ -10,6 +10,7 @@ import org.activiti.designer.eclipse.extension.AbstractDiagramWorker;
 import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
 import org.activiti.designer.eclipse.util.ExtensionPointUtil;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 /**
@@ -17,16 +18,19 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
  * 
  * @author Tiese Barrell
  * @since 0.5.1
- * @version 2
+ * @version 3
  * 
  */
 public abstract class AbstractExportMarshaller extends AbstractDiagramWorker implements ExportMarshaller {
 
+  private static final int WORK_INVOKE_VALIDATORS_VALIDATOR = 10;
+
   /**
    * Invokes validators marked by the provided validatorIds. If no validator is
-   * registered by one of the validatorIds, that validator is skipped.
-   * 
-   * TODO: monitor progress
+   * registered by one of the validatorIds, that validator is skipped. Make sure
+   * to provide a fresh {@link SubProgressMonitor} as a monitor to properly
+   * incorporate progress reporting into that of the originating
+   * ExportMarshaller.
    * 
    * @param validatorIds
    *          the list of ids of the validators to invoke
@@ -35,42 +39,47 @@ public abstract class AbstractExportMarshaller extends AbstractDiagramWorker imp
    */
   protected boolean invokeValidators(final List<String> validatorIds, final Diagram diagram, final IProgressMonitor monitor) {
 
-    monitor.subTask("Invoking validators");
+    final int totalWork = WORK_INVOKE_VALIDATORS_VALIDATOR * validatorIds.size();
+
+    monitor.beginTask("Invoking validators", totalWork);
 
     boolean overallResult = true;
 
-    if (validatorIds.size() > 0) {
+    try {
 
-      monitor.worked(20);
+      if (validatorIds.size() > 0) {
 
-      for (final String validatorId : validatorIds) {
+        for (final String validatorId : validatorIds) {
 
-        // get validator, else skip
-        final ProcessValidator processValidator = ExtensionPointUtil.getProcessValidator(validatorId);
+          // get validator, else skip
+          final ProcessValidator processValidator = ExtensionPointUtil.getProcessValidator(validatorId);
 
-        if (processValidator != null) {
+          if (processValidator != null) {
 
-          monitor.beginTask("Invoking " + processValidator.getValidatorName(), 10);
+            monitor.subTask("Invoking " + processValidator.getValidatorName());
 
-          if (!(processValidator.validateDiagram(diagram, monitor))) {
-            // don't break even if one result is false: keep validating to get
-            // all
-            // of the problems
-            overallResult = false;
+            if (!(processValidator.validateDiagram(diagram, new SubProgressMonitor(monitor, WORK_INVOKE_VALIDATORS_VALIDATOR)))) {
+              // don't break if one result is false: keep validating to get
+              // all of the problems
+              overallResult = false;
+            }
           }
-          monitor.worked(10);
         }
       }
-      monitor.worked(80);
+
+    } finally {
+      monitor.done();
     }
 
-    monitor.done();
     return overallResult;
   }
 
   /**
    * Invokes validator marked by the provided validatorId. If no validator is
-   * registered by the validatorId, that validator is skipped.
+   * registered by the validatorId, that validator is skipped. Make sure to
+   * provide a fresh {@link SubProgressMonitor} as a monitor to properly
+   * incorporate progress reporting into that of the originating
+   * ExportMarshaller.
    * 
    * @param validatorId
    *          the id of the validator to invoke
