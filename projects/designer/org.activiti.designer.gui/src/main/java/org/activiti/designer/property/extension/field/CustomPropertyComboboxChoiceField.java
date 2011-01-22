@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import org.activiti.designer.integration.servicetask.PropertyType;
 import org.activiti.designer.integration.servicetask.annotation.PropertyItems;
+import org.activiti.designer.integration.servicetask.validator.RequiredFieldValidator;
 import org.activiti.designer.property.PropertyCustomServiceTaskSection;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.swt.SWT;
@@ -100,6 +101,10 @@ public class CustomPropertyComboboxChoiceField extends AbstractCustomPropertyFie
     comboControl.setEnabled(true);
 
     comboControl.setItems(labels);
+
+    if (getPropertyAnnotation().required()) {
+      addFieldValidator(comboControl, RequiredFieldValidator.class);
+    }
 
     if (getPropertyAnnotation().fieldValidator() != null) {
       addFieldValidator(comboControl, getPropertyAnnotation().fieldValidator());

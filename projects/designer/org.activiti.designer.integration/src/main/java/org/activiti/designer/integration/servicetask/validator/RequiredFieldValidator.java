@@ -1,5 +1,6 @@
 package org.activiti.designer.integration.servicetask.validator;
 
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
@@ -33,6 +34,8 @@ public class RequiredFieldValidator implements FieldValidator {
     String fieldValue = null;
     if (control instanceof Text) {
       fieldValue = ((Text) control).getText();
+    } else if (control instanceof CCombo) {
+      fieldValue = ((CCombo) control).getText();
     }
 
     if (fieldValue != null) {

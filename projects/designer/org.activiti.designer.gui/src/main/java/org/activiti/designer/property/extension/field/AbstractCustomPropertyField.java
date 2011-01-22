@@ -29,6 +29,7 @@ import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.ComplexDataType;
 import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.ServiceTask;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
@@ -168,6 +169,10 @@ public abstract class AbstractCustomPropertyField implements CustomPropertyField
       Text text = (Text) control;
       text.setBackground(new Color(control.getDisplay(), ERROR_COLOR));
       text.setToolTipText(e.getMessage());
+    } else if (control instanceof CCombo) {
+      CCombo combo = (CCombo) control;
+      combo.setBackground(new Color(control.getDisplay(), ERROR_COLOR));
+      combo.setToolTipText(e.getMessage());
     } else if (control instanceof Composite) {
       Composite composite = (Composite) control;
       composite.setBackground(new Color(control.getDisplay(), ERROR_COLOR));
@@ -183,6 +188,10 @@ public abstract class AbstractCustomPropertyField implements CustomPropertyField
       Text text = (Text) control;
       text.setBackground(null);
       text.setToolTipText(null);
+    } else if (control instanceof CCombo) {
+      CCombo combo = (CCombo) control;
+      combo.setBackground(null);
+      combo.setToolTipText(null);
     } else if (control instanceof Composite) {
       Composite composite = (Composite) control;
       composite.setBackground(null);
