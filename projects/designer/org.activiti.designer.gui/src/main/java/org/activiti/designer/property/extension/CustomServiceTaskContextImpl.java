@@ -9,6 +9,11 @@ import org.activiti.designer.integration.servicetask.CustomServiceTask;
 
 public class CustomServiceTaskContextImpl implements CustomServiceTaskContext {
 
+  private static final String DEFAULT_ICON_PATH = "icons/defaultCustomServiceTask.png";
+  private static final String ERROR_ICON_PATH = "icons/errorCustomServiceTask.png";
+
+  private static final String ERROR_ICON_MESSAGE_PATTERN = "The CustomServiceTask '%s' has an incorrect icon path '%s', so the icon cannot be shown. A placeholder error icon will be shown instead.";
+
   private final CustomServiceTask customServiceTask;
 
   private final String extensionName;
@@ -36,16 +41,16 @@ public class CustomServiceTaskContextImpl implements CustomServiceTaskContext {
 
       try {
         result = extensionJarFile.getInputStream(imgentry);
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (Exception e) {
+        System.err.println(String.format(ERROR_ICON_MESSAGE_PATTERN, this.customServiceTask.getId(), path));
+        result = getErrorCustomServiceTaskIconStream();
       }
     } else {
-      result = CustomServiceTaskContextImpl.class.getClassLoader().getResourceAsStream("icons/defaultCustomServiceTask.png");
+      result = getDefaultCustomServiceTaskIconStream();
     }
 
     return result;
   }
-
   @Override
   public InputStream getLargeIconStream() {
     InputStream result = null;
@@ -56,11 +61,12 @@ public class CustomServiceTaskContextImpl implements CustomServiceTaskContext {
 
       try {
         result = extensionJarFile.getInputStream(imgentry);
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (Exception e) {
+        System.err.println(String.format(ERROR_ICON_MESSAGE_PATTERN, this.customServiceTask.getId(), path));
+        result = getErrorCustomServiceTaskIconStream();
       }
     } else {
-      result = CustomServiceTaskContextImpl.class.getClassLoader().getResourceAsStream("icons/defaultCustomServiceTask.png");
+      result = getDefaultCustomServiceTaskIconStream();
     }
 
     return result;
@@ -76,11 +82,12 @@ public class CustomServiceTaskContextImpl implements CustomServiceTaskContext {
 
       try {
         result = extensionJarFile.getInputStream(imgentry);
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (Exception e) {
+        System.err.println(String.format(ERROR_ICON_MESSAGE_PATTERN, this.customServiceTask.getId(), path));
+        result = getErrorCustomServiceTaskIconStream();
       }
     } else {
-      result = CustomServiceTaskContextImpl.class.getClassLoader().getResourceAsStream("icons/defaultCustomServiceTask.png");
+      result = getDefaultCustomServiceTaskIconStream();
     }
 
     return result;
@@ -109,6 +116,14 @@ public class CustomServiceTaskContextImpl implements CustomServiceTaskContext {
   @Override
   public String getShapeImageKey() {
     return getExtensionName() + "/shape/" + getServiceTask().getId();
+  }
+
+  private InputStream getDefaultCustomServiceTaskIconStream() {
+    return CustomServiceTaskContextImpl.class.getClassLoader().getResourceAsStream(DEFAULT_ICON_PATH);
+  }
+
+  private InputStream getErrorCustomServiceTaskIconStream() {
+    return CustomServiceTaskContextImpl.class.getClassLoader().getResourceAsStream(ERROR_ICON_PATH);
   }
 
   @Override
