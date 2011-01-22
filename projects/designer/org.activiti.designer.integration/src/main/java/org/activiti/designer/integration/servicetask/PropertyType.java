@@ -34,6 +34,23 @@ public enum PropertyType {
   DATE_PICKER,
 
   /**
+   * Property type for single-selection choice properties to be displayed as a
+   * radio button group.
+   */
+  RADIO_CHOICE,
+
+  /**
+   * Property type for single-selection choice properties to be displayed as a
+   * combobox.
+   */
+  COMBOBOX_CHOICE,
+
+  /**
+   * Property type for boolean properties to be displayed as a checkbox.
+   */
+  BOOLEAN_CHOICE,
+
+  /**
    * Property type for properties to be displayed as a grid of items that can be
    * edited in rows.
    */

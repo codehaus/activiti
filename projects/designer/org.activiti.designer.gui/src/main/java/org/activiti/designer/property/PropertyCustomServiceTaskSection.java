@@ -9,6 +9,7 @@ import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.integration.servicetask.annotation.Help;
 import org.activiti.designer.integration.servicetask.annotation.Property;
 import org.activiti.designer.property.extension.FormToolTip;
+import org.activiti.designer.property.extension.field.CustomPropertyBooleanChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyDataGridField;
 import org.activiti.designer.property.extension.field.CustomPropertyField;
 import org.activiti.designer.property.extension.field.CustomPropertyMultilineTextField;
@@ -26,7 +27,6 @@ import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
-import org.eclipse.graphiti.ui.platform.GFPropertySection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
@@ -210,6 +210,16 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
 
           case PERIOD:
             createdCustomPropertyField = new CustomPropertyPeriodField(this, serviceTask, fieldInfo.getField());
+            createdControl = createdCustomPropertyField.render(workParent, factory, listener);
+            data = new FormData();
+            data.top = new FormAttachment(previousAnchor, VSPACE);
+            data.left = new FormAttachment(0, LABEL_COLUMN_WIDTH);
+            data.right = new FormAttachment(100, -HELP_COLUMN_WIDTH);
+            createdControl.setLayoutData(data);
+            break;
+
+          case BOOLEAN_CHOICE:
+            createdCustomPropertyField = new CustomPropertyBooleanChoiceField(this, serviceTask, fieldInfo.getField());
             createdControl = createdCustomPropertyField.render(workParent, factory, listener);
             data = new FormData();
             data.top = new FormAttachment(previousAnchor, VSPACE);
