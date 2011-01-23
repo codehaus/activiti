@@ -12,6 +12,7 @@ import org.activiti.designer.property.extension.FormToolTip;
 import org.activiti.designer.property.extension.field.CustomPropertyBooleanChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyComboboxChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyDataGridField;
+import org.activiti.designer.property.extension.field.CustomPropertyDatePickerField;
 import org.activiti.designer.property.extension.field.CustomPropertyField;
 import org.activiti.designer.property.extension.field.CustomPropertyMultilineTextField;
 import org.activiti.designer.property.extension.field.CustomPropertyPeriodField;
@@ -250,6 +251,16 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
             createdControl.setLayoutData(data);
             break;
 
+          case DATE_PICKER:
+            createdCustomPropertyField = new CustomPropertyDatePickerField(this, serviceTask, fieldInfo.getField());
+            createdControl = createdCustomPropertyField.render(workParent, factory, listener);
+            data = new FormData();
+            data.top = new FormAttachment(previousAnchor, VSPACE);
+            data.left = new FormAttachment(0, LABEL_COLUMN_WIDTH);
+            data.right = new FormAttachment(100, -HELP_COLUMN_WIDTH);
+            createdControl.setLayoutData(data);
+            break;
+
           case DATA_GRID:
             createdCustomPropertyField = new CustomPropertyDataGridField(this, serviceTask, fieldInfo.getField());
             createdControl = createdCustomPropertyField.render(workParent, factory, listener);
@@ -422,7 +433,6 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
       Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
       if (bo instanceof ServiceTask) {
         DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-        @SuppressWarnings("restriction")
         TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
         ActivitiUiUtil.runModelChange(runnable, editingDomain, "Model Update");
       }

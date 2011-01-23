@@ -2,6 +2,7 @@ package org.activiti.designer.integration.servicetask.validator;
 
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -36,6 +37,28 @@ public class RequiredFieldValidator implements FieldValidator {
       fieldValue = ((Text) control).getText();
     } else if (control instanceof CCombo) {
       fieldValue = ((CCombo) control).getText();
+    } else if (control instanceof DateTime) {
+      // create an unformatted date containing all of the fields
+      boolean fieldSet = false;
+      DateTime dateTime = (DateTime) control;
+      if (dateTime.getYear() != 0) {
+        fieldSet = true;
+      } else if (dateTime.getMonth() != 0) {
+        fieldSet = true;
+      } else if (dateTime.getDay() != 0) {
+        fieldSet = true;
+      } else if (dateTime.getHours() != 0) {
+        fieldSet = true;
+      } else if (dateTime.getMinutes() != 0) {
+        fieldSet = true;
+      } else if (dateTime.getSeconds() != 0) {
+        fieldSet = true;
+      }
+
+      if (fieldSet) {
+        fieldValue = "dummyValue";
+      }
+
     }
 
     if (fieldValue != null) {
