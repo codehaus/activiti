@@ -15,6 +15,7 @@ public final class ActivitiBPMNDiagramConstants {
   // public static final String DIAGRAM_EDITOR_ID =
   // "org.activiti.designer.editor.diagram";
   public static final String DIAGRAM_EDITOR_ID = "org.activiti.designer.editor.multiPageEditor";
+  public static final String BPMN2_CONTENTTYPE_ID = "org.activiti.designer.editor.bpmn.contenttype";
 
   public static final String BPMN_MARSHALLER_NAME = "Activiti Designer BPMN 2.0";
   public static final String BPMN_VALIDATOR_ID = "ActivitiDesignerBPMNValidator";

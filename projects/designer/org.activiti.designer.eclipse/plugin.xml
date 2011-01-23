@@ -115,9 +115,6 @@
             icon="community_icon.png"
             id="org.activiti.designer.editor.bpmn"
             name="Activiti BPMN 2.0 XML Editor">
-         <contentTypeBinding
-               contentTypeId="org.activiti.designer.editor.bpmn.contenttype">
-         </contentTypeBinding>
       </editor>
    <editor
          class="org.activiti.designer.eclipse.editor.ActivitiMultiPageEditor"
@@ -128,6 +125,9 @@
          name="Activiti Diagram Editor">
       <contentTypeBinding
             contentTypeId="org.activiti.designer.editor.diagram.contenttype">
+      </contentTypeBinding>
+      <contentTypeBinding
+            contentTypeId="org.activiti.designer.editor.bpmn.contenttype">
       </contentTypeBinding>
    </editor>
    </extension>
