@@ -24,7 +24,6 @@ import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
-import org.eclipse.graphiti.ui.platform.GFPropertySection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.FocusEvent;
@@ -51,7 +50,6 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
     FormData data;
 
     idText = factory.createText(composite, "", SWT.READ_ONLY); //$NON-NLS-1$
-    idText.setEnabled(false);
     data = new FormData();
     data.left = new FormAttachment(0, 120);
     data.right = new FormAttachment(100, -HSPACE);
@@ -83,6 +81,7 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
 
   @Override
   public void refresh() {
+    idText.removeFocusListener(listener);
     nameText.removeFocusListener(listener);
 
     PictogramElement pe = getSelectedPictogramElement();
@@ -93,8 +92,10 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
       if (bo == null)
         return;
       String name = ((FlowElement) bo).getName();
-      idText.setText(((FlowElement) bo).getId());
+      String id = ((FlowElement) bo).getId();
+      idText.setText(id == null ? "" : id); //$NON-NLS-1$
       nameText.setText(name == null ? "" : name); //$NON-NLS-1$
+      idText.addFocusListener(listener);
       nameText.addFocusListener(listener);
     }
   }
@@ -122,12 +123,15 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
           if (bo == null)
             return;
 
+          String id = idText.getText();
           String name = nameText.getText();
-          if (name == null)
-            return;
           if (!(bo instanceof FlowElement))
             return;
-          ((FlowElement) bo).setName(name);
+          
+          if(id != null)
+            ((FlowElement) bo).setId(id);
+          if(name != null)
+            ((FlowElement) bo).setName(name);
           if (!(getSelectedPictogramElement() instanceof FreeFormConnection))
             return;
           EList<ConnectionDecorator> decoratorList = ((FreeFormConnection) getSelectedPictogramElement()).getConnectionDecorators();
