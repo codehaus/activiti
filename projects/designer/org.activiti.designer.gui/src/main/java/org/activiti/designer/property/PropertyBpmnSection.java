@@ -49,13 +49,13 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
     Composite composite = factory.createFlatFormComposite(parent);
     FormData data;
 
-    idText = factory.createText(composite, ""); //$NON-NLS-1$
+    idText = factory.createText(composite, "", SWT.READ_ONLY); //$NON-NLS-1$
+    idText.setEnabled(false);
     data = new FormData();
     data.left = new FormAttachment(0, 120);
     data.right = new FormAttachment(100, -HSPACE);
     data.top = new FormAttachment(0, VSPACE);
     idText.setLayoutData(data);
-    idText.addFocusListener(listener);
 
     CLabel idLabel = factory.createCLabel(composite, "Id:", SWT.WRAP); //$NON-NLS-1$
     data = new FormData();
@@ -82,7 +82,6 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
 
   @Override
   public void refresh() {
-    idText.removeFocusListener(listener);
     nameText.removeFocusListener(listener);
 
     PictogramElement pe = getSelectedPictogramElement();
@@ -93,10 +92,8 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
       if (bo == null)
         return;
       String name = ((FlowElement) bo).getName();
-      String id = ((FlowElement) bo).getId();
-      idText.setText(id == null ? "" : id); //$NON-NLS-1$
+      idText.setText(((FlowElement) bo).getId());
       nameText.setText(name == null ? "" : name); //$NON-NLS-1$
-      idText.addFocusListener(listener);
       nameText.addFocusListener(listener);
     }
   }
@@ -124,13 +121,10 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
           if (bo == null)
             return;
 
-          String id = idText.getText();
           String name = nameText.getText();
           if (!(bo instanceof FlowElement))
             return;
           
-          if(id != null)
-            ((FlowElement) bo).setId(id);
           if(name != null)
             ((FlowElement) bo).setName(name);
           if (!(getSelectedPictogramElement() instanceof FreeFormConnection))

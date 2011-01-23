@@ -46,13 +46,13 @@ public class PropertyDiagramSection extends ActivitiPropertySection implements I
 		Composite composite = factory.createFlatFormComposite(parent);
 		FormData data;
 
-		idText = factory.createText(composite, "", SWT.READ_ONLY); //$NON-NLS-1$
-		idText.setEnabled(false);
-		data = new FormData();
-		data.left = new FormAttachment(0, 120);
-		data.right = new FormAttachment(100, 0);
-		data.top = new FormAttachment(0, VSPACE);
-		idText.setLayoutData(data);
+		idText = factory.createText(composite, ""); //$NON-NLS-1$
+    data = new FormData();
+    data.left = new FormAttachment(0, 120);
+    data.right = new FormAttachment(100, -HSPACE);
+    data.top = new FormAttachment(0, VSPACE);
+    idText.setLayoutData(data);
+    idText.addFocusListener(listener);
 
 		CLabel idLabel = factory.createCLabel(composite, "Id:"); //$NON-NLS-1$
 		data = new FormData();
@@ -94,6 +94,7 @@ public class PropertyDiagramSection extends ActivitiPropertySection implements I
 
 	@Override
 	public void refresh() {
+	  idText.removeFocusListener(listener);
 		nameText.removeFocusListener(listener);
 		org.eclipse.bpmn2.Process process = ActivitiUiUtil.getProcessObject(getDiagram());
 		if(process == null) {
@@ -117,6 +118,7 @@ public class PropertyDiagramSection extends ActivitiPropertySection implements I
 			}, editingDomain, "Model Update");
 		} else {
 			idText.setText(process.getId());
+			idText.addFocusListener(listener);
 			nameText.setText(process.getName());
 			nameText.addFocusListener(listener);
 			documentationText.setText(process.getDocumentation().get(0).getText());
@@ -137,11 +139,15 @@ public class PropertyDiagramSection extends ActivitiPropertySection implements I
 					if (process == null) {
 						return;
 					}
+					
+					String id = idText.getText();
+					if (id != null) {
+					  process.setId(id);
+					}
+					
 					String name = nameText.getText();
 					if (name != null) {
 						process.setName(name);
-						idText.setText(name);
-						process.setId(name);
 					}
 					String documentation = documentationText.getText();
 					if (documentation != null) {
