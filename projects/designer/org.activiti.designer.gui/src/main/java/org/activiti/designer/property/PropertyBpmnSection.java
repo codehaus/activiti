@@ -55,6 +55,7 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
     data.right = new FormAttachment(100, -HSPACE);
     data.top = new FormAttachment(0, VSPACE);
     idText.setLayoutData(data);
+    idText.addFocusListener(listener);
 
     CLabel idLabel = factory.createCLabel(composite, "Id:", SWT.WRAP); //$NON-NLS-1$
     data = new FormData();
