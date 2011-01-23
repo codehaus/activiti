@@ -13,9 +13,11 @@
 
 package org.activiti.designer.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.bpmn2.ExecutionListener;
+import org.activiti.designer.model.FieldExtensionModel;
+import org.eclipse.bpmn2.ActivitiListener;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.Task;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
@@ -28,7 +30,7 @@ import org.eclipse.graphiti.services.Graphiti;
  */
 public class BpmnBOUtil {
   
-  public static Object getExecutionLisenerBO(PictogramElement pe, Diagram diagram) {
+  public static Object getExecutionListenerBO(PictogramElement pe, Diagram diagram) {
     Object bo = null;
     if(pe instanceof Diagram) {
       bo = ActivitiUiUtil.getProcessObject(diagram);
@@ -38,25 +40,50 @@ public class BpmnBOUtil {
     return bo;
   }
 
-  public static List<ExecutionListener> getExecutionListeners(Object bo) {
-    List<ExecutionListener> executionListenerList = null;
+  public static List<ActivitiListener> getListeners(Object bo) {
+    List<ActivitiListener> listenerList = null;
     if(bo instanceof Task) {
-      executionListenerList = ((Task) bo).getExecutionListeners();
+      listenerList = ((Task) bo).getActivitiListeners();
     } else if(bo instanceof SequenceFlow) {
-      executionListenerList = ((SequenceFlow) bo).getExecutionListeners();
+      listenerList = ((SequenceFlow) bo).getExecutionListeners();
     } else if(bo instanceof org.eclipse.bpmn2.Process) {
-      executionListenerList = ((org.eclipse.bpmn2.Process) bo).getExecutionListeners();
+      listenerList = ((org.eclipse.bpmn2.Process) bo).getExecutionListeners();
     }
-    return executionListenerList;
+    return listenerList;
   }
   
-  public static void addExecutionListener(Object bo, ExecutionListener listener) {
+  public static void addListener(Object bo, ActivitiListener listener) {
     if(bo instanceof Task) {
-      ((Task) bo).getExecutionListeners().add(listener);
+      ((Task) bo).getActivitiListeners().add(listener);
     } else if(bo instanceof SequenceFlow) {
       ((SequenceFlow) bo).getExecutionListeners().add(listener);
     } else if(bo instanceof org.eclipse.bpmn2.Process) {
       ((org.eclipse.bpmn2.Process) bo).getExecutionListeners().add(listener);
     }
+  }
+  
+  public static void removeExecutionListener(Object bo, ActivitiListener listener) {
+    if(bo instanceof Task) {
+      ((Task) bo).getActivitiListeners().remove(listener);
+    } else if(bo instanceof SequenceFlow) {
+      ((SequenceFlow) bo).getExecutionListeners().remove(listener);
+    } else if(bo instanceof org.eclipse.bpmn2.Process) {
+      ((org.eclipse.bpmn2.Process) bo).getExecutionListeners().remove(listener);
+    }
+  }
+  
+  public static List<FieldExtensionModel> getFieldModelList(String fieldString) {
+    String[] fieldStringList = fieldString.split(", ");
+    List<FieldExtensionModel> fieldList = new ArrayList<FieldExtensionModel>();
+    for (String field : fieldStringList) {
+      String[] fieldExtensionStringList = field.split(":");
+      if(fieldExtensionStringList != null && fieldExtensionStringList.length == 2) {
+        FieldExtensionModel fieldExtension = new FieldExtensionModel();
+        fieldExtension.fieldName = fieldExtensionStringList[0];
+        fieldExtension.expression = fieldExtensionStringList[1];
+        fieldList.add(fieldExtension);
+      }
+    }
+    return fieldList;
   }
 }

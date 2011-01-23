@@ -740,7 +740,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//SubProcess/triggeredByEvent"/>
     </genClasses>
     <genClasses ecoreClass="BPMN20.ecore#//Task">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference BPMN20.ecore#//Task/executionListeners"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference BPMN20.ecore#//Task/activitiListeners"/>
     </genClasses>
     <genClasses ecoreClass="BPMN20.ecore#//TerminateEventDefinition"/>
     <genClasses ecoreClass="BPMN20.ecore#//TextAnnotation">
@@ -770,7 +770,6 @@
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference BPMN20.ecore#//UserTask/candidateUsers"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference BPMN20.ecore#//UserTask/candidateGroups"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//UserTask/formKey"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference BPMN20.ecore#//UserTask/taskListeners"/>
     </genClasses>
     <genClasses ecoreClass="BPMN20.ecore#//CandidateUser">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//CandidateUser/user"/>
@@ -808,17 +807,11 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//DataGridField/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//DataGridField/simpleValue"/>
     </genClasses>
-    <genClasses ecoreClass="BPMN20.ecore#//ExecutionListener">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//ExecutionListener/implementationType"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//ExecutionListener/implementation"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//ExecutionListener/event"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference BPMN20.ecore#//ExecutionListener/fieldExtensions"/>
-    </genClasses>
-    <genClasses ecoreClass="BPMN20.ecore#//TaskListener">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//TaskListener/implementationType"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//TaskListener/implementation"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//TaskListener/event"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference BPMN20.ecore#//TaskListener/fieldExtensions"/>
+    <genClasses ecoreClass="BPMN20.ecore#//ActivitiListener">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//ActivitiListener/implementationType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//ActivitiListener/implementation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute BPMN20.ecore#//ActivitiListener/event"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference BPMN20.ecore#//ActivitiListener/fieldExtensions"/>
     </genClasses>
   </genPackages>
   <genPackages prefix="BpmnDi" basePackage="org.eclipse.bpmn2" resource="XML" multipleEditorPages="false"

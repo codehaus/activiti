@@ -5,22 +5,21 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 
-public class ExecutionListenerEditor extends AbstractListenerEditor {
-	
-	public boolean isSequenceFlow;
-	
-	public ExecutionListenerEditor(String key, Composite parent) {
+
+public class TaskListenerEditor extends AbstractListenerEditor {
+
+  public TaskListenerEditor(String key, Composite parent) {
     super(key, parent);
   }
 
   @Override
   protected AbstractListenerDialog getDialog(Shell shell, TableItem[] items) {
-    return new ExecutionListenerDialog(shell, items, isSequenceFlow);
+    return new TaskListenerDialog(shell, items);
   }
 
   @Override
   protected AbstractListenerDialog getDialog(Shell shell, TableItem[] items, String implementationType, String implementation, String event, String fieldString) {
-    return new ExecutionListenerDialog(shell, items, isSequenceFlow, implementationType, implementation, event, fieldString);
+    return new TaskListenerDialog(shell, items, implementationType, implementation, event, fieldString);
   }
 	
 }

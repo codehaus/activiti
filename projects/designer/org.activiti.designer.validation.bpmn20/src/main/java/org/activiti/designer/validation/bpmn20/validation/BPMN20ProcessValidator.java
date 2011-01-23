@@ -6,6 +6,7 @@ package org.activiti.designer.validation.bpmn20.validation;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.validation.AbstractProcessValidator;
 import org.activiti.designer.eclipse.util.Util;
+import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
@@ -110,7 +111,7 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
           return false;
         }
 
-      } else if (object instanceof ServiceTask) {
+      } else if (object instanceof ServiceTask && ExtensionUtil.isCustomServiceTask(object) == false) {
         ServiceTask serviceTask = (ServiceTask) object;
         if ((serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0 || "classType".equalsIgnoreCase(serviceTask
                 .getImplementationType())) && serviceTask.getImplementation() == null || serviceTask.getImplementation().length() == 0) {

@@ -446,8 +446,11 @@ public abstract class TableFieldEditor extends FieldEditor {
 		setPresentsDefaultValue(false);
 		int index = table.getSelectionIndex();
 		if (index >= 0) {
+		  System.out.println("table removing index " + index);
 			table.remove(index);
+			System.out.println("done removing now selectioncChanged " + index);
 			selectionChanged();
+			System.out.println("done with selectioncChanged " + index);
 		}
 	}
 

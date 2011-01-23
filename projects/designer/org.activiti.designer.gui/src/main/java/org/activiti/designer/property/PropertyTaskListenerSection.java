@@ -2,11 +2,11 @@ package org.activiti.designer.property;
 
 import java.util.List;
 
-import org.activiti.designer.property.ui.ExecutionListenerEditor;
-import org.activiti.designer.util.BpmnBOUtil;
+import org.activiti.designer.property.ui.TaskListenerEditor;
 import org.eclipse.bpmn2.ActivitiListener;
-import org.eclipse.bpmn2.SequenceFlow;
+import org.eclipse.bpmn2.UserTask;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.layout.FormAttachment;
@@ -18,9 +18,9 @@ import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetPage;
 import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
-public class PropertyExecutionListenerSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
+public class PropertyTaskListenerSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
-	private ExecutionListenerEditor listenerEditor;
+	private TaskListenerEditor listenerEditor;
 
 	@Override
 	public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
@@ -40,7 +40,7 @@ public class PropertyExecutionListenerSection extends ActivitiPropertySection im
 		layout.marginTop = 0;
 		layout.numColumns = 1;
 		listenersComposite.setLayout(layout);
-		listenerEditor = new ExecutionListenerEditor("executionListenerEditor", listenersComposite);
+		listenerEditor = new TaskListenerEditor("taskListenerEditor", listenersComposite);
 		listenerEditor.getLabelControl(listenersComposite).setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		
 		CLabel listenersLabel = factory.createCLabel(composite, "Listeners:"); //$NON-NLS-1$
@@ -57,21 +57,17 @@ public class PropertyExecutionListenerSection extends ActivitiPropertySection im
     
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = BpmnBOUtil.getExecutionListenerBO(pe, getDiagram());
-      if (bo == null)
+      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      if (bo == null && (bo instanceof UserTask == false))
         return;
       
-      List<ActivitiListener> executionListenerList = BpmnBOUtil.getListeners(bo);
+      UserTask userTask = (UserTask) bo;
+      List<ActivitiListener> taskListenerList = userTask.getActivitiListeners();
       
       listenerEditor.pictogramElement = pe;
       listenerEditor.diagramEditor = getDiagramEditor();
       listenerEditor.diagram = getDiagram();
-      boolean isSequenceFlow = false;
-      if(bo instanceof SequenceFlow) {
-        isSequenceFlow = true;
-      }
-      listenerEditor.isSequenceFlow = isSequenceFlow;
-      listenerEditor.initialize(executionListenerList);
+      listenerEditor.initialize(taskListenerList);
    }
   }
 }

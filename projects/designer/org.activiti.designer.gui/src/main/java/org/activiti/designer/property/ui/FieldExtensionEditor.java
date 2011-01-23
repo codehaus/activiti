@@ -108,7 +108,7 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	}
 	
 	private void saveFieldExtensions() {
-		if (pictogramElement != null && getNumberOfItems() > 0) {
+		if (pictogramElement != null) {
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pictogramElement);
 			if (bo instanceof ServiceTask) {
 				TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();

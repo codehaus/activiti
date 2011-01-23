@@ -120,6 +120,12 @@
                id="org.activiti.designer.listenerTab.ExecutionTab"
                tab="org.activiti.designer.listenerTab">
          </propertySection>
+         <propertySection
+               class="org.activiti.designer.property.PropertyTaskListenerSection"
+               filter="org.activiti.designer.property.PropertyTaskListenerFilter"
+               id="org.activiti.designer.listenerTab.TaskTab"
+               tab="org.activiti.designer.listenerTab">
+         </propertySection>
       </propertySections>
    </extension>
    <extension
