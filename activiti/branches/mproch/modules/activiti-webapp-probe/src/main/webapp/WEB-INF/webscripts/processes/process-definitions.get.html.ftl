@@ -1,7 +1,7 @@
 <ul>
   <#list processes as process>
   <li class="table">
-    <a href="#" rel="processId=${process.id}&diagram=${process.diagramResourceName!''}" title="${process.name}">${process.name} - ${process.version}</a>
+    <a href="#" rel="processId=${process.id}&diagram=${process.diagramResourceName!''}" title="${process.name}">${process.name}</a><sup class="version">${msg("label.version", process.version)}</sup>
   </li>
   </#list>
 </ul>
