@@ -38,7 +38,7 @@
   "id": "${processInstance.id}",
   "processDefinitionId": "${processInstance.processDefinitionId}",
   "businessKey": <#if processInstance.businessKey??>"${processInstance.businessKey}"<#else>null</#if>,
-  "startTime": ${processInstance.startTime?date},
+  "startTime": <#if processInstance.startTime??>"${iso8601Date(processInstance.startTime)}"<#else>null</#if>,
   "startUserId": <#if processInstance.startUserId??>"${processInstance.startUserId}"<#else>null</#if>
 
 }
