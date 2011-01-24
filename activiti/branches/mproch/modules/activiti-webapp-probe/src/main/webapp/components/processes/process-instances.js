@@ -72,7 +72,7 @@
               { key: "id", label: this.msg("label.id"), sortable:true },
               { key: "businessKey", label: this.msg("label.businessKey"), sortable:true },
               { key: "startTime", label: this.msg("label.startTime"), sortable:true },
-              { key: "display", label: this.msg("label.actions") }
+              { key: "action", label: this.msg("label.actions") }
 
             ]
           );
@@ -102,16 +102,16 @@
 
     /**
      *
-     * Activiti.widget.DataTable-callback that is called to render the content of each cell in the Display row
+     * Activiti.widget.DataTable-callback that is called to render the content of each cell in the Action row
      *
-     * @method onDataTableRenderCellDisplay
+     * @method onDataTableRenderCellAction
      * @param {Object} dataTable
      * @param {Object} el
      * @param {Object} oRecord
      * @param {Object} oColumn
      * @param {Object} oData
      */
-    onDataTableRenderCellDisplay: function ProcessInstances_onDataTableRenderCellDisplay(dataTable, el, oRecord, oColumn, oData) {
+    onDataTableRenderCellAction: function ProcessInstances_onDataTableRenderCellAction(dataTable, el, oRecord, oColumn, oData) {
       var data = oRecord.getData();
 
       if (_hasDiagram != null) {
