@@ -8,40 +8,7 @@
   
   <process id="vacationRequest" name="Vacation request">
 
-    <startEvent id="request" activiti:formKey="org/activiti/examples/taskforms/request.form">
-      <extensionElements>
-        <activiti:formProperty id="employeeName"
-                               name="Employee name"
-                               variable="SpeakerName"
-                               type="string" />
-
-        <activiti:formProperty id="yo"
-                               name="Yo!"
-                               variable="SpeakerName"
-                               type="string"
-                               writable="false"
-                               />
-
-        <activiti:formProperty id="startDate"
-                               type="date"
-                               datePattern="yyyy-MM-dd"
-                               required="true"/>
-
-        <activiti:formProperty id="returnDate"
-                               type="date"
-                               datePattern="yyyy-MM-dd" />
-
-        <activiti:formProperty id="numberOfDays"
-                               type="long"/>
-
-        <activiti:formProperty id="reason"
-                               type="enum">
-          <activiti:value id="1" name="Child Leave" />
-          <activiti:value id="2" name="Holiday" />
-        </activiti:formProperty>
-
-      </extensionElements>
-    </startEvent>
+    <startEvent id="request" activiti:formKey="org/activiti/examples/taskforms/request.form"/>
 
     <sequenceFlow id="flow1" sourceRef="request" targetRef="handleRequest" />
     
