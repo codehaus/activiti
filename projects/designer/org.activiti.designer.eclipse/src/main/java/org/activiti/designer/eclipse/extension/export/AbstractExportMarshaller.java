@@ -10,6 +10,7 @@ import org.activiti.designer.eclipse.extension.AbstractDiagramWorker;
 import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
 import org.activiti.designer.eclipse.util.ExtensionPointUtil;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
@@ -41,7 +42,9 @@ public abstract class AbstractExportMarshaller extends AbstractDiagramWorker imp
 
     final int totalWork = WORK_INVOKE_VALIDATORS_VALIDATOR * validatorIds.size();
 
-    monitor.beginTask("Invoking validators", totalWork);
+    final IProgressMonitor activeMonitor = monitor == null ? new NullProgressMonitor() : monitor;
+
+    activeMonitor.beginTask("Invoking validators", totalWork);
 
     boolean overallResult = true;
 
@@ -58,7 +61,7 @@ public abstract class AbstractExportMarshaller extends AbstractDiagramWorker imp
 
             monitor.subTask("Invoking " + processValidator.getValidatorName());
 
-            if (!(processValidator.validateDiagram(diagram, new SubProgressMonitor(monitor, WORK_INVOKE_VALIDATORS_VALIDATOR)))) {
+            if (!(processValidator.validateDiagram(diagram, new SubProgressMonitor(activeMonitor, WORK_INVOKE_VALIDATORS_VALIDATOR)))) {
               // don't break if one result is false: keep validating to get
               // all of the problems
               overallResult = false;
@@ -73,7 +76,6 @@ public abstract class AbstractExportMarshaller extends AbstractDiagramWorker imp
 
     return overallResult;
   }
-
   /**
    * Invokes validator marked by the provided validatorId. If no validator is
    * registered by the validatorId, that validator is skipped. Make sure to

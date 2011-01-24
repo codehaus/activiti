@@ -44,6 +44,8 @@ import org.eclipse.bpmn2.UserTask;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -85,6 +87,10 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
   private final static String EXECUTION_LISTENER = "executionListener";
   private final static String TASK_LISTENER = "taskListener";
 
+  private static final int WORK_VALIDATION = 40;
+  private static final int WORK_EXPORT = 60;
+  private static final int WORK_TOTAL = WORK_VALIDATION + WORK_EXPORT;
+
   private IProgressMonitor monitor;
   private Diagram diagram;
 
@@ -109,7 +115,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     this.monitor = monitor;
     this.diagram = diagram;
 
-    monitor.beginTask("", 100);
+    monitor.beginTask("Exporting to BPMN 2.0", WORK_TOTAL);
 
     // Clear problems for this diagram first
     clearMarkers(getResource(diagram.eResource().getURI()));
@@ -123,7 +129,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       // Validate if the BPMN validator is checked in the preferences
       if (PreferencesUtil.getBooleanPreference(Preferences.VALIDATE_ACTIVITI_BPMN_FORMAT)) {
 
-        boolean validBpmn = invokeValidator(ActivitiBPMNDiagramConstants.BPMN_VALIDATOR_ID, diagram, monitor);
+        boolean validBpmn = invokeValidator(ActivitiBPMNDiagramConstants.BPMN_VALIDATOR_ID, diagram, new SubProgressMonitor(monitor, WORK_VALIDATION));
 
         if (!validBpmn) {
 
@@ -138,6 +144,8 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
             addProblemToDiagram(diagram, "Marshalling to " + getFormatName() + " format was skipped because validation of the diagram failed.", null);
           }
         }
+      } else {
+        monitor.worked(WORK_VALIDATION);
       }
 
     } else {
@@ -146,9 +154,8 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     }
 
     if (performMarshalling) {
-      monitor.worked(40);
       marshallBPMNDiagram();
-      monitor.worked(60);
+      monitor.worked(WORK_EXPORT);
     }
     monitor.done();
   }
@@ -161,7 +168,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       OutputStreamWriter out = new OutputStreamWriter(baos, "UTF-8");
 
       XMLStreamWriter xtw = xof.createXMLStreamWriter(out);
-      
+
       final EList<EObject> contents = diagram.eResource().getContents();
 
       Process process = null;
@@ -211,7 +218,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
       // end process element
       xtw.writeEndElement();
-      
+
       createDIXML(diagram, xtw, process);
 
       // end definitions root element
@@ -222,7 +229,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
       final byte[] bytes = baos.toByteArray();
       final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-      saveResource(getRelativeURIForDiagram(diagram, FILENAME_PATTERN), bais, this.monitor);
+      saveResource(getRelativeURIForDiagram(diagram, FILENAME_PATTERN), bais, new NullProgressMonitor());
 
       xtw.close();
     } catch (Exception e) {
@@ -242,7 +249,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       // end StartEvent element
       xtw.writeEndElement();
 
-    } else if(object instanceof EndEvent) {
+    } else if (object instanceof EndEvent) {
       EndEvent endEvent = (EndEvent) object;
       // start EndEvent element
       xtw.writeStartElement("endEvent");
@@ -251,13 +258,13 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
       // end EndEvent element
       xtw.writeEndElement();
-      
+
     } else if (object instanceof SequenceFlow) {
       SequenceFlow sequenceFlow = (SequenceFlow) object;
       // start SequenceFlow element
       xtw.writeStartElement("sequenceFlow");
       xtw.writeAttribute("id", subProcessId + sequenceFlow.getId());
-      if(sequenceFlow.getName() == null) {
+      if (sequenceFlow.getName() == null) {
         xtw.writeAttribute("name", "");
       } else {
         xtw.writeAttribute("name", sequenceFlow.getName());
@@ -472,7 +479,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       
       // end ManualTask element
       xtw.writeEndElement();
-    
+
     } else if (object instanceof ReceiveTask) {
       ReceiveTask receiveTask = (ReceiveTask) object;
       // start ReceiveTask element
@@ -596,35 +603,35 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       createXML(object, xtw, subProcessId + "_");
     }
   }
-  
+
   private void createDIXML(Diagram diagram, XMLStreamWriter xtw, Process process) throws Exception {
     ILinkService linkService = Graphiti.getLinkService();
     EList<EObject> contents = diagram.eResource().getContents();
     EList<Shape> shapes = diagram.getChildren();
     xtw.writeStartElement(BPMNDI_PREFIX, "BPMNDiagram", BPMNDI_NAMESPACE);
     xtw.writeAttribute("id", "BPMNDiagram_" + process.getId());
-    
+
     xtw.writeStartElement(BPMNDI_PREFIX, "BPMNPlane", BPMNDI_NAMESPACE);
     xtw.writeAttribute("bpmnElement", process.getId());
     xtw.writeAttribute("id", "BPMNPlane_" + process.getId());
-    
+
     Map<String, GraphicsAlgorithm> flowNodeMap = new HashMap<String, GraphicsAlgorithm>();
-    
+
     for (EObject bpmnObject : contents) {
-      
-      if(bpmnObject instanceof FlowNode) {
+
+      if (bpmnObject instanceof FlowNode) {
         FlowNode flowNode = (FlowNode) bpmnObject;
         xtw.writeStartElement(BPMNDI_PREFIX, "BPMNShape", BPMNDI_NAMESPACE);
         xtw.writeAttribute("bpmnElement", flowNode.getId());
         xtw.writeAttribute("id", "BPMNShape_" + flowNode.getId());
-        
+
         xtw.writeStartElement(OMGDC_PREFIX, "Bounds", OMGDC_NAMESPACE);
         for (Shape shape : shapes) {
           ContainerShape containerShape = (ContainerShape) shape;
           EObject shapeBO = linkService.getBusinessObjectForLinkedPictogramElement(containerShape.getGraphicsAlgorithm().getPictogramElement());
-          if(shapeBO instanceof FlowNode) {
+          if (shapeBO instanceof FlowNode) {
             FlowNode shapeFlowNode = (FlowNode) shapeBO;
-            if(shapeFlowNode.getId().equals(flowNode.getId())) {
+            if (shapeFlowNode.getId().equals(flowNode.getId())) {
               flowNodeMap.put(flowNode.getId(), containerShape.getGraphicsAlgorithm());
               xtw.writeAttribute("height", "" + containerShape.getGraphicsAlgorithm().getHeight());
               xtw.writeAttribute("width", "" + containerShape.getGraphicsAlgorithm().getWidth());
@@ -633,20 +640,20 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
             }
           }
         }
-        
+
         xtw.writeEndElement();
         xtw.writeEndElement();
-        
+
       }
     }
-    
+
     for (EObject bpmnObject : contents) {
-      if(bpmnObject instanceof SequenceFlow) {
+      if (bpmnObject instanceof SequenceFlow) {
         SequenceFlow sequenceFlow = (SequenceFlow) bpmnObject;
         xtw.writeStartElement(BPMNDI_PREFIX, "BPMNEdge", BPMNDI_NAMESPACE);
         xtw.writeAttribute("bpmnElement", sequenceFlow.getId());
         xtw.writeAttribute("id", "BPMNEdge_" + sequenceFlow.getId());
-        if(flowNodeMap.containsKey(sequenceFlow.getSourceRef().getId()) && flowNodeMap.containsKey(sequenceFlow.getTargetRef().getId())) {
+        if (flowNodeMap.containsKey(sequenceFlow.getSourceRef().getId()) && flowNodeMap.containsKey(sequenceFlow.getTargetRef().getId())) {
           GraphicsAlgorithm sourceConnection = flowNodeMap.get(sequenceFlow.getSourceRef().getId());
           GraphicsAlgorithm targetConnection = flowNodeMap.get(sequenceFlow.getTargetRef().getId());
           xtw.writeStartElement(OMGDI_PREFIX, "waypoint", OMGDI_NAMESPACE);
@@ -661,9 +668,9 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         xtw.writeEndElement();
       }
     }
-    
+
     xtw.writeEndElement();
-    
+
     xtw.writeEndElement();
   }
 
