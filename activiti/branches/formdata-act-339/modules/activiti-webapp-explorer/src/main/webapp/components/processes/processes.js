@@ -118,10 +118,10 @@
      */
     onDataTableRenderCellAction: function Processes_onDataTableRenderCellAssignee(dataTable, el, oRecord, oColumn, oData) {
       var data = oRecord.getData();
-      if (data.diagramResourceName != null) {
+      if (data.diagramResourceName) {
         Activiti.widget.createCellButton(this, el, this.msg("action.viewProcessDiagram"), "view-process-diagram", this.onActionViewProcessDiagram, data, dataTable);
       }
-      if (data.startFormResourceKey != null) {
+      if (data.startFormResourceKey || data.hasStartFormProperties) {
         Activiti.widget.createCellButton(this, el, this.msg("action.startProcessUsingForm"), "start-process-using-form", this.onActionStartProcessUsingForm, data, dataTable)
       }
       else {
@@ -138,7 +138,7 @@
      */
     onActionStartProcessUsingForm: function Processes_onActionStartProcessUsingForm(data, datatable)
     {
-      new Activiti.widget.StartProcessInstanceForm(this.id + "-startProcessInstanceForm", data.id);
+      new Activiti.widget.StartProcessInstanceForm(this.id + "-startProcessInstanceForm", data);      
     },
 
     /**

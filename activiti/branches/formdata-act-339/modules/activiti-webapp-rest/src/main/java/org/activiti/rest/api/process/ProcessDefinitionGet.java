@@ -33,6 +33,7 @@ public class ProcessDefinitionGet extends ActivitiWebScript {
     RestProcessDefinition restProcessDefinition = new RestProcessDefinition(processDefinition);
     StartFormData startFormData = getFormService().getStartFormData(processDefinitionId);
     if(startFormData != null) {
+      restProcessDefinition.setHasStartFormProperties(startFormData.getFormProperties().size() > 0);
       restProcessDefinition.setStartFormResourceKey(startFormData.getFormKey());
     }
     model.put("processDefinition", restProcessDefinition);

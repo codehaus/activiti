@@ -200,18 +200,20 @@ public class JSONRequestObject implements ActivitiRequestObject {
       key = (String) keys.next();
       keyPair = key.split("_");
       if (keyPair.length == 1) {
-        typeKey = keyPair[0] + "_type";
+        typeKey = keyPair[0] + "_type_name";
         if (json.has(typeKey)) {
           type = json.getString(typeKey);
-          if (type.equals("Integer")) {
+          if (type.equalsIgnoreCase("Integer")) {
             value = json.getInt(key);
-          } else if (type.equals("Boolean")) {
+          } else if (type.equalsIgnoreCase("Boolean")) {
             value = json.getBoolean(key);
-          } else if (type.equals("Date")) {
+          } else if (type.equalsIgnoreCase("Date")) {
             value = json.getString(key);
-          } else if (type.equals("User")) {
+          } else if (type.equalsIgnoreCase("User")) {
             value = json.getString(key);
-          } else if (type.equals("String")) {
+          } else if (type.equalsIgnoreCase("String")) {
+            value = json.getString(key);
+          } else if (type.equalsIgnoreCase("Enum")) {
             value = json.getString(key);
           } else {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter '" + keyPair[0] + "' is of unknown type '" + type + "'");
@@ -221,7 +223,7 @@ public class JSONRequestObject implements ActivitiRequestObject {
         }
         map.put(key, value);
       } else if (keyPair.length == 2) {
-        if (keyPair[1].equals("required")) {
+        if (keyPair[1].equalsIgnoreCase("required")) {
           if (!json.has(keyPair[0]) || json.get(keyPair[0]) == null) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter '" + keyPair[0] + "' has no value");
           }

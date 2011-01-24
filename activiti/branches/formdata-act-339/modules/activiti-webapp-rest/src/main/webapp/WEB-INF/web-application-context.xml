@@ -178,7 +178,12 @@
         class="org.activiti.rest.builder.process.ProcessInstanceObjectBuilder">
     <property name="templateName" value="process/process-instance.post.json" />
   </bean>
-  
+
+  <bean id="webscript.org.activiti.rest.api.process.process-definition-form-properties.get"
+        class="org.activiti.rest.api.process.ProcessDefinitionFormPropertiesGet"
+        parent="activitiWebScript">
+  </bean>
+
   <bean id="webscript.org.activiti.rest.api.process.process-definitions.get"
         class="org.activiti.rest.api.process.ProcessDefinitionsGet"
         parent="activitiWebScript">
@@ -206,6 +211,11 @@
   <bean id="webscript.org.activiti.rest.api.task.task-form.get"
         class="org.activiti.rest.api.task.TaskFormGet"
         parent="activitiStreamingWebScript">
+  </bean>
+
+  <bean id="webscript.org.activiti.rest.api.process.task-form-properties.get"
+        class="org.activiti.rest.api.task.TaskFormPropertiesGet"
+        parent="activitiWebScript">
   </bean>
 
   <bean id="webscript.org.activiti.rest.api.task.tasks.get"

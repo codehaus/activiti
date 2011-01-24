@@ -50,13 +50,13 @@ Activiti.i18n = Activiti.i18n || {};
 Activiti.util = Activiti.util || {};
 
 /**
- * Activiti top-level thirdparty namespace.
+ * Activiti top-level date namespace.
  * Used for importing third party javascript functions
  *
  * @namespace Activiti
- * @class Activiti.thirdparty
+ * @class Activiti.date
  */
-Activiti.thirdparty = Activiti.thirdparty || {};
+Activiti.date = Activiti.date || {};
 
 /**
  * Activit top-level support namespace.
@@ -179,7 +179,7 @@ Activiti.util.deepCopy = function(p_oObj, p_oInstructions)
  */
 Activiti.util.isDate = function(o)
 {
-  return o.constructor && o.constructor.toString().indexOf("Date") != -1;
+  return o && o.constructor && o.constructor.toString().indexOf("Date") != -1;
 };
 
 /**
@@ -534,28 +534,13 @@ Activiti.util.Pagination = function() {
 /**
  * It check the entered parameters to ensure they're a valid date
  *
- * @method Activiti.util.validDate
- * @param year {Number| String} YYYY | ISO 8601 string
- * @param month {Number} MM 
- * @param day {Number} DD
+ * @method Activiti.date.validate
  * @static
  */
-Activiti.util.validDate = function(year, month, day) 
+Activiti.date.validate = function(date)
 {
-	var dateObj, dates;
-	if (typeof(year) === "string") 
-	{
-		dateObj = Activiti.thirdparty.fromISO8601(year);
-		dates = year.split("-"); 
-		year = parseInt(dates[0], 10);
-		month = parseInt(dates[1], 10);
-		day = parseInt(dates[2], 10);
-	} else 
-	{
-		dateObj = new Date(year, month, day); 
-	}
-	return (dateObj !== null && (dateObj.getFullYear() == year && dateObj.getMonth() + 1 == month && dateObj.getDate() == day));
-}
+	return Activiti.util.isDate(Activiti.date.fromISO8601(date));
+};
 
 /**
  * Adds a leading zero to a number if required
@@ -1427,19 +1412,19 @@ Activiti.event = function() {
  *
  * http://blog.stevenlevithan.com/archives/date-time-format
  *
- * @method Activiti.thirdparty.dateFormat
+ * @method Activiti.date.format
  * @return {string}
  * @static
  */
-Activiti.thirdparty.dateFormat = function()
+Activiti.date.format = function()
 {
-  /*** dateFormat
+  /*** format
    Accepts a date, a mask, or a date and a mask.
    Returns a formatted version of the given date.
    The date defaults to the current date/time.
    The mask defaults ``"ddd mmm d yyyy HH:MM:ss"``.
    */
-  var dateFormat = function()
+  var format = function()
   {
     var   token        = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloZ]|"[^"]*"|'[^']*'/g,
         timezone     = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
@@ -1480,12 +1465,13 @@ Activiti.thirdparty.dateFormat = function()
 
       mask = String(this.masks[mask] || mask || this.masks["default"]);
 
+      // todo: Make sure our masks corresponds to Java's SimpleDateFormat class
       var d = date.getDate(),
           D = date.getDay(),
-          m = date.getMonth(),
+          M = date.getMonth(),
           y = date.getFullYear(),
           H = date.getHours(),
-          M = date.getMinutes(),
+          m = date.getMinutes(),
           s = date.getSeconds(),
           L = date.getMilliseconds(),
           o = date.getTimezoneOffset(),
@@ -1495,18 +1481,18 @@ Activiti.thirdparty.dateFormat = function()
             dd:   pad(d),
             ddd:  this.i18n.dayNames[D],
             dddd: this.i18n.dayNames[D + 7],
-            m:    m + 1,
-            mm:   pad(m + 1),
-            mmm:  this.i18n.monthNames[m],
-            mmmm: this.i18n.monthNames[m + 12],
+            M:    M + 1,
+            MM:   pad(M + 1),
+            MMM:  this.i18n.monthNames[M],
+            MMMMMM: this.i18n.monthNames[M + 12],
             yy:   String(y).slice(2),
             yyyy: y,
             h:    H % 12 || 12,
             hh:   pad(H % 12 || 12),
             H:    H,
             HH:   pad(H),
-            M:    M,
-            MM:   pad(M),
+            m:    m,
+            mm:   pad(m),
             s:    s,
             ss:   pad(s),
             l:    pad(L, 3),
@@ -1529,13 +1515,13 @@ Activiti.thirdparty.dateFormat = function()
   /**
    * Activiti wrapper: delegate to wrapped code
    */
-  return dateFormat.apply(arguments.callee, arguments);
+  return format.apply(arguments.callee, arguments);
 };
-Activiti.thirdparty.dateFormat.DAY_NAMES = (Activiti.i18n.getMessage("days.medium") + "," + Activiti.i18n.getMessage("days.long")).split(",");
-Activiti.thirdparty.dateFormat.MONTH_NAMES = (Activiti.i18n.getMessage("months.short") + "," + Activiti.i18n.getMessage("months.long")).split(",");
-Activiti.thirdparty.dateFormat.TIME_AM = Activiti.i18n.getMessage("date-format.am");
-Activiti.thirdparty.dateFormat.TIME_PM = Activiti.i18n.getMessage("date-format.pm");
-Activiti.thirdparty.dateFormat.masks =
+Activiti.date.format.DAY_NAMES = (Activiti.i18n.getMessage("days.medium") + "," + Activiti.i18n.getMessage("days.long")).split(",");
+Activiti.date.format.MONTH_NAMES = (Activiti.i18n.getMessage("months.short") + "," + Activiti.i18n.getMessage("months.long")).split(",");
+Activiti.date.format.TIME_AM = Activiti.i18n.getMessage("date-format.am");
+Activiti.date.format.TIME_PM = Activiti.i18n.getMessage("date-format.pm");
+Activiti.date.format.masks =
 {
   "default":       Activiti.i18n.getMessage("date-format.default"),
   defaultDateOnly: Activiti.i18n.getMessage("date-format.defaultDateOnly"),
@@ -1551,10 +1537,10 @@ Activiti.thirdparty.dateFormat.masks =
   isoDateTime:     "yyyy-mm-dd'T'HH:MM:ss",
   isoFullDateTime: "yyyy-mm-dd'T'HH:MM:ss.lo"
 };
-Activiti.thirdparty.dateFormat.i18n =
+Activiti.date.format.i18n =
 {
-  dayNames: Activiti.thirdparty.dateFormat.DAY_NAMES,
-  monthNames: Activiti.thirdparty.dateFormat.MONTH_NAMES
+  dayNames: Activiti.date.format.DAY_NAMES,
+  monthNames: Activiti.date.format.MONTH_NAMES
 };
 
 
@@ -1567,12 +1553,12 @@ Activiti.thirdparty.dateFormat.i18n =
  *    All rights reserved.
  *    BSD license (http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE)
  *
- * @method Activiti.thirdparty.fromISO8601
+ * @method Activiti.date.fromISO8601
  * @param formattedString {string} ISO8601-formatted date string
  * @return {Date|null}
  * @static
  */
-Activiti.thirdparty.fromISO8601 = function()
+Activiti.date.fromISO8601 = function()
 {
   var fromISOString = function()
   {
@@ -1655,7 +1641,7 @@ Activiti.thirdparty.fromISO8601 = function()
  *    All rights reserved.
  *    BSD license (http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE)
  *
- * @method Activiti.thirdparty.toISO8601
+ * @method Activiti.date.toISO8601
  * @param dateObject {Date} JavaScript Date object
  * @param options {object} Optional conversion options
  *    zulu = true|false
@@ -1664,7 +1650,7 @@ Activiti.thirdparty.fromISO8601 = function()
  * @return {string}
  * @static
  */
-Activiti.thirdparty.toISO8601 = function()
+Activiti.date.toISO8601 = function()
 {
   var toISOString = function()
   {

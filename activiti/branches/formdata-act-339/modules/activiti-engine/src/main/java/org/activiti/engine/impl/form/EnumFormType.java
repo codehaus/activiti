@@ -13,7 +13,6 @@
 
 package org.activiti.engine.impl.form;
 
-import java.util.List;
 import java.util.Map;
 
 
@@ -22,22 +21,12 @@ import java.util.Map;
  */
 public class EnumFormType extends AbstractFormType {
 
-  protected Map<String, String> values;
-
   public EnumFormType(Map<String, String> values) {
-    this.values = values;
+    information.put("values", values);
   }
 
   public String getName() {
     return "enum";
-  }
-  
-  @Override
-  public Object getInformation(String key) {
-    if (key.equals("values")) {
-      return values;
-    }
-    return null;
   }
 
   @Override

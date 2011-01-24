@@ -286,7 +286,7 @@
      */
     onDataTableRenderCellDeploymentTime: function Processes_onDataTableRenderCellDeploymentTime(dataTable, el, oRecord, oColumn, oData)
     {
-      el.innerHTML = Activiti.thirdparty.dateFormat(Activiti.thirdparty.fromISO8601(oRecord.getData().deploymentTime), this.msg("Activiti.date-format.default"));
+      el.innerHTML = Activiti.date.format(Activiti.date.fromISO8601(oRecord.getData().deploymentTime));
     }
 
   });

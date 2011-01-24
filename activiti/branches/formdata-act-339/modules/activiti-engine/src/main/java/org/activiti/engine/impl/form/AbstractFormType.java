@@ -15,18 +15,27 @@ package org.activiti.engine.impl.form;
 
 import org.activiti.engine.form.FormType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * @author Tom Baeyens
  */
 public abstract class AbstractFormType implements FormType {
 
+  protected Map<String, Object> information = new HashMap<String, Object>();
+
   public abstract Object convertFormValueToModelValue(String propertyValue);
 
   public abstract String convertModelValueToFormValue(Object modelValue);
 
+  public Map<String, Object> getInformation() {
+    return information;
+  }
+
   public Object getInformation(String key) {
-    return null;
+    return information.get(key);
   }
 
 }

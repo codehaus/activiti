@@ -13,6 +13,7 @@
 
 package org.activiti.engine.form;
 
+import java.util.Map;
 
 /** 
  * Used to indicate the type on a {@link FormProperty}.
@@ -29,4 +30,7 @@ public interface FormType {
    * which extra information keys each type provides
    * and what return type they give. */
   Object getInformation(String key);
+
+  /** All information keys and values */
+  public Map<String, Object> getInformation();
 }

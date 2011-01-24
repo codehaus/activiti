@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Task form properties</shortname>
+  <description>Returns the task's form properties</description>
+  <url>/task/{taskId}/form/properties</url>
+  <authentication>user</authentication>
+  <format default="html">argument</format>
+</webscript>

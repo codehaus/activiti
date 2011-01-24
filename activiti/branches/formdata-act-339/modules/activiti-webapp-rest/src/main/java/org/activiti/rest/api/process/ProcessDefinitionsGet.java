@@ -67,6 +67,7 @@ public class ProcessDefinitionsGet extends ActivitiPagingWebScript {
         RestProcessDefinition restProcessDefinition = new RestProcessDefinition((ProcessDefinitionEntity) p);
         StartFormData startFormData = getFormService().getStartFormData(p.getId());
         if (startFormData != null) {
+          restProcessDefinition.setHasStartFormProperties(startFormData.getFormProperties().size() > 0);
           restProcessDefinition.setStartFormResourceKey(startFormData.getFormKey());
         }
         processDefinitionTasks.add(restProcessDefinition);

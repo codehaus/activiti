@@ -24,7 +24,9 @@ public class RestProcessDefinition extends ProcessDefinitionEntity {
 
   private static final long serialVersionUID = 1L;
   
-  
+  protected String startFormResourceKey;
+  protected boolean hasStartFormProperties;
+
   public RestProcessDefinition(ProcessDefinitionEntity processDefinition) {
     this.setId(processDefinition.getId());
     this.setKey(processDefinition.getKey());
@@ -35,7 +37,6 @@ public class RestProcessDefinition extends ProcessDefinitionEntity {
     this.setDiagramResourceName(processDefinition.getDiagramResourceName());
   }
 
-  protected String startFormResourceKey;
 
   public String getStartFormResourceKey() {
     return startFormResourceKey;
@@ -43,6 +44,14 @@ public class RestProcessDefinition extends ProcessDefinitionEntity {
 
   public void setStartFormResourceKey(String startFormResourceKey) {
     this.startFormResourceKey = startFormResourceKey;
+  }
+
+  public boolean getHasStartFormProperties() {
+    return hasStartFormProperties;
+  }
+
+  public void setHasStartFormProperties(boolean hasStartFormProperties) {
+    this.hasStartFormProperties = hasStartFormProperties;
   }
 
 }

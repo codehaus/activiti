@@ -910,20 +910,42 @@ Activiti.service.Ajax = function() {
      * @param processDefinitionId {string} The id of the process definition to load a form for
      * @param obj {Object} Helper object to be sent to the callback
      */
-    loadProcessDefinitionForm: function ProcessService_loadProcessInstanceForm(processDefinitionId, obj){
-      this.htmlGet(this.loadProcessInstanceFormURL(processDefinitionId), obj, "loadProcessDefinitionForm");
+    loadProcessDefinitionForm: function ProcessService_loadProcessDefinitionForm(processDefinitionId, obj){
+      this.htmlGet(this.loadProcessDefinitionFormURL(processDefinitionId), obj, "loadProcessDefinitionForm");
     },
 
     /**
      * Returns url to load a form, if defined, from the server. 
      *
-     * @method loadProcessInstanceFormURL
+     * @method loadProcessDefinitionFormURL
      * @param processDefinitionId {String}
      * @return {string} The url
      */
-    loadProcessInstanceFormURL: function ProcessService_loadProcessInstanceFormURL(processDefinitionId) {
+    loadProcessDefinitionFormURL: function ProcessService_loadProcessDefinitionFormURL(processDefinitionId) {
       return Activiti.service.REST_PROXY_URI_RELATIVE + "process-definition/" + encodeURIComponent(processDefinitionId) + "/form";
-    }, 
+    },
+
+    /**
+     * Loads a process definition form data if provided (if not 404 is returned from the server)
+     *
+     * @method loadProcessDefinitionFormProperties
+     * @param processDefinitionId {string} The id of the process definition to load a form for
+     * @param obj {Object} Helper object to be sent to the callback
+     */
+    loadProcessDefinitionFormProperties: function ProcessService_loadProcessDefinitionFormProperties(processDefinitionId, obj){
+      this.jsonGet(this.loadProcessDefinitionFormPropertiesURL(processDefinitionId), obj, "loadProcessDefinitionFormProperties");
+    },
+
+    /**
+     * Returns url to load the process definition's form data, if defined, from the server.
+     *
+     * @method loadProcessDefinitionFormPropertiesURL
+     * @param processDefinitionId {String}
+     * @return {string} The url
+     */
+    loadProcessDefinitionFormPropertiesURL: function ProcessService_loadProcessDefinitionFormPropertiesURL(processDefinitionId) {
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "process-definition/" + encodeURIComponent(processDefinitionId) + "/form/properties";
+    },
     
     /**
      * Returns the url to load the process definitions from the server

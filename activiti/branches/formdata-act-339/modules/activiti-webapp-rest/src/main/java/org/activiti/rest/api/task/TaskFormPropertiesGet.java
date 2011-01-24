@@ -11,15 +11,15 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 
 /**
- * Returns info about a task.
+ * Returns a task's form properties.
  *
  * @author Erik Winlof
  */
-public class TaskGet extends ActivitiWebScript {
+public class TaskFormPropertiesGet extends ActivitiWebScript {
 
 
   /**
-   * Colelcts details about a task for the webscript template.
+   * Returns a task's form properties 
    *
    * @param req The webscripts request
    * @param status The webscripts status
@@ -29,15 +29,6 @@ public class TaskGet extends ActivitiWebScript {
   @Override
   protected void executeWebScript(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
     String taskId = req.getMandatoryPathParameter("taskId");
-    TaskEntity task = (TaskEntity) getTaskService().createTaskQuery().taskId(taskId).singleResult();
-    RestTask restTask = new RestTask(task);
-    
-    TaskFormData taskFormData = getFormService().getTaskFormData(taskId);
-    if(taskFormData != null) {
-      restTask.setHasFormProperties(taskFormData.getFormProperties().size() > 0);
-      restTask.setFormResourceKey(taskFormData.getFormKey());     
-    }
-    
-    model.put("task", restTask);
+    model.put("formProperties", getFormService().getTaskFormData(taskId).getFormProperties());
   }
 }

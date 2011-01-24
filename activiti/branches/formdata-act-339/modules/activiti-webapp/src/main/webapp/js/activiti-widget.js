@@ -1038,6 +1038,8 @@ Activiti.widget.PopupManager = function()
       throw new Error("Mandatory parameters are missing ");
     }
     this.id = id;
+    this.properties = null;
+    this.title = null;
     this.url = null;
     this.orgValuesForEl = {};
     this.dialog = null;
@@ -1054,11 +1056,13 @@ Activiti.widget.PopupManager = function()
      */
     id: null,
 
+    title: null,
+
     dialog: null,
 
     service: null,
 
-    originalAttributesFor: null,
+    originalAttributesFor: null,    
 
     /**
      * Called when a task form existed and has been successfully loaded.
@@ -1069,10 +1073,73 @@ Activiti.widget.PopupManager = function()
      */
     onLoadFormSuccess: function Form_onLoadFormSuccess(response, obj)
     {
+      var template = response.serverResponse.responseText;
+      this.createDialog(template);
+    },
+
+    /**
+     * Called when a task's form data was successfully loaded.
+     *
+     * @method onLoadFormPropertiesSuccess
+     * @param response {Object} The server response
+     * @param obj {Object} The callback object
+     */
+    onLoadFormPropertiesSuccess: function Form_onLoadFormPropertiesSuccess(response, obj)
+    {
+      this.properties = response.json;
+      var template = '', label, input, type, information;
+      if (this.title) {
+        template += '<h1>' + this.title + '</h1>';
+      }
+      for (var p, i = 0, il = this.properties.length; i < il; i++)
+      {
+        p = this.properties[i];
+        label = (p.name || p.id);
+        type = p.type.name.toLowerCase();
+        information = p.type.information || {};
+        if (p.readable) {
+
+          // Standard input
+          input = '<input type="text" name="' + p.id + '" value="' + (p.value || "") + '" ' + (p.writable ? '' : 'readonly') + '/>';
+
+          // Specialize input
+          if (type == "date" && YAHOO.lang.isString(information.datePattern)) {
+            var datePattern = p.type.information.datePattern;
+            label += ' (' + datePattern.toUpperCase() + ')';
+            input += '<input type="hidden" name="' + p.id + '_type_information_datePattern" value="' + datePattern + '" />';
+          }
+          else if (type == "enum") {
+            input = '<select name="' + p.id + '" ' + (p.writable ? '' : 'readonly') + '>';
+            var values = information.values;
+            for (var id in values) {
+              if (values.hasOwnProperty(id)) {
+                input += '<option value="' + id + '" ' + (id == p.value ? 'selected' : '') + '>' + (values[id] || id);  
+              }
+            }
+            input += '</select>';
+          }
+
+        }
+        else {
+          input = '<input type="hidden" name="' + p.id + '" value="' + (p.value || "") + '" />';
+        }
+        if (p.required) {
+          input += '<input type="hidden" name="' + p.id + '_required" value="true" />';
+        }
+        // Add the type
+        input += '<input type="hidden" name="' + p.id + '_type_name" value="' + type + '" />';
+
+        template += '<div><label>' + label + ':<br/>' + input + '</label></div>';
+      }
+      this.createDialog(template);
+    },  
+
+    createDialog: function(template)
+    {
       var dialog = document.createElement("div");
       dialog.innerHTML = '' +
           '<div class="bd">' +
-          '  <form class="activiti-form">' + response.serverResponse.responseText + '</form>' +
+          '  <form class="activiti-form">' + template + '</form>' +
           '</div>';
 
       // Use a Dialog (instead of a Panel) to take use of it's getData method
@@ -1089,6 +1156,15 @@ Activiti.widget.PopupManager = function()
 
       // Render the Dialog
       this.dialog.render(document.body);
+
+      // "type_name" is the new way of describing type, but make sure a simple "type" still is supported.
+      var typeEls = Selector.query("input[type=hidden]", this.dialog.form);
+      for (var name, tei = 0, teil = typeEls.length; tei < teil; tei++) {
+        name = typeEls[tei].getAttribute("name") || "";
+        if (name.toLowerCase().match(/^\w+_type$/)) {
+          typeEls[tei].setAttribute("name", name + "_name");
+        }
+      }   
 
       // Add validations and save original attributes (title)
       var data = this.getData(),
@@ -1114,21 +1190,25 @@ Activiti.widget.PopupManager = function()
               else if (inputEl.tagName.toLowerCase() == "select") {
                 Event.addListener(inputEl, "change", this.doValidate, inputEl, this);
               }
-              this.orgValuesForEl[attr].title =  inputEl.getAttribute("title") || null;
+              this.orgValuesForEl[attr].title = inputEl.getAttribute("title") || null;
             }
-          } else
-			 		{
-			 			var attrName = attr.split("_");
-			 			var attrMeta = attrName.length > 1 ? attrName[1] : null;
-						if (attrMeta === "type" && data[attr] == "Date") {
+          }
+          else {
+            var attrTokens = attr.split("_"),
+                attrName = attrTokens.splice(0, 1)[0],
+                attrMeta = attrTokens.join("_");
+            if (attrMeta === "type_name") {
+              if (data[attr].toLowerCase() == "date") {
 							// set up date picker
-							this.dateSetup(Selector.query("[name=" + attrName[0] + "]", this.dialog.form, true));
-						} else if (attrMeta === "type" && data[attr] == "Event") {
+                this.dateSetup(Selector.query("[name=" + attrName + "]", this.dialog.form, true));
+              }
+              else if (data[attr].toLowerCase() == "event") {
 							// set up custom event for file chooser
-							this.addEventFieldsToForm(attrName[0], Selector.query("input[name^=" + attrName[0] + "]", this.dialog.form));
+                this.addEventFieldsToForm(attrName, Selector.query("input[name^=" + attrName + "]", this.dialog.form));
 						}
 			 		}
         }
+      }
       }
 
       // Make sure we catch the enter keys strokes and stops normal submits
@@ -1196,28 +1276,34 @@ Activiti.widget.PopupManager = function()
           value, attrName, attrMeta, inputEl;
       for (var attr in data) {
         if (data.hasOwnProperty(attr)) {
-          var errorMessage = null, requiredMessage = null, message = null;
-          attrName = attr.split("_");
-          attrMeta = attrName.length > 1 ? attrName[1] : null;
-          attrName = attrName[0];
+          var errorMessage = null,
+            requiredMessage = null,
+            message = null,
+            attrTokens = attr.split("_");
+          attrName = attrTokens.splice(0, 1)[0];
+          attrMeta = attrTokens.join("_");
           value = data[attrName];
           inputEl = Selector.query("[name=" + attrName + "]", this.dialog.form, true);
           if (!inputEl) {
             Activiti.widget.PopupManager.displayError($msg("message.error.form-config.input.not-matching"));
             return;
           }
-          if (attrMeta) {
+          if (attrMeta.length > 0) {
             if (value && value.length > 0) {
-              if (attrMeta == "type") {
-                if (data[attr] == "Integer" && !(/^\d+$/.test(value))) {
+              if (attrMeta == "type_name") {
+                if (data[attr].toLowerCase() == "integer" && !(/^\d+$/.test(value))) {
                   errorMessage = $msg("message.error.invalid.Integer", value);
                 }
-                else if (data[attr] == "Boolean" && !(/^(true|false)$/.test(value))) {
+                else if (data[attr].toLowerCase() == "boolean" && !(/^(true|false)$/.test(value))) {
                   errorMessage = $msg("message.error.invalid.Boolean", value);
                 }
-					 else if (data[attr] === "Date" && !Activiti.util.validDate(value)) {
-					 	errorMessage = $msg("message.error.invalid.Date", value);
-					 }
+                else if (data[attr].toLowerCase() == "date") {
+                  var pattern = data[attrName + '_type_information_datePattern'] || null;
+                  // dodo: Support validation using format, now we acceot it as long as its a iso date
+                  if (pattern && !Activiti.date.validate(value)) {
+                    errorMessage = $msg("message.error.invalid.Date", value, pattern);
+                  }
+                }
               }
             }
             else {
@@ -1262,24 +1348,6 @@ Activiti.widget.PopupManager = function()
     },
 
     /**
-     * Called when a task form didn't exist or failed to be loaded.
-     *
-     * @method onLoadTaskFormFailure
-     * @param response {Object} The server response
-     * @param obj {Object} The callback object
-     */
-    onLoadFormFailure: function Form_onLoadFormFailure(response, obj)
-    {
-      if (response.serverResponse.status == 404) {
-        // There was no form defined, submit an empty form
-        this.doSubmit({});
-      }
-      else {
-        Activiti.widget.PopupManager.displayPrompt({ text: Activiti.i18n.getMessage("message.failure") });
-      }
-    },
-
-    /**
      * Override this method to submit the form to the server
      *
      * @method doSubmitEmptyForm
@@ -1318,16 +1386,16 @@ Activiti.widget.PopupManager = function()
     },
 
 	 /**
-     * sets up the date picker if required (uses HTML5 input type=date otherwise)
+     * Sets up the date picker if required (uses HTML5 input type=date otherwise)
      *
      * @method dateSetuo
-     * @param dateEl {Dom Object} the date input element
+     * @param dateEl {HTMLElement} the date input element
      */
 		dateSetup: function Form_dateSetup(dateEl)
 		{
 			if (!Activiti.support.inputDate) {
 				//addcalendar pop up info & create bindings to populate date field
-				var elementName = dateEl.name,
+				var elementName = dateEl.getAttribute("name"),
 					buttonEl = document.createElement("a"),
 					popupEl = document.createElement("div"),
 					labelEl = Dom.getAncestorByTagName(dateEl, "label"),
@@ -1338,20 +1406,23 @@ Activiti.widget.PopupManager = function()
 				buttonEl.className = "datePicker";
 				buttonEl.innerHTML = buttonEl.title = $msg("button.datePicker");
 
-				Dom.addClass(labelEl, "date")
+				Dom.addClass(labelEl, "date");
 
 				popupEl.id = elementName + "_popup";
 				Dom.addClass(popupEl, "datePickerPopup");
 
 				Dom.insertAfter(buttonEl, dateEl);
-				Dom.insertAfter(popupEl, buttonEl)
+				Dom.insertAfter(popupEl, buttonEl);
 
 				calendar.render();
 				Event.addListener(buttonEl, "click", calendar.show, calendar, true);
 
-				function handleSelect(type,args,obj) {
+        var datePatternEl = YAHOO.util.Selector.query("input[name=" + elementName + "_type_information_datePattern]", this.dialog.form, true);
+        var format = datePatternEl ? datePatternEl.getAttribute("value") : null;
+				function handleSelect(type, args, obj) {
 		 			var dates = args[0], date = dates[0], year = date[0], month = date[1], day = date[2];
-					dateEl.value = year + "-" + zeroPad(month) + "-" + zeroPad(day); // ISO8601
+          var selectedDate = new Date(year, month-1, day);
+					dateEl.value = Activiti.date.format(selectedDate, format);
 					calendar.hide();
 					this.doValidate();
 		 		}
@@ -1430,8 +1501,6 @@ Activiti.widget.PopupManager = function()
 (function()
 {
 
-  processDefinitionId: null,
-
   /**
    * StartProcessInstanceForm constructor.
    *
@@ -1439,27 +1508,38 @@ Activiti.widget.PopupManager = function()
    * @return {Activiti.widget.StartProcessInstanceForm} The new Activiti.widget.StartProcessInstanceForm instance
    * @constructor
    */
-  Activiti.widget.StartProcessInstanceForm = function StartProcessInstanceForm_constructor(id, processDefinitionId)
+  Activiti.widget.StartProcessInstanceForm = function StartProcessInstanceForm_constructor(id, processDefinition)
   {
     Activiti.widget.StartProcessInstanceForm.superclass.constructor.call(this, id);
-    this.processDefinitionId = processDefinitionId;
+    this.processDefinition = processDefinition;
+    this.title = processDefinition.name;
     this.service = new Activiti.service.ProcessService(this);
-    this.service.setCallback("loadProcessDefinitionForm", { fn: this.onLoadFormSuccess, scope: this }, {fn: this.onLoadFormFailure, scope: this });
-    this.service.loadProcessDefinitionForm(this.processDefinitionId);
+
+    if (processDefinition.hasStartFormProperties)
+    {
+      this.service.setCallback("loadProcessDefinitionFormProperties", { fn: this.onLoadFormPropertiesSuccess, scope: this });
+      this.service.loadProcessDefinitionFormProperties(processDefinition.id);
+    }
+    else if (processDefinition.startFormResourceKey)
+    {
+      this.service.setCallback("loadProcessDefinitionForm", { fn: this.onLoadFormSuccess, scope: this });
+      this.service.loadProcessDefinitionForm(processDefinition.id);
+    }
     return this;
   };
 
   YAHOO.extend(Activiti.widget.StartProcessInstanceForm, Activiti.widget.Form,
   {
+    processDefinitionId: null,
 
-     /**
+    /**
      * Start a process instance
      *
      * @method doSubmit
      */
     doSubmit: function StartProcessInstanceForm__doSubmit(variables)
     {
-      this.service.startProcessInstance(this.processDefinitionId, variables);
+      this.service.startProcessInstance(this.processDefinition.id, variables);
     }
 
   });
@@ -1488,7 +1568,7 @@ Activiti.widget.PopupManager = function()
     Activiti.widget.CompleteTaskForm.superclass.constructor.call(this, id);
     this.taskId = taskId;
     this.service = new Activiti.service.TaskService(this);
-    this.service.setCallback("loadCompleteTaskForm", { fn: this.onLoadFormSuccess, scope: this }, {fn: this.onLoadFormFailure, scope: this });
+    this.service.setCallback("loadCompleteTaskForm", { fn: this.onLoadFormSuccess, scope: this });
     this.service.loadCompleteTaskForm(this.taskId);
     return this;
   };

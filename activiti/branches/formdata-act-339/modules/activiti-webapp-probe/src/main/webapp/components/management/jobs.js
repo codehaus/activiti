@@ -169,7 +169,7 @@
      */   
     onDataTableRenderCellDueDate: function Jobs_onDataTableRenderCellDueDate(dataTable, el, oRecord, oColumn, oData) 
     {
-      el.innerHTML = (oRecord.getData().dueDate === null)? this.msg("jobs.label.null") : Activiti.thirdparty.dateFormat(Activiti.thirdparty.fromISO8601(oRecord.getData().dueDate), this.msg("Activiti.date-format.default"))
+      el.innerHTML = (oRecord.getData().dueDate === null)? this.msg("jobs.label.null") : Activiti.date.format(Activiti.date.fromISO8601(oRecord.getData().dueDate))
     },
     
     /**

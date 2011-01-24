@@ -18,7 +18,8 @@
   "assignee": <#if task.assignee??>"${task.assignee}"<#else>null</#if>,
   "executionId": ${task.executionId},
   "processInstanceId": <#if task.processInstanceId??>"${task.processInstanceId}"<#else>null</#if>,
-  "formResourceKey": <#if task.formResourceKey??>"${task.formResourceKey}"<#else>null</#if>
+  "formResourceKey": <#if task.formResourceKey??>"${task.formResourceKey}"<#else>null</#if>,
+  "hasFormProperties": ${task.hasFormProperties?string}
 </#macro>
 
 </#escape>

@@ -26,7 +26,9 @@ public class RestTask extends TaskEntity {
   private static final long serialVersionUID = 1L;
   
   private String formResourceKey;
-  
+  private boolean hasFormProperties;
+
+
   public RestTask(TaskEntity task) {
     this.setCreateTime(task.getCreateTime());
     this.setDescription(task.getDescription());
@@ -47,6 +49,14 @@ public class RestTask extends TaskEntity {
   
   public void setFormResourceKey(String formResourceKey) {
     this.formResourceKey = formResourceKey;
+  }
+
+  public boolean getHasFormProperties() {
+    return hasFormProperties;
+  }
+
+  public void setHasFormProperties(boolean hasFormProperties) {
+    this.hasFormProperties = hasFormProperties;
   }
 
 }

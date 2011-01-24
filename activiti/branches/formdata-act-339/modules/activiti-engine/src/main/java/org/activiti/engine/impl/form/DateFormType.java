@@ -16,6 +16,8 @@ package org.activiti.engine.impl.form;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.activiti.engine.ActivitiException;
 
@@ -25,23 +27,15 @@ import org.activiti.engine.ActivitiException;
  */
 public class DateFormType extends AbstractFormType {
   
-  protected String datePattern; 
-  protected Format dateFormat; 
+  protected Format dateFormat;
 
   public DateFormType(String datePattern) {
-    this.datePattern = datePattern;
+    information.put("datePattern", datePattern);
     this.dateFormat = new SimpleDateFormat(datePattern);
   }
   
   public String getName() {
     return "date";
-  }
-  
-  public Object getInformation(String key) {
-    if ("datePattern".equals(key)) {
-      return datePattern;
-    }
-    return null;
   }
 
   public Object convertFormValueToModelValue(String propertyValue) {

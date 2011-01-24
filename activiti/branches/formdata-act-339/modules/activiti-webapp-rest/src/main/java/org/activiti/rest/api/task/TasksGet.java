@@ -83,6 +83,7 @@ public class TasksGet extends ActivitiPagingWebScript
         RestTask restTask = new RestTask((TaskEntity) t);
         TaskFormData taskFormData = getFormService().getTaskFormData(t.getId());
         if(taskFormData != null) {
+          restTask.setHasFormProperties(taskFormData.getFormProperties().size() > 0);
           restTask.setFormResourceKey(taskFormData.getFormKey());     
         }
         restTasks.add(restTask);
