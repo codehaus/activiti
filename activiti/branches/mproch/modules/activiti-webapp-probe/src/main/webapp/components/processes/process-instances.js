@@ -114,7 +114,7 @@
     onDataTableRenderCellAction: function ProcessInstances_onDataTableRenderCellAction(dataTable, el, oRecord, oColumn, oData) {
       var data = oRecord.getData();
 
-      if (_hasDiagram != null) {
+      if (_hasDiagram) {
         Activiti.widget.createCellButton(this, el, this.msg("action.display"),
             "view-process-diagram", this.onViewProcessDiagram, data, dataTable);
 

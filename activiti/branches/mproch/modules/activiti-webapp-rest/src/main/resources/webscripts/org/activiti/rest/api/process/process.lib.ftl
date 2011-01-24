@@ -21,7 +21,8 @@
   "deploymentId": "${processDefinition.deploymentId}",
   "resourceName": "${processDefinition.resourceName}",
   "diagramResourceName": <#if processDefinition.diagramResourceName??>"${processDefinition.diagramResourceName}"<#else>null</#if>,
-  "startFormResourceKey": <#if processDefinition.startFormResourceKey??>"${processDefinition.startFormResourceKey}"<#else>null</#if>
+  "startFormResourceKey": <#if processDefinition.startFormResourceKey??>"${processDefinition.startFormResourceKey}"<#else>null</#if>,
+  "graphicNotationDefined": "${processDefinition.graphicNotationDefined?string}"
 }
 </#macro>
 
