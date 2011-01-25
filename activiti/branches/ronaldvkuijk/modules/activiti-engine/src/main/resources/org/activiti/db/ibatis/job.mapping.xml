@@ -111,6 +111,10 @@
         (J.RETRIES_ &gt; 0)
         and (J.DUEDATE_ is null or J.DUEDATE_ &lt;= #{now, jdbcType=TIMESTAMP})
       </if>
+      <if test="inDLQ">
+        (J.RETRIES_ = 0)
+        and (J.DUEDATE_ is null or J.DUEDATE_ &lt;= #{now, jdbcType=TIMESTAMP})
+      </if>
       <if test="onlyTimers">
         and J.TYPE_ = 'timer'
       </if>

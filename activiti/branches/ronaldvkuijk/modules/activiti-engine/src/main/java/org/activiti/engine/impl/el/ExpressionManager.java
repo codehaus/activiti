@@ -58,8 +58,6 @@ public class ExpressionManager {
     expressionFactory = new ExpressionFactoryImpl();
   }
 
- 
-  
   public Expression createExpression(String expression) {
     ValueExpression valueExpression = expressionFactory.createValueExpression(parsingElContext, expression, Object.class);
     return new JuelExpression(valueExpression, this, expression);
