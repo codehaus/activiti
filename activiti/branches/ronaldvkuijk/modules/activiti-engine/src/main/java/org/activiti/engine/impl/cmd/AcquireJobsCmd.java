@@ -55,36 +55,45 @@ public class AcquireJobsCmd implements Command<AcquiredJobs> {
 
     int totalJobsAcquired = 0;
 
-    log.log(Level.INFO, "Current status: " + jobExecutor.dumpStatistics());
-
+    if (log.isLoggable(Level.FINE)) {
+      log.log(Level.FINE, "Current status: " + jobExecutor.dumpStatistics());
+    }
     if (jobExecutor.isAcquisitionPerQueue()) {
 
       for (String openQueue : jobExecutor.getOpenQueueNames()) {
 
         free = jobExecutor.getLogicalQueue(openQueue).getQueue().remainingCapacity();
-        jobsToAcquire = free > maxJobsPerAcquisition ? maxJobsPerAcquisition : free; 
+        jobsToAcquire = free > maxJobsPerAcquisition ? maxJobsPerAcquisition : free;
         if (openQueue != "Timers") {
-            List<JobEntity> jobs = commandContext.getRuntimeSession().findNextJobsToExecutePerQueue(openQueue, jobExecutor.getLockOwner(),
-                    new Page(0, maxJobsPerAcquisition));
-            lockJobs(openQueue, acquiredJobs, jobs);
-            totalJobsAcquired = totalJobsAcquired + jobs.size();
-            log.log(Level.INFO, "Jobs acquired for '" + openQueue + "': " + jobs.size()); 
-            // TODO, something per queue
-            if ((jobsToAcquire < maxJobsPerAcquisition && jobs.size() != 0) || jobs.size() == maxJobsPerAcquisition) acquiredJobs.setRetryImmediate(true);
+          List<JobEntity> jobs = commandContext.getRuntimeSession().findNextJobsToExecutePerQueue(openQueue, jobExecutor.getLockOwner(),
+                  new Page(0, maxJobsPerAcquisition));
+          lockJobs(openQueue, acquiredJobs, jobs);
+          totalJobsAcquired = totalJobsAcquired + jobs.size();
+          if (log.isLoggable(Level.FINE)) {
+            log.log(Level.FINE, "Jobs acquired for '" + openQueue + "': " + jobs.size());
+          }
+          // TODO, something per queue
+          if ((jobsToAcquire < maxJobsPerAcquisition && jobs.size() != 0) || jobs.size() == maxJobsPerAcquisition)
+            acquiredJobs.setRetryImmediate(true);
         }
       }
 
       List<JobEntity> jobs = commandContext.getRuntimeSession().findUnlockedJobTimersByDuedate(ClockUtil.getCurrentTime(), new Page(0, maxJobsPerAcquisition));
       lockJobs("Timers", acquiredJobs, jobs);
       totalJobsAcquired = totalJobsAcquired + jobs.size();
-      log.log(Level.INFO, "Jobs acquired for 'Timers': " + jobs.size());
+      if (log.isLoggable(Level.FINE)) {
+        log.log(Level.FINE, "Jobs acquired for 'Timers': " + jobs.size());
+      }
     } else {
       List<JobEntity> jobs = commandContext.getRuntimeSession().findNextJobsToExecute(new Page(0, maxJobsPerAcquisition));
       lockJobs(null, acquiredJobs, jobs);
       totalJobsAcquired = jobs.size();
-      if (totalJobsAcquired == maxJobsPerAcquisition) acquiredJobs.setRetryImmediate(true);
+      if (totalJobsAcquired == maxJobsPerAcquisition)
+        acquiredJobs.setRetryImmediate(true);
     }
-    log.log(Level.INFO, "Total Jobs Acquired: " + totalJobsAcquired);
+    if (log.isLoggable(Level.FINE)) {
+      log.log(Level.FINE, "Total Jobs Acquired: " + totalJobsAcquired);
+    }
     return acquiredJobs;
   }
 
@@ -93,7 +102,9 @@ public class AcquireJobsCmd implements Command<AcquiredJobs> {
     if (jobs.size() == 0)
       return;
 
-    log.log(Level.INFO, "Locking " + jobs.size() + " retrieved jobs for " + openQueue);
+    if (log.isLoggable(Level.FINE)) {
+      log.log(Level.FINE, "Locking " + jobs.size() + " retrieved jobs for " + openQueue);
+    }
     String lockOwner = jobExecutor.getLockOwner();
     int lockTimeInMillis = jobExecutor.getLockTimeInMillis();
 

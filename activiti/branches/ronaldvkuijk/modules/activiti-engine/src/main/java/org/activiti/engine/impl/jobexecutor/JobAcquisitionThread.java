@@ -75,15 +75,20 @@ public class JobAcquisitionThread extends Thread {
 
         // if all jobs were executed
         millisToWait = jobExecutor.getWaitTimeInMillis();
-        //TODO optimize per queue or something...
+        // TODO optimize per queue or something...
         if (!acquiredJobs.getRetryImmediate()) {
 
-          log.log(Level.INFO, "Waiting since nowhere max is reached and free in queue was higher than max");
+          if (log.isLoggable(Level.FINE)) {
+            log.log(Level.INFO, "Waiting since nowhere max is reached and free in queue was higher than max");
+          }
           isJobAdded = false;
 
-          // check if the next timer should fire before the normal sleep time is over
-          // TODO -1000 since otherwise there is a strange burst in the second before the job is released
-          // It thinks there is a job available, but retrieving it does not work. Only after this second...
+          // check if the next timer should fire before the normal sleep time is
+          // over
+          // TODO -1000 since otherwise there is a strange burst in the second
+          // before the job is released
+          // It thinks there is a job available, but retrieving it does not
+          // work. Only after this second...
           Date duedate = new Date(ClockUtil.getCurrentTime().getTime() + millisToWait - 1000);
           List<TimerEntity> nextTimers = commandExecutor.execute(new GetUnlockedTimersByDuedateCmd(duedate, new Page(0, 1)));
 
@@ -98,7 +103,9 @@ public class JobAcquisitionThread extends Thread {
           millisToWait = 0;
         }
 
-        log.info("Millis to wait: " + millisToWait);
+        if (log.isLoggable(Level.FINE)) {
+          log.info("Millis to wait: " + millisToWait);
+        }
 
       } catch (Exception e) {
         log.log(Level.SEVERE, "exception during job acquisition: " + e.getMessage(), e);
@@ -110,11 +117,17 @@ public class JobAcquisitionThread extends Thread {
 
       if ((millisToWait > 0) && (!isJobAdded)) {
         try {
-          log.fine("job acquisition thread sleeping for " + millisToWait + " millis");
+          if (log.isLoggable(Level.FINE)) {
+            log.fine("job acquisition thread sleeping for " + millisToWait + " millis");
+          }
           Thread.sleep(millisToWait);
-          log.fine("job acquisition thread woke up");
+          if (log.isLoggable(Level.FINE)) {
+            log.fine("job acquisition thread woke up");
+          }
         } catch (InterruptedException e) {
-          log.fine("job acquisition wait interrupted");
+          {
+            log.fine("job acquisition wait interrupted");
+          }
         }
       }
     }

@@ -40,6 +40,10 @@ public interface JobQuery extends Query<JobQuery, Job> {
   /** Only select jobs which are executable, 
    * ie. retries &gt; 0 and duedate is null or duedate is in the past **/
   JobQuery executable();
+  
+  /** Only select jobs which are in DLQ, 
+   * ie. retries = 0 and duedate is in the past **/
+  JobQuery dlq();
 
   /** Only select jobs that are timers. 
    * Cannot be used together with {@link #messages()} */

@@ -19,6 +19,7 @@ import org.activiti.engine.impl.cfg.MessageSession;
 import org.activiti.engine.impl.cfg.TransactionState;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.interceptor.Session;
+import org.activiti.engine.impl.runtime.JobEntity;
 import org.activiti.engine.impl.runtime.MessageEntity;
 import org.activiti.engine.impl.util.ClockUtil;
 
@@ -55,11 +56,9 @@ public class JobExecutorMessageSession implements Session, MessageSession {
       
       //FIX make convenience method for this combined or
       if (jobExecutor.isActive() && (jobExecutor.getLogicalQueue(message.getQueue()) == null || !jobExecutor.getLogicalQueue(message.getQueue()).isPaused())) {
-        //System.out.println("lock");
         gregorianCalendar.add(Calendar.MILLISECOND, jobExecutor.lockTimeInMillis);
         message.setLockExpirationTime(gregorianCalendar.getTime());
       } else {
-        //System.out.println("duedate");
         message.setDuedate(gregorianCalendar.getTime());
       }
     }

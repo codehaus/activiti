@@ -11,6 +11,7 @@ import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.impl.runtime.MessageEntity;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
+import org.activiti.engine.impl.util.ClockUtil;
 
 /**
  * @author Tom Baeyens
@@ -70,7 +71,8 @@ public class JobExecutorCmdExceptionTest extends PluggableActivitiTestCase {
 
     waitForJobExecutorToProcessAllJobs(20000L, 500L);
 
-    // TODO check if there is a failed job in the DLQ
+    // check if there is a failed job in the DLQ (total over all queues)
+    assertEquals(1, processEngine.getManagementService().createJobQuery().dlq().count());
 
     commandExecutor.execute(new DeleteJobsCmd(jobId));
   }

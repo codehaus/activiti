@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadFactory;
 public class JBossThreadFactory implements ThreadFactory {
 
   public Thread newThread(Runnable r) {
-    System.out.println("QueueRunner");
+    //System.out.println("QueueRunner");
     return new Thread(r, "QueueRunner");
 
   }

@@ -16,11 +16,6 @@
 
 	<dependencies>
 	
-	<dependency>
-	  <groupId>nl.intercommit.mario</groupId>
-	  <artifactId>common</artifactId>
-	  <version>4.0.5</version>
-	</dependency>
 
 
    <dependency>

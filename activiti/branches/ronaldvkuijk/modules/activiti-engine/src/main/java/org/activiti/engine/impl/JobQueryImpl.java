@@ -35,6 +35,7 @@ public class JobQueryImpl extends AbstractQuery<JobQuery, Job> implements JobQue
   protected String executionId;
   protected boolean retriesLeft;
   protected boolean executable;
+  protected boolean inDLQ;
   protected boolean onlyTimers;
   protected boolean onlyMessages;
   protected Date duedateHigherThen;
@@ -75,12 +76,26 @@ public class JobQueryImpl extends AbstractQuery<JobQuery, Job> implements JobQue
   }
 
   public JobQuery withRetriesLeft() {
+    if (inDLQ) {
+      throw new ActivitiException("Cannot combine retriesLeft() with dlq() in the same query");
+    }
     retriesLeft = true;
     return this;
   }
 
   public JobQuery executable() {
+    if (inDLQ) {
+      throw new ActivitiException("Cannot combine executable() with dlq() in the same query");
+    }
     executable = true;
+    return this;
+  }
+  
+  public JobQuery dlq() {
+    if (executable || retriesLeft) {
+      throw new ActivitiException("Cannot combine dlq() with executable() or retriesLeft() in the same query");
+    }
+    inDLQ = true;
     return this;
   }
   

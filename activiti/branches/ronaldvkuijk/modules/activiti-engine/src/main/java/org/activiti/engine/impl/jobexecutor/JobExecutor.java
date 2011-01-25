@@ -12,6 +12,8 @@
  */
 package org.activiti.engine.impl.jobexecutor;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,21 +74,47 @@ public class JobExecutor {
     }
   };
 
-  
   public JobExecutor() {
- 
-    //CHECK Should always be available, even if jobExecutor is not started. Should be paused by default I think!
+
+    try {
+      String hostName = InetAddress.getLocalHost().getHostName();
+
+      InetAddress addrs[] = InetAddress.getAllByName(hostName);
+
+      for (InetAddress addr : addrs) {
+//        System.out.println("addr.getHostAddress() = " + addr.getHostAddress());
+//        System.out.println("addr.getHostName() = " + addr.getHostName());
+//        System.out.println("addr.isAnyLocalAddress() = " + addr.isAnyLocalAddress());
+//        System.out.println("addr.isLinkLocalAddress() = " + addr.isLinkLocalAddress());
+//        System.out.println("addr.isLoopbackAddress() = " + addr.isLoopbackAddress());
+//        System.out.println("addr.isMulticastAddress() = " + addr.isMulticastAddress());
+//        System.out.println("addr.isSiteLocalAddress() = " + addr.isSiteLocalAddress());
+//        System.out.println("");
+
+        if (!addr.isLoopbackAddress() && addr.isSiteLocalAddress()) {
+          lockOwner = addr.getHostAddress();
+        }
+      }
+      System.out.println("\nIP = " + lockOwner);
+
+    } catch (UnknownHostException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    // CHECK Should always be available, even if jobExecutor is not started.
+    // Should be paused by default I think!
     if (this.threadPoolExecutors.size() == 0) {
-   
+
       this.threadPoolExecutors.put(DEFAULT, createQueue(DEFAULT));
       this.threadPoolExecutors.put(TIMERS, createQueue(TIMERS));
-     
+
     }
-    
+
     pause();
-   
+
   }
-  
+
   public synchronized void start() {
 
     if (isActive) {
@@ -96,27 +124,27 @@ public class JobExecutor {
     } else {
 
       isActive = true;
-      
+
       if (jobAcquisitionThread == null) {
         jobAcquisitionThread = new JobAcquisitionThread(this);
       }
-      
-      // To 'recreate', mainly for tests where a jobexecutor is shutdown and reused...
+
+      // To 'recreate', mainly for tests where a jobexecutor is shutdown and
+      // reused...
       if (this.threadPoolExecutors.size() == 0) {
-        
+
         this.threadPoolExecutors.put(DEFAULT, createQueue(DEFAULT));
         this.threadPoolExecutors.put(TIMERS, createQueue(TIMERS));
-       
+
       }
-      
+
       createAdditionalQueuesFromExistingJobs();
-      
+
       // Create our pending jobs fetcher
       log.fine("JobExecutor is starting the JobAcquisitionThread");
-      
 
       jobAcquisitionThread.start();
-      
+
       // Open all queues
       resume();
 
@@ -124,7 +152,7 @@ public class JobExecutor {
   }
 
   public synchronized void shutdown() {
-    
+
     if (!isActive) {
       log.info("Ignoring request to shut down non-active JobExecutor");
       return;
@@ -132,15 +160,14 @@ public class JobExecutor {
 
     log.info("Shutting down the JobExecutor");
 
-    /* 
-     * Close the pending jobs task first so no jobs will be added
-     * We have multiple threadpools that are shut down sequentially,
-     * So shutting down the acquisition (retry/timers) thread first
-     * is a good idea. But the loop below should be different to.
-     * Maybe the queue should be emptied first?
+    /*
+     * Close the pending jobs task first so no jobs will be added We have
+     * multiple threadpools that are shut down sequentially, So shutting down
+     * the acquisition (retry/timers) thread first is a good idea. But the loop
+     * below should be different to. Maybe the queue should be emptied first?
      */
     jobAcquisitionThread.shutdown();
-    
+
     // Ask the thread pools to finish and exit
     // CHECK Should this be done in parallel? See remark above...
     Set<String> queues = threadPoolExecutors.keySet();
@@ -210,15 +237,15 @@ public class JobExecutor {
   private IThreadPoolExecutor createQueue(String queueName) {
 
     IThreadPoolExecutor threadPoolExecutor;
-      threadPoolExecutor = new NotifyingBlockingThreadPoolExecutor(queueName, corePoolSize, maxPoolSize, queueSize, 1000L, TimeUnit.MILLISECONDS, 1000L,
-              TimeUnit.MILLISECONDS, blockingTimeoutCallback);
+    threadPoolExecutor = new NotifyingBlockingThreadPoolExecutor(queueName, corePoolSize, maxPoolSize, queueSize, 1000L, TimeUnit.MILLISECONDS, 1000L,
+            TimeUnit.MILLISECONDS, blockingTimeoutCallback);
     return threadPoolExecutor;
   }
   private void createAdditionalQueuesFromExistingJobs() {
 
     log.log(Level.INFO, "Creating queues");
     commandExecutor.execute(new Command<Void>() {
-      
+
       public Void execute(CommandContext commandContext) {
 
         List<String> queues = commandContext.getRuntimeSession().findJobQueueNames();
@@ -363,15 +390,15 @@ public class JobExecutor {
 
   public String dumpStatistics(String queueName) {
     IThreadPoolExecutor tpe = threadPoolExecutors.get(queueName);
-    if (tpe == null) return "Name: " + queueName + " does not exist";
-    return ("Name: " + queueName + (tpe.isPaused() ? "(paused)" : "(running)") + 
-            ",\tThreads (pool/act/maxused): " + tpe.getPoolSize() + "/"
+    if (tpe == null)
+      return "Name: " + queueName + " does not exist";
+    return ("Name: " + queueName + (tpe.isPaused() ? "(paused)" : "(running)") + ",\tThreads (pool/act/maxused): " + tpe.getPoolSize() + "/"
             + tpe.getActiveCount() + "/" + tpe.getLargestPoolSize() + ",\tJobs (subm/busy/compl) " + tpe.getTaskCount() + "/" + tpe.getTasksInProcess() + "/"
             + tpe.getCompletedTaskCount() + ",\tQueue (used/left): " + tpe.getQueue().size() + "/" + tpe.getQueue().remainingCapacity());
   }
-  
+
   public void pause() {
-    if (jobAcquisitionThread != null) { 
+    if (jobAcquisitionThread != null) {
       jobAcquisitionThread.shutdown();
     }
     Set<String> queueNames = threadPoolExecutors.keySet();
@@ -379,15 +406,15 @@ public class JobExecutor {
       threadPoolExecutors.get(queueName).pause();
     }
   }
-  
+
   public void resume() {
     Set<String> queueNames = threadPoolExecutors.keySet();
     for (String queueName : queueNames) {
       threadPoolExecutors.get(queueName).resume();
     }
-    if (jobAcquisitionThread == null) { 
+    if (jobAcquisitionThread == null) {
       jobAcquisitionThread = new JobAcquisitionThread(this);
     }
   }
-  
+
 }
