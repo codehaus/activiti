@@ -13,6 +13,8 @@
 
 package org.activiti.designer.eclipse.bpmn;
 
+import org.eclipse.bpmn2.FormalExpression;
+
 
 /**
  * @author Tijs Rademakers
@@ -20,4 +22,5 @@ package org.activiti.designer.eclipse.bpmn;
 public class SequenceFlowModel {
   public String sourceRef;
   public String targetRef;
+  public FormalExpression conditionExpression;
 }

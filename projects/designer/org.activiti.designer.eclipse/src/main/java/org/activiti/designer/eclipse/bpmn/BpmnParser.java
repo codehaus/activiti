@@ -22,9 +22,12 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
+import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FlowElement;
+import org.eclipse.bpmn2.FormalExpression;
 import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ParallelGateway;
 import org.eclipse.bpmn2.ReceiveTask;
@@ -39,6 +42,8 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
  * @author Tijs Rademakers
  */
 public class BpmnParser {
+  
+  private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn";
   
   public boolean bpmdiInfoFound;
   public List<FlowElement> bpmnList = new ArrayList<FlowElement>();
@@ -68,7 +73,7 @@ public class BpmnParser {
             
           } else if(xtr.isStartElement() && "serviceTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ServiceTask serviceTask = parseServiceTask(xtr);
+            ServiceTask serviceTask = parseServiceTask(xtr, diagram);
             serviceTask.setId(elementid);
             bpmnList.add(serviceTask);
           
@@ -169,27 +174,85 @@ public class BpmnParser {
     SequenceFlowModel sequenceFlow = new SequenceFlowModel();
     sequenceFlow.sourceRef = xtr.getAttributeValue(null, "sourceRef");
     sequenceFlow.targetRef = xtr.getAttributeValue(null, "targetRef");
+    FormalExpression conditionValue = parseSequenceFlowCondition(xtr);
+    sequenceFlow.conditionExpression = conditionValue;
     return sequenceFlow;
   }
+  
+  private static FormalExpression parseSequenceFlowCondition(XMLStreamReader xtr) {
+    FormalExpression condition = null;
+    boolean readyWithSequenceFlow = false;
+    try {
+      while (readyWithSequenceFlow == false && xtr.hasNext()) {
+        xtr.next();
+        if (xtr.isStartElement() && "conditionExpression".equalsIgnoreCase(xtr.getLocalName())) {
+          condition = Bpmn2Factory.eINSTANCE.createFormalExpression();
+          condition.setBody(xtr.getElementText());
+          readyWithSequenceFlow = true;
+        } else if (xtr.isEndElement() && "sequenceFlow".equalsIgnoreCase(xtr.getLocalName())) {
+          readyWithSequenceFlow = true;
+        }
+      }
+    } catch (Exception e) {}
+    return condition;
+  }
+
   
   private static UserTask parseUserTask(XMLStreamReader xtr, Diagram diagram) {
     UserTask userTask = Bpmn2Factory.eINSTANCE.createUserTask();
     userTask.setName(xtr.getAttributeValue(null, "name"));
-    boolean readyWithUserTask = false;
-    try {
-      while(readyWithUserTask == false && xtr.hasNext()) {
-        xtr.next();
-        if(xtr.isStartElement() && "formalExpression".equalsIgnoreCase(xtr.getLocalName())) {
-          CandidateGroup group = Bpmn2Factory.eINSTANCE.createCandidateGroup();
-          group.setGroup(xtr.getElementText());
-          diagram.eResource().getContents().add(group);
-          userTask.getCandidateGroups().add(group);
-          readyWithUserTask = true;
-        } else if(xtr.isEndElement() && "userTask".equalsIgnoreCase(xtr.getLocalName())) {
-          readyWithUserTask = true;
-        }
+    
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "assignee") != null) {
+      String assignee = xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "assignee");
+      userTask.setAssignee(assignee);
+    
+    } else if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "candidateUsers") != null) {
+      String expression = xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "candidateUsers");
+      String[] expressionList = null;
+      if (expression.contains(";")) {
+        expressionList = expression.split(";");
+      } else {
+        expressionList = new String[] { expression };
       }
-    } catch(Exception e) {}
+      for (String user : expressionList) {
+        CandidateUser candidateUser = Bpmn2Factory.eINSTANCE.createCandidateUser();
+        candidateUser.setUser(user);
+        diagram.eResource().getContents().add(candidateUser);
+        userTask.getCandidateUsers().add(candidateUser);
+      }
+      
+    } else if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "candidateGroups") != null) {
+      String expression = xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "candidateGroups");
+      String[] expressionList = null;
+      if (expression.contains(";")) {
+        expressionList = expression.split(";");
+      } else {
+        expressionList = new String[] { expression };
+      }
+      for (String group : expressionList) {
+        CandidateGroup candidateGroup = Bpmn2Factory.eINSTANCE.createCandidateGroup();
+        candidateGroup.setGroup(group);
+        diagram.eResource().getContents().add(candidateGroup);
+        userTask.getCandidateGroups().add(candidateGroup);
+      }
+      
+    } else {
+      boolean readyWithUserTask = false;
+      try {
+        while(readyWithUserTask == false && xtr.hasNext()) {
+          xtr.next();
+          if(xtr.isStartElement() && "formalExpression".equalsIgnoreCase(xtr.getLocalName())) {
+            CandidateGroup group = Bpmn2Factory.eINSTANCE.createCandidateGroup();
+            group.setGroup(xtr.getElementText());
+            diagram.eResource().getContents().add(group);
+            userTask.getCandidateGroups().add(group);
+            readyWithUserTask = true;
+          } else if(xtr.isEndElement() && "userTask".equalsIgnoreCase(xtr.getLocalName())) {
+            readyWithUserTask = true;
+          }
+        }
+      } catch(Exception e) {}
+    }
     return userTask;
   }
   
@@ -212,10 +275,62 @@ public class BpmnParser {
     return scriptTask;
   }
   
-  private ServiceTask parseServiceTask(XMLStreamReader xtr) {
+  private ServiceTask parseServiceTask(XMLStreamReader xtr, Diagram diagram) {
     ServiceTask serviceTask = Bpmn2Factory.eINSTANCE.createServiceTask();
     serviceTask.setName(xtr.getAttributeValue(null, "name"));
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "class") != null) {
+      serviceTask.setImplementationType("classType");
+      serviceTask.setImplementation(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "class"));
+    } else if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "expression") != null) {
+      serviceTask.setImplementationType("expressionType");
+      serviceTask.setImplementation(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "expression"));
+    }
+    boolean readyWithServiceTask = false;
+    try {
+      while(readyWithServiceTask == false && xtr.hasNext()) {
+        xtr.next();
+        if(xtr.isStartElement() && "field".equalsIgnoreCase(xtr.getLocalName())) {
+          FieldExtension extension = parseFieldExtension(xtr);
+          diagram.eResource().getContents().add(extension);
+          serviceTask.getFieldExtensions().add(extension);
+          
+        } else if(xtr.isEndElement() && "serviceTask".equalsIgnoreCase(xtr.getLocalName())) {
+          readyWithServiceTask = true;
+        }
+      }
+    } catch(Exception e) {}
     return serviceTask;
+  }
+  
+  private static FieldExtension parseFieldExtension(XMLStreamReader xtr) {
+    FieldExtension extension = Bpmn2Factory.eINSTANCE.createFieldExtension();
+    extension.setFieldname(xtr.getAttributeValue(null, "name"));
+    if(xtr.getAttributeValue(null, "stringValue") != null) {
+      extension.setExpression(xtr.getAttributeValue(null, "stringValue"));
+      
+    } else if(xtr.getAttributeValue(null, "expression") != null) {
+      extension.setExpression(xtr.getAttributeValue(null, "expression"));
+      
+    } else {
+      boolean readyWithFieldExtension = false;
+      try {
+        while (readyWithFieldExtension == false && xtr.hasNext()) {
+          xtr.next();
+          if (xtr.isStartElement() && "string".equalsIgnoreCase(xtr.getLocalName())) {
+            extension.setExpression(xtr.getElementText());
+            readyWithFieldExtension = true;
+            
+          } else if (xtr.isStartElement() && "expression".equalsIgnoreCase(xtr.getLocalName())) {
+            extension.setExpression(xtr.getElementText());
+            readyWithFieldExtension = true;
+            
+          } else if (xtr.isEndElement() && "field".equalsIgnoreCase(xtr.getLocalName())) {
+            readyWithFieldExtension = true;
+          }
+        }
+      } catch (Exception e) {}
+    }
+    return extension;
   }
   
   private ManualTask parseManualTask(XMLStreamReader xtr) {

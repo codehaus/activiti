@@ -170,6 +170,9 @@ public class BpmnFileReader {
       sequenceFlow.setId(ActivitiUiUtil.getNextId(SequenceFlow.class, "flow", diagram));
       sequenceFlow.setSourceRef(getFlowNode(sequenceFlowModel.sourceRef, bpmnList));
       sequenceFlow.setTargetRef(getFlowNode(sequenceFlowModel.targetRef, bpmnList));
+      if(sequenceFlowModel.conditionExpression != null) {
+        sequenceFlow.setConditionExpression(sequenceFlowModel.conditionExpression);
+      }
       diagram.eResource().getContents().add(sequenceFlow);
       AddConnectionContext addContext = new AddConnectionContext(null, null);
       addContext.setNewObject(sequenceFlow);
