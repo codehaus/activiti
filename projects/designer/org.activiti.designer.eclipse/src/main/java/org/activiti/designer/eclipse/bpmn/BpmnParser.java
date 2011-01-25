@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.designer.bpmn;
+package org.activiti.designer.eclipse.bpmn;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,9 +20,6 @@ import java.util.Map;
 
 import javax.xml.stream.XMLStreamReader;
 
-import org.activiti.designer.model.GraphicInfo;
-import org.activiti.designer.model.SequenceFlowModel;
-import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.EndEvent;
@@ -35,7 +32,6 @@ import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.UserTask;
-import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 
@@ -48,9 +44,8 @@ public class BpmnParser {
   public List<FlowElement> bpmnList = new ArrayList<FlowElement>();
   public List<SequenceFlowModel> sequenceFlowList = new ArrayList<SequenceFlowModel>();
   public Map<String, GraphicInfo> locationMap = new HashMap<String, GraphicInfo>();
-  public Map<String, String> idMap = new HashMap<String, String>();
   
-  public void parseBpmn(XMLStreamReader xtr, Diagram diagram, IFeatureProvider featureProvider) {
+  public void parseBpmn(XMLStreamReader xtr, Diagram diagram) {
     try {
       while(xtr.hasNext()) {
         xtr.next();
@@ -61,60 +56,60 @@ public class BpmnParser {
         } else {
           if(xtr.isStartElement() && "startEvent".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            StartEvent startEvent = parseStartEvent(xtr, diagram);
+            StartEvent startEvent = parseStartEvent(xtr);
+            startEvent.setId(elementid);
             bpmnList.add(startEvent);
-            idMap.put(startEvent.getId(), elementid);
             
           } else if(xtr.isStartElement() && "userTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
             UserTask userTask = parseUserTask(xtr, diagram);
+            userTask.setId(elementid);
             bpmnList.add(userTask);
-            idMap.put(userTask.getId(), elementid);
             
           } else if(xtr.isStartElement() && "serviceTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ServiceTask serviceTask = parseServiceTask(xtr, diagram);
+            ServiceTask serviceTask = parseServiceTask(xtr);
+            serviceTask.setId(elementid);
             bpmnList.add(serviceTask);
-            idMap.put(serviceTask.getId(), elementid);
           
           } else if(xtr.isStartElement() && "scriptTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ScriptTask scriptTask = parseScriptTask(xtr, diagram);
+            ScriptTask scriptTask = parseScriptTask(xtr);
+            scriptTask.setId(elementid);
             bpmnList.add(scriptTask);
-            idMap.put(scriptTask.getId(), elementid);
             
           } else if(xtr.isStartElement() && "manualTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ManualTask manualTask = parseManualTask(xtr, diagram);
+            ManualTask manualTask = parseManualTask(xtr);
+            manualTask.setId(elementid);
             bpmnList.add(manualTask);
-            idMap.put(manualTask.getId(), elementid);
             
           } else if(xtr.isStartElement() && "receiveTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ReceiveTask receiveTask = parseReceiveTask(xtr, diagram);
+            ReceiveTask receiveTask = parseReceiveTask(xtr);
+            receiveTask.setId(elementid);
             bpmnList.add(receiveTask);
-            idMap.put(receiveTask.getId(), elementid);
             
           } else if(xtr.isStartElement() && "endEvent".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            EndEvent endEvent = parseEndEvent(xtr, diagram);
+            EndEvent endEvent = parseEndEvent(xtr);
+            endEvent.setId(elementid);
             bpmnList.add(endEvent);
-            idMap.put(endEvent.getId(), elementid);
           
           } else if(xtr.isStartElement() && "exclusiveGateway".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ExclusiveGateway exclusiveGateway = parseExclusiveGateway(xtr, diagram);
+            ExclusiveGateway exclusiveGateway = parseExclusiveGateway(xtr);
+            exclusiveGateway.setId(elementid);
             bpmnList.add(exclusiveGateway);
-            idMap.put(exclusiveGateway.getId(), elementid);
             
           } else if(xtr.isStartElement() && "parallelGateway".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ParallelGateway parallelGateway = parseParallelGateway(xtr, diagram);
+            ParallelGateway parallelGateway = parseParallelGateway(xtr);
+            parallelGateway.setId(elementid);
             bpmnList.add(parallelGateway);
-            idMap.put(parallelGateway.getId(), elementid);
             
           } else if(xtr.isStartElement() && "sequenceFlow".equalsIgnoreCase(xtr.getLocalName())) {
-            SequenceFlowModel sequenceFlow = parseSequenceFlow(xtr, diagram, bpmnList, idMap);
+            SequenceFlowModel sequenceFlow = parseSequenceFlow(xtr);
             sequenceFlowList.add(sequenceFlow);
             
           } else if(xtr.isStartElement() && "BPMNShape".equalsIgnoreCase(xtr.getLocalName())) {
@@ -140,36 +135,36 @@ public class BpmnParser {
     }
   }
   
-  private StartEvent parseStartEvent(XMLStreamReader xtr, Diagram diagram) {
+  private StartEvent parseStartEvent(XMLStreamReader xtr) {
     StartEvent startEvent = Bpmn2Factory.eINSTANCE.createStartEvent();
-    startEvent.setId(ActivitiUiUtil.getNextId(StartEvent.class, "startevent", diagram));
     startEvent.setName("Start");
     return startEvent;
   }
   
-  private EndEvent parseEndEvent(XMLStreamReader xtr, Diagram diagram) {
+  private EndEvent parseEndEvent(XMLStreamReader xtr) {
     EndEvent endEvent = Bpmn2Factory.eINSTANCE.createEndEvent();
-    endEvent.setId(ActivitiUiUtil.getNextId(EndEvent.class, "endevent", diagram));
     endEvent.setName("End");
     return endEvent;
   }
   
-  private ExclusiveGateway parseExclusiveGateway(XMLStreamReader xtr, Diagram diagram) {
+  private ExclusiveGateway parseExclusiveGateway(XMLStreamReader xtr) {
     ExclusiveGateway exclusiveGateway = Bpmn2Factory.eINSTANCE.createExclusiveGateway();
-    exclusiveGateway.setId(ActivitiUiUtil.getNextId(ExclusiveGateway.class, "exclusivegateway", diagram));
-    exclusiveGateway.setName(xtr.getAttributeValue(null, "name"));
+    String name = xtr.getAttributeValue(null, "name");
+    if(name != null) {
+      exclusiveGateway.setName(name);
+    } else {
+      exclusiveGateway.setName(exclusiveGateway.getId());
+    }
     return exclusiveGateway;
   }
   
-  private ParallelGateway parseParallelGateway(XMLStreamReader xtr, Diagram diagram) {
+  private ParallelGateway parseParallelGateway(XMLStreamReader xtr) {
     ParallelGateway parallelGateway = Bpmn2Factory.eINSTANCE.createParallelGateway();
-    parallelGateway.setId(ActivitiUiUtil.getNextId(ParallelGateway.class, "parallelgateway", diagram));
     parallelGateway.setName(xtr.getAttributeValue(null, "name"));
     return parallelGateway;
   }
   
-  private SequenceFlowModel parseSequenceFlow(XMLStreamReader xtr, Diagram diagram, 
-          List<FlowElement> bpmnList, Map<String, String> idMap) {
+  private SequenceFlowModel parseSequenceFlow(XMLStreamReader xtr) {
     
     SequenceFlowModel sequenceFlow = new SequenceFlowModel();
     sequenceFlow.sourceRef = xtr.getAttributeValue(null, "sourceRef");
@@ -179,7 +174,6 @@ public class BpmnParser {
   
   private static UserTask parseUserTask(XMLStreamReader xtr, Diagram diagram) {
     UserTask userTask = Bpmn2Factory.eINSTANCE.createUserTask();
-    userTask.setId(ActivitiUiUtil.getNextId(UserTask.class, "usertask", diagram));
     userTask.setName(xtr.getAttributeValue(null, "name"));
     boolean readyWithUserTask = false;
     try {
@@ -199,9 +193,8 @@ public class BpmnParser {
     return userTask;
   }
   
-  private ScriptTask parseScriptTask(XMLStreamReader xtr, Diagram diagram) {
+  private ScriptTask parseScriptTask(XMLStreamReader xtr) {
     ScriptTask scriptTask = Bpmn2Factory.eINSTANCE.createScriptTask();
-    scriptTask.setId(ActivitiUiUtil.getNextId(UserTask.class, "scripttask", diagram));
     scriptTask.setName(xtr.getAttributeValue(null, "name"));
     scriptTask.setScriptFormat(xtr.getAttributeValue(null, "scriptFormat"));
     boolean readyWithScriptTask = false;
@@ -219,23 +212,20 @@ public class BpmnParser {
     return scriptTask;
   }
   
-  private ServiceTask parseServiceTask(XMLStreamReader xtr, Diagram diagram) {
+  private ServiceTask parseServiceTask(XMLStreamReader xtr) {
     ServiceTask serviceTask = Bpmn2Factory.eINSTANCE.createServiceTask();
-    serviceTask.setId(ActivitiUiUtil.getNextId(ServiceTask.class, "servicetask", diagram));
     serviceTask.setName(xtr.getAttributeValue(null, "name"));
     return serviceTask;
   }
   
-  private ManualTask parseManualTask(XMLStreamReader xtr, Diagram diagram) {
+  private ManualTask parseManualTask(XMLStreamReader xtr) {
     ManualTask manualTask = Bpmn2Factory.eINSTANCE.createManualTask();
-    manualTask.setId(ActivitiUiUtil.getNextId(ManualTask.class, "manualtask", diagram));
     manualTask.setName(xtr.getAttributeValue(null, "name"));
     return manualTask;
   }
   
-  private ReceiveTask parseReceiveTask(XMLStreamReader xtr, Diagram diagram) {
+  private ReceiveTask parseReceiveTask(XMLStreamReader xtr) {
     ReceiveTask receiveTask = Bpmn2Factory.eINSTANCE.createReceiveTask();
-    receiveTask.setId(ActivitiUiUtil.getNextId(ReceiveTask.class, "receivetask", diagram));
     receiveTask.setName(xtr.getAttributeValue(null, "name"));
     return receiveTask;
   }

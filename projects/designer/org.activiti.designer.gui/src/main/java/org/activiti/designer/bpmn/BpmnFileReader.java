@@ -22,8 +22,9 @@ import java.util.Map;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.activiti.designer.model.GraphicInfo;
-import org.activiti.designer.model.SequenceFlowModel;
+import org.activiti.designer.eclipse.bpmn.BpmnParser;
+import org.activiti.designer.eclipse.bpmn.GraphicInfo;
+import org.activiti.designer.eclipse.bpmn.SequenceFlowModel;
 import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.Documentation;
@@ -31,10 +32,15 @@ import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.FlowNode;
+import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ParallelGateway;
+import org.eclipse.bpmn2.ReceiveTask;
+import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
+import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.Task;
+import org.eclipse.bpmn2.UserTask;
 import org.eclipse.graphiti.features.IAddFeature;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.impl.AddConnectionContext;
@@ -69,7 +75,7 @@ public class BpmnFileReader {
       InputStreamReader in = new InputStreamReader(inStream, "UTF-8");
       XMLStreamReader xtr = xif.createXMLStreamReader(in);
       BpmnParser bpmnParser = new BpmnParser();
-      bpmnParser.parseBpmn(xtr, diagram, featureProvider);
+      bpmnParser.parseBpmn(xtr, diagram);
       
       if(bpmnParser.bpmnList.size() == 0) return;
       
@@ -84,7 +90,7 @@ public class BpmnFileReader {
       
       if(bpmnParser.bpmdiInfoFound == true) {
         drawDiagramWithBPMNDI(diagram, featureProvider, bpmnParser.bpmnList, bpmnParser.sequenceFlowList,
-                bpmnParser.locationMap, bpmnParser.idMap);
+                bpmnParser.locationMap);
       } else {
         int currentX = START_X;
         for (FlowElement flowElement : bpmnParser.bpmnList) {
@@ -109,8 +115,9 @@ public class BpmnFileReader {
           addBpmnElementToDiagram(flowElement, graphicInfo, diagram, featureProvider);
         }
         drawSequenceFlows(diagram, featureProvider, bpmnParser.bpmnList, 
-                bpmnParser.sequenceFlowList, bpmnParser.idMap);
+                bpmnParser.sequenceFlowList);
       }
+      setFriendlyIds(bpmnParser.bpmnList, diagram);
       xtr.close();
       in.close();
       inStream.close();
@@ -121,23 +128,48 @@ public class BpmnFileReader {
   }
   
   private static void drawDiagramWithBPMNDI(Diagram diagram, IFeatureProvider featureProvider, List<FlowElement> bpmnList, 
-          List<SequenceFlowModel> sequenceFlowList, Map<String, GraphicInfo> locationMap, Map<String, String> idMap) {
+          List<SequenceFlowModel> sequenceFlowList, Map<String, GraphicInfo> locationMap) {
     
     for (FlowElement flowElement : bpmnList) {
-      GraphicInfo graphicInfo = locationMap.get(idMap.get(flowElement.getId()));
+      String elementid = flowElement.getId();
+      GraphicInfo graphicInfo = locationMap.get(elementid);
       addBpmnElementToDiagram(flowElement, graphicInfo, diagram, featureProvider);
     }
-    drawSequenceFlows(diagram, featureProvider, bpmnList, sequenceFlowList, idMap);
+    drawSequenceFlows(diagram, featureProvider, bpmnList, sequenceFlowList);
+  }
+  
+  private static void setFriendlyIds(List<FlowElement> bpmnList, Diagram diagram) {
+    for (FlowElement flowElement : bpmnList) {
+      if(flowElement instanceof StartEvent) {
+        flowElement.setId(ActivitiUiUtil.getNextId(StartEvent.class, "startevent", diagram));
+      } else if(flowElement instanceof EndEvent) {
+        flowElement.setId(ActivitiUiUtil.getNextId(EndEvent.class, "endevent", diagram));
+      } else if(flowElement instanceof ExclusiveGateway) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ExclusiveGateway.class, "exclusivegateway", diagram));
+      } else if(flowElement instanceof ParallelGateway) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ParallelGateway.class, "parallelgateway", diagram));
+      } else if(flowElement instanceof UserTask) {
+        flowElement.setId(ActivitiUiUtil.getNextId(UserTask.class, "usertask", diagram));
+      } else if(flowElement instanceof ScriptTask) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ScriptTask.class, "scripttask", diagram));
+      } else if(flowElement instanceof ServiceTask) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ServiceTask.class, "servicetask", diagram));
+      } else if(flowElement instanceof ManualTask) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ManualTask.class, "manualtask", diagram));
+      } else if(flowElement instanceof ReceiveTask) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ReceiveTask.class, "receivetask", diagram));
+      }
+    }
   }
   
   private static void drawSequenceFlows(Diagram diagram, IFeatureProvider featureProvider, List<FlowElement> bpmnList, 
-          List<SequenceFlowModel> sequenceFlowList, Map<String, String> idMap) {
+          List<SequenceFlowModel> sequenceFlowList) {
     
     for(SequenceFlowModel sequenceFlowModel : sequenceFlowList) {
       SequenceFlow sequenceFlow = Bpmn2Factory.eINSTANCE.createSequenceFlow();
       sequenceFlow.setId(ActivitiUiUtil.getNextId(SequenceFlow.class, "flow", diagram));
-      sequenceFlow.setSourceRef(getFlowNode(sequenceFlowModel.sourceRef, bpmnList, idMap));
-      sequenceFlow.setTargetRef(getFlowNode(sequenceFlowModel.targetRef, bpmnList, idMap));
+      sequenceFlow.setSourceRef(getFlowNode(sequenceFlowModel.sourceRef, bpmnList));
+      sequenceFlow.setTargetRef(getFlowNode(sequenceFlowModel.targetRef, bpmnList));
       diagram.eResource().getContents().add(sequenceFlow);
       AddConnectionContext addContext = new AddConnectionContext(null, null);
       addContext.setNewObject(sequenceFlow);
@@ -146,15 +178,11 @@ public class BpmnFileReader {
     }
   }
   
-  private static FlowNode getFlowNode(String elementid, List<FlowElement> bpmnList, Map<String, String> idMap) {
+  private static FlowNode getFlowNode(String elementid, List<FlowElement> bpmnList) {
     FlowNode flowNode = null;
-    for(String key : idMap.keySet()) {
-      if(idMap.get(key).equalsIgnoreCase(elementid)) {
-        for(FlowElement flowElement : bpmnList) {
-          if(flowElement.getId().equalsIgnoreCase(key)) {
-            flowNode = (FlowNode) flowElement;
-          }
-        }
+    for(FlowElement flowElement : bpmnList) {
+      if(flowElement.getId().equalsIgnoreCase(elementid)) {
+        flowNode = (FlowNode) flowElement;
       }
     }
     return flowNode;

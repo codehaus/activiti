@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.designer.model;
+package org.activiti.designer.eclipse.bpmn;
 
 
 /**
