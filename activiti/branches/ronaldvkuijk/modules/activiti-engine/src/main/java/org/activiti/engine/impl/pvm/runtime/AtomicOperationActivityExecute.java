@@ -15,6 +15,7 @@ package org.activiti.engine.impl.pvm.runtime;
 import java.util.logging.Logger;
 
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.jobexecutor.JobExecutorMessageSession;
 import org.activiti.engine.impl.pvm.PvmException;
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
@@ -32,15 +33,15 @@ public class AtomicOperationActivityExecute implements AtomicOperation {
     ActivityImpl activity = (ActivityImpl) execution.getActivity();
     
     if ("async".equals(activity.getContinuation())) {
-        MessageEntity me = new MessageEntity();
-        me.setExecutionId(execution.getId());
-        //TODO RKU me.setQueue((String)activity.getProperty("name"));
-        me.setProcessInstanceId(execution.getId());
-        me.setJobHandlerType("async-cont");
-        CommandContext
-        .getCurrent()
-        .getDbSqlSession()
-        .insert(me);
+      
+       JobExecutorMessageSession messageSession = new JobExecutorMessageSession();
+
+        MessageEntity message = new MessageEntity();
+        message.setExecutionId(execution.getId());
+        message.setProcessInstanceId(execution.getId());
+        message.setJobHandlerType("async-cont");
+        messageSession.send(message);
+
     } else {
     
       ActivityBehavior activityBehavior = activity.getActivityBehavior();
