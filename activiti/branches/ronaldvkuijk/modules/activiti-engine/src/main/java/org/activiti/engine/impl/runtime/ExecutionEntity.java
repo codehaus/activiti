@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.HistoricActivityInstanceQueryImpl;
 import org.activiti.engine.impl.JobQueryImpl;
 import org.activiti.engine.impl.TaskQueryImpl;
@@ -337,14 +338,19 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
 
   public void signal(String signalName, Object signalData) {
     ensureActivityInitialized();
-    SignallableActivityBehavior activityBehavior = (SignallableActivityBehavior) activity.getActivityBehavior();
-    try {
-      activityBehavior.signal(this, signalName, signalData);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new PvmException("couldn't process signal '"+signalName+"' on activity '"+activity.getId()+"': "+e.getMessage(), e);
+    if (activity.getActivityBehavior() instanceof SignallableActivityBehavior) {
+      SignallableActivityBehavior activityBehavior = (SignallableActivityBehavior) activity.getActivityBehavior();
+      try {
+        activityBehavior.signal(this, signalName, signalData);
+      } catch (RuntimeException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new PvmException("couldn't process signal '"+signalName+"' on activity '"+activity.getId()+"': "+e.getMessage(), e);
+      }
+    } else {
+      throw new ActivitiException("couldn't process signal '"+signalName+"' on activity '"+activity.getId()+"': Does not implement SignallableActivityBehavior");
     }
+
   }
   
   public void take(PvmTransition transition) {
