@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui">
+<head>
+<title>Not present in rendered output</title>
+</head>
+<body>
+<composite:interface>
+	<composite:attribute name="actionMethod" required="true"
+		method-signature="java.lang.String action()" />
+	<composite:attribute name="widgetId"/>
+</composite:interface>
+<composite:implementation>
+	<p:dialog modal="true" draggable="false" appendToBody="true"
+		widgetVar="#{(cc.attrs.widgetId == null || cc.attrs.widgetId == '') ? 'loginDialog' : cc.attrs.widgetId}" visible="false" header="Login"
+		resizable="false" showEffect="fade" hideEffect="fade">
+		<h:form>
+
+			<h:panelGrid columns="2" style="margin:auto">
+				<f:validateBean>
+
+					<h:outputLabel for="username">Username:</h:outputLabel>
+
+					<h:inputText id="username" value="#{credentials.username}" />
+
+					<h:outputLabel for="password">Password:</h:outputLabel>
+
+					<h:inputSecret id="password" value="#{credentials.password}" />
+
+				</f:validateBean>
+				<h:panelGroup>
+					<!--  empty to have the buttons align with the input -->
+				</h:panelGroup>
+
+				<h:panelGroup>
+					<p:commandButton value="Ok" action="#{cc.attrs.actionMethod}"
+						style="text-align:center" ajax="false" update="growl, userData" />
+
+					<p:commandButton value="Cancel" oncomplete="loginDialog.hide()"
+						style="text-align:center" update="growl" ajax="true" />
+
+				</h:panelGroup>
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+</composite:implementation>
+</body>
+</html>
