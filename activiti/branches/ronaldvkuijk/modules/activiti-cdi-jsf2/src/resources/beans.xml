@@ -1,0 +1,6 @@
+<beans>
+	<interceptors>
+		<class>org.activiti.cdi.annotation.ActivitiInterceptor</class>
+		<class>nl.intercommit.activiti.cdi.LoggingInterceptor</class>
+	</interceptors>
+</beans>
