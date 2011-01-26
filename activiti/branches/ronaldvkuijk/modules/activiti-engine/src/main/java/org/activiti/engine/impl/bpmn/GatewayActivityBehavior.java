@@ -12,20 +12,14 @@
  */
 package org.activiti.engine.impl.bpmn;
 
-import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 
 /**
- * A data output association between a source and a target
+ * super class for all gateway activity implementations.
  * 
- * @author Esteban Robles Luna
+ * @author Joram Barrez
  */
-public abstract class AbstractDataOutputAssociation {
-
-  protected String targetRef;
+public abstract class GatewayActivityBehavior extends AbstractBpmnActivity {
   
-  protected AbstractDataOutputAssociation(String targetRef) {
-    this.targetRef = targetRef;
-  }
+  // TODO: implement diverging/converging 
 
-  public abstract void evaluate(ActivityExecution execution);
 }

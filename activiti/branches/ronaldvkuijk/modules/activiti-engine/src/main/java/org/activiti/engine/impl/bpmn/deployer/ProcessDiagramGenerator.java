@@ -14,6 +14,7 @@
 package org.activiti.engine.impl.bpmn.deployer;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,15 @@ public class ProcessDiagramGenerator {
                 activityImpl.getWidth(), activityImpl.getHeight());
       }
     });
+    
+    // error end event
+    activityDrawInstructions.put("errorEndEvent", new DrawInstruction() {
+      public void draw(ProcessDiagramCanvas processDiagramCreator, ActivityImpl activityImpl) {
+        processDiagramCreator.drawErrorEndEvent(activityImpl.getX(), activityImpl.getY(), 
+                activityImpl.getWidth(), activityImpl.getHeight());
+      }
+    });
+    
     
     // task
     activityDrawInstructions.put("task", new DrawInstruction() {
@@ -133,6 +143,14 @@ public class ProcessDiagramGenerator {
       }
     });
     
+    // Boundary catch error
+    activityDrawInstructions.put("boundaryError", new DrawInstruction() {
+      public void draw(ProcessDiagramCanvas processDiagramCreator, ActivityImpl activityImpl) {
+        processDiagramCreator.drawCatchingErroEvent(activityImpl.getX(), activityImpl.getY(), 
+                activityImpl.getWidth(), activityImpl.getHeight());
+      }
+    });
+    
     // subprocess
     activityDrawInstructions.put("subProcess", new DrawInstruction() {
       public void draw(ProcessDiagramCanvas processDiagramCreator, ActivityImpl activityImpl) {
@@ -163,7 +181,7 @@ public class ProcessDiagramGenerator {
    *  using the diagram interchange information of the process.
    */
   public static InputStream generatePngDiagram(ProcessDefinitionEntity processDefinition) {
-    return generateDiagram(processDefinition, "png");
+    return generateDiagram(processDefinition, "png", Collections.<String>emptyList());
   }
   
   /**
@@ -171,21 +189,29 @@ public class ProcessDiagramGenerator {
    *  using the diagram interchange information of the process.
    */
   public static InputStream generateJpgDiagram(ProcessDefinitionEntity processDefinition) {
-    return generateDiagram(processDefinition, "jpg");
+    return generateDiagram(processDefinition, "jpg", Collections.<String>emptyList());
   }
-    
-  public static InputStream generateDiagram(ProcessDefinitionEntity processDefinition, String imageType) {
+
+  protected static ProcessDiagramCanvas generateDiagram(ProcessDefinitionEntity processDefinition, List<String> highLightedActivities) {
     ProcessDiagramCanvas processDiagramCanvas = initProcessDiagramCanvas(processDefinition);
     for (ActivityImpl activity : processDefinition.getActivities()) {
-     drawActivity(processDiagramCanvas, activity);
+     drawActivity(processDiagramCanvas, activity, highLightedActivities);
+
     }
-    return processDiagramCanvas.generateImage(imageType);
+    return processDiagramCanvas;
+  }
+    
+  public static InputStream generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities) {
+    return generateDiagram(processDefinition, highLightedActivities).generateImage(imageType);
   }
   
-  protected static void drawActivity(ProcessDiagramCanvas processDiagramCanvas, ActivityImpl activity) {
+  protected static void drawActivity(ProcessDiagramCanvas processDiagramCanvas, ActivityImpl activity, List<String> highLightedActivities) {
     DrawInstruction drawInstruction = activityDrawInstructions.get((String) activity.getProperty("type"));
     if (drawInstruction != null) {
       drawInstruction.draw(processDiagramCanvas, activity);
+      if (highLightedActivities.contains(activity.getId())) {
+          drawHighLight(processDiagramCanvas, activity);
+      }
     }
     for (PvmTransition sequenceFlow : activity.getOutgoingTransitions()) {
       List<Integer> waypoints = ((TransitionImpl) sequenceFlow).getWaypoints();
@@ -201,11 +227,16 @@ public class ProcessDiagramGenerator {
       }
     }
     for (ActivityImpl nestedActivity : activity.getActivities()) {
-      drawActivity(processDiagramCanvas, nestedActivity);
+      drawActivity(processDiagramCanvas, nestedActivity, highLightedActivities);
     }
   }
-  
-  protected static ProcessDiagramCanvas initProcessDiagramCanvas(ProcessDefinitionEntity processDefinition) {
+
+  private static void drawHighLight(ProcessDiagramCanvas processDiagramCanvas, ActivityImpl activity) {
+      processDiagramCanvas.drawHighLight(activity.getX(), activity.getY(), activity.getWidth(), activity.getHeight());
+
+  }
+
+    protected static ProcessDiagramCanvas initProcessDiagramCanvas(ProcessDefinitionEntity processDefinition) {
     int minX = Integer.MAX_VALUE;
     int maxX = 0;
     int minY = Integer.MAX_VALUE;

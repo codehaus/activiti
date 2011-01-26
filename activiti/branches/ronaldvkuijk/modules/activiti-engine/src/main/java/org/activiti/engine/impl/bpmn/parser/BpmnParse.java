@@ -23,8 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.impl.bpmn.AbstractDataInputAssociation;
-import org.activiti.engine.impl.bpmn.AbstractDataOutputAssociation;
+import org.activiti.engine.impl.bpmn.AbstractDataAssociation;
 import org.activiti.engine.impl.bpmn.Assignment;
 import org.activiti.engine.impl.bpmn.BoundaryEventActivityBehavior;
 import org.activiti.engine.impl.bpmn.BpmnInterface;
@@ -39,7 +38,7 @@ import org.activiti.engine.impl.bpmn.DataRef;
 import org.activiti.engine.impl.bpmn.DelegateExpressionExecutionListener;
 import org.activiti.engine.impl.bpmn.DelegateExpressionTaskListener;
 import org.activiti.engine.impl.bpmn.ErrorEndEventActivityBehavior;
-import org.activiti.engine.impl.bpmn.ExclusiveGatewayActivity;
+import org.activiti.engine.impl.bpmn.ExclusiveGatewayActivityBehavior;
 import org.activiti.engine.impl.bpmn.ExecActivityBehavior;
 import org.activiti.engine.impl.bpmn.ExpressionExecutionListener;
 import org.activiti.engine.impl.bpmn.ExpressionTaskListener;
@@ -584,7 +583,7 @@ public class BpmnParse extends Parse {
     return ioSpecification;
   }
   
-  protected AbstractDataInputAssociation parseDataInputAssociation(Element dataAssociationElement) {
+  protected AbstractDataAssociation parseDataInputAssociation(Element dataAssociationElement) {
     String sourceRef = dataAssociationElement.element("sourceRef").getText();
     String targetRef = dataAssociationElement.element("targetRef").getText();
     
@@ -712,7 +711,7 @@ public class BpmnParse extends Parse {
       }
     }
   }
-
+  
   /**
    * Generic parsing method for most flow elements: parsing of the documentation
    * sub-element.
@@ -733,6 +732,7 @@ public class BpmnParse extends Parse {
     String id = activityElement.attribute("id");
     String name = activityElement.attribute("name");
     String documentation = parseDocumentation(activityElement);
+    String defaultSequenceFlow = activityElement.attribute("default");
     ActivityImpl innerActivity = null;
     if (LOG.isLoggable(Level.FINE)) {
       LOG.fine("Parsing activity " + id);
@@ -740,6 +740,7 @@ public class BpmnParse extends Parse {
     ActivityImpl activity = scopeElement.createActivity(id);
     activity.setProperty("name", name);
     activity.setProperty("documentation", documentation);
+    activity.setProperty("default", defaultSequenceFlow);
     activity.setProperty("type", activityElement.getTagName());
     activity.setProperty("line", activityElement.getLine());
     
@@ -803,8 +804,8 @@ public class BpmnParse extends Parse {
    */
   public void parseExclusiveGateway(Element exclusiveGwElement, ScopeImpl scope) {
     ActivityImpl activity = parseAndCreateActivityOnScopeElement(exclusiveGwElement, scope);
-    activity.setActivityBehavior(new ExclusiveGatewayActivity());
-    
+    activity.setActivityBehavior(new ExclusiveGatewayActivityBehavior());
+
     parseExecutionListenersOnScope(exclusiveGwElement, activity);
     
     for (BpmnParseListener parseListener: parseListeners) {
@@ -912,12 +913,12 @@ public class BpmnParse extends Parse {
         }
         
         for (Element dataAssociationElement : serviceTaskElement.elements("dataInputAssociation")) {
-          AbstractDataInputAssociation dataAssociation = this.parseDataInputAssociation(dataAssociationElement);
+          AbstractDataAssociation dataAssociation = this.parseDataInputAssociation(dataAssociationElement);
           webServiceActivityBehavior.addDataInputAssociation(dataAssociation);
         }
         
         for (Element dataAssociationElement : serviceTaskElement.elements("dataOutputAssociation")) {
-          AbstractDataOutputAssociation dataAssociation = this.parseDataOutputAssociation(dataAssociationElement);
+          AbstractDataAssociation dataAssociation = this.parseDataOutputAssociation(dataAssociationElement);
           webServiceActivityBehavior.addDataOutputAssociation(dataAssociation);
         }
 
@@ -1031,12 +1032,12 @@ public class BpmnParse extends Parse {
         }
         
         for (Element dataAssociationElement : sendTaskElement.elements("dataInputAssociation")) {
-          AbstractDataInputAssociation dataAssociation = this.parseDataInputAssociation(dataAssociationElement);
+          AbstractDataAssociation dataAssociation = this.parseDataInputAssociation(dataAssociationElement);
           webServiceActivityBehavior.addDataInputAssociation(dataAssociation);
         }
         
         for (Element dataAssociationElement : sendTaskElement.elements("dataOutputAssociation")) {
-          AbstractDataOutputAssociation dataAssociation = this.parseDataOutputAssociation(dataAssociationElement);
+          AbstractDataAssociation dataAssociation = this.parseDataOutputAssociation(dataAssociationElement);
           webServiceActivityBehavior.addDataOutputAssociation(dataAssociation);
         }
 
@@ -1053,7 +1054,7 @@ public class BpmnParse extends Parse {
     }
   }
 
-  protected AbstractDataOutputAssociation parseDataOutputAssociation(Element dataAssociationElement) {
+  protected AbstractDataAssociation parseDataOutputAssociation(Element dataAssociationElement) {
     String targetRef = dataAssociationElement.element("targetRef").getText();
 
     if (dataAssociationElement.element("sourceRef") != null) {
@@ -1061,7 +1062,7 @@ public class BpmnParse extends Parse {
       return new MessageImplicitDataOutputAssociation(targetRef, sourceRef);
     } else {
       Expression transformation = this.expressionManager.createExpression(dataAssociationElement.element("transformation").getText());
-      AbstractDataOutputAssociation dataOutputAssociation = new TransformationDataOutputAssociation(targetRef, transformation);
+      AbstractDataAssociation dataOutputAssociation = new TransformationDataOutputAssociation(null, targetRef, transformation);
       return dataOutputAssociation;
     }
   }
@@ -1528,11 +1529,8 @@ public class BpmnParse extends Parse {
           addError("'errorRef' attribute is mandatory on error end event", errorEventDefinition);
         } else {
           Error error = errors.get(errorRef);
-          if (error == null) {
-            addError("Invalid 'errorRef' " + errorRef + ": error is not defined", errorEventDefinition);
-          }
           activity.setProperty("type", "errorEndEvent");
-          activity.setActivityBehavior(new ErrorEndEventActivityBehavior(error.getErrorCode()));
+          activity.setActivityBehavior(new ErrorEndEventActivityBehavior(error != null ? error.getErrorCode() : errorRef));
         }
       } else { // default: none end event
         activity.setActivityBehavior(new NoneEndEventActivity());
@@ -1582,7 +1580,8 @@ public class BpmnParse extends Parse {
       ActivityImpl nestedActivity = parseAndCreateActivityOnScopeElement(boundaryEventElement, parentActivity); 
 
       String cancelActivity = boundaryEventElement.attribute("cancelActivity", "true");
-      boolean interrupting = cancelActivity.equals("true") ? true : false;
+//      boolean interrupting = cancelActivity.equals("true") ? true : false;
+      boolean interrupting = true; // non-interrupting not yet supported
       
       // Catch event behavior is the same for all types
       BoundaryEventActivityBehavior behavior = new BoundaryEventActivityBehavior(interrupting);
@@ -1647,27 +1646,45 @@ public class BpmnParse extends Parse {
           ActivityImpl activity, ActivityImpl nestedErrorEventActivity) {
     
     nestedErrorEventActivity.setProperty("type", "boundaryError");
+    ((ActivityImpl)nestedErrorEventActivity.getParent()).setScope(true);
+    
     String errorRef = errorEventDefinition.attribute("errorRef");
-    Error error = errors.get(errorRef);
+    Error error = null;
+    if (errorRef != null) {
+      error = errors.get(errorRef);
+      nestedErrorEventActivity.setProperty("errorCode", error == null ? errorRef : error.getErrorCode());
+    }
     
     // TODO: this can probably be made generic for all throw/catch ?
+    
+    // Search for all errorEvents that can throw the exception
     List<ActivityImpl> childErrorEndEvents = getAllChildActivitiesOfType("errorEndEvent", activity);
     for (ActivityImpl errorEndEvent : childErrorEndEvents) {
       ErrorEndEventActivityBehavior behavior = (ErrorEndEventActivityBehavior) errorEndEvent.getActivityBehavior();
-      if (error == null || error.getErrorCode().equals(behavior.getErrorCode())) {
+      if (errorRef == null 
+              || errorRef.equals(behavior.getErrorCode()) 
+              || (error != null && error.getErrorCode().equals(behavior.getErrorCode())) 
+          ) {
+        
         ActivityImpl catchingActivity = null;
-        if (behavior.getCatchingActivityId() != null) {
-          catchingActivity = activity.getProcessDefinition().findActivity(behavior.getCatchingActivityId());
+        if (behavior.getBorderEventActivityId() != null) {
+          catchingActivity = activity.getProcessDefinition().findActivity(behavior.getBorderEventActivityId());
         }
         
         // If the error end event doesnt have a catching activity assigned yet, we can just set it
         // If the error end event already has a catching activity event, we can only set it
         // if the current activity is a child of the previous defined one
-        // (ie. the current activity will catch and consume it, and it will never reach the previous one)
+        // (ie. the current activity will catch and consume it, and it will never reach the previous one,
+        // since the previous one set is an activity which is a parent of the more narrow catching activity)
         if (catchingActivity == null || isChildActivity(activity, catchingActivity)) {
-          behavior.setCatchingActivityId(nestedErrorEventActivity.getId());
+          behavior.setBorderEventActivityId(nestedErrorEventActivity.getId());
         }
       }
+    }
+    
+    for (BpmnParseListener parseListener: parseListeners) {
+      parseListener.parseBoundaryErrorEventDefinition(errorEventDefinition, interrupting, 
+              activity, nestedErrorEventActivity);
     }
   }
   
@@ -1745,7 +1762,38 @@ public class BpmnParse extends Parse {
     if (calledElement == null) {
       addError("Missing attribute 'calledElement'", callActivityElement);
     }
-    activity.setActivityBehavior(new CallActivityBehaviour(calledElement));
+    
+    CallActivityBehaviour callActivityBehaviour = new CallActivityBehaviour(calledElement);
+
+    Element extentionsElement = callActivityElement.element("extensionElements");    
+    if(extentionsElement != null) {
+      // input data elements
+      for(Element listenerElement : extentionsElement.elementsNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "in")) {
+        String source = listenerElement.attribute("source");
+        String target = listenerElement.attribute("target");        
+        callActivityBehaviour.addDataInputAssociation(new SimpleDataInputAssociation(source, target));
+      }      
+      // output data elements
+      for(Element listenerElement : extentionsElement.elementsNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "out")) {
+        String source = listenerElement.attribute("source");
+        String target = listenerElement.attribute("target");        
+        callActivityBehaviour.addDataOutputAssociation(new MessageImplicitDataOutputAssociation(target, source));
+      }      
+    }
+
+//    // parse data input and output
+//    for (Element dataAssociationElement : callActivityElement.elements("dataInputAssociation")) {
+//      AbstractDataAssociation dataAssociation = this.parseDataInputAssociation(dataAssociationElement);
+//      callActivityBehaviour.addDataInputAssociation(dataAssociation);
+//    }
+//    
+//    for (Element dataAssociationElement : callActivityElement.elements("dataOutputAssociation")) {
+//      AbstractDataAssociation dataAssociation = this.parseDataOutputAssociation(dataAssociationElement);
+//      callActivityBehaviour.addDataOutputAssociation(dataAssociation);
+//    }
+   
+    activity.setScope(true);
+    activity.setActivityBehavior(callActivityBehaviour);
     
     parseExecutionListenersOnScope(callActivityElement, activity);
 

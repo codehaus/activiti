@@ -54,6 +54,8 @@ import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
+import org.activiti.engine.impl.pvm.runtime.AtomicOperationDeleteCascade;
+import org.activiti.engine.impl.pvm.runtime.AtomicOperationDeleteCascadeFireActivityEnd;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 import org.activiti.engine.impl.pvm.runtime.OutgoingExecution;
 import org.activiti.engine.impl.task.TaskEntity;
@@ -61,6 +63,7 @@ import org.activiti.engine.impl.variable.VariableDeclaration;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.tools.ant.filters.TokenFilter.DeleteCharacters;
 
 
 /**
@@ -289,32 +292,13 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     performOperation(AtomicOperation.PROCESS_START);
   }
 
-  @SuppressWarnings("unchecked")
   public void destroy() {
     log.fine("destroying "+this);
     
-    ScopeImpl scope = getScope();
     ensureParentInitialized();
+    removeVariablesLocal();
+    removeVariables();
 
-    List<VariableDeclaration> variableDeclarations = (List<VariableDeclaration>) scope.getProperty(BpmnParse.PROPERTYNAME_VARIABLE_DECLARATIONS);
-    if (variableDeclarations!=null) {
-      for (VariableDeclaration variableDeclaration: variableDeclarations) {
-        variableDeclaration.destroy(this, parent);
-      }
-    }
-
-    if (variableInstances!=null) {
-      removeVariablesLocal();
-    }
-
-    List<TimerDeclarationImpl> timerDeclarations = (List<TimerDeclarationImpl>) scope.getProperty(BpmnParse.PROPERTYNAME_TIMER_DECLARATION);
-    if (timerDeclarations!=null) {
-      CommandContext
-        .getCurrent()
-        .getTimerSession()
-        .cancelTimers(this);
-    }
-    
     setScope(false);
   }
 
@@ -426,20 +410,10 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       log.fine("transitions to take concurrent: " + transitions);
       log.fine("active concurrent executions: " + concurrentActiveExecutions);
     }
-    
-    boolean allInSameActivity = true;
-    if (concurrentInActiveExecutions.size() > 1) {
-      String activityId = concurrentInActiveExecutions.get(0).getActivityId();
-      for (ExecutionEntity execution: concurrentInActiveExecutions) {
-        if (!execution.isEnded && !execution.getActivityId().equals(activityId)) {
-          allInSameActivity = false;
-        }
-      }
-    }
 
     if ( (transitions.size()==1)
          && (concurrentActiveExecutions.isEmpty())
-         && allInSameActivity
+         && allExecutionsInSameActivity(concurrentInActiveExecutions)
        ) {
 
       List<ExecutionEntity> recyclableExecutionImpls = (List) recyclableExecutions;
@@ -499,20 +473,20 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     }
   }
   
-  public void performOperation(AtomicOperation executionOperation) {
-    this.nextOperation = executionOperation;
-    if (!isOperating) {
-      isOperating = true;
-      while (nextOperation!=null) {
-        AtomicOperation currentOperation = this.nextOperation;
-        this.nextOperation = null;
-        if (log.isLoggable(Level.FINEST)) {
-          log.finest("AtomicOperation: " + currentOperation + " on " + this);
+  private boolean allExecutionsInSameActivity(List<ExecutionEntity> executions) {
+    if (executions.size() > 1) {
+      String activityId = executions.get(0).getActivityId();
+      for (ExecutionEntity execution : executions) {
+        if (!execution.isEnded && !execution.getActivityId().equals(activityId)) {
+          return false;
         }
-        currentOperation.execute(this);
       }
-      isOperating = false;
     }
+    return true;
+  }
+  
+  public void performOperation(AtomicOperation executionOperation) {
+    CommandContext.getCurrent().performOperation(executionOperation, this);
   }
   
   public boolean isActive(String activityId) {
@@ -911,7 +885,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   }
 
   protected String getToStringIdentity() {
-    return Integer.toString(System.identityHashCode(this));
+    return id;
   }
 
   // getters and setters //////////////////////////////////////////////////////

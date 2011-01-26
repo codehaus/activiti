@@ -63,7 +63,8 @@ public class ProcessDiagramCanvas {
   protected static Color TASK_COLOR = new Color(255, 255, 204);
   protected static Color BOUNDARY_EVENT_COLOR = new Color(255, 255, 255);
   protected static Color CONDITIONAL_INDICATOR_COLOR = new Color(255, 255, 255);
-  
+  protected static Color HIGHLIGHT_COLOR = Color.RED;
+
   // Strokes
   protected static Stroke THICK_TASK_BORDER_STROKE = new BasicStroke(3.0f);
   protected static Stroke GATEWAY_TYPE_STROKE = new BasicStroke(3.0f);
@@ -78,6 +79,8 @@ public class ProcessDiagramCanvas {
   protected static Image SENDTASK_IMAGE;
   protected static Image MANUALTASK_IMAGE;
   protected static Image TIMER_IMAGE;
+  protected static Image ERROR_THROW_IMAGE;
+  protected static Image ERROR_CATCH_IMAGE;
   
   // icons are statically loaded for performace
   static {
@@ -89,6 +92,8 @@ public class ProcessDiagramCanvas {
       SENDTASK_IMAGE = ImageIO.read(ReflectUtil.getResourceAsStream("org/activiti/engine/impl/bpmn/deployer/send.png"));
       MANUALTASK_IMAGE = ImageIO.read(ReflectUtil.getResourceAsStream("org/activiti/engine/impl/bpmn/deployer/manual.png"));
       TIMER_IMAGE = ImageIO.read(ReflectUtil.getResourceAsStream("org/activiti/engine/impl/bpmn/deployer/timer.png"));
+      ERROR_THROW_IMAGE = ImageIO.read(ReflectUtil.getResourceAsStream("org/activiti/engine/impl/bpmn/deployer/error_throw.png"));
+      ERROR_CATCH_IMAGE = ImageIO.read(ReflectUtil.getResourceAsStream("org/activiti/engine/impl/bpmn/deployer/error_catch.png"));
     } catch (IOException e) {
       LOGGER.warning("Could not load image for process diagram creation: " + e.getMessage());
     }
@@ -114,7 +119,7 @@ public class ProcessDiagramCanvas {
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g.setPaint(Color.black);
     
-    Font font = new Font("Arial",Font.BOLD, 10);
+    Font font = new Font("Arial",Font.BOLD, 11);
     g.setFont(font);
     this.fontMetrics = g.getFontMetrics();
   }
@@ -185,8 +190,12 @@ public class ProcessDiagramCanvas {
     g.setStroke(originalStroke);
   }
   
-  public void drawCatchingTimerEvent(int x, int y, int width, int height) {
-    
+  public void drawErrorEndEvent(int x, int y, int width, int height) {
+    drawNoneEndEvent(x, y, width, height);
+    g.drawImage(ERROR_THROW_IMAGE, x+3, y+3, width-6, height-6, null);
+  }
+  
+  public void drawCatchingEvent(int x, int y, int width, int height, Image image) {
     // event circles
     Ellipse2D outerCircle = new Ellipse2D.Double(x, y, width, height);
     int innerCircleX = x+3;
@@ -203,7 +212,15 @@ public class ProcessDiagramCanvas {
     g.draw(outerCircle);
     g.draw(innerCircle);
     
-    g.drawImage(TIMER_IMAGE,innerCircleX, innerCircleY, innerCircleWidth, innerCircleHeight, null);
+    g.drawImage(image, innerCircleX, innerCircleY, innerCircleWidth, innerCircleHeight, null);
+  }
+  
+  public void drawCatchingTimerEvent(int x, int y, int width, int height) {
+    drawCatchingEvent(x, y, width, height, TIMER_IMAGE);
+  }
+  
+  public void drawCatchingErroEvent(int x, int y, int width, int height) {
+    drawCatchingEvent(x, y, width, height, ERROR_CATCH_IMAGE);
   }
   
   public void drawSequenceflow(int srcX, int srcY, int targetX, int targetY, boolean conditional) {
@@ -417,6 +434,20 @@ public class ProcessDiagramCanvas {
     g.draw(line);
 
     g.setStroke(orginalStroke);
+  }
+
+  public void drawHighLight(int x, int y, int width, int height) {
+    Paint originalPaint = g.getPaint();
+    Stroke originalStroke = g.getStroke();
+
+    g.setPaint(HIGHLIGHT_COLOR);
+    g.setStroke(THICK_TASK_BORDER_STROKE);
+
+    RoundRectangle2D rect = new RoundRectangle2D.Double(x, y, width, height, 20, 20);
+    g.draw(rect);
+
+    g.setPaint(originalPaint);
+    g.setStroke(originalStroke);
   }
 
 }
