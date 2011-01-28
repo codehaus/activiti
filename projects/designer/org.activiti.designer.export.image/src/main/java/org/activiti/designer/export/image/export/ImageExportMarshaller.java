@@ -83,6 +83,9 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
       // Retrieve GraphicalViewer from the save handler
       final GraphicalViewer graphicalViewer = ActivitiDiagramEditor.getActiveGraphicalViewer();
 
+      if (graphicalViewer == null) {
+        return;
+      }
       final ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer.getEditPartRegistry().get(LayerManager.ID);
       final IFigure rootFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.PRINTABLE_LAYERS);
       final IFigure gridFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.GRID_LAYER);
