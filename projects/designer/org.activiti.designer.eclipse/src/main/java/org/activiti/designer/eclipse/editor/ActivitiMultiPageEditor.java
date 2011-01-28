@@ -1,10 +1,12 @@
 package org.activiti.designer.eclipse.editor;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
+import org.activiti.designer.eclipse.editor.sync.DiagramUpdater;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -92,21 +94,33 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
 
   public void doSave(IProgressMonitor monitor) {
     int activePage = getActivePage();
-    if(activePage == 0) {
+    if (activePage == 0) {
       getEditor(0).doSave(monitor);
-    } else if(activePage == 1) {
+    } else if (activePage == 1) {
+      // Save BPMN editor contents
       getEditor(1).doSave(monitor);
+
+      // sync Activiti Diagram
+      DiagramEditorInput diagramEditorInput = (DiagramEditorInput) getEditor(0).getEditorInput();
+      Diagram diagram = diagramEditorInput.getDiagram();
+      FileEditorInput bpmn2EditorInput = (FileEditorInput) getEditor(1).getEditorInput();
+
+      IStorage bpmnStorage = bpmn2EditorInput.getStorage();
+      DiagramUpdater.syncDiagram(diagramEditor, diagram, bpmnStorage);
+
+      // Save BPMN editor contents
+      getEditor(0).doSave(monitor);
     }
   }
 
   public void doSaveAs() {
     int activePage = getActivePage();
-    if(activePage == 0) {
+    if (activePage == 0) {
       IEditorPart editor = getEditor(0);
       editor.doSaveAs();
       setPageText(0, editor.getTitle());
       setInput(editor.getEditorInput());
-    } else if(activePage == 1) {
+    } else if (activePage == 1) {
       IEditorPart editor = getEditor(1);
       editor.doSaveAs();
       setPageText(1, editor.getTitle());
@@ -223,11 +237,10 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
   }
 
   private IFileEditorInput getBPMN2EditorInput() {
-    if (associatedBPMN2File != null && associatedBPMN2File.exists()) {
-      return new FileEditorInput(associatedBPMN2File);
-    } else {
-      return new FileEditorInput(getAssociatedBPMN2IFile());
-    }
+    if (associatedBPMN2File == null)
+      associatedBPMN2File = getAssociatedBPMN2IFile();
+
+    return new FileEditorInput(associatedBPMN2File);
   }
 
   private boolean isBPM2FileType(final IFileEditorInput editorInput) {
