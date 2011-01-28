@@ -3,7 +3,7 @@ package org.activiti.designer.property;
 import java.util.Arrays;
 import java.util.List;
 
-import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;

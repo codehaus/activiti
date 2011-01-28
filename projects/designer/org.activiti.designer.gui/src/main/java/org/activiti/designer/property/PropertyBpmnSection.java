@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.activiti.designer.property;
 
-import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;

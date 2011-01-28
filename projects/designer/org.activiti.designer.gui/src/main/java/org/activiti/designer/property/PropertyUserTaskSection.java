@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;

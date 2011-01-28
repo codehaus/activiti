@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.integration.servicetask.annotation.Help;
 import org.activiti.designer.integration.servicetask.annotation.Property;
@@ -20,7 +21,6 @@ import org.activiti.designer.property.extension.field.CustomPropertyRadioChoiceF
 import org.activiti.designer.property.extension.field.CustomPropertyTextField;
 import org.activiti.designer.property.extension.field.FieldInfo;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
-import org.activiti.designer.util.ActivitiUiUtil;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.ComplexDataType;

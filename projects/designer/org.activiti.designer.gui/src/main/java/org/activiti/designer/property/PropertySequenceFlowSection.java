@@ -1,6 +1,6 @@
 package org.activiti.designer.property;
 
-import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.FormalExpression;
 import org.eclipse.bpmn2.SequenceFlow;

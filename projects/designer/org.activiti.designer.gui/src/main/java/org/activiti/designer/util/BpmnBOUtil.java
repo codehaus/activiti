@@ -16,6 +16,7 @@ package org.activiti.designer.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.model.FieldExtensionModel;
 import org.eclipse.bpmn2.ActivitiListener;
 import org.eclipse.bpmn2.SequenceFlow;

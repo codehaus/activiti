@@ -1,7 +1,7 @@
 package org.activiti.designer.property;
 
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.property.ui.FieldExtensionEditor;
-import org.activiti.designer.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;

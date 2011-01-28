@@ -1,7 +1,7 @@
 package org.activiti.designer.features;
 
 import org.activiti.designer.ActivitiImageProvider;
-import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IDirectEditingInfo;

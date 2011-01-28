@@ -3,6 +3,7 @@
  */
 package org.activiti.designer.util;
 
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
 import org.activiti.designer.features.CreateMailTaskFeature;

@@ -1,6 +1,6 @@
 package org.activiti.designer.features;
 
-import org.activiti.designer.util.ActivitiUiUtil;
+import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.util.OSEnum;
 import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
