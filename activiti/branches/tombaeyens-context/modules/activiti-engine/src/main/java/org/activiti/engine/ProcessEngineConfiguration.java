@@ -466,4 +466,5 @@ public abstract class ProcessEngineConfiguration {
   public void setJpaPersistenceUnitName(String jpaPersistenceUnitName) {
     this.jpaPersistenceUnitName = jpaPersistenceUnitName;
   }
+
 }

@@ -53,6 +53,7 @@ import org.activiti.engine.impl.calendar.BusinessCalendarManager;
 import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.calendar.MapBusinessCalendarManager;
 import org.activiti.engine.impl.cfg.standalone.StandaloneMybatisTransactionContextFactory;
+import org.activiti.engine.impl.context.ProcessEngineContext;
 import org.activiti.engine.impl.db.DbHistorySessionFactory;
 import org.activiti.engine.impl.db.DbIdGenerator;
 import org.activiti.engine.impl.db.DbIdentitySessionFactory;
@@ -160,7 +161,9 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
 
   /** this will be initialized during the configurationComplete() */
   protected CommandExecutor commandExecutorTxRequiresNew;
-
+  
+  protected ProcessEngineContext processEngineContext;
+  
   // SESSIOB FACTORIES ////////////////////////////////////////////////////////
 
   protected List<SessionFactory> customSessionFactories;
@@ -244,6 +247,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     initSqlSessionFactory();
     initSessionFactories();
     initJpa();
+    initProcessEngineContext();
   }
 
   // command executors ////////////////////////////////////////////////////////
@@ -632,6 +636,12 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
           variableTypes.addType(new JPAEntityVariableType());
         }        
       }
+    }
+  }
+  
+  protected void initProcessEngineContext() {
+    if (processEngineContext==null) {
+      processEngineContext = new ProcessEngineContext();
     }
   }
 
@@ -1053,8 +1063,32 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   public void setCustomPostBPMNParseListeners(List<BpmnParseListener> postParseListeners) {
     this.postParseListeners = postParseListeners;
   }
+  
+  public ProcessEngineContext getProcessEngineContext() {
+    return processEngineContext;
+  }
 
+  public void setProcessEngineContext(ProcessEngineContext processEngineContext) {
+    this.processEngineContext = processEngineContext;
+  }
+  
+  public List<BpmnParseListener> getPreParseListeners() {
+    return preParseListeners;
+  }
 
+  public void setPreParseListeners(List<BpmnParseListener> preParseListeners) {
+    this.preParseListeners = preParseListeners;
+  }
+  
+  public List<BpmnParseListener> getPostParseListeners() {
+    return postParseListeners;
+  }
+  
+  public void setPostParseListeners(List<BpmnParseListener> postParseListeners) {
+    this.postParseListeners = postParseListeners;
+  }
+
+  
   @Override
   public ProcessEngineConfigurationImpl setClassLoader(ClassLoader classLoader) {
     super.setClassLoader(classLoader);
