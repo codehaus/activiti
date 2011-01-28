@@ -167,7 +167,8 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       OutputStreamWriter out = new OutputStreamWriter(baos, "UTF-8");
 
-      XMLStreamWriter xtw = xof.createXMLStreamWriter(out);
+      XMLStreamWriter writer = xof.createXMLStreamWriter(out);
+      IndentingXMLStreamWriter xtw = new IndentingXMLStreamWriter(writer);
 
       final EList<EObject> contents = diagram.eResource().getContents();
 

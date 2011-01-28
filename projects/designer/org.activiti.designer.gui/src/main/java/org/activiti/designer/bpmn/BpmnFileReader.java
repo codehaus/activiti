@@ -27,9 +27,12 @@ import org.activiti.designer.eclipse.bpmn.GraphicInfo;
 import org.activiti.designer.eclipse.bpmn.SequenceFlowModel;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.Documentation;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
+import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.ManualTask;
@@ -75,7 +78,7 @@ public class BpmnFileReader {
       InputStreamReader in = new InputStreamReader(inStream, "UTF-8");
       XMLStreamReader xtr = xif.createXMLStreamReader(in);
       BpmnParser bpmnParser = new BpmnParser();
-      bpmnParser.parseBpmn(xtr, diagram);
+      bpmnParser.parseBpmn(xtr);
       
       if(bpmnParser.bpmnList.size() == 0) return;
       
@@ -193,6 +196,28 @@ public class BpmnFileReader {
   
   private static void addBpmnElementToDiagram(FlowElement flowElement, GraphicInfo graphicInfo,
           Diagram diagram, IFeatureProvider featureProvider) {
+    
+    if(flowElement instanceof UserTask) {
+      UserTask userTask = (UserTask) flowElement;
+      if(userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0) {
+        for (CandidateUser candidateUser : userTask.getCandidateUsers()) {
+          diagram.eResource().getContents().add(candidateUser);
+        }
+      }
+      if(userTask.getCandidateGroups() != null && userTask.getCandidateGroups().size() > 0) {
+        for (CandidateGroup candidateGroup : userTask.getCandidateGroups()) {
+          diagram.eResource().getContents().add(candidateGroup);
+        }
+      }
+    } else if(flowElement instanceof ServiceTask) {
+      ServiceTask serviceTask = (ServiceTask) flowElement;
+      if(serviceTask.getFieldExtensions() != null && serviceTask.getFieldExtensions().size() > 0) {
+        for (FieldExtension fieldExtension : serviceTask.getFieldExtensions()) {
+          diagram.eResource().getContents().add(fieldExtension);
+        }
+      }
+    }
+    
     AddContext addContext = new AddContext();
     addContext.setNewObject(flowElement);
     addContext.setTargetContainer(diagram);

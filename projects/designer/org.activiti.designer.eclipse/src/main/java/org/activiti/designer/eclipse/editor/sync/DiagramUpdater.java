@@ -20,18 +20,18 @@
 package org.activiti.designer.eclipse.editor.sync;
 
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.activiti.designer.eclipse.bpmn.BpmnParser;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
+import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.ScriptTask;
+import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.emf.ecore.EObject;
@@ -76,16 +76,7 @@ public class DiagramUpdater {
     if (bpmnFlowElements == null || bpmnFlowElements.size() == 0)
       return;
 
-    HashMap<EObject, FlowElement> modifyList = new HashMap<EObject, FlowElement>();
-
-    for (FlowElement bpmnFlowElement : bpmnFlowElements) {
-      EObject diagramFlowElement = lookupFlowElementInDiagram(bpmnFlowElement, diagram);
-      if (diagramFlowElement != null) {
-        modifyList.put(diagramFlowElement, bpmnFlowElement);
-      }
-    }
-
-    updateFlowElementsInDiagram(editingDomain, modifyList, featureProvider);
+    updateFlowElementsInDiagram(editingDomain, diagram, bpmnFlowElements, featureProvider);
   }
 
   private static List<FlowElement> readBpmn(TransactionalEditingDomain editingDomain, Diagram diagram, IStorage bpmnStorage) {
@@ -96,7 +87,7 @@ public class DiagramUpdater {
       InputStreamReader in = new InputStreamReader(bpmnStorage.getContents(), "UTF-8");
       XMLStreamReader xtr = xif.createXMLStreamReader(in);
 
-      bpmnParser.parseBpmn(xtr, diagram);
+      bpmnParser.parseBpmn(xtr);
 
       xtr.close();
       in.close();
@@ -107,14 +98,13 @@ public class DiagramUpdater {
     return bpmnParser.bpmnList;
   }
 
-  private static EObject lookupFlowElementInDiagram(FlowElement sourceElement, Diagram diagram) {
+  private static FlowElement lookupFlowElementInDiagram(FlowElement sourceElement, Diagram diagram) {
 
-    EObject modifyElement = null;
+    FlowElement modifyElement = null;
     for (EObject targetElement : diagram.eResource().getContents()) {
 
       if ((targetElement instanceof FlowElement) && flowIdIsEqual(sourceElement, (FlowElement) targetElement)) {
-        System.out.println("recognized " + sourceElement.getClass() + " with id: " + sourceElement.getId());
-        modifyElement = targetElement;
+        modifyElement = (FlowElement) targetElement;
         break;
       }
 
@@ -186,36 +176,51 @@ public class DiagramUpdater {
 
   private static boolean flowIdIsEqual(FlowElement f1, FlowElement f2) {
 
-    return (((FlowElement) f1).getId().equalsIgnoreCase(f2.getId())) ? true : false;
+    return f1.getId().equalsIgnoreCase(f2.getId());
   }
 
-  private static void updateFlowElementsInDiagram(TransactionalEditingDomain editingDomain, final HashMap<EObject, FlowElement> modifyList,
+  private static void updateFlowElementsInDiagram(TransactionalEditingDomain editingDomain,
+          final Diagram diagram,
+          final List<FlowElement> bpmnFlowElements,
           final IFeatureProvider featureProvider) {
-
-    System.out.println("start updating diagram models");
 
     ActivitiUiUtil.runModelChange(new Runnable() {
 
       public void run() {
 
-        Iterator<Map.Entry<EObject, FlowElement>> it = modifyList.entrySet().iterator();
-
-        while (it.hasNext()) {
-          Map.Entry<EObject, FlowElement> entry = it.next();
-
-          ((FlowElement) entry.getKey()).setName(entry.getValue().getName());
-
-          if (entry.getKey() instanceof UserTask) {
-            // ((UserTask) entry.getValue()).getCandidateGroups();
+        for (FlowElement bpmnFlowElement : bpmnFlowElements) {
+          FlowElement diagramFlowElement = lookupFlowElementInDiagram(bpmnFlowElement, diagram);
+          if (diagramFlowElement != null) {
+            
+            if (diagramFlowElement instanceof UserTask) {
+              // ((UserTask) entry.getValue()).getCandidateGroups();
+              
+            } else if (diagramFlowElement instanceof ScriptTask) {
+              
+              ScriptTask scriptTask = (ScriptTask) diagramFlowElement;
+              scriptTask.setScriptFormat(((ScriptTask) bpmnFlowElement).getScriptFormat());
+              scriptTask.setScript(((ScriptTask) bpmnFlowElement).getScript());
+            
+            } else if (diagramFlowElement instanceof ServiceTask) {
+              
+              ServiceTask serviceTask = (ServiceTask) diagramFlowElement;
+              serviceTask.setImplementationType(((ServiceTask) bpmnFlowElement).getImplementationType());
+              serviceTask.setImplementation(((ServiceTask) bpmnFlowElement).getImplementation());
+              if(((ServiceTask) bpmnFlowElement).getFieldExtensions() != null) {
+                Iterator<FieldExtension> itField = serviceTask.getFieldExtensions().iterator();
+                while(itField.hasNext()) {
+                  diagram.eResource().getContents().remove(itField.next());
+                  itField.remove();
+                }
+                for (FieldExtension fieldExtension : ((ServiceTask) bpmnFlowElement).getFieldExtensions()) {
+                  diagram.eResource().getContents().add(fieldExtension);
+                  serviceTask.getFieldExtensions().add(fieldExtension);
+                }
+              }
+            }
+            
+            updatePictogramContext(diagramFlowElement, featureProvider);
           }
-
-          if (entry.getKey() instanceof ScriptTask) {
-
-            ((ScriptTask) entry.getKey()).setScriptFormat(((ScriptTask) entry.getValue()).getScriptFormat());
-            ((ScriptTask) entry.getKey()).setScript(((ScriptTask) entry.getValue()).getScript());
-          }
-
-          updatePictogramContext((FlowElement) entry.getKey(), featureProvider);
         }
 
       }

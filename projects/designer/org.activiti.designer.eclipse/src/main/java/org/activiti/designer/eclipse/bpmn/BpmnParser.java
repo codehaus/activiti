@@ -35,7 +35,6 @@ import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.UserTask;
-import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 
 /**
@@ -50,7 +49,7 @@ public class BpmnParser {
   public List<SequenceFlowModel> sequenceFlowList = new ArrayList<SequenceFlowModel>();
   public Map<String, GraphicInfo> locationMap = new HashMap<String, GraphicInfo>();
   
-  public void parseBpmn(XMLStreamReader xtr, Diagram diagram) {
+  public void parseBpmn(XMLStreamReader xtr) {
     try {
       while(xtr.hasNext()) {
         xtr.next();
@@ -67,13 +66,13 @@ public class BpmnParser {
             
           } else if(xtr.isStartElement() && "userTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            UserTask userTask = parseUserTask(xtr, diagram);
+            UserTask userTask = parseUserTask(xtr);
             userTask.setId(elementid);
             bpmnList.add(userTask);
             
           } else if(xtr.isStartElement() && "serviceTask".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
-            ServiceTask serviceTask = parseServiceTask(xtr, diagram);
+            ServiceTask serviceTask = parseServiceTask(xtr);
             serviceTask.setId(elementid);
             bpmnList.add(serviceTask);
           
@@ -198,7 +197,7 @@ public class BpmnParser {
   }
 
   
-  private static UserTask parseUserTask(XMLStreamReader xtr, Diagram diagram) {
+  private static UserTask parseUserTask(XMLStreamReader xtr) {
     UserTask userTask = Bpmn2Factory.eINSTANCE.createUserTask();
     userTask.setName(xtr.getAttributeValue(null, "name"));
     
@@ -217,7 +216,6 @@ public class BpmnParser {
       for (String user : expressionList) {
         CandidateUser candidateUser = Bpmn2Factory.eINSTANCE.createCandidateUser();
         candidateUser.setUser(user);
-        diagram.eResource().getContents().add(candidateUser);
         userTask.getCandidateUsers().add(candidateUser);
       }
       
@@ -232,7 +230,6 @@ public class BpmnParser {
       for (String group : expressionList) {
         CandidateGroup candidateGroup = Bpmn2Factory.eINSTANCE.createCandidateGroup();
         candidateGroup.setGroup(group);
-        diagram.eResource().getContents().add(candidateGroup);
         userTask.getCandidateGroups().add(candidateGroup);
       }
       
@@ -244,7 +241,6 @@ public class BpmnParser {
           if(xtr.isStartElement() && "formalExpression".equalsIgnoreCase(xtr.getLocalName())) {
             CandidateGroup group = Bpmn2Factory.eINSTANCE.createCandidateGroup();
             group.setGroup(xtr.getElementText());
-            diagram.eResource().getContents().add(group);
             userTask.getCandidateGroups().add(group);
             readyWithUserTask = true;
           } else if(xtr.isEndElement() && "userTask".equalsIgnoreCase(xtr.getLocalName())) {
@@ -275,7 +271,7 @@ public class BpmnParser {
     return scriptTask;
   }
   
-  private ServiceTask parseServiceTask(XMLStreamReader xtr, Diagram diagram) {
+  private ServiceTask parseServiceTask(XMLStreamReader xtr) {
     ServiceTask serviceTask = Bpmn2Factory.eINSTANCE.createServiceTask();
     serviceTask.setName(xtr.getAttributeValue(null, "name"));
     if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "class") != null) {
@@ -291,7 +287,6 @@ public class BpmnParser {
         xtr.next();
         if(xtr.isStartElement() && "field".equalsIgnoreCase(xtr.getLocalName())) {
           FieldExtension extension = parseFieldExtension(xtr);
-          diagram.eResource().getContents().add(extension);
           serviceTask.getFieldExtensions().add(extension);
           
         } else if(xtr.isEndElement() && "serviceTask".equalsIgnoreCase(xtr.getLocalName())) {
