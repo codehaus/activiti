@@ -1,45 +1,44 @@
 package org.activiti.designer.popupmenus;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
-import org.activiti.designer.eclipse.common.ActivitiPlugin;
-import org.activiti.designer.eclipse.ui.ExportMarshallerRunnable;
-import org.activiti.designer.util.OSEnum;
-import org.activiti.designer.util.OSUtil;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
-import org.eclipse.emf.transaction.util.TransactionUtil;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.progress.IProgressService;
 
 public class DeploymentMenu implements org.eclipse.ui.IObjectActionDelegate{
 
+  private static final String RESOURCES_DIR = "src/main/resources";
 	ISelection fSelection;
+	List<IFile> memberList;
 
 	@Override
 	public void run(IAction action) {
 		Object selection = ( (IStructuredSelection) fSelection).getFirstElement();
-		IJavaProject javaProject = (IJavaProject) selection;
+		final IJavaProject javaProject = (IJavaProject) selection;
 		IFolder diagramFolder = null;
 		try {
 		  diagramFolder = javaProject.getProject().getFolder(ActivitiBPMNDiagramConstants.DIAGRAM_FOLDER);
@@ -49,69 +48,150 @@ public class DeploymentMenu implements org.eclipse.ui.IObjectActionDelegate{
 		} catch(Throwable e) {
 		  return;
 		}
-		
-		FileDialog fd = new FileDialog(Display.getCurrent().getActiveShell(), SWT.OPEN);
-    fd.setText("Choose BPMN 2.0 XML file to import");
-    if(OSUtil.getOperatingSystem() == OSEnum.Windows) {
-      fd.setFilterPath("C:/");
-    } else {
-      fd.setFilterPath("/");
-    }
-    String[] filterExt = { "*.xml"};
-    fd.setFilterExtensions(filterExt);
-    String bpmnFile = fd.open();
-    
-    String processName = bpmnFile.substring(bpmnFile.lastIndexOf(File.separator) + 1);
-    processName = processName.replace(".xml", "");
-    processName = processName.replace(".bpmn20", "");
-
-    // Get the default resource set to hold the new resource
-    ResourceSet resourceSet = new ResourceSetImpl();
-    TransactionalEditingDomain editingDomain = TransactionUtil.getEditingDomain(resourceSet);
-    if (editingDomain == null) {
-      // Not yet existing, create one
-      editingDomain = TransactionalEditingDomain.Factory.INSTANCE.createEditingDomain(resourceSet);
-    }
-
-    // Create the data within a command and save (must not happen inside
-    // the command since finishing the command will trigger setting the 
-    // modification flag on the resource which will be used by the save
-    // operation to determine which resources need to be saved)
-    ImportBpmnElementsCommand operation = new ImportBpmnElementsCommand(javaProject.getProject(), 
-            editingDomain, processName, bpmnFile);
-    editingDomain.getCommandStack().execute(operation);
+		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
     try {
-      operation.getCreatedResource().save(null);
-    } catch (IOException e) {
-      IStatus status = new Status(IStatus.ERROR, ActivitiPlugin.getID(), e.getMessage(), e); //$NON-NLS-1$
-      ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Error Occured", e.getMessage(), status);
-    }
+      progressService.busyCursorWhile(new IRunnableWithProgress() {
 
-    // Dispose the editing domain to eliminate memory leak
-    editingDomain.dispose();
-    
-    IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
-
-    ExportMarshallerRunnable runnable = new ExportMarshallerRunnable(operation.getDiagram(), 
-            ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME);
-    try {
-      progressService.busyCursorWhile(runnable);
-    } catch (Exception e) {
+        @Override
+        public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+          
+          try {
+            IProject project = javaProject.getProject();
+            
+        		// Create folder structures
+            IFolder rootFolder = project.getFolder("deployment");
+            if (rootFolder.exists()) {
+              rootFolder.delete(true, new NullProgressMonitor());
+            }
+        
+            rootFolder.create(true, true, new NullProgressMonitor());
+            
+            IFolder tempbarFolder = project.getFolder("tempbar");
+            if (tempbarFolder.exists()) {
+              tempbarFolder.delete(true, new NullProgressMonitor());
+            }
+        
+            tempbarFolder.create(true, true, new NullProgressMonitor());
+            
+            IFolder tempclassesFolder = project.getFolder("tempclasses");
+            if (tempclassesFolder.exists()) {
+              tempclassesFolder.delete(true, new NullProgressMonitor());
+            }
+        
+            tempclassesFolder.create(true, true, new NullProgressMonitor());
+        
+            // processdefinition
+            String processName = "";
+            IFolder resourceFolder = project.getFolder(RESOURCES_DIR);
+            memberList = new ArrayList<IFile>();
+            getMembersWithFilter(resourceFolder, ".bpmn20.xml");
+            if(memberList.size() > 0) {
+              for (IFile bpmnResource : memberList) {
+                String bpmnFilename = bpmnResource.getName();
+                if(processName.length() == 0)
+                  processName = bpmnFilename.substring(0, bpmnFilename.indexOf("."));
+                bpmnResource.copy(tempbarFolder.getFile(bpmnFilename).getFullPath(), true, new NullProgressMonitor());
+              }
+          
+              // task forms
+              memberList = new ArrayList<IFile>();
+              getMembersWithFilter(resourceFolder, ".form");
+              for (IFile formResource : memberList) {
+                String formFilename = formResource.getName();
+                IPath packagePath = formResource.getFullPath().removeFirstSegments(4).removeLastSegments(1);
+                IFolder newPackageFolder = tempbarFolder.getFolder(packagePath);
+                createFolderStructure(newPackageFolder);
+                formResource.copy(newPackageFolder.getFile(formFilename).getFullPath(), true, new NullProgressMonitor());
+              }
+          
+              compressPackage(rootFolder, tempbarFolder, processName + ".bar");
+              
+              IFolder classesFolder = project.getFolder("target/classes");
+              memberList = new ArrayList<IFile>();
+              getMembersWithFilter(classesFolder, ".class");
+              if(memberList.size() > 0) {
+                for (IFile classResource : memberList) {
+                  String classFilename = classResource.getName();
+                  IPath packagePath = classResource.getFullPath().removeFirstSegments(3).removeLastSegments(1);
+                  IFolder newPackageFolder = tempclassesFolder.getFolder(packagePath);
+                  createFolderStructure(newPackageFolder);
+                  classResource.copy(newPackageFolder.getFile(classFilename).getFullPath(), true, new NullProgressMonitor());
+                }
+                compressPackage(rootFolder, tempclassesFolder, processName + ".jar");
+              }
+          
+              // refresh the output folder to reflect changes
+              rootFolder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            }
+            
+          } catch(Exception e) {
+            e.printStackTrace();
+          }
+        }
+      });
+    } catch(Exception e) {
       e.printStackTrace();
     }
-
-    // Open the editor
-    String platformString = operation.getCreatedResource().getURI().toPlatformString(true);
-    IFile file = javaProject.getProject().getParent().getFile(new Path(platformString));
-    IFileEditorInput input = new FileEditorInput(file);
-    
+  }
+	
+	private void createFolderStructure(IFolder newFolder) throws Exception {
+	  if(newFolder.exists()) return;
+	  
+	  if(newFolder.getParent().exists() == false) {
+	    createFolderStructure((IFolder) newFolder.getParent());
+	  }
+	  newFolder.create(true, true, new NullProgressMonitor());
+	}
+	
+	private void getMembersWithFilter(IFolder folder, String extension) {
+	  try {
+  	  for (IResource resource : folder.members()) {
+        if (resource instanceof IFile) {
+          if(resource.getName().contains(extension)) {
+            memberList.add((IFile) resource);
+          }
+        } else if(resource instanceof IFolder) {
+          getMembersWithFilter((IFolder) resource, extension);
+        }
+      }
+	  } catch(Exception e) {
+	    e.printStackTrace();
+	  }
+	}
+	
+	private void compressPackage(final IFolder destination, final IFolder folderToPackage, final String fileName) throws Exception {
+    final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+    File base = folderToPackage.getLocation().toFile();
+    final IFile archiveFile = workspace.getRoot().getFile(
+            destination.getFile(fileName).getFullPath());
+    final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(archiveFile.getLocation().toFile()));
+    final String absoluteDirPathToStrip = folderToPackage.getLocation().toFile().getAbsolutePath();
     try {
-      PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(input, ActivitiBPMNDiagramConstants.DIAGRAM_EDITOR_ID);
-    } catch (PartInitException e) {
-      String error = "Error while opening diagram editor";
-      IStatus status = new Status(IStatus.ERROR, ActivitiPlugin.getID(), error, e);
-      ErrorDialog.openError(Display.getCurrent().getActiveShell(), "An error occured", null, status);
-      return;
+      zipDirectory(out, base, absoluteDirPathToStrip);
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
+  }
+	
+	private void zipDirectory(final ZipOutputStream out, final File base, final String absoluteDirPathToStrip) throws Exception {
+    File[] reportFiles = base.listFiles();
+    for (final File file : reportFiles) {
+      if (file.isDirectory()) {
+        zipDirectory(out, file, absoluteDirPathToStrip);
+        continue;
+      }
+      final String entryName = StringUtils.removeStart(file.getAbsolutePath(), absoluteDirPathToStrip);
+      ZipEntry entry = new ZipEntry(entryName);
+      out.putNextEntry(entry);
+      if (file.isFile()) {
+        FileInputStream fin = new FileInputStream(file);
+        byte[] fileContent = new byte[(int)file.length()];
+        fin.read(fileContent);
+        out.write(fileContent);
+      }
+      out.closeEntry();
     }
   }
 

@@ -254,6 +254,18 @@
             menubarPath="Properties">
       </action>
    </objectContribution>
+   <objectContribution
+         adaptable="false"
+         id="org.activiti.designer.gui.deployment"
+         objectClass="org.eclipse.jdt.core.IJavaProject">
+      <action
+            class="org.activiti.designer.popupmenus.DeploymentMenu"
+            icon="icons/type.send.png"
+            id="org.activiti.designer.gui.deploymentAction"
+            label="Create deployment artifacts"
+            menubarPath="Properties">
+      </action>
+   </objectContribution>
 </extension>
 
 </plugin>
