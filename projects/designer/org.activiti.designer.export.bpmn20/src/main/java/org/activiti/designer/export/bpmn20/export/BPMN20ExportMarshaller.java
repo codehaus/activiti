@@ -384,9 +384,13 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         xtw.writeAttribute("name", serviceTask.getName());
       }
       
-      createExecutionListenerXML(xtw, serviceTask.getActivitiListeners(), true, EXECUTION_LISTENER);
-
       writeImplementationValue(xtw, serviceTask.getImplementationType(), serviceTask.getImplementation(), true);
+      
+      if(serviceTask.getResultVariableName() != null && serviceTask.getResultVariableName().length() > 0) {
+        xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName", serviceTask.getResultVariableName());
+      }
+      
+      createExecutionListenerXML(xtw, serviceTask.getActivitiListeners(), true, EXECUTION_LISTENER);
       writeFieldExtensions(xtw, serviceTask.getFieldExtensions(), true);
 
       if (serviceTask.getCustomProperties() != null && serviceTask.getCustomProperties().size() > 0) {

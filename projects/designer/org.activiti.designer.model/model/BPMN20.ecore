@@ -4177,6 +4177,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="implementationType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="fieldExtensions" upperBound="-1"
         eType="#//FieldExtension"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="resultVariableName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Signal" eSuperTypes="#//RootElement">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

@@ -27,10 +27,15 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.activiti.designer.eclipse.bpmn.BpmnParser;
+import org.activiti.designer.eclipse.bpmn.SequenceFlowModel;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
+import org.eclipse.bpmn2.BaseElement;
+import org.eclipse.bpmn2.CandidateGroup;
+import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.ScriptTask;
+import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.core.resources.IStorage;
@@ -71,15 +76,24 @@ public class DiagramUpdater {
             "org.activiti.designer.diagram.ActivitiBPMNDiagramTypeProvider"); //$NON-NLS-1$
     IFeatureProvider featureProvider = dtp.getFeatureProvider();
 
-    List<FlowElement> bpmnFlowElements = readBpmn(editingDomain, diagram, bpmnStorage);
+    BpmnParser bpmnParser = readBpmn(editingDomain, diagram, bpmnStorage);
+    
+    if (bpmnParser.process != null) {
+      updateProcessInDiagram(editingDomain, diagram, bpmnParser.process, featureProvider);
+    }
 
-    if (bpmnFlowElements == null || bpmnFlowElements.size() == 0)
+    if (bpmnParser.bpmnList == null || bpmnParser.bpmnList.size() == 0)
       return;
 
-    updateFlowElementsInDiagram(editingDomain, diagram, bpmnFlowElements, featureProvider);
+    updateFlowElementsInDiagram(editingDomain, diagram, bpmnParser.bpmnList, featureProvider);
+    
+    if (bpmnParser.sequenceFlowList == null || bpmnParser.sequenceFlowList.size() == 0)
+      return;
+    
+    updateSequenceFlowsInDiagram(editingDomain, diagram, bpmnParser.sequenceFlowList, featureProvider);
   }
 
-  private static List<FlowElement> readBpmn(TransactionalEditingDomain editingDomain, Diagram diagram, IStorage bpmnStorage) {
+  private static BpmnParser readBpmn(TransactionalEditingDomain editingDomain, Diagram diagram, IStorage bpmnStorage) {
 
     BpmnParser bpmnParser = new BpmnParser();
     try {
@@ -95,7 +109,7 @@ public class DiagramUpdater {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return bpmnParser.bpmnList;
+    return bpmnParser;
   }
 
   private static FlowElement lookupFlowElementInDiagram(FlowElement sourceElement, Diagram diagram) {
@@ -107,69 +121,6 @@ public class DiagramUpdater {
         modifyElement = (FlowElement) targetElement;
         break;
       }
-
-      /*
-       * if (sourceElement instanceof StartEvent && targetElement instanceof
-       * StartEvent) { System.out.println("found StartEvent");
-       * 
-       * if (flowIdIsEqual(sourceElement, (StartEvent) targetElement)) {
-       * System.out.println("recognized StartEvent with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; }
-       * 
-       * } else if (sourceElement instanceof EndEvent && targetElement
-       * instanceof EndEvent) { System.out.println("found EndEvent");
-       * 
-       * if (flowIdIsEqual(sourceElement, (EndEvent) targetElement)) {
-       * System.out.println("recognized EndEvent with id: " +
-       * sourceElement.getId()); if
-       * (FlowElementUtil.elementsNeedUpdate(sourceElement, (EndEvent)
-       * targetElement, FlowElementUtil.StringField.NAME)) // if
-       * (elementsNeedUpdate(sourceElement, (EndEvent) targetElement, //
-       * "name")) { // modifyElement = targetElement; // } break; } } else if
-       * (sourceElement instanceof ExclusiveGateway && targetElement instanceof
-       * ExclusiveGateway) { System.out.println("found ExclusiveGateway");
-       * 
-       * if (flowIdIsEqual(sourceElement, (ExclusiveGateway) targetElement)) {
-       * System.out.println("recognized ExclusiveGateway with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } } else
-       * if (sourceElement instanceof ParallelGateway && targetElement
-       * instanceof ParallelGateway) {
-       * System.out.println("found ParallelGateway");
-       * 
-       * if (flowIdIsEqual(sourceElement, (ParallelGateway) targetElement)) {
-       * System.out.println("recognized ParallelGateway with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } } else
-       * if (sourceElement instanceof UserTask && targetElement instanceof
-       * UserTask) { System.out.println("found UserTask");
-       * 
-       * if (flowIdIsEqual(sourceElement, (UserTask) targetElement)) {
-       * System.out.println("recognized UserTask with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } } else
-       * if (sourceElement instanceof ScriptTask && targetElement instanceof
-       * ScriptTask) { System.out.println("found ScriptTask");
-       * 
-       * if (flowIdIsEqual(sourceElement, (ScriptTask) targetElement)) {
-       * System.out.println("recognized ScriptTask with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } } else
-       * if (sourceElement instanceof ServiceTask && targetElement instanceof
-       * ServiceTask) { System.out.println("found ServiceTask");
-       * 
-       * if (flowIdIsEqual(sourceElement, (ServiceTask) targetElement)) {
-       * System.out.println("recognized ServiceTask with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } } else
-       * if (sourceElement instanceof ManualTask && targetElement instanceof
-       * ManualTask) { System.out.println("found ManualTask");
-       * 
-       * if (flowIdIsEqual(sourceElement, (ManualTask) targetElement)) {
-       * System.out.println("recognized ManualTask with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } } else
-       * if (sourceElement instanceof ReceiveTask && targetElement instanceof
-       * ReceiveTask) { System.out.println("found ReceiveTask");
-       * 
-       * if (flowIdIsEqual(sourceElement, (ReceiveTask) targetElement)) {
-       * System.out.println("recognized ReceiveTask with id: " +
-       * sourceElement.getId()); modifyElement = targetElement; break; } }
-       */
     }
     return modifyElement;
   }
@@ -177,6 +128,37 @@ public class DiagramUpdater {
   private static boolean flowIdIsEqual(FlowElement f1, FlowElement f2) {
 
     return f1.getId().equalsIgnoreCase(f2.getId());
+  }
+  
+  private static SequenceFlow lookupSequenceFlowInDiagram(SequenceFlowModel sequenceModel, Diagram diagram) {
+
+    SequenceFlow modifyElement = null;
+    for (EObject targetElement : diagram.eResource().getContents()) {
+
+      if ((targetElement instanceof SequenceFlow)) {
+        SequenceFlow sequenceFlow = (SequenceFlow) targetElement;
+        if (sequenceModel.sourceRef.equals(sequenceFlow.getSourceRef().getId()) && 
+                sequenceModel.targetRef.equals(sequenceFlow.getTargetRef().getId())) {
+          
+          modifyElement = sequenceFlow;
+          break;
+        }
+      }
+    }
+    return modifyElement;
+  }
+  
+  private static org.eclipse.bpmn2.Process lookupProcessInDiagram(Diagram diagram) {
+
+    org.eclipse.bpmn2.Process process = null;
+    for (EObject targetElement : diagram.eResource().getContents()) {
+
+      if ((targetElement instanceof org.eclipse.bpmn2.Process)) {
+        process = (org.eclipse.bpmn2.Process) targetElement;
+        break;
+      }
+    }
+    return process;
   }
 
   private static void updateFlowElementsInDiagram(TransactionalEditingDomain editingDomain,
@@ -192,8 +174,41 @@ public class DiagramUpdater {
           FlowElement diagramFlowElement = lookupFlowElementInDiagram(bpmnFlowElement, diagram);
           if (diagramFlowElement != null) {
             
+            diagramFlowElement.setName(bpmnFlowElement.getName());
+            
             if (diagramFlowElement instanceof UserTask) {
-              // ((UserTask) entry.getValue()).getCandidateGroups();
+              
+              UserTask userTask = (UserTask) diagramFlowElement;
+              userTask.setAssignee(((UserTask) bpmnFlowElement).getAssignee());
+              
+              if(((UserTask) bpmnFlowElement).getCandidateGroups() != null) {
+                Iterator<CandidateGroup> itCandidate = userTask.getCandidateGroups().iterator();
+                while(itCandidate.hasNext()) {
+                  diagram.eResource().getContents().remove(itCandidate.next());
+                }
+                userTask.getCandidateGroups().clear();
+                for (CandidateGroup candidateGroup : ((UserTask) bpmnFlowElement).getCandidateGroups()) {
+                  diagram.eResource().getContents().add(candidateGroup);
+                  userTask.getCandidateGroups().add(candidateGroup);
+                }
+              }
+              
+              if(((UserTask) bpmnFlowElement).getCandidateUsers() != null) {
+                Iterator<CandidateUser> itCandidate = userTask.getCandidateUsers().iterator();
+                while(itCandidate.hasNext()) {
+                  diagram.eResource().getContents().remove(itCandidate.next());
+                }
+                userTask.getCandidateUsers().clear();
+                for (CandidateUser candidateUser : ((UserTask) bpmnFlowElement).getCandidateUsers()) {
+                  diagram.eResource().getContents().add(candidateUser);
+                  userTask.getCandidateUsers().add(candidateUser);
+                }
+              }
+              
+              if(((UserTask) bpmnFlowElement).getActivitiListeners() != null) {
+                userTask.getActivitiListeners().clear();
+                userTask.getActivitiListeners().addAll(((UserTask) bpmnFlowElement).getActivitiListeners());
+              }
               
             } else if (diagramFlowElement instanceof ScriptTask) {
               
@@ -206,16 +221,22 @@ public class DiagramUpdater {
               ServiceTask serviceTask = (ServiceTask) diagramFlowElement;
               serviceTask.setImplementationType(((ServiceTask) bpmnFlowElement).getImplementationType());
               serviceTask.setImplementation(((ServiceTask) bpmnFlowElement).getImplementation());
+              serviceTask.setResultVariableName(((ServiceTask) bpmnFlowElement).getResultVariableName());
               if(((ServiceTask) bpmnFlowElement).getFieldExtensions() != null) {
                 Iterator<FieldExtension> itField = serviceTask.getFieldExtensions().iterator();
                 while(itField.hasNext()) {
                   diagram.eResource().getContents().remove(itField.next());
-                  itField.remove();
                 }
+                serviceTask.getFieldExtensions().clear();
                 for (FieldExtension fieldExtension : ((ServiceTask) bpmnFlowElement).getFieldExtensions()) {
                   diagram.eResource().getContents().add(fieldExtension);
                   serviceTask.getFieldExtensions().add(fieldExtension);
                 }
+              }
+              
+              if(((ServiceTask) bpmnFlowElement).getActivitiListeners() != null) {
+                serviceTask.getActivitiListeners().clear();
+                serviceTask.getActivitiListeners().addAll(((ServiceTask) bpmnFlowElement).getActivitiListeners());
               }
             }
             
@@ -226,8 +247,56 @@ public class DiagramUpdater {
       }
     }, editingDomain, "Diagram Models Update");
   }
+  
+  private static void updateSequenceFlowsInDiagram(TransactionalEditingDomain editingDomain,
+          final Diagram diagram,
+          final List<SequenceFlowModel> sequenceFlowElements,
+          final IFeatureProvider featureProvider) {
 
-  private static void updatePictogramContext(FlowElement source, IFeatureProvider featureProvider) {
+    ActivitiUiUtil.runModelChange(new Runnable() {
+
+      public void run() {
+
+        for (SequenceFlowModel sequenceFlowModel : sequenceFlowElements) {
+          SequenceFlow diagramFlowElement = lookupSequenceFlowInDiagram(sequenceFlowModel, diagram);
+          if (diagramFlowElement != null) {
+            
+            if(sequenceFlowModel.conditionExpression != null) {
+              diagramFlowElement.setConditionExpression(sequenceFlowModel.conditionExpression);
+            }
+            if(sequenceFlowModel.listenerList != null) {
+              diagramFlowElement.getExecutionListeners().clear();
+              diagramFlowElement.getExecutionListeners().addAll(sequenceFlowModel.listenerList);
+            }
+          }
+        }
+
+      }
+    }, editingDomain, "Diagram Models Update");
+  }
+  
+  private static void updateProcessInDiagram(TransactionalEditingDomain editingDomain,
+          final Diagram diagram,
+          final org.eclipse.bpmn2.Process process,
+          final IFeatureProvider featureProvider) {
+
+    ActivitiUiUtil.runModelChange(new Runnable() {
+
+      public void run() {
+
+        org.eclipse.bpmn2.Process diagramElement = lookupProcessInDiagram(diagram);
+        if (diagramElement != null) {
+          
+          if(process.getExecutionListeners() != null) {
+            diagramElement.getExecutionListeners().clear();
+            diagramElement.getExecutionListeners().addAll(process.getExecutionListeners());
+          }
+        }
+      }
+    }, editingDomain, "Diagram Models Update");
+  }
+
+  private static void updatePictogramContext(BaseElement source, IFeatureProvider featureProvider) {
 
     PictogramElement pictoElem = featureProvider.getPictogramElementForBusinessObject(source);
     UpdateContext context = new UpdateContext(pictoElem);
@@ -235,7 +304,6 @@ public class DiagramUpdater {
     if (feature.canUpdate(context)) {
       IReason reason = feature.updateNeeded(context);
       if (reason.toBoolean()) {
-        System.out.println("Updating picto element for " + source.getId() + " because " + reason.getText());
         feature.update(context);
       }
     }

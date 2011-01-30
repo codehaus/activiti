@@ -316,6 +316,11 @@ public class BpmnParser {
       serviceTask.setImplementationType(EXPRESSION_TYPE);
       serviceTask.setImplementation(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "expression"));
     }
+    
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName") != null) {
+      serviceTask.setResultVariableName(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName"));
+    }
+    
     boolean readyWithServiceTask = false;
     try {
       while(readyWithServiceTask == false && xtr.hasNext()) {

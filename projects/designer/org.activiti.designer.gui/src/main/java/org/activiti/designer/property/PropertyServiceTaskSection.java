@@ -46,6 +46,7 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 	private CLabel classSelectLabel;
 	private Text expressionText;
 	private CLabel expressionLabel;
+	private Text resultVariableText;
 	private FieldExtensionEditor fieldEditor;
 
 	@Override
@@ -191,11 +192,26 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 		expressionLabel.setVisible(false);
 		expressionLabel.setLayoutData(data);
 		
+		resultVariableText = factory.createText(composite, ""); //$NON-NLS-1$
+    data = new FormData();
+    data.left = new FormAttachment(0, 120);
+    data.right = new FormAttachment(100, 0);
+    data.top = new FormAttachment(expressionText, VSPACE);
+    resultVariableText.setLayoutData(data);
+    resultVariableText.addFocusListener(listener);
+    
+    CLabel resultVariableLabel = factory.createCLabel(composite, "Result variable:"); //$NON-NLS-1$
+    data = new FormData();
+    data.left = new FormAttachment(0, 0);
+    data.right = new FormAttachment(resultVariableText, -HSPACE);
+    data.top = new FormAttachment(resultVariableText, 0, SWT.TOP);
+    resultVariableLabel.setLayoutData(data);
+		
 		Composite extensionsComposite = factory.createComposite(composite, SWT.WRAP);
 		data = new FormData();
 		data.left = new FormAttachment(0, 120);
 		data.right = new FormAttachment(100, 0);
-		data.top = new FormAttachment(expressionText, VSPACE);
+		data.top = new FormAttachment(resultVariableText, VSPACE);
 		extensionsComposite.setLayoutData(data);
 		GridLayout layout = new GridLayout();
 		layout.marginTop = 0;
@@ -218,6 +234,7 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
 			expressionText.removeFocusListener(listener);
+			resultVariableText.removeFocusListener(listener);
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
 			if (bo == null)
 				return;
@@ -235,11 +252,16 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 				expressionText.setText(implementationName == null ? "" : implementationName);
 			}
 			
+			if(serviceTask.getResultVariableName() != null) {
+			  resultVariableText.setText(serviceTask.getResultVariableName());
+			}
+			
 			fieldEditor.pictogramElement = pe;
 			fieldEditor.diagramEditor = getDiagramEditor();
 			fieldEditor.diagram = getDiagram();
 			fieldEditor.initialize(serviceTask.getFieldExtensions());
 			expressionText.addFocusListener(listener);
+			resultVariableText.addFocusListener(listener);
 		}
 	}
 	
@@ -300,6 +322,9 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 							ServiceTask serviceTask = (ServiceTask)  bo;
 							if (expressionText.isVisible() && expressionText.getText() != null) {
 								serviceTask.setImplementation(expressionText.getText());
+							}
+							if (resultVariableText.getText() != null) {
+							  serviceTask.setResultVariableName(resultVariableText.getText());
 							}
 						}
 					}, editingDomain, "Model Update");
