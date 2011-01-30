@@ -25,7 +25,7 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 public class PropertyScriptTaskSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
 	private CCombo scriptFormatCombo;
-	private List<String> scriptFormats = Arrays.asList("JavaScript", "JRuby", "Jython", "Groovy", "Clojure", "Jaskell");
+	private List<String> scriptFormats = Arrays.asList("javascript", "groovy");
 	private Text scriptText;
 
 	@Override

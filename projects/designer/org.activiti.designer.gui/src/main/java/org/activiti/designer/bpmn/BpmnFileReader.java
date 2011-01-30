@@ -16,6 +16,7 @@ package org.activiti.designer.bpmn;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +32,12 @@ import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.Documentation;
 import org.eclipse.bpmn2.EndEvent;
+import org.eclipse.bpmn2.Event;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.FlowNode;
+import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ParallelGateway;
 import org.eclipse.bpmn2.ReceiveTask;
@@ -57,12 +60,15 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 public class BpmnFileReader {
   
   private static final int START_X = 30;
-  private static final int START_Y = 100;
+  private static final int START_Y = 200;
   private static final int EVENT_WIDTH = 55;
   private static final int EVENT_HEIGHT = 55;
   private static final int TASK_WIDTH = 105;
-  private static final int TASK_HEIGHT = 105;
+  private static final int TASK_HEIGHT = 55;
+  private static final int GATEWAY_WIDTH = 60;
+  private static final int GATEWAY_HEIGHT = 60;
   private static final int SEQUENCEFLOW_WIDTH = 60;
+  private static final int GATEWAY_CHILD_HEIGHT = 100;
 
   public static void readBpmn(String filename, Diagram diagram, IFeatureProvider featureProvider) {
     File bpmnFile = new File(filename);
@@ -89,32 +95,23 @@ public class BpmnFileReader {
       documentation.setId("documentation_process");
       documentation.setText("");
       process.getDocumentation().add(documentation);
+      if(bpmnParser.process != null && bpmnParser.process.getExecutionListeners().size() > 0) {
+        process.getExecutionListeners().addAll(bpmnParser.process.getExecutionListeners());
+      }
       diagram.eResource().getContents().add(process);
       
       if(bpmnParser.bpmdiInfoFound == true) {
         drawDiagramWithBPMNDI(diagram, featureProvider, bpmnParser.bpmnList, bpmnParser.sequenceFlowList,
                 bpmnParser.locationMap);
       } else {
-        int currentX = START_X;
+       
+        Map<String, GraphicInfo> yMap = new HashMap<String, GraphicInfo>();
         for (FlowElement flowElement : bpmnParser.bpmnList) {
-          GraphicInfo graphicInfo = new GraphicInfo();
-          if(flowElement instanceof StartEvent) {
-            graphicInfo.height = EVENT_HEIGHT;
-            graphicInfo.x = currentX;
-            graphicInfo.y = START_Y;
-            currentX += EVENT_WIDTH + SEQUENCEFLOW_WIDTH;
-            
-          } else if(flowElement instanceof Task) {
-            graphicInfo.height = TASK_HEIGHT;
-            graphicInfo.x = currentX;
-            graphicInfo.y = START_Y;
-            currentX += TASK_WIDTH + SEQUENCEFLOW_WIDTH;
-            
-          } else if(flowElement instanceof EndEvent) {
-            graphicInfo.height = EVENT_HEIGHT;
-            graphicInfo.x = currentX;
-            graphicInfo.y = START_Y;
-          }
+          
+          FlowElement sourceElement = sourceRef(flowElement.getId(), bpmnParser);
+          GraphicInfo graphicInfo = getNextGraphicInfo(sourceElement, flowElement, yMap, bpmnParser);
+        
+          yMap.put(flowElement.getId(), graphicInfo);
           addBpmnElementToDiagram(flowElement, graphicInfo, diagram, featureProvider);
         }
         drawSequenceFlows(diagram, featureProvider, bpmnParser.bpmnList, 
@@ -128,6 +125,155 @@ public class BpmnFileReader {
     } catch(Exception e) {
       e.printStackTrace();
     }
+  }
+  
+  private static GraphicInfo getNextGraphicInfo(FlowElement sourceFlowElement, FlowElement newFlowElement,
+          Map<String, GraphicInfo> yMap, BpmnParser parser) {
+    
+    GraphicInfo graphicInfo = new GraphicInfo();
+    GraphicInfo sourceInfo = null;
+    if(sourceFlowElement != null) {
+      if(yMap.containsKey(sourceFlowElement.getId())) {
+        sourceInfo = yMap.get(sourceFlowElement.getId());
+      }
+    }
+    
+    int x = 0;
+    int y = 0;
+    if(sourceInfo != null) {
+      x = sourceInfo.x;
+      y = sourceInfo.y;
+      
+      if(sourceFlowElement instanceof Event) {
+        x += EVENT_WIDTH;
+      } else if(sourceFlowElement instanceof Gateway) {
+        x += GATEWAY_WIDTH;
+        y = calculateDirectGatewayChildY(sourceFlowElement.getId(), newFlowElement.getId(), sourceInfo.y, parser.sequenceFlowList);
+      } else {
+        x += TASK_WIDTH;
+      }
+      x += SEQUENCEFLOW_WIDTH;
+      
+      if(newFlowElement instanceof Gateway) {
+        if(isEndGateway(newFlowElement.getId(), parser.sequenceFlowList)) {
+          y = START_Y;
+          x = getMaxX(newFlowElement.getId(), yMap, parser);
+        }
+      }
+      
+    } else {
+      x = START_X;
+      y = START_Y;
+    }
+    
+    graphicInfo.x = x;
+    graphicInfo.y = y;
+    
+    if(newFlowElement instanceof Event) {
+      graphicInfo.height = EVENT_HEIGHT;
+    } else if(newFlowElement instanceof Gateway) {
+      graphicInfo.height = GATEWAY_HEIGHT;
+      graphicInfo.y -= 3;
+    } else {
+      graphicInfo.height = TASK_HEIGHT;
+    }
+    
+    return graphicInfo;
+  }
+  
+  private static FlowElement sourceRef(String id, BpmnParser parser) {
+    FlowElement sourceRef = null;
+    String sourceRefString = null;
+    for (SequenceFlowModel sequenceFlowModel : parser.sequenceFlowList) {
+      if(sequenceFlowModel.targetRef.equals(id)) {
+        sourceRefString = sequenceFlowModel.sourceRef;
+      }
+    }
+    if(sourceRefString != null) {
+      for (FlowElement flowElement : parser.bpmnList) {
+        if(flowElement.getId().equals(sourceRefString)) {
+          sourceRef = flowElement;
+        }
+      }
+    }
+    return sourceRef;
+  }
+  
+  private static int getMaxX(String id, Map<String, GraphicInfo> yMap, BpmnParser parser) {
+    int maxX = 0;
+    String sourceRef = null;
+    for (SequenceFlowModel sequenceFlowModel : parser.sequenceFlowList) {
+      if(sequenceFlowModel.targetRef.equals(id)) {
+        if(yMap.containsKey(sequenceFlowModel.sourceRef)) {
+          int sourceX = yMap.get(sequenceFlowModel.sourceRef).x;
+          if(sourceX > maxX) {
+            maxX = sourceX;
+            sourceRef = sequenceFlowModel.sourceRef;
+          }
+        }
+      }
+    }
+    if(sourceRef != null) {
+      for (FlowElement flowElement : parser.bpmnList) {
+        if(flowElement.getId().equals(sourceRef)) {
+          if(flowElement instanceof Event) {
+            maxX += EVENT_WIDTH;
+          } else if(flowElement instanceof Gateway) {
+            maxX += GATEWAY_WIDTH;
+          } else if(flowElement instanceof Task) {
+            maxX += TASK_WIDTH;
+          }
+        }
+      }
+    }
+    maxX += SEQUENCEFLOW_WIDTH;
+    return maxX;
+  }
+  
+  private static int calculateDirectGatewayChildY(String gatewayid, String id, int gatewayY, List<SequenceFlowModel> sequenceFlowList) {
+    int y = 0;
+    int counter = 0;
+    int index = 0;
+    for (SequenceFlowModel sequenceFlowModel : sequenceFlowList) {
+      if(sequenceFlowModel.sourceRef.equals(gatewayid)) {
+        counter++;
+      }
+      if(sequenceFlowModel.targetRef.equals(id)) {
+        index = counter;
+      }
+    }
+    
+    if(counter % 2 == 0) {
+      if(index > (counter / 2)) {
+        y = gatewayY + ((index - (counter / 2)) * GATEWAY_CHILD_HEIGHT);
+      } else {
+        y = gatewayY - (((counter / 2) - index + 1) * GATEWAY_CHILD_HEIGHT);
+      }
+    } else {
+      int middle = ((counter - 1) / 2) + 1;
+      if(index > middle) {
+        y = gatewayY + ((index - middle) * GATEWAY_CHILD_HEIGHT);
+      } else if(index == middle) {
+        y = gatewayY;
+      } else {
+        y = gatewayY - ((middle - index + 1) * GATEWAY_CHILD_HEIGHT);
+      }
+    }
+    return y;
+  }
+  
+  private static boolean isEndGateway(String id, List<SequenceFlowModel> sequenceFlowList) {
+    boolean isEnd = false;
+    int counter = 0;
+    for (SequenceFlowModel sequenceFlowModel : sequenceFlowList) {
+      if(sequenceFlowModel.targetRef.equals(id)) {
+        counter++;
+      }
+    }
+    if(counter > 1) {
+      isEnd = true;
+    }
+    return isEnd;
   }
   
   private static void drawDiagramWithBPMNDI(Diagram diagram, IFeatureProvider featureProvider, List<FlowElement> bpmnList, 
@@ -175,6 +321,9 @@ public class BpmnFileReader {
       sequenceFlow.setTargetRef(getFlowNode(sequenceFlowModel.targetRef, bpmnList));
       if(sequenceFlowModel.conditionExpression != null) {
         sequenceFlow.setConditionExpression(sequenceFlowModel.conditionExpression);
+      }
+      if(sequenceFlowModel.listenerList.size() > 0) {
+        sequenceFlow.getExecutionListeners().addAll(sequenceFlowModel.listenerList);
       }
       diagram.eResource().getContents().add(sequenceFlow);
       AddConnectionContext addContext = new AddConnectionContext(null, null);

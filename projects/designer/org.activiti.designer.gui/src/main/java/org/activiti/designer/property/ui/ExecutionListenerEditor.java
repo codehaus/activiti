@@ -7,8 +7,6 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class ExecutionListenerEditor extends AbstractListenerEditor {
 	
-	public boolean isSequenceFlow;
-	
 	public ExecutionListenerEditor(String key, Composite parent) {
     super(key, parent);
   }

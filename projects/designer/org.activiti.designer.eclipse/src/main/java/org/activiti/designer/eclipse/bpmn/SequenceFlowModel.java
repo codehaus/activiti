@@ -13,6 +13,10 @@
 
 package org.activiti.designer.eclipse.bpmn;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.bpmn2.ActivitiListener;
 import org.eclipse.bpmn2.FormalExpression;
 
 
@@ -23,4 +27,5 @@ public class SequenceFlowModel {
   public String sourceRef;
   public String targetRef;
   public FormalExpression conditionExpression;
+  public List<ActivitiListener> listenerList = new ArrayList<ActivitiListener>();
 }

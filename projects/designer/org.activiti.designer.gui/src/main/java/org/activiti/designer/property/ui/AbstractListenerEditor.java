@@ -27,6 +27,7 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
 	public PictogramElement pictogramElement;
 	public IDiagramEditor diagramEditor;
 	public Diagram diagram;
+	public boolean isSequenceFlow;
 	
 	public AbstractListenerEditor(String key, Composite parent) {
 		
@@ -61,6 +62,9 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
       TableItem tableItem = new TableItem(table, SWT.NONE);
       tableItem.setText(0, implementation);
       tableItem.setText(1, implementationType);
+      if(isSequenceFlow && event == null) {
+        event = "take";
+      }
       tableItem.setText(2, event);
       String fieldString = "";
       if(fieldExtensions != null) {
