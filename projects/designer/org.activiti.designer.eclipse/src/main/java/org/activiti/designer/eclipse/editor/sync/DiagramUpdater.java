@@ -34,6 +34,7 @@ import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
 import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.bpmn2.FlowElement;
+import org.eclipse.bpmn2.MailTask;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
@@ -78,7 +79,7 @@ public class DiagramUpdater {
     IFeatureProvider featureProvider = dtp.getFeatureProvider();
 
     BpmnParser bpmnParser = readBpmn(editingDomain, diagram, bpmnStorage);
-    
+
     if (bpmnParser.process != null) {
       updateProcessInDiagram(editingDomain, diagram, bpmnParser.process, featureProvider);
     }
@@ -87,10 +88,10 @@ public class DiagramUpdater {
       return;
 
     updateFlowElementsInDiagram(editingDomain, diagram, bpmnParser.bpmnList, featureProvider);
-    
+
     if (bpmnParser.sequenceFlowList == null || bpmnParser.sequenceFlowList.size() == 0)
       return;
-    
+
     updateSequenceFlowsInDiagram(editingDomain, diagram, bpmnParser.sequenceFlowList, featureProvider);
   }
 
@@ -130,7 +131,7 @@ public class DiagramUpdater {
 
     return f1.getId().equalsIgnoreCase(f2.getId());
   }
-  
+
   private static SequenceFlow lookupSequenceFlowInDiagram(SequenceFlowModel sequenceModel, Diagram diagram) {
 
     SequenceFlow modifyElement = null;
@@ -138,9 +139,8 @@ public class DiagramUpdater {
 
       if ((targetElement instanceof SequenceFlow)) {
         SequenceFlow sequenceFlow = (SequenceFlow) targetElement;
-        if (sequenceModel.sourceRef.equals(sequenceFlow.getSourceRef().getId()) && 
-                sequenceModel.targetRef.equals(sequenceFlow.getTargetRef().getId())) {
-          
+        if (sequenceModel.sourceRef.equals(sequenceFlow.getSourceRef().getId()) && sequenceModel.targetRef.equals(sequenceFlow.getTargetRef().getId())) {
+
           modifyElement = sequenceFlow;
           break;
         }
@@ -148,7 +148,7 @@ public class DiagramUpdater {
     }
     return modifyElement;
   }
-  
+
   private static org.eclipse.bpmn2.Process lookupProcessInDiagram(Diagram diagram) {
 
     org.eclipse.bpmn2.Process process = null;
@@ -162,9 +162,7 @@ public class DiagramUpdater {
     return process;
   }
 
-  private static void updateFlowElementsInDiagram(TransactionalEditingDomain editingDomain,
-          final Diagram diagram,
-          final List<FlowElement> bpmnFlowElements,
+  private static void updateFlowElementsInDiagram(TransactionalEditingDomain editingDomain, final Diagram diagram, final List<FlowElement> bpmnFlowElements,
           final IFeatureProvider featureProvider) {
 
     ActivitiUiUtil.runModelChange(new Runnable() {
@@ -174,17 +172,17 @@ public class DiagramUpdater {
         for (FlowElement bpmnFlowElement : bpmnFlowElements) {
           FlowElement diagramFlowElement = lookupFlowElementInDiagram(bpmnFlowElement, diagram);
           if (diagramFlowElement != null) {
-            
+
             diagramFlowElement.setName(bpmnFlowElement.getName());
-            
+
             if (diagramFlowElement instanceof UserTask) {
-              
+
               UserTask userTask = (UserTask) diagramFlowElement;
               userTask.setAssignee(((UserTask) bpmnFlowElement).getAssignee());
-              
-              if(((UserTask) bpmnFlowElement).getCandidateGroups() != null) {
+
+              if (((UserTask) bpmnFlowElement).getCandidateGroups() != null) {
                 Iterator<CandidateGroup> itCandidate = userTask.getCandidateGroups().iterator();
-                while(itCandidate.hasNext()) {
+                while (itCandidate.hasNext()) {
                   diagram.eResource().getContents().remove(itCandidate.next());
                 }
                 userTask.getCandidateGroups().clear();
@@ -193,10 +191,10 @@ public class DiagramUpdater {
                   userTask.getCandidateGroups().add(candidateGroup);
                 }
               }
-              
-              if(((UserTask) bpmnFlowElement).getCandidateUsers() != null) {
+
+              if (((UserTask) bpmnFlowElement).getCandidateUsers() != null) {
                 Iterator<CandidateUser> itCandidate = userTask.getCandidateUsers().iterator();
-                while(itCandidate.hasNext()) {
+                while (itCandidate.hasNext()) {
                   diagram.eResource().getContents().remove(itCandidate.next());
                 }
                 userTask.getCandidateUsers().clear();
@@ -205,22 +203,22 @@ public class DiagramUpdater {
                   userTask.getCandidateUsers().add(candidateUser);
                 }
               }
-              
+
             } else if (diagramFlowElement instanceof ScriptTask) {
-              
+
               ScriptTask scriptTask = (ScriptTask) diagramFlowElement;
               scriptTask.setScriptFormat(((ScriptTask) bpmnFlowElement).getScriptFormat());
               scriptTask.setScript(((ScriptTask) bpmnFlowElement).getScript());
-            
+
             } else if (diagramFlowElement instanceof ServiceTask) {
-              
+
               ServiceTask serviceTask = (ServiceTask) diagramFlowElement;
               serviceTask.setImplementationType(((ServiceTask) bpmnFlowElement).getImplementationType());
               serviceTask.setImplementation(((ServiceTask) bpmnFlowElement).getImplementation());
               serviceTask.setResultVariableName(((ServiceTask) bpmnFlowElement).getResultVariableName());
-              if(((ServiceTask) bpmnFlowElement).getFieldExtensions() != null) {
+              if (((ServiceTask) bpmnFlowElement).getFieldExtensions() != null) {
                 Iterator<FieldExtension> itField = serviceTask.getFieldExtensions().iterator();
-                while(itField.hasNext()) {
+                while (itField.hasNext()) {
                   diagram.eResource().getContents().remove(itField.next());
                 }
                 serviceTask.getFieldExtensions().clear();
@@ -229,15 +227,25 @@ public class DiagramUpdater {
                   serviceTask.getFieldExtensions().add(fieldExtension);
                 }
               }
+            } else if (diagramFlowElement instanceof MailTask) {
+
+              MailTask mailTask = (MailTask) diagramFlowElement;
+              mailTask.setBcc(((MailTask) bpmnFlowElement).getBcc());
+              mailTask.setCc(((MailTask) bpmnFlowElement).getCc());
+              mailTask.setFrom(((MailTask) bpmnFlowElement).getFrom());
+              mailTask.setHtml(((MailTask) bpmnFlowElement).getHtml());
+              mailTask.setSubject(((MailTask) bpmnFlowElement).getSubject());
+              mailTask.setText(((MailTask) bpmnFlowElement).getText());
+              mailTask.setTo(((MailTask) bpmnFlowElement).getTo());
             }
-            
-            if(diagramFlowElement instanceof Task) {
-              if(((Task) bpmnFlowElement).getActivitiListeners() != null) {
+
+            if (diagramFlowElement instanceof Task) {
+              if (((Task) bpmnFlowElement).getActivitiListeners() != null) {
                 ((Task) diagramFlowElement).getActivitiListeners().clear();
                 ((Task) diagramFlowElement).getActivitiListeners().addAll(((Task) bpmnFlowElement).getActivitiListeners());
               }
             }
-            
+
             updatePictogramContext(diagramFlowElement, featureProvider);
           }
         }
@@ -245,11 +253,9 @@ public class DiagramUpdater {
       }
     }, editingDomain, "Diagram Models Update");
   }
-  
-  private static void updateSequenceFlowsInDiagram(TransactionalEditingDomain editingDomain,
-          final Diagram diagram,
-          final List<SequenceFlowModel> sequenceFlowElements,
-          final IFeatureProvider featureProvider) {
+
+  private static void updateSequenceFlowsInDiagram(TransactionalEditingDomain editingDomain, final Diagram diagram,
+          final List<SequenceFlowModel> sequenceFlowElements, final IFeatureProvider featureProvider) {
 
     ActivitiUiUtil.runModelChange(new Runnable() {
 
@@ -258,11 +264,11 @@ public class DiagramUpdater {
         for (SequenceFlowModel sequenceFlowModel : sequenceFlowElements) {
           SequenceFlow diagramFlowElement = lookupSequenceFlowInDiagram(sequenceFlowModel, diagram);
           if (diagramFlowElement != null) {
-            
-            if(sequenceFlowModel.conditionExpression != null) {
+
+            if (sequenceFlowModel.conditionExpression != null) {
               diagramFlowElement.setConditionExpression(sequenceFlowModel.conditionExpression);
             }
-            if(sequenceFlowModel.listenerList != null) {
+            if (sequenceFlowModel.listenerList != null) {
               diagramFlowElement.getExecutionListeners().clear();
               diagramFlowElement.getExecutionListeners().addAll(sequenceFlowModel.listenerList);
             }
@@ -272,10 +278,8 @@ public class DiagramUpdater {
       }
     }, editingDomain, "Diagram Models Update");
   }
-  
-  private static void updateProcessInDiagram(TransactionalEditingDomain editingDomain,
-          final Diagram diagram,
-          final org.eclipse.bpmn2.Process process,
+
+  private static void updateProcessInDiagram(TransactionalEditingDomain editingDomain, final Diagram diagram, final org.eclipse.bpmn2.Process process,
           final IFeatureProvider featureProvider) {
 
     ActivitiUiUtil.runModelChange(new Runnable() {
@@ -284,8 +288,8 @@ public class DiagramUpdater {
 
         org.eclipse.bpmn2.Process diagramElement = lookupProcessInDiagram(diagram);
         if (diagramElement != null) {
-          
-          if(process.getExecutionListeners() != null) {
+
+          if (process.getExecutionListeners() != null) {
             diagramElement.getExecutionListeners().clear();
             diagramElement.getExecutionListeners().addAll(process.getExecutionListeners());
           }
