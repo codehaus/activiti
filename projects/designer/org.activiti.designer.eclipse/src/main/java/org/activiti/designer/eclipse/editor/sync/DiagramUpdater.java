@@ -37,6 +37,7 @@ import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
+import org.eclipse.bpmn2.Task;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.emf.ecore.EObject;
@@ -205,11 +206,6 @@ public class DiagramUpdater {
                 }
               }
               
-              if(((UserTask) bpmnFlowElement).getActivitiListeners() != null) {
-                userTask.getActivitiListeners().clear();
-                userTask.getActivitiListeners().addAll(((UserTask) bpmnFlowElement).getActivitiListeners());
-              }
-              
             } else if (diagramFlowElement instanceof ScriptTask) {
               
               ScriptTask scriptTask = (ScriptTask) diagramFlowElement;
@@ -233,10 +229,12 @@ public class DiagramUpdater {
                   serviceTask.getFieldExtensions().add(fieldExtension);
                 }
               }
-              
-              if(((ServiceTask) bpmnFlowElement).getActivitiListeners() != null) {
-                serviceTask.getActivitiListeners().clear();
-                serviceTask.getActivitiListeners().addAll(((ServiceTask) bpmnFlowElement).getActivitiListeners());
+            }
+            
+            if(diagramFlowElement instanceof Task) {
+              if(((Task) bpmnFlowElement).getActivitiListeners() != null) {
+                ((Task) diagramFlowElement).getActivitiListeners().clear();
+                ((Task) diagramFlowElement).getActivitiListeners().addAll(((Task) bpmnFlowElement).getActivitiListeners());
               }
             }
             

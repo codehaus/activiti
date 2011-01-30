@@ -97,6 +97,7 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
     if (activePage == 0) {
       getEditor(0).doSave(monitor);
     } else if (activePage == 1) {
+      
       // Save BPMN editor contents
       getEditor(1).doSave(monitor);
 
@@ -104,7 +105,7 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
       DiagramEditorInput diagramEditorInput = (DiagramEditorInput) getEditor(0).getEditorInput();
       Diagram diagram = diagramEditorInput.getDiagram();
       FileEditorInput bpmn2EditorInput = (FileEditorInput) getEditor(1).getEditorInput();
-
+      
       IStorage bpmnStorage = bpmn2EditorInput.getStorage();
       DiagramUpdater.syncDiagram(diagramEditor, diagram, bpmnStorage);
 
@@ -237,9 +238,7 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
   }
 
   private IFileEditorInput getBPMN2EditorInput() {
-    if (associatedBPMN2File == null)
-      associatedBPMN2File = getAssociatedBPMN2IFile();
-
+    associatedBPMN2File = getAssociatedBPMN2IFile();
     return new FileEditorInput(associatedBPMN2File);
   }
 
