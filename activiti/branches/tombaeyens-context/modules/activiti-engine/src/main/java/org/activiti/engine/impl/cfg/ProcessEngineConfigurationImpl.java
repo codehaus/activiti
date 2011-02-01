@@ -144,7 +144,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   // COMMAND EXECUTORS ////////////////////////////////////////////////////////
   
   // Command executor and interceptor stack
-  /** the configurable list which will be {@link #initializeInterceptorChain(List) processed} to build the {@link #commandExecutorTxRequired} */
+  /** the configurable list which will be {@link #initInterceptorChain(java.util.List) processed} to build the {@link #commandExecutorTxRequired} */
   protected List<CommandInterceptor> customPreCommandInterceptorsTxRequired;
   protected List<CommandInterceptor> customPostCommandInterceptorsTxRequired;
   
@@ -153,7 +153,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   /** this will be initialized during the configurationComplete() */
   protected CommandExecutor commandExecutorTxRequired;
   
-  /** the configurable list which will be {@link #initializeInterceptorChain(List) processed} to build the {@link #commandExecutorTxRequiresNew} */
+  /** the configurable list which will be {@link #initInterceptorChain(List) processed} to build the {@link #commandExecutorTxRequiresNew} */
   protected List<CommandInterceptor> customPreCommandInterceptorsTxRequiresNew;
   protected List<CommandInterceptor> customPostCommandInterceptorsTxRequiresNew;
 
@@ -217,7 +217,10 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   
   protected List<BpmnParseListener> preParseListeners;
   protected List<BpmnParseListener> postParseListeners;
-  
+
+  protected Map<Object, Object> processEngineObjects;
+
+
   // buildProcessEngine ///////////////////////////////////////////////////////
   
   public ProcessEngine buildProcessEngine() {
@@ -231,6 +234,8 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     initHistoryLevel();
     initExpressionManager();
     initVariableTypes();
+    initProcessEngineObjects();
+    initProcessEngineContext();
     initFormEngines();
     initFormTypes();
     initScriptingEngines();
@@ -247,7 +252,6 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     initSqlSessionFactory();
     initSessionFactories();
     initJpa();
-    initProcessEngineContext();
   }
 
   // command executors ////////////////////////////////////////////////////////
@@ -639,9 +643,15 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     }
   }
   
+  protected void initProcessEngineObjects() {
+    if (processEngineObjects ==null) {
+      processEngineObjects = new HashMap<Object, Object>();
+    }
+  }
+
   protected void initProcessEngineContext() {
     if (processEngineContext==null) {
-      processEngineContext = new ProcessEngineContext();
+      processEngineContext = new ProcessEngineContext(this);
     }
   }
 
@@ -1088,7 +1098,14 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     this.postParseListeners = postParseListeners;
   }
 
-  
+  public Map<Object, Object> getProcessEngineObjects() {
+    return processEngineObjects;
+  }
+
+  public void setProcessEngineObjects(Map<Object, Object> processEngineObjects) {
+    this.processEngineObjects = processEngineObjects;
+  }
+
   @Override
   public ProcessEngineConfigurationImpl setClassLoader(ClassLoader classLoader) {
     super.setClassLoader(classLoader);

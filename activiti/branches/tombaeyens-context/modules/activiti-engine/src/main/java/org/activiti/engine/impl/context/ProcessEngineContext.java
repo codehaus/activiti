@@ -13,6 +13,9 @@
 
 package org.activiti.engine.impl.context;
 
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.variable.VariableTypes;
+
 import java.util.Map;
 
 
@@ -22,12 +25,48 @@ import java.util.Map;
 public class ProcessEngineContext {
 
   protected Map<Object, Object> processEngineContextObjects;
+  protected VariableTypes variableTypes;
+  protected String mailServerDefaultFrom;
+  protected String mailServerHost;
+  protected int mailServerPort;
+  protected String mailServerUsername;
+  protected String mailServerPassword;
+
+  public ProcessEngineContext(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    this.processEngineContextObjects = processEngineConfiguration.getProcessEngineObjects();
+    this.variableTypes = processEngineConfiguration.getVariableTypes();
+    this.mailServerDefaultFrom = processEngineConfiguration.getMailServerDefaultFrom();
+    this.mailServerHost = processEngineConfiguration.getMailServerHost();
+    this.mailServerPort = processEngineConfiguration.getMailServerPort();
+    this.mailServerUsername = processEngineConfiguration.getMailServerUsername();
+    this.mailServerPassword = processEngineConfiguration.getMailServerPassword();
+  }
 
   public Map<Object, Object> getProcessEngineContextObjects() {
     return processEngineContextObjects;
   }
-  
-  public void setProcessEngineContextObjects(Map<Object, Object> processEngineContextObjects) {
-    this.processEngineContextObjects = processEngineContextObjects;
+
+  public VariableTypes getVariableTypes() {
+    return variableTypes;
+  }
+
+  public String getMailServerDefaultFrom() {
+    return mailServerDefaultFrom;
+  }
+
+  public String getMailServerHost() {
+    return mailServerHost;
+  }
+
+  public String getMailServerUsername() {
+    return mailServerUsername;
+  }
+
+  public String getMailServerPassword() {
+    return mailServerPassword;
+  }
+
+  public int getMailServerPort() {
+    return mailServerPort;
   }
 }
