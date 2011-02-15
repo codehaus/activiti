@@ -163,7 +163,7 @@ public class CycleRepositoryServiceImpl implements CycleRepositoryService {
 
   public void executeParameterizedAction(String connectorId, String artifactId, String actionId, Map<String, Object> parameters) throws Exception {
 
-    ParameterizedAction action = cycleServiceConfiguration.getCyclePluginService().getParameterizedActionById(actionId);
+    ParameterizedAction action = cycleServiceConfiguration.getPluginService().getParameterizedActionById(actionId);
     String form = action.getFormAsHtml();
     FormHandler formHandler = CycleComponentFactory.getCycleComponentInstance(FormHandler.class, FormHandler.class);
     formHandler.setValues(form, parameters);
@@ -187,7 +187,7 @@ public class CycleRepositoryServiceImpl implements CycleRepositoryService {
 
     // Retrieve the action and its form
     String form = null;
-    for (ParameterizedAction action : cycleServiceConfiguration.getCyclePluginService().getParameterizedActions(artifact)) {
+    for (ParameterizedAction action : cycleServiceConfiguration.getPluginService().getParameterizedActions(artifact)) {
       if (action.getId().equals(actionId)) {
         form = action.getFormAsHtml();
         break;
