@@ -86,4 +86,8 @@ public class RuntimeConnectorList implements Serializable {
     connectorList = null;
   }
 
+  public void registerConnector(RepositoryConnector connector) {
+    connectors.put(connector.getId(), connector);
+    connectorList.add(connector);
+  }
 }

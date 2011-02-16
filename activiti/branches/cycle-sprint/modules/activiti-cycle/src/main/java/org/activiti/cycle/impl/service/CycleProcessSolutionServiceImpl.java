@@ -29,8 +29,9 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
     return new ArrayList<ProcessSolution>(dao.getProcessSolutionList());
   }
 
-  public void createNewProcessSolution() {
+  public void createNewProcessSolution(String name) {
     ProcessSolutionCreate processSolutionCreate = CycleComponentFactory.getCycleComponentInstance("processSolutionCreate", ProcessSolutionCreate.class);
+    processSolutionCreate.setName(name);
     processSolutionCreate.createNewProcessSolution();
   }
 

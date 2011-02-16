@@ -1,6 +1,7 @@
 package org.activiti.cycle.impl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,5 +35,19 @@ public class CycleTestUtils {
       }
       return null;
     }
+  }
+  
+  public static boolean deleteFileRec(File path) {
+    if (path.exists() && path.isAbsolute()) {
+      File[] files = path.listFiles();
+      for (int i = 0; i < files.length; i++) {
+        if (files[i].isDirectory()) {
+          deleteFileRec(files[i]);
+        } else {
+          files[i].delete();
+        }
+      }
+    }
+    return path.delete();
   }
 }

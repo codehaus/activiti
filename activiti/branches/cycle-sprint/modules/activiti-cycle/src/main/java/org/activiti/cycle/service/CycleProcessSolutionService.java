@@ -22,14 +22,18 @@ public interface CycleProcessSolutionService {
   public ProcessSolution getProcessSolutionById(String id);
 
   /**
+   * 
    * @return a {@link List} of all available {@link ProcessSolution}s
    */
   public List<ProcessSolution> getProcessSolutions();
 
   /**
    * Create a new process solution based on the default configuration
+   * 
+   * @param the
+   *          name of the new process solution
    */
-  public void createNewProcessSolution();
+  public void createNewProcessSolution(String name);
 
   /**
    * @param the

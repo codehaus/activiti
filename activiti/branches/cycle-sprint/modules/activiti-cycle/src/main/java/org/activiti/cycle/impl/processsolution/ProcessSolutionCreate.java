@@ -63,7 +63,7 @@ public class ProcessSolutionCreate {
 
     ProcessSolutionEntity processSolutionEntity = createProcessSolutionEntity(template);
 
-    List<VirtualRepositoryFolderEntity> createdVirtualFodlers = new ArrayList<VirtualRepositoryFolderEntity>();
+    List<VirtualRepositoryFolderEntity> createdVirtualFolders = new ArrayList<VirtualRepositoryFolderEntity>();
 
     // get participating connectors
     Set<RepositoryConnector> participatingConnectors = getParticipatingConnectors(template);
@@ -75,10 +75,10 @@ public class ProcessSolutionCreate {
     try {
       // create folders in repositories
       for (VirtualRepositoryFolder folderTemplate : template.getVirtualRepositoryFolders()) {
-        createdVirtualFodlers.add(createVirtualFolder(folderTemplate, processSolutionEntity));
+        createdVirtualFolders.add(createVirtualFolder(folderTemplate, processSolutionEntity));
       }
 
-      processSolutionService.getDao().addVirtualFoldersToSolution(processSolutionEntity.getId(), createdVirtualFodlers);
+      processSolutionService.getDao().addVirtualFoldersToSolution(processSolutionEntity.getId(), createdVirtualFolders);
 
       // commit repository transactions:
       for (RepositoryConnector participatingConnector : participatingConnectors) {
@@ -93,7 +93,7 @@ public class ProcessSolutionCreate {
       }
 
       // delete virtual folders:
-      for (VirtualRepositoryFolder virtualFolder : createdVirtualFodlers) {
+      for (VirtualRepositoryFolder virtualFolder : createdVirtualFolders) {
         processSolutionService.getDao().deleteVirtualRepositoryFolderById(virtualFolder.getId());
       }
 
@@ -138,6 +138,7 @@ public class ProcessSolutionCreate {
     entity.setConnectorId(connectorId);
     entity.setProcessSolutionId(processSolutionEntity.getId());
     entity.setReferencedNodeId(actualFolder.getNodeId());
+    entity.setType(folderTemplate.getType());
     return entity;
   }
 
