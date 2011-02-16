@@ -9,9 +9,9 @@ import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
  * 
  * @author Daniel Meyer
  */
-public class VirtualRepositoryFolderImpl extends VirtualRepositoryNodeImpl implements RepositoryFolder {
+public class ProcessSolutionFolder extends VirtualRepositoryNodeImpl implements RepositoryFolder {
 
-  public VirtualRepositoryFolderImpl(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
+  public ProcessSolutionFolder(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
           RepositoryFolder wrappedFolder) {
     super(connectorId, nodeId, virtualFolder, processSolution, wrappedFolder);
   }

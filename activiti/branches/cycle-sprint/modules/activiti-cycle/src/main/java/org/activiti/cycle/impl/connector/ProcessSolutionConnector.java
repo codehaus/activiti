@@ -83,24 +83,24 @@ public class ProcessSolutionConnector implements RepositoryConnector {
 
     String virtualFolderId = getVirtualFolderId(id);
     if (virtualFolderId == null) {
-      return new VirtualRepositoryFolderImpl(getId(), id, null, ps, null);
+      return new ProcessSolutionFolder(getId(), id, null, ps, null);
     }
 
     VirtualRepositoryFolder virtualFolder = processSolutionService.getVirtualRepositoryFolderById(virtualFolderId);
     String relativePath = id.replace(processSolutionId + "/" + virtualFolderId, "");
     if (relativePath.length() == 0) {
       // id == processsolution/virtualFolderId
-      return new VirtualRepositoryFolderImpl(getId(), id, virtualFolder, ps, null);
+      return new ProcessSolutionFolder(getId(), id, virtualFolder, ps, null);
     }
 
     // id == processsolution/virtualFolderId/...
     try {
       RepositoryFolder folder = repositoryService.getRepositoryFolder(virtualFolder.getConnectorId(), virtualFolder.getReferencedNodeId() + "/" + relativePath);
-      return new VirtualRepositoryFolderImpl(getId(), id, virtualFolder, ps, folder);
+      return new ProcessSolutionFolder(getId(), id, virtualFolder, ps, folder);
     } catch (Exception e) {
       RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(virtualFolder.getConnectorId(), virtualFolder.getReferencedNodeId() + "/"
               + relativePath);
-      return new VirtualRepositoryArtifactImpl(getId(), id, virtualFolder, ps, artifact);
+      return new ProcessSolutionArtifact(getId(), id, virtualFolder, ps, artifact);
     }
   }
   public RepositoryArtifact getRepositoryArtifact(String id) throws RepositoryNodeNotFoundException {
@@ -117,9 +117,9 @@ public class ProcessSolutionConnector implements RepositoryConnector {
 
   public RepositoryNodeCollection getChildren(String id) throws RepositoryNodeNotFoundException {
     List<RepositoryNode> resultList = new ArrayList<RepositoryNode>();
-    VirtualRepositoryFolderImpl folderImpl = (VirtualRepositoryFolderImpl) getRepositoryNode(id);
-    VirtualRepositoryFolder virtualFolder = folderImpl.getVirtualRepositoryFolder();
-    RepositoryFolder wrappedFolder = (RepositoryFolder) folderImpl.getWrappedNode();
+    ProcessSolutionFolder processSolutionFolder = (ProcessSolutionFolder) getRepositoryNode(id);
+    VirtualRepositoryFolder virtualFolder = processSolutionFolder.getVirtualRepositoryFolder();
+    RepositoryFolder wrappedFolder = (RepositoryFolder) processSolutionFolder.getWrappedNode();
     RepositoryNodeCollection childNodes = null;
     if (wrappedFolder != null) {
       // get child nodes of wrapped folder
@@ -132,21 +132,21 @@ public class ProcessSolutionConnector implements RepositoryConnector {
     if (childNodes != null) {
       for (RepositoryNode childNode : childNodes.asList()) {
         String childNodeId = childNode.getNodeId();
-        childNodeId = childNodeId.replace(folderImpl.getVirtualRepositoryFolder().getReferencedNodeId(), "");
-        childNodeId = processSolutionId + "/" + folderImpl.getVirtualRepositoryFolder().getId() + "/" + childNodeId;
+        childNodeId = childNodeId.replace(processSolutionFolder.getVirtualRepositoryFolder().getReferencedNodeId(), "");
+        childNodeId = processSolutionId + "/" + processSolutionFolder.getVirtualRepositoryFolder().getId() + "/" + childNodeId;
         if (childNode instanceof RepositoryArtifact) {
-          resultList.add(new VirtualRepositoryArtifactImpl(getId(), childNodeId, folderImpl.getVirtualRepositoryFolder(), folderImpl.getProcessSolution(),
-                  (RepositoryArtifact) childNode));
+          resultList.add(new ProcessSolutionArtifact(getId(), childNodeId, processSolutionFolder.getVirtualRepositoryFolder(), processSolutionFolder
+                  .getProcessSolution(), (RepositoryArtifact) childNode));
         } else {
-          resultList.add(new VirtualRepositoryFolderImpl(getId(), childNodeId, folderImpl.getVirtualRepositoryFolder(), folderImpl.getProcessSolution(),
-                  (RepositoryFolder) childNode));
+          resultList.add(new ProcessSolutionFolder(getId(), childNodeId, processSolutionFolder.getVirtualRepositoryFolder(), processSolutionFolder
+                  .getProcessSolution(), (RepositoryFolder) childNode));
         }
       }
     } else {
       // get children of process solution:
       for (VirtualRepositoryFolder virtualChildfolder : processSolutionService.getFoldersForProcessSolution(processSolutionId)) {
         String childNodeId = processSolutionId + "/" + virtualChildfolder.getId();
-        resultList.add(new VirtualRepositoryFolderImpl(getId(), childNodeId, virtualChildfolder, folderImpl.getProcessSolution(), null));
+        resultList.add(new ProcessSolutionFolder(getId(), childNodeId, virtualChildfolder, processSolutionFolder.getProcessSolution(), null));
       }
     }
     return new RepositoryNodeCollectionImpl(resultList);
