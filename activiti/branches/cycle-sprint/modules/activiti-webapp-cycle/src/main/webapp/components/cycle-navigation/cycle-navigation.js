@@ -90,7 +90,7 @@
         this._tabView = new YAHOO.widget.TabView();
         
         // Add tab for the "process solutions" tree
-        var processSolutionsTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: "PS", nodeId: ""});
+        var processSolutionsTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: "PS", nodeId: "", treeId: "ps"});
         var processSolutionsTab = new YAHOO.widget.Tab({
           label: this.msg("label.process-solutions"), 
           dataSrc: processSolutionsTreeUrl, 
@@ -106,7 +106,7 @@
         this._tabView.addTab(processSolutionsTab);
 
         // Add tab for the "repositories" tree
-        var repositoriesTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: "/", nodeId: ""});
+        var repositoriesTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: "/", nodeId: "", treeId: "repo"});
         var repositoriesTab = new YAHOO.widget.Tab({
           label: this.msg("label.repositories"), 
           dataSrc: repositoriesTreeUrl,
@@ -155,7 +155,7 @@
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
       tab.set('content', "<div id='process-solutions-tree-" + this.id + "'></div>");
-      new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0).setMessages(this.messages);
+      new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0, "ps").setMessages(this.messages);
     },
 
     onLoadProcessSolutionsTabFailure: function Artifact_onLoadProcessSolutionsTabFailure(tab, response) 
@@ -177,7 +177,7 @@
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
       tab.set('content', "<div id='repositories-tree-" + this.id + "'></div>");
-      new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1).setMessages(this.messages);
+      new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1, "repo").setMessages(this.messages);
     },
 
     // TODO: This method is copied from the tab view for artifacts, let's see if we can reuse it here.

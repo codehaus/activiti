@@ -69,10 +69,10 @@
      *
      * @method loadChildNodes
      */
-    loadChildNodes: function RepositoryService_loadChildNodes(node, fnLoadComplete)
+    loadChildNodes: function RepositoryService_loadChildNodes(node, fnLoadComplete, treeId)
     {
       var obj = [node, fnLoadComplete];
-      this.jsonGet(this.loadChildNodesURL(node.data.connectorId, node.data.nodeId), obj, "loadNodeData");
+      this.jsonGet(this.loadChildNodesURL(node.data.connectorId, node.data.nodeId, treeId), obj, "loadNodeData");
     },
 
     /**
@@ -81,9 +81,9 @@
      * @method loadTreeURL
      * @return {string} The url
      */
-    loadChildNodesURL: function RepositoryService_loadChildNodesURL(connectorId, nodeId)
+    loadChildNodesURL: function RepositoryService_loadChildNodesURL(connectorId, nodeId, treeId)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&treeId=" + encodeURIComponent(treeId);
     },
 
     /**

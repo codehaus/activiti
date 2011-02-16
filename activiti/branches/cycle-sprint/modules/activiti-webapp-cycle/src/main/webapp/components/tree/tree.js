@@ -16,7 +16,7 @@
    * @return {Activiti.component.Tree} The new component.Tree instance
    * @constructor
    */
-  Activiti.component.Tree = function Tree_constructor(htmlId, nodesJson, containingNavigationTabIndex)
+  Activiti.component.Tree = function Tree_constructor(htmlId, nodesJson, containingNavigationTabIndex, treeId)
   {
     Activiti.component.Tree.superclass.constructor.call(this, "Activiti.component.Tree", htmlId);
 
@@ -25,6 +25,8 @@
 
     // Listen for updateArtifactView event in order to be able to expand the tree up to the selected artifact
     this.onEvent(Activiti.event.updateArtifactView, this.onUpdateArtifactView);
+
+    this._treeId = treeId;
 
     this._nodesJson = nodesJson;
     this._containingNavigationTabIndex = containingNavigationTabIndex;
@@ -67,6 +69,12 @@
     {
       this._connectorId = args[1].value.connectorId;
       this._nodeId = args[1].value.nodeId;
+
+      if(this._containingNavigationTabIndex == args[1].value.activeNavigationTabIndex) {
+        // alert("the event interests me in tab " + this._containingNavigationTabIndex + "...");
+        // this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._nodeId});          
+      }
+      
       if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
         // The tree is not yet initialized
         
@@ -89,7 +97,7 @@
           // Don't attempt to load child nodes for artifacts or nodes that are already loaded
           fnLoadComplete();
         } else {
-          me.services.repositoryService.loadChildNodes(node, fnLoadComplete);
+          me.services.repositoryService.loadChildNodes(node, fnLoadComplete, me._treeId);
         }
       };
 
