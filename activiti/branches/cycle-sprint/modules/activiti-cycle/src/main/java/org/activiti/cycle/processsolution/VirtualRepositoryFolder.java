@@ -8,7 +8,7 @@ import org.activiti.cycle.RepositoryFolder;
  * 
  * @author daniel.meyer@camunda.com
  */
-public interface VirtualRepositoryFolder extends RepositoryFolder {
+public interface VirtualRepositoryFolder {
 
   /**
    * @return the id of the {@link ProcessSolution}, this folder is associated
@@ -20,5 +20,13 @@ public interface VirtualRepositoryFolder extends RepositoryFolder {
    * @return the type of a repository folder.
    */
   public String getType();
+
+  public String getReferencedNodeId();
+
+  public String getConnectorId();
+
+  public String getLabel();
+
+  public String getId();
 
 }

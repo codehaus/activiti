@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.activiti.cycle.RepositoryNodeMetadata;
-import org.activiti.cycle.impl.RepositoryNodeMetadataImpl;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.engine.impl.db.PersistentObject;
 
@@ -30,33 +28,15 @@ public class VirtualRepositoryFolderEntity implements VirtualRepositoryFolder, S
 
   private String type;
 
-  public String getGlobalUniqueId() {
-    return processSolutionId + ":" + id;
-  }
-
-  public RepositoryNodeMetadata getMetadata() {
-    return new RepositoryNodeMetadataImpl() {
-
-      public String getName() {
-        return label;
-      }
-    };
-  }
-
-  public String getProcessSolutionId() {
-    return processSolutionId;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public String getConnectorId() {
-    return connectorId;
-  }
-
-  public String getNodeId() {
-    return id;
+  public Object getPersistentState() {
+    Map<String, Object> persistentState = new HashMap<String, Object>();
+    persistentState.put("id", id);
+    persistentState.put("label", label);
+    persistentState.put("connectorId", connectorId);
+    persistentState.put("processSolutionId", processSolutionId);
+    persistentState.put("type", type);
+    persistentState.put("referencedNodeId", referencedNodeId);
+    return persistentState;
   }
 
   public String getId() {
@@ -75,16 +55,12 @@ public class VirtualRepositoryFolderEntity implements VirtualRepositoryFolder, S
     this.label = label;
   }
 
+  public String getConnectorId() {
+    return connectorId;
+  }
+
   public void setConnectorId(String connectorId) {
     this.connectorId = connectorId;
-  }
-
-  public void setProcessSolutionId(String processSolutionId) {
-    this.processSolutionId = processSolutionId;
-  }
-
-  public void setType(String type) {
-    this.type = type;
   }
 
   public String getReferencedNodeId() {
@@ -95,15 +71,20 @@ public class VirtualRepositoryFolderEntity implements VirtualRepositoryFolder, S
     this.referencedNodeId = referencedNodeId;
   }
 
-  public Object getPersistentState() {
-    Map<String, Object> persistentState = new HashMap<String, Object>();
-    persistentState.put("id", id);
-    persistentState.put("label", label);
-    persistentState.put("connectorId", connectorId);
-    persistentState.put("processSolutionId", processSolutionId);
-    persistentState.put("type", type);
-    persistentState.put("referencedNodeId", referencedNodeId);
-    return persistentState;
+  public String getProcessSolutionId() {
+    return processSolutionId;
+  }
+
+  public void setProcessSolutionId(String processSolutionId) {
+    this.processSolutionId = processSolutionId;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
 }

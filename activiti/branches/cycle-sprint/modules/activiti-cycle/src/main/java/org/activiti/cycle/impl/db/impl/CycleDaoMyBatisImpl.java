@@ -442,7 +442,7 @@ public class CycleDaoMyBatisImpl extends AbstractCycleDaoMyBatisImpl implements 
   public List<VirtualRepositoryFolderEntity> getVirtualForldersByProcessSolutionId(String id) {
     SqlSession sqlSession = openSession();
     try {
-      return (List<VirtualRepositoryFolderEntity>) sqlSession.selectList("selectVirtualRepositoryFolderByProcessSolutionId");
+      return (List<VirtualRepositoryFolderEntity>) sqlSession.selectList("selectVirtualRepositoryFolderByProcessSolutionId", id);
     } finally {
       sqlSession.close();
     }
@@ -497,7 +497,7 @@ public class CycleDaoMyBatisImpl extends AbstractCycleDaoMyBatisImpl implements 
       sqlSession.close();
     }
   }
-  
+
   public void deleteVirtualRepositoryFolderById(String id) {
     SqlSession sqlSession = openSession();
     try {

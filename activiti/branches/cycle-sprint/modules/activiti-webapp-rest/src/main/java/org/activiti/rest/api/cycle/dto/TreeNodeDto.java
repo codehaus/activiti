@@ -20,15 +20,19 @@ import org.activiti.cycle.RepositoryNode;
  */
 public abstract class TreeNodeDto {
 
-  protected final String label;
-  protected final String connectorId;
-  protected final String artifactId;
+  protected String label;
+  protected String connectorId;
+  protected String nodeId;
   protected String expanded;
 
   public TreeNodeDto(RepositoryNode node) {
     this.label = node.getMetadata().getName();
     this.connectorId = node.getConnectorId();
-    this.artifactId = node.getNodeId();
+    this.nodeId = node.getNodeId();
+  }
+
+  public TreeNodeDto() {
+
   }
 
   public String getLabel() {
@@ -39,10 +43,6 @@ public abstract class TreeNodeDto {
     return connectorId;
   }
 
-  public String getArtifactId() {
-    return artifactId;
-  }
-
   public String getExpanded() {
     return expanded;
   }
@@ -51,12 +51,28 @@ public abstract class TreeNodeDto {
     this.expanded = expanded;
   }
 
+  public String getNodeId() {
+    return nodeId;
+  }
+
+  public void setNodeId(String nodeId) {
+    this.nodeId = nodeId;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public void setConnectorId(String connectorId) {
+    this.connectorId = connectorId;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((artifactId == null) ? 0 : artifactId.hashCode());
     result = prime * result + ((connectorId == null) ? 0 : connectorId.hashCode());
+    result = prime * result + ((nodeId == null) ? 0 : nodeId.hashCode());
     return result;
   }
 
@@ -69,19 +85,17 @@ public abstract class TreeNodeDto {
     if (getClass() != obj.getClass())
       return false;
     TreeNodeDto other = (TreeNodeDto) obj;
-    if (artifactId == null) {
-      if (other.artifactId != null)
-        return false;
-    } else if (!artifactId.equals(other.artifactId))
-      return false;
     if (connectorId == null) {
       if (other.connectorId != null)
         return false;
     } else if (!connectorId.equals(other.connectorId))
       return false;
+    if (nodeId == null) {
+      if (other.nodeId != null)
+        return false;
+    } else if (!nodeId.equals(other.nodeId))
+      return false;
     return true;
   }
-  
- 
 
 }

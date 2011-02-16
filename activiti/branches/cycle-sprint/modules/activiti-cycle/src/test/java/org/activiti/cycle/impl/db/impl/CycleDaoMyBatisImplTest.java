@@ -18,8 +18,6 @@ import org.activiti.cycle.impl.db.entity.RepositoryNodeTagEntity;
 import org.activiti.cycle.impl.db.entity.VirtualRepositoryFolderEntity;
 import org.activiti.cycle.processsolution.ProcessSolutionState;
 
-import com.sun.org.apache.bcel.internal.generic.ASTORE;
-
 public class CycleDaoMyBatisImplTest extends ActivitiCycleDbAwareTest {
 
   private CycleDaoMyBatisImpl dao = new CycleDaoMyBatisImpl();
@@ -258,7 +256,6 @@ public class CycleDaoMyBatisImplTest extends ActivitiCycleDbAwareTest {
       VirtualRepositoryFolderEntity storedFolder = dao.getVirtualRepositoryFolderById(virtualRepositoryFolderEntity.getId());
       assertNotNull(storedFolder);
       assertEquals(virtualRepositoryFolderEntity.getConnectorId(), storedFolder.getConnectorId());
-      assertEquals(virtualRepositoryFolderEntity.getGlobalUniqueId(), storedFolder.getGlobalUniqueId());
       assertEquals(virtualRepositoryFolderEntity.getLabel(), storedFolder.getLabel());
       assertEquals(virtualRepositoryFolderEntity.getReferencedNodeId(), storedFolder.getReferencedNodeId());
       assertEquals(virtualRepositoryFolderEntity.getType(), storedFolder.getType());

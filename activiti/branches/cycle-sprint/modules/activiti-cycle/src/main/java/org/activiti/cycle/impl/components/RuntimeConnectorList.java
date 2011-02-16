@@ -11,7 +11,10 @@ import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleApplicationContext;
 import org.activiti.cycle.context.CycleContextType;
+import org.activiti.cycle.impl.connector.ProcessSolutionConnector;
 import org.activiti.cycle.impl.connector.view.TagConnector;
+import org.activiti.cycle.processsolution.ProcessSolution;
+import org.activiti.cycle.service.CycleServiceFactory;
 
 @CycleComponent(context = CycleContextType.SESSION)
 public class RuntimeConnectorList implements Serializable {
@@ -56,6 +59,7 @@ public class RuntimeConnectorList implements Serializable {
 
     // sort connector-list
     Collections.sort(connectorList, new Comparator<RepositoryConnector>() {
+
       public int compare(RepositoryConnector o1, RepositoryConnector o2) {
         String name1 = o1.getName();
         String name2 = o2.getName();
@@ -69,6 +73,12 @@ public class RuntimeConnectorList implements Serializable {
     connectors.put(tagConnector.getId(), tagConnector);
     connectorList.add(0, tagConnector);
 
+    // add virtual connectors for process solutions:
+    for (ProcessSolution processSolution : CycleServiceFactory.getProcessSolutionService().getProcessSolutions()) {
+      ProcessSolutionConnector psConnector = new ProcessSolutionConnector(processSolution.getId());
+      connectorList.add(psConnector);
+      connectors.put(psConnector.getId(), psConnector);
+    }
   }
 
   public synchronized void discardConnectors() {

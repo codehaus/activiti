@@ -40,4 +40,10 @@ public interface CycleProcessSolutionService {
    */
   public List<VirtualRepositoryFolder> getFoldersForProcessSolution(String id);
 
+  /**
+   * @return the {@link VirtualRepositoryFolder} corresponding to the provided
+   *         id.
+   */
+  public VirtualRepositoryFolder getVirtualRepositoryFolderById(String id);
+
 }

@@ -37,4 +37,8 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
     this.dao = dao;
   }
 
+  public VirtualRepositoryFolder getVirtualRepositoryFolderById(String id) {
+    return dao.getVirtualRepositoryFolderById(id);
+  }
+
 }

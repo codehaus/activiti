@@ -16,14 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
-import org.activiti.rest.api.cycle.dto.TreeArtifactDto;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
+import org.activiti.rest.api.cycle.dto.TreeLeafDto;
 import org.activiti.rest.api.cycle.dto.TreeNodeDto;
 import org.activiti.rest.util.ActivitiRequest;
 import org.springframework.extensions.webscripts.Cache;
@@ -73,14 +72,14 @@ public class TreeGet extends ActivitiCycleWebScript {
 
     // expand the current node and iteratively its parent nodes until we reach
     // the root node.
-    if (!nodeId.equals(connectorRootNode.getArtifactId())) {
+    if (!nodeId.equals(connectorRootNode.getNodeId())) {
       RepositoryNode node = repositoryService.getRepositoryNode(connectorId, nodeId);
       TreeNodeDto treeNodeDtoForTheCurrentNode = getTreeNodeDto(node, false);
       if (treeNodeDtoForTheCurrentNode instanceof TreeFolderDto) {
         expandNode((TreeFolderDto) treeNodeDtoForTheCurrentNode, false, connectorId);
       }
       String parentId = node.getMetadata().getParentFolderId();
-      while (parentId != null && parentId.length() > 0 && parentId != connectorRootNode.getArtifactId()) {
+      while (parentId != null && parentId.length() > 0 && parentId != connectorRootNode.getNodeId()) {
         RepositoryNode parentNode = repositoryService.getRepositoryNode(connectorId, parentId);
         TreeFolderDto parentTreeNode = (TreeFolderDto) getTreeNodeDto(parentNode, true);
         expandNode(parentTreeNode, false, connectorId);
@@ -93,7 +92,7 @@ public class TreeGet extends ActivitiCycleWebScript {
   }
 
   protected void expandNode(TreeFolderDto dto, boolean expandChildren, String connectorId) {
-    RepositoryNodeCollection childNodes = repositoryService.getChildren(connectorId, dto.getArtifactId());
+    RepositoryNodeCollection childNodes = repositoryService.getChildren(connectorId, dto.getNodeId());
     List<TreeNodeDto> children = new ArrayList<TreeNodeDto>();
     for (RepositoryNode node : childNodes.asList()) {
       TreeNodeDto childNode = getTreeNodeDto(node, expandChildren);
@@ -105,7 +104,7 @@ public class TreeGet extends ActivitiCycleWebScript {
   protected TreeNodeDto getTreeNodeDto(RepositoryNode node, boolean expand) {
     TreeNodeDto dto = null;
     if (node instanceof RepositoryArtifact) {
-      dto = new TreeArtifactDto((RepositoryArtifact) node);
+      dto = new TreeLeafDto((RepositoryArtifact) node);
     } else if (node instanceof RepositoryFolder) {
       dto = new TreeFolderDto((RepositoryFolder) node);
       dto.setExpanded(String.valueOf((Boolean) expand));

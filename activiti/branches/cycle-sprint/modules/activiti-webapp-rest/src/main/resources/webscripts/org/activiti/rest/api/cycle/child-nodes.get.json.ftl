@@ -10,9 +10,9 @@
 <#macro printFolder folder>
 <#escape x as jsonUtils.encodeJSONString(x)>
 {
-  "label": "${folder.metadata.name}",
+  "label": "${folder.label}",
   "connectorId": "${folder.connectorId}",
-  "artifactId": "${folder.nodeId}",
+  "nodeId": "${folder.nodeId}",
   "folder": "true"
 }
 </#escape>
@@ -21,12 +21,12 @@
 <#macro printFile file>
 <#escape x as jsonUtils.encodeJSONString(x)>
 {
-  "label": "${file.metadata.name}",
+  "label": "${file.label}",
   "connectorId": "${file.connectorId}",
-  "artifactId": "${file.nodeId}",
+  "nodeId": "${file.nodeId}",
   "expanded": "true",
   "file": "true",
-  "contentType": "${file.artifactType.name}"
+  "contentType": "${file.labelStyle}"
 }
 </#escape>
 </#macro>

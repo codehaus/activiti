@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.activiti.cycle.impl.db.entity.ProcessSolutionEntity;
 import org.activiti.cycle.impl.db.entity.VirtualRepositoryFolderEntity;
+import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 
 /**
  * DAO for process solutions
@@ -18,7 +19,7 @@ public interface CycleProcessSolutionDao {
 
   public List<ProcessSolutionEntity> getProcessSolutionList();
 
-  public VirtualRepositoryFolderEntity getVirtualRepositoryFolderById(String id);
+  public VirtualRepositoryFolder getVirtualRepositoryFolderById(String id);
 
   public List<VirtualRepositoryFolderEntity> getVirtualForldersByProcessSolutionId(String id);
 

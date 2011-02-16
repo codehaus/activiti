@@ -13,14 +13,16 @@
 package org.activiti.rest.api.cycle;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNodeCollection;
+import org.activiti.rest.api.cycle.dto.TreeFolderDto;
+import org.activiti.rest.api.cycle.dto.TreeLeafDto;
 import org.activiti.rest.util.ActivitiRequest;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -34,17 +36,24 @@ public class ChildNodesGet extends ActivitiCycleWebScript {
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
 
-    String artifactId = req.getMandatoryString("artifactId");
+    String nodeId = req.getMandatoryString("nodeId");
     String connectorId = req.getMandatoryString("connectorId");
     try {
-      RepositoryNodeCollection children = repositoryService.getChildren(connectorId, artifactId);
-
+      RepositoryNodeCollection children = repositoryService.getChildren(connectorId, nodeId);
+      List<TreeFolderDto> folders = new ArrayList<TreeFolderDto>();
+      List<TreeLeafDto> leafs = new ArrayList<TreeLeafDto>();
+      for (RepositoryArtifact artifact : children.getArtifactList()) {
+        leafs.add(new TreeLeafDto(artifact));
+      }
+      for (RepositoryFolder folder : children.getFolderList()) {
+        folders.add(new TreeFolderDto(folder));
+      }
       model.put("files", children.getArtifactList());
       model.put("folders", children.getFolderList());
       return;
 
     } catch (RepositoryException e) {
-      log.log(Level.SEVERE, "Cannot load children for id '" + artifactId + "'", e);
+      log.log(Level.SEVERE, "Cannot load children for id '" + nodeId + "'", e);
       // TODO: how can we let the user know what went wrong without breaking the
       // tree?
       // throwing a HTTP 500 here will cause the tree to load the node forever.

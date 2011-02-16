@@ -21,6 +21,7 @@ import org.activiti.cycle.service.CycleCommentService;
 import org.activiti.cycle.service.CycleConfigurationService;
 import org.activiti.cycle.service.CycleContentService;
 import org.activiti.cycle.service.CyclePluginService;
+import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
 import org.activiti.cycle.service.CycleTagService;
@@ -34,7 +35,7 @@ import org.springframework.extensions.webscripts.Status;
  * @author Nils Preusker (nils.preusker@camunda.com)
  */
 public abstract class ActivitiCycleWebScript extends ActivitiWebScript {
-  
+
   protected Logger log = Logger.getLogger(getClass().getName());
 
   protected CycleRepositoryService repositoryService;
@@ -43,6 +44,7 @@ public abstract class ActivitiCycleWebScript extends ActivitiWebScript {
   protected CycleConfigurationService configurationService;
   protected CycleContentService contentService;
   protected CyclePluginService pluginService;
+  protected CycleProcessSolutionService processSolutionService;
 
   public ActivitiCycleWebScript() {
     configurationService = CycleServiceFactory.getConfigurationService();
@@ -51,6 +53,7 @@ public abstract class ActivitiCycleWebScript extends ActivitiWebScript {
     commentService = CycleServiceFactory.getCommentService();
     contentService = CycleServiceFactory.getContentService();
     pluginService = CycleServiceFactory.getCyclePluginService();
+    processSolutionService = CycleServiceFactory.getProcessSolutionService();
   }
 
   @Override
