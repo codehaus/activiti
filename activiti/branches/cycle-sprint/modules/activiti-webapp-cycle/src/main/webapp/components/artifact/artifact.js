@@ -164,7 +164,7 @@
       for(var i = 0; i<artifactJson.contentRepresentations.length; i++) {
         var tab = new YAHOO.widget.Tab({ 
           label: artifactJson.contentRepresentations[i], 
-          dataSrc: this.loadTabDataURL(artifactJson.connectorId, artifactJson.nodeId, artifactJson.contentRepresentations[i]), 
+          dataSrc: this.loadTabDataURL(artifactJson.connectorId, artifactJson.artifactId, artifactJson.contentRepresentations[i]), 
           cacheData: true
         });
         tab.addListener("contentChange", this.onTabDataLoaded);
