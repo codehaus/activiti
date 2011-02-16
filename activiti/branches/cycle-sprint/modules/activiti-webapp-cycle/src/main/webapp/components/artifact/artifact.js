@@ -45,6 +45,7 @@
     this._file = false;
     this._label = "";
     this._activeTabIndex = 0;
+    this._activeNavigationTabIndex = 0;
 
     this._fileChooserDialog = {};
     this._linksDataTable = {};
@@ -99,6 +100,7 @@
       this._file = eventValue.file;
       this._label = eventValue.label;
       this._activeTabIndex = eventValue.activeArtifactViewTabIndex;
+      this._activeNavigationTabIndex = eventValue.activeNavigationTabIndex;
 
       // get the header el of the content area
       var headerEl = Selector.query("h1", this.id, true);
@@ -164,7 +166,7 @@
       for(var i = 0; i<artifactJson.contentRepresentations.length; i++) {
         var tab = new YAHOO.widget.Tab({ 
           label: artifactJson.contentRepresentations[i], 
-          dataSrc: this.loadTabDataURL(artifactJson.connectorId, artifactJson.artifactId, artifactJson.contentRepresentations[i]), 
+          dataSrc: this.loadTabDataURL(artifactJson.connectorId, artifactJson.nodeId, artifactJson.contentRepresentations[i]), 
           cacheData: true
         });
         tab.addListener("contentChange", this.onTabDataLoaded);
@@ -412,7 +414,7 @@
     onActiveTabChange: function Artifact_onActiveTabChange(event)
     {
       var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "nodeId": this._nodeId, "file": this._file, "name": this._name, "activeArtifactViewTabIndex": newActiveTabIndex}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "nodeId": this._nodeId, "file": this._file, "name": this._name, "activeNavigationTabIndex": this._activeNavigationTabIndex, "activeArtifactViewTabIndex": newActiveTabIndex}, null, true);
       YAHOO.util.Event.preventDefault(event);
     },
 
