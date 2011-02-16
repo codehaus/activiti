@@ -89,13 +89,10 @@
     <antcall target="webapp.redeploy"/>
   </target>
 
-  <!--
-  See comment in "webapp.cycle.redeploy.resources"
   <target name="webapp.cycle.redeploy">
-    <property name="webapp.redeploy.module" value="activiti-webapp-cycle"/>
+    <property name="webapp.redeploy.module" value="cycle"/>
     <antcall target="webapp.redeploy"/>
   </target>
-  -->
   
   <target name="webapp.redeploy">
     <fail message="To use this target, set property webapp.redeploy.module to the chosen module" unless="webapp.redeploy.module"/>

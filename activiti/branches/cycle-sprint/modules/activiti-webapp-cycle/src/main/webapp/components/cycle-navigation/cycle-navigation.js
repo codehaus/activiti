@@ -53,6 +53,13 @@
       if (!Activiti.event.isInitEvent(Activiti.event.updateArtifactView)) {
         this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "/", nodeId: ""}, null, true);
       }
+      
+      var reloadLink = document.createElement('a');
+      // reloadLink.setAttribute('id', this.id + '-tree-refresh-link');
+      reloadLink.setAttribute('class', 'tree-refresh-link')
+      reloadLink.setAttribute('href', "javascript:location.reload();");
+      reloadLink.innerHTML = "refresh tree";
+      document.getElementById(this.id).appendChild(reloadLink);
     },
 
     /**

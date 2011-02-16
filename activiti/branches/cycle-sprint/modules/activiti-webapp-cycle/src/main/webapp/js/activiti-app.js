@@ -65,23 +65,23 @@
     },
 
     /**
-     * TODO: document it.. Also see dynamicLoad in repo-tree.js
+     * Loads the child nodes of a given node in the tree.
      *
+     * @method loadChildNodes
      */
-    loadNodeData: function RepositoryService_loadNodeData(node, fnLoadComplete)
+    loadChildNodes: function RepositoryService_loadChildNodes(node, fnLoadComplete)
     {
       var obj = [node, fnLoadComplete];
-      this.jsonGet(this.loadNodeURL(node.data.connectorId, node.data.nodeId), obj, "loadNodeData");
+      this.jsonGet(this.loadChildNodesURL(node.data.connectorId, node.data.nodeId), obj, "loadNodeData");
     },
 
     /**
-     * TODO: doc
-     * Creates the GET url used to load the tree
+     * Creates the GET url to load child nodes of a given tree node.
      *
      * @method loadTreeURL
      * @return {string} The url
      */
-    loadNodeURL: function RepositoryService_loadNodeURL(connectorId, nodeId)
+    loadChildNodesURL: function RepositoryService_loadChildNodesURL(connectorId, nodeId)
     {
       return Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId);
     },

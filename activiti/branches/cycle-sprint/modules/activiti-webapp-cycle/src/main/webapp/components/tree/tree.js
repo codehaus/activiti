@@ -24,7 +24,7 @@
     this.services.repositoryService = new Activiti.service.RepositoryService(this);
 
     // Listen for updateArtifactView event in order to be able to expand the tree up to the selected artifact
-    this.onEvent(Activiti.event.updateProcessSolutionsTree, this.onUpdateProcessSolutionsTree);
+    this.onEvent(Activiti.event.updateArtifactView, this.onUpdateArtifactView);
 
     this._nodesJson = nodesJson;
     this._containingNavigationTabIndex = containingNavigationTabIndex;
@@ -51,63 +51,58 @@
     */
     onReady: function Tree_onReady()
     {
-      if (!Activiti.event.isInitEvent(Activiti.event.updateProcessSolutionsTree)) {
-        this.fireEvent(Activiti.event.updateProcessSolutionsTree, {connectorId: "/", nodeId: ""}, null, true);
-      }
+      this.initTree();
     },
     
     /**
-     * Event listener for "Activiti.event.updateProcessSolutionsTree" event, checks whether the tree is initialized, 
-     * initializes the tree if it isn't and sets focus to the currently active node if the tree is initialized.
+     * Event listener for "Activiti.event.updateArtifactView" event, checks whether the tree is 
+     * initialized, initializes the tree if it isn't and sets focus to the currently active node
+     * if the tree is initialized.
      *
-     * @method onUpdateArtifactView
+     * @method onTriggerEvent
      * @param event {Object} the event that triggered the invokation of this method
      * @param args {array} an array of arguments containing the object literal of the event at index 1
      */
-    onUpdateProcessSolutionsTree: function RepoTree_onUpdateProcessSolutionsTree(event, args)
+    onUpdateArtifactView: function Tree_onUpdateArtifactView(event, args)
     {
-      var me = this;
-      
       this._connectorId = args[1].value.connectorId;
       this._nodeId = args[1].value.nodeId;
       if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
-        // The tree is not yet initialized, the page is initially loaded
-
-        // Define a method to dynamically load tree nodes tp pass it to the tree instance later
-        var loadTreeNodes = function (node, fnLoadComplete) {
-          if(node.data.connectorId && node.data.nodeId && node.data.connectorId == me._connectorId && node.data.nodeId == me._nodeId) {
-            me.highlightCurrentNode();
-          }
-          if(node.data.file || node.children.length > 0) {
-            // TODO: (Nils Preusker, 16.2.2011) check the "node.children.length > 0" part...
-            // Don't attempt to load child nodes for artifacts or nodes that are already loaded
-            fnLoadComplete();
-          } else {
-            me.services.repositoryService.loadNodeData(node, fnLoadComplete);
-          }
-        };
-
-        // instantiate the TreeView control
-        this._treeView = new YAHOO.widget.TreeView(this.id, this._nodesJson);
-
-        // set the callback function to dynamically load child nodes
-        // set iconMode to 1 to use the leaf node icon when a node has no children. 
-        this._treeView.setDynamicLoad(loadTreeNodes, 1);
-        this._treeView.render();
-
-        // Subscribe to the click event of the tree
-        this._treeView.subscribe("clickEvent", this.onClickEvent, null, this);
+        // The tree is not yet initialized
         
-        var reloadLink = document.createElement('a');
-        reloadLink.setAttribute('id', this.id + '-tree-refresh-link');
-        reloadLink.setAttribute('class', 'tree-refresh-link')
-        reloadLink.setAttribute('href', "javascript:location.reload();");
-        reloadLink.innerHTML = "refresh tree";
-        document.getElementById(this.id).appendChild(reloadLink);
       } else {
         // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
         this.highlightCurrentNode();
       }
+    },
+
+    initTree: function Tree_initTree()
+    {
+      var me = this;
+      // Define a method to dynamically load tree nodes tp pass it to the tree instance later
+      var loadTreeNodes = function (node, fnLoadComplete) {
+        if(node.data.connectorId && node.data.nodeId && node.data.connectorId == me._connectorId && node.data.nodeId == me._nodeId) {
+          me.highlightCurrentNode();
+        }
+        if(node.data.file || node.children.length > 0) {
+          // TODO: (Nils Preusker, 16.2.2011) check the "node.children.length > 0" part...
+          // Don't attempt to load child nodes for artifacts or nodes that are already loaded
+          fnLoadComplete();
+        } else {
+          me.services.repositoryService.loadChildNodes(node, fnLoadComplete);
+        }
+      };
+
+      // instantiate the TreeView control
+      this._treeView = new YAHOO.widget.TreeView(this.id, this._nodesJson);
+
+      // set the callback function to dynamically load child nodes
+      // set iconMode to 1 to use the leaf node icon when a node has no children. 
+      this._treeView.setDynamicLoad(loadTreeNodes, 1);
+      this._treeView.render();
+
+      // Subscribe to the click event of the tree
+      this._treeView.subscribe("clickEvent", this.onClickEvent, null, this);
     },
 
     /**
@@ -180,12 +175,20 @@
       obj[1]();
     },
 
-    // TODO: See how we can handle failures
-    // onLoadNodeDataFailure: function RepoTree_RepositoryService_onLoadNodeDataFailure(response, obj)
-    //     {
-    //       
-    //       
-    //     },
+    /**
+     * Failure callback of the RepositoryService method loadNodeData. This method gets invoked if anything goes wrong while loading a tree node. 
+     *
+     * @method onLoadNodeDataFailure
+     * @param response the response object that contains the JSON response string
+     * @param obj an array of objects that contains the containing node at index 0 and the loadComplete callback of the treeView component at index 1
+     */
+    onLoadNodeDataFailure: function RepoTree_RepositoryService_onLoadNodeDataFailure(response, obj)
+    {
+      // TODO: see how we can show a custom error message here.
+
+      // call the trees load complete function anyway to keep the rest of the tree usable.
+      obj[1]();
+    },
 
     highlightCurrentNode: function RepoTree_highlightCurrentNode() {
       var me = this;
