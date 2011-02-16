@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.activiti.cycle.Content;
 import org.activiti.cycle.ContentRepresentation;
+import org.activiti.cycle.CycleComponentFactory;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
@@ -13,11 +14,14 @@ import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
+import org.activiti.cycle.impl.components.RuntimeConnectorList;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
+
+import com.sun.xml.bind.v2.model.runtime.RuntimeReferencePropertyInfo;
 
 /**
  * Virtual {@link RepositoryConnector} for {@link ProcessSolution}s
@@ -124,7 +128,7 @@ public class ProcessSolutionConnector implements RepositoryConnector {
     if (wrappedFolder != null) {
       // get child nodes of wrapped folder
       childNodes = repositoryService.getChildren(wrappedFolder.getConnectorId(), wrappedFolder.getNodeId());
-    }
+    }else 
     if (virtualFolder != null) {
       // get child nodes of virtual folder
       childNodes = repositoryService.getChildren(virtualFolder.getConnectorId(), virtualFolder.getReferencedNodeId());
@@ -170,13 +174,17 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public Content getContent(String artifactId) throws RepositoryNodeNotFoundException {
-    return null;
+    ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
+    return repositoryService.getContent(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId());
   }
 
   public void updateContent(String artifactId, Content content) throws RepositoryNodeNotFoundException {
+    ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
+    repositoryService.updateContent(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId(), content);
   }
 
   public void updateContent(String artifactId, String contentRepresentationName, Content content) throws RepositoryNodeNotFoundException {
+    updateContent(artifactId, content);
   }
 
   public void deleteArtifact(String artifactId) throws RepositoryNodeNotFoundException {
@@ -186,6 +194,8 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public void executeParameterizedAction(String artifactId, String actionId, Map<String, Object> parameters) throws Exception {
+    ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
+    repositoryService.executeParameterizedAction(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId(), actionId, parameters);
   }
 
   public boolean isLoggedIn() {
@@ -193,7 +203,10 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public ContentRepresentation getDefaultContentRepresentation(String artifactId) throws RepositoryNodeNotFoundException {
-    return null;
+    ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
+    RuntimeConnectorList connectorList = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class);
+    RepositoryConnector connector = connectorList.getConnectorById(artifact.connectorId);
+    return connector.getDefaultContentRepresentation(artifact.wrappedNode.getNodeId());
   }
 
   public void startConfiguration() {
