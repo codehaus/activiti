@@ -71,7 +71,7 @@
     loadNodeData: function RepositoryService_loadNodeData(node, fnLoadComplete)
     {
       var obj = [node, fnLoadComplete];
-      this.jsonGet(this.loadNodeURL(node.data.connectorId, node.data.artifactId), obj, "loadNodeData");
+      this.jsonGet(this.loadNodeURL(node.data.connectorId, node.data.nodeId), obj, "loadNodeData");
     },
 
     /**
@@ -81,61 +81,61 @@
      * @method loadTreeURL
      * @return {string} The url
      */
-    loadNodeURL: function RepositoryService_loadNodeURL(connectorId, nodeid)
+    loadNodeURL: function RepositoryService_loadNodeURL(connectorId, nodeId)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes?connectorId=" + encodeURIComponent(connectorId) + "&artifactId=" + encodeURIComponent(nodeid);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId);
     },
 
     /**
      * Loads an artifact (id and url)
      *
      * @method loadArtifact
-     * @param artifactid {string} The id of the artifact to be loaded
+     * @param nodeId {string} The id of the artifact to be loaded
      * @param obj {Object} Helper object to be sent to the callback
      */
-    loadArtifact: function RepositoryService_loadArtifact(connectorId, artifactid)
+    loadArtifact: function RepositoryService_loadArtifact(connectorId, nodeId)
     {
-      this.jsonGet(this.loadArtifactURL(connectorId, artifactid), null, "loadArtifact");
+      this.jsonGet(this.loadArtifactURL(connectorId, nodeId), null, "loadArtifact");
     },
 
     /**
      * Creates the GET url used to load the artifact
      *
      * @method loadArtifactURL
-     * @param artifactid {string} The id of the artifact
+     * @param nodeId {string} The id of the artifact
      * @return {string} The url
      */
-    loadArtifactURL: function RepositoryService_loadArtifactURL(connectorId, artifactid)
+    loadArtifactURL: function RepositoryService_loadArtifactURL(connectorId, nodeId)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact?connectorId=" + encodeURIComponent(connectorId) + "&artifactId=" + encodeURIComponent(artifactid) + "&restProxyUri=" + encodeURIComponent(Activiti.service.REST_PROXY_URI_RELATIVE);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&restProxyUri=" + encodeURIComponent(Activiti.service.REST_PROXY_URI_RELATIVE);
     },
 
     // TODO: doc
-    loadArtifactActionForm: function RepositoryService_loadArtifactActionForm(connectorId, artifactId, artifactActionName, obj)
+    loadArtifactActionForm: function RepositoryService_loadArtifactActionForm(connectorId, nodeId, artifactActionName, obj)
     {
-      this.jsonGet(this.loadArtifactActionFormURL(connectorId, artifactId, artifactActionName), obj, "loadArtifactActionForm");
+      this.jsonGet(this.loadArtifactActionFormURL(connectorId, nodeId, artifactActionName), obj, "loadArtifactActionForm");
     },
 
     // TODO: doc
-    loadArtifactActionFormURL: function RepositoryService_loadArtifactActionFormURL(connectorId, artifactId, artifactActionName)
+    loadArtifactActionFormURL: function RepositoryService_loadArtifactActionFormURL(connectorId, nodeId, artifactActionName)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action-form?connectorId=" + encodeURIComponent(connectorId) + "&artifactId=" + encodeURIComponent(artifactId) + "&actionName=" + encodeURIComponent(artifactActionName);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action-form?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&actionName=" + encodeURIComponent(artifactActionName);
     },
 
-    executeArtifactAction: function RepositoryService_executeArtifactAction(connectorId, artifactId, artifactActionName, variables, obj)
+    executeArtifactAction: function RepositoryService_executeArtifactAction(connectorId, nodeId, artifactActionName, variables, obj)
     {
-      this.jsonPut(this.executeArtifactFormURL(connectorId, artifactId, artifactActionName), variables, obj, "executeArtifactAction");
+      this.jsonPut(this.executeArtifactFormURL(connectorId, nodeId, artifactActionName), variables, obj, "executeArtifactAction");
     },
 
-    executeArtifactFormURL: function RepositoryService_executeArtifactFormURL(connectorId, artifactId, artifactActionName)
+    executeArtifactFormURL: function RepositoryService_executeArtifactFormURL(connectorId, nodeId, artifactActionName)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action?connectorId=" + encodeURIComponent(connectorId) + "&artifactId=" + encodeURIComponent(artifactId) + "&actionName=" + encodeURIComponent(artifactActionName);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&actionName=" + encodeURIComponent(artifactActionName);
     },
 
     /**
      * Creates a new artifactLink by posting the provided artifactLinkLiteral parameter to the
      * REST API. The 'artifactLinkLiteral' is an object literal that should contain the following
-     * values: "connectorId", "artifactId", "targetConnectorId", "targetArtifactId"
+     * values: "connectorId", "nodeId", "targetConnectorId", "targetNodeId"
      *
      * @param artifactLinkLiteral object literal with the values of the link to be created
      */
@@ -213,16 +213,16 @@
       this.jsonPost(this.createTagUrl(), tagLiteral, null, "createTag");
     },
     
-    createTagUrl: function RepositoryService_createTagUrl(connectorId, artifactId, tag) {
+    createTagUrl: function RepositoryService_createTagUrl(connectorId, nodeId, tag) {
       return Activiti.service.REST_PROXY_URI_RELATIVE + "tag";
     },
     
-    loadTagsByRepositoryNode: function RepositoryService_loadTagsByRepositoryNode(connectorId, repositoryNodeId) {
-      this.jsonGet(this.loadTagsByRepositoryNodeUrl(connectorId, repositoryNodeId), null, "loadTagsByRepositoryNode");
+    loadTagsByNode: function RepositoryService_loadTagsByNode(connectorId, nodeId) {
+      this.jsonGet(this.loadTagsByNodeUrl(connectorId, nodeId), null, "loadTagsByNode");
     },
     
-    loadTagsByRepositoryNodeUrl: function RepositoryService_loadTagsByRepositoryNodeUrl(connectorId, repositoryNodeId) {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "tags?connectorId=" + encodeURIComponent(connectorId) + "&repositoryNodeId=" + encodeURIComponent(repositoryNodeId);
+    loadTagsByNodeUrl: function RepositoryService_loadTagsByNodeUrl(connectorId, nodeId) {
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "tags?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId);
     },
     
     saveTags: function RepositoryService_saveTags(tagsLiteral) {
@@ -238,7 +238,7 @@
     },
     
     deleteTagUrl: function RepositoryService_deleteTagUrl(tagLiteral) {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "tag?connectorId=" + encodeURIComponent(tagLiteral.connectorId) + "&repositoryNodeId=" + encodeURIComponent(tagLiteral.repositoryNodeId) + "&tagName=" + encodeURIComponent(tagLiteral.tagName);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "tag?connectorId=" + encodeURIComponent(tagLiteral.connectorId) + "&nodeId=" + encodeURIComponent(tagLiteral.nodeId) + "&tagName=" + encodeURIComponent(tagLiteral.tagName);
     },
     
     loadUserConfig: function RepsositoryService_loadUserConfig() {
@@ -292,20 +292,20 @@
    *
    * @param id {string} The components id
    * @param connectorId {string} the connector id of the artifact
-   * @param artifactId {string} the id of the artifact
+   * @param nodeId {string} the id of the artifact
    * @param artifactActionName {string} the name of the action
    * @return {Activiti.widget.ExecuteArtifactActionForm} The new Activiti.widget.ExecuteArtifactActionForm instance
    * @constructor
    */
-  Activiti.widget.ExecuteArtifactActionForm = function ExecuteArtifactActionForm_constructor(id, connectorId, artifactId, artifactActionName)
+  Activiti.widget.ExecuteArtifactActionForm = function ExecuteArtifactActionForm_constructor(id, connectorId, nodeId, artifactActionName)
   {
     Activiti.widget.ExecuteArtifactActionForm.superclass.constructor.call(this, id);
     this.connectorId = connectorId;
-    this.artifactId = artifactId;
+    this.nodeId = nodeId;
     this.artifactActionName = artifactActionName;
     this.service = new Activiti.service.RepositoryService(this);
     this.service.setCallback("loadArtifactActionForm", { fn: this.onLoadFormSuccess, scope: this }, {fn: this.onLoadFormFailure, scope: this });
-    this.service.loadArtifactActionForm(this.connectorId, this.artifactId, this.artifactActionName);
+    this.service.loadArtifactActionForm(this.connectorId, this.nodeId, this.artifactActionName);
 
     this.waitDialog = 
     		new YAHOO.widget.Panel("wait",  
@@ -336,7 +336,7 @@
     doSubmit: function ExecuteArtifactActionForm__doSubmit(variables)
     {
       this.waitDialog.show();
-      this.service.executeArtifactAction(this.connectorId, this.artifactId, this.artifactActionName, variables);
+      this.service.executeArtifactAction(this.connectorId, this.nodeId, this.artifactActionName, variables);
       if (this.dialog) {
         this.dialog.destroy();
       }
@@ -562,12 +562,12 @@
     },
 
     onSubmit: function FileChooserDialog_onSubmit() {
-      if(this._currentNode.data && this._currentNode.data.connectorId && this._currentNode.data.artifactId && this._currentNode.label) {        
+      if(this._currentNode.data && this._currentNode.data.connectorId && this._currentNode.data.nodeId && this._currentNode.label) {        
         
         if(this._scope) {
-          this._scope[this._callbackFn]({"connectorId": this._currentNode.data.connectorId, "nodeId": this._currentNode.data.artifactId, "nodeName": this._currentNode.label});
+          this._scope[this._callbackFn]({"connectorId": this._currentNode.data.connectorId, "nodeId": this._currentNode.data.nodeId, "nodeName": this._currentNode.label});
         } else {
-          this._callbackFn({"connectorId": this._currentNode.data.connectorId, "nodeId": this._currentNode.data.artifactId, "nodeName": this._currentNode.label});
+          this._callbackFn({"connectorId": this._currentNode.data.connectorId, "nodeId": this._currentNode.data.nodeId, "nodeName": this._currentNode.label});
         }
       } else {
         // TODO: handle error... should never happen due to validation, though...
@@ -602,18 +602,18 @@
 	 * TaggingComponent constructor.
 	 *
 	 * @param htmlId {String} The HTML id of the parent element
-	 * @param repositoryNodeLiteral An object literal that contains the connectorId, the repositoryNodeId and the repositoryNodeLabel of the repository node to be tagged
+	 * @param nodeLiteral An object literal that contains the connectorId, the nodeId and the nodeLabel of the repository node to be tagged
 	 * @param elId The id of the Dom element that the tagging-component should be appended to
 	 * @return {Activiti.component.TaggingComponent} The new component.TaggingComponent instance
 	 * @constructor
 	 */
-	Activiti.component.TaggingComponent = function TaggingComponent_constructor(htmlId, repositoryNodeLiteral, elId)
+	Activiti.component.TaggingComponent = function TaggingComponent_constructor(htmlId, nodeLiteral, elId)
   {
     Activiti.component.TaggingComponent.superclass.constructor.call(this, "Activiti.component.TaggingComponent", htmlId);
 
     this.service = new Activiti.service.RepositoryService(this);
 
-    this._repositoryNode = repositoryNodeLiteral;
+    this._node = nodeLiteral;
     this._el = document.getElementById(elId);
     this._tags = [];
 
@@ -631,10 +631,10 @@
 		*/
 		onReady: function TagThisDialog_onReady()
 		{
-		  this.service.loadTagsByRepositoryNode(this._repositoryNode.connectorId, this._repositoryNode.repositoryNodeId);
+		  this.service.loadTagsByNode(this._node.connectorId, this._node.nodeId);
 		},
 
-    onLoadTagsByRepositoryNodeSuccess: function TaggingComponent_RepositoryService_onloadTagsByRepositoryNodeSuccess(response, obj) {
+    onLoadTagsByNodeSuccess: function TaggingComponent_RepositoryService_onloadTagsByNodeSuccess(response, obj) {
       
       if(response.json.authenticationError) {
         return;
@@ -751,29 +751,29 @@
           tags.push(Activiti.util.trim(rawTags[tag]));
         }
       }
-      var tagsLiteral = YAHOO.lang.merge(this._repositoryNode, {tags: tags})
+      var tagsLiteral = YAHOO.lang.merge(this._node, {tags: tags})
       this.service.saveTags(tagsLiteral);
       YAHOO.util.Event.preventDefault(event);
     },
 
     onCancelLinkClick: function TaggingComponent_onCancelLinkClick(event, obj) {
-      this.service.loadTagsByRepositoryNode(this._repositoryNode.connectorId, this._repositoryNode.repositoryNodeId);
+      this.service.loadTagsByNode(this._node.connectorId, this._node.nodeId);
       YAHOO.util.Event.preventDefault(event);
     },
 
     onRemoveTagLinkClick: function TaggingComponent_onRemoveTagLinkClick(event, tag) {
-      var tagLiteral = YAHOO.lang.merge(this._repositoryNode, {tagName: tag})
+      var tagLiteral = YAHOO.lang.merge(this._node, {tagName: tag})
       this.service.deleteTag(tagLiteral);
       YAHOO.util.Event.preventDefault(event);
     },
 
     onSaveTagsSuccess: function TaggingComponent_RepositoryService_onSaveTagsSuccess(response, obj) {
-      this.service.loadTagsByRepositoryNode(this._repositoryNode.connectorId, this._repositoryNode.repositoryNodeId);
+      this.service.loadTagsByNode(this._node.connectorId, this._node.nodeId);
     },
     
     onDeleteTagSuccess: function TaggingComponent_RepositoryService_onDeleteTagSuccess(response, obj) {
       // Make sure the view is updated after removing a tag.
-      this.service.loadTagsByRepositoryNode(this._repositoryNode.connectorId, this._repositoryNode.repositoryNodeId);
+      this.service.loadTagsByNode(this._node.connectorId, this._node.nodeId);
     }
 
 	});

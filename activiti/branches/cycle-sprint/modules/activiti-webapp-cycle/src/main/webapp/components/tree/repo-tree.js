@@ -10,15 +10,15 @@
       $html = Activiti.util.decodeHTML;
       
   /**
-   * RepoTree constructor.
+   * Tree constructor.
    *
    * @param {String} htmlId The HTML id of the parent element
-   * @return {Activiti.component.RepoTree} The new component.RepoTree instance
+   * @return {Activiti.component.Tree} The new component.Tree instance
    * @constructor
    */
-  Activiti.component.RepoTree = function RepoTree_constructor(htmlId)
+  Activiti.component.Tree = function Tree_constructor(htmlId)
   {
-    Activiti.component.RepoTree.superclass.constructor.call(this, "Activiti.component.RepoTree", htmlId);
+    Activiti.component.Tree.superclass.constructor.call(this, "Activiti.component.Tree", htmlId);
 
     // Create new service instances and set this component to receive the callbacks
     this.services.repositoryService = new Activiti.service.RepositoryService(this);
@@ -32,12 +32,12 @@
     this._contextMenu = {};
     
     this._connectorId = "";
-    this._repositoryNodeId = "";
+    this._nodeId = "";
 
     return this;
   };
 
-  YAHOO.extend(Activiti.component.RepoTree, Activiti.component.Base,
+  YAHOO.extend(Activiti.component.Tree, Activiti.component.Base,
   {
   
     /**
@@ -46,12 +46,9 @@
     *
     * @method onReady
     */
-    onReady: function RepoTree_onReady()
+    onReady: function Tree_onReady()
     {
-      if (!Activiti.event.isInitEvent(Activiti.event.updateArtifactView))
-      {
-        this.fireEvent(Activiti.event.updateArtifactView, {connectorId: "/", repositoryNodeId: ""}, null);
-      }
+
     },
     
     /**
@@ -73,10 +70,10 @@
         return new Activiti.component.AuthenticationDialog(this.id, response.json.repoInError, response.json.authenticationError);
       }
 
-      // Login is OK, we can get on with drawing the tree...
+      // Login is OK, we can start drawing the tree...
       var treeNodesJson = response.json;
       var loadTreeNodes = function (node, fnLoadComplete) {
-        if(node.data.connectorId && node.data.artifactId && node.data.connectorId == me._connectorId && node.data.artifactId == me._repositoryNodeId) {
+        if(node.data.connectorId && node.data.nodeId && node.data.connectorId == me._connectorId && node.data.nodeId == me._nodeId) {
           me.highlightCurrentNode();
         }
         if(node.data.file || node.children.length > 0) {
@@ -90,7 +87,7 @@
       };
 
       // instantiate the TreeView control
-      me._treeView = new YAHOO.widget.TreeView("treeDiv1", treeNodesJson);
+      me._treeView = new YAHOO.widget.TreeView(this.id, treeNodesJson);
 
       // set the callback function to dynamically load child nodes
       // set iconMode to 1 to use the leaf node icon when a node has no children. 
@@ -99,13 +96,13 @@
 
       me._treeView.subscribe("clickEvent", this.onLabelClick, null, this);
 
-      var contextMenuDiv = document.getElementById("cycle-tree-context-menu-div");
+      var contextMenuDiv = document.getElementById(this.id + "-cycle-tree-context-menu-div");
       if(contextMenuDiv) {
         contextMenuDiv.parentNode.removeChild(contextMenuDiv);
       }
 
-		  me._contextMenu = new YAHOO.widget.ContextMenu("cycle-tree-context-menu-div", {
-		      trigger: "treeDiv1"
+		  me._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
+		      trigger: this.id
 		    });
 
       me._contextMenu.render(document.body);
@@ -119,17 +116,18 @@
           if(node.data.file) {
             // this.addItems([]);
           } else if(node.data.folder) {
-            this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, artifactId: node.data.artifactId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
-            this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, artifactId: node.data.artifactId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
+            this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
+            this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
           }
           this.render();
         });
-        
+
       var reloadLink = document.createElement('a');
-      reloadLink.setAttribute('id', 'tree-refresh-link')
-      reloadLink.setAttribute('href', "javascript:location.reload();")
+      reloadLink.setAttribute('id', this.id + '-tree-refresh-link');
+      reloadLink.setAttribute('class', 'tree-refresh-link')
+      reloadLink.setAttribute('href', "javascript:location.reload();");
       reloadLink.innerHTML = "refresh tree";
-      document.getElementById("treeDiv1").appendChild(reloadLink);
+      document.getElementById(this.id).appendChild(reloadLink);
     },
 
     /**
@@ -144,7 +142,7 @@
      */
     onCreateArtifactContextMenuClick: function RepoTree_onCreateArtifactContextMenuClick(eventName, params, node)
     {
-      return new Activiti.component.CreateArtifactDialog(this.id, node.data.connectorId, node.data.artifactId);
+      return new Activiti.component.CreateArtifactDialog(this.id, node.data.connectorId, node.data.nodeId);
     },
 
     /**
@@ -159,7 +157,7 @@
      */
     onCreateFolderContextMenuClick: function RepoTree_onCreateFolderContextMenuClick(eventName, params, node)
     {
-      return new Activiti.component.CreateFolderDialog(this.id, node.data.connectorId, node.data.artifactId);
+      return new Activiti.component.CreateFolderDialog(this.id, node.data.connectorId, node.data.nodeId);
     },
 
     /**
@@ -183,32 +181,6 @@
       if(treeNodesJson) {
         for(var i = 0; i<treeNodesJson.length; i++) {
           var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj[0], treeNodesJson[i].expanded);
-          if(treeNodesJson[i].contentType) {
-            if(treeNodesJson[i].contentType === "image/png" || treeNodesJson[i].contentType === "image/gif" || treeNodesJson[i].contentType === "image/jpeg") {
-              node.labelStyle = "icon-img";
-            } else if(treeNodesJson[i].contentType === "application/xml") {
-              node.labelStyle = "icon-code-red";
-            } else if(treeNodesJson[i].contentType === "text/html") {
-              node.labelStyle = "icon-www";
-            } else if(treeNodesJson[i].contentType === "text/plain") {
-              node.labelStyle = "icon-txt";
-            } else if(treeNodesJson[i].contentType === "application/pdf") {
-              node.labelStyle = "icon-pdf";
-            } else if(treeNodesJson[i].contentType === "application/json;charset=UTF-8") {
-              node.labelStyle = "icon-code-blue";
-            } else if(treeNodesJson[i].contentType === "application/msword") {
-              node.labelStyle = "icon-doc";
-            } else if(treeNodesJson[i].contentType === "application/powerpoint") {
-              node.labelStyle = "icon-ppt";
-            } else if(treeNodesJson[i].contentType === "application/excel") {
-              node.labelStyle = "icon-xls";
-            } else if(treeNodesJson[i].contentType === "application/javascript") {
-              node.labelStyle = "icon-code-blue";
-            } else {
-              // Use white page as default icon for all other content types
-              node.labelStyle = "icon-blank";
-            }
-          }
         }
       }
 
@@ -225,7 +197,7 @@
     //     },
 
     /**
-     * Will fire an Activiti.event.selectTreeLabel event so other components may display the node
+     * Will fire an Activiti.event.updateArtifactView event so other components may display the node
      *
      * @method onLabelClick
      * @param e {object} The click event
@@ -234,11 +206,11 @@
     {
   
       // Map the node properties to the event value object (value object property -> node property):
-      // - repositoryNodeId -> node.data.id
+      // - nodeId -> node.data.nodeId
       // - isRepositoryArtifact -> node.data.file
       // - name -> node.label
 
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "repositoryNodeId": event.node.data.artifactId, "isRepositoryArtifact": event.node.data.file, "name": event.node.label, "activeTabIndex": 0}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "nodeId": event.node.data.nodeId, "file": event.node.data.file, "name": event.node.label, "activeArtifactViewTabIndex": 0}, null, true);
     },
 
     /**
@@ -251,10 +223,10 @@
     onUpdateArtifactView: function RepoTree_onUpdateArtifactView(event, args)
     {
       this._connectorId = args[1].value.connectorId;
-      this._repositoryNodeId = args[1].value.repositoryNodeId;
-      if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._repositoryNodeId)) {
+      this._nodeId = args[1].value.nodeId;
+      if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
         // tree is not yet initialized, we are coming from an external URL
-        this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._repositoryNodeId});
+        this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._nodeId});
       } else {
         // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
         this.highlightCurrentNode();
@@ -263,7 +235,7 @@
 
     highlightCurrentNode: function RepoTree_highlightCurrentNode() {
       var me = this;
-      var node = this.getNodeByConnectorAndId(this._connectorId, this._repositoryNodeId);
+      var node = this.getNodeByConnectorAndId(this._connectorId, this._nodeId);
       if(node && (node != this._treeView.currentFocus) ) {
         // if the node isn't already focused this is a browser history event and we manually set focus to the current node
         if(node) {
@@ -274,7 +246,7 @@
 
     getNodeByConnectorAndId: function TreeView_getNodeByConnectorAndId(connectorId, id) {
       var nodes = this._treeView.getNodesBy( function(node) {
-        if(node.data.connectorId && node.data.artifactId && node.data.connectorId === connectorId && node.data.artifactId === id) {
+        if(node.data.connectorId && node.data.nodeId && node.data.connectorId === connectorId && node.data.nodeId === id) {
           return true;
         }
         return false;

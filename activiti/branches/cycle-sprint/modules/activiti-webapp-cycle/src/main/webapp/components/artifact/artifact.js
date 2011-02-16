@@ -41,8 +41,8 @@
 
     this._tabView = {};
     this._connectorId = "";
-    this._repositoryNodeId = "";
-    this._isRepositoryArtifact = false;
+    this._nodeId = "";
+    this._file = false;
     this._name = "";
     this._activeTabIndex = 0;
 
@@ -95,15 +95,15 @@
       var eventValue = args[1].value;
       
       this._connectorId = eventValue.connectorId;
-      this._repositoryNodeId = eventValue.repositoryNodeId;
-      this._isRepositoryArtifact = eventValue.isRepositoryArtifact;
+      this._nodeId = eventValue.nodeId;
+      this._file = eventValue.file;
       this._name = eventValue.name;
       this._activeTabIndex = eventValue.activeTabIndex;
 
       // get the header el of the content area
       var headerEl = Selector.query("h1", this.id, true);
       // determine whether the node is still the same
-      if("header-" + eventValue.repositoryNodeId === headerEl.id) {
+      if("header-" + eventValue.nodeId === headerEl.id) {
         // still the same node, if the tab view is instanciated, the tab selection should be updated
         if(this._tabView.set) {
           // Update active tab selection silently, without firing an event (last parameter 'true')
@@ -120,16 +120,16 @@
           optionsDiv.innerHTML = "";
           optionsDiv.removeAttribute("class");
         }
-        if(eventValue.repositoryNodeId) {
+        if(eventValue.nodeId) {
           // instantiate the tagging component
-          new Activiti.component.TaggingComponent(this.id, {connectorId: eventValue.connectorId, repositoryNodeId: eventValue.repositoryNodeId, repositoryNodeLabel: eventValue.name}, "tags-div");
+          new Activiti.component.TaggingComponent(this.id, {connectorId: eventValue.connectorId, nodeId: eventValue.nodeId, repositoryNodeLabel: eventValue.name}, "tags-div");
         }
         // Check whether the selected node is a file node. If so, load its data
-        if(eventValue.isRepositoryArtifact ) {
-          this.services.repositoryService.loadArtifact(eventValue.connectorId, eventValue.repositoryNodeId);
+        if(this._file ) {
+          this.services.repositoryService.loadArtifact(eventValue.connectorId, eventValue.nodeId);
         }
         // Update the heading that displays the name of the selected node
-        headerEl.id = "header-" + eventValue.repositoryNodeId;
+        headerEl.id = "header-" + eventValue.nodeId;
         headerEl.innerHTML = eventValue.name||'';
         // Remove the comments
         var commentsDiv = YAHOO.util.Dom.get(this.id + '-comments');
@@ -164,7 +164,7 @@
       for(var i = 0; i<artifactJson.contentRepresentations.length; i++) {
         var tab = new YAHOO.widget.Tab({ 
           label: artifactJson.contentRepresentations[i], 
-          dataSrc: this.loadTabDataURL(artifactJson.connectorId, artifactJson.artifactId, artifactJson.contentRepresentations[i]), 
+          dataSrc: this.loadTabDataURL(artifactJson.connectorId, artifactJson.nodeId, artifactJson.contentRepresentations[i]), 
           cacheData: true
         });
         tab.addListener("contentChange", this.onTabDataLoaded);
@@ -179,7 +179,7 @@
 
       var linksTab = new YAHOO.widget.Tab({ 
         label: "Links", 
-        dataSrc: Activiti.constants.URL_CONTEXT + 'component/links?htmlid=' + this.id + '_links_tab&connectorId=' + artifactJson.connectorId + '&artifactId=' + artifactJson.artifactId,
+        dataSrc: Activiti.constants.URL_CONTEXT + 'component/links?htmlid=' + this.id + '_links_tab&connectorId=' + artifactJson.connectorId + '&nodeId=' + artifactJson.nodeId,
         cacheData: true
       });
       linksTab.addListener("contentChange", this.onTabDataLoaded);
@@ -222,7 +222,7 @@
         var actionsMenuItems = [];
         var actions = [];
         for(i = 0; i<artifactJson.actions.length; i++) {
-          actions.push({ text: artifactJson.actions[i].label, value: {connectorId: artifactJson.connectorId, artifactId: artifactJson.artifactId, actionName: artifactJson.actions[i].name}, onclick: { fn: this.onExecuteActionClick } });
+          actions.push({ text: artifactJson.actions[i].label, value: {connectorId: artifactJson.connectorId, nodeId: artifactJson.nodeId, actionName: artifactJson.actions[i].name}, onclick: { fn: this.onExecuteActionClick } });
         }
         if(actions.length > 0) {
           actionsMenuItems.push(actions);
@@ -246,7 +246,7 @@
       }
       optionsDiv.setAttribute('class', 'active');
       
-      this.services.repositoryService.loadComments({connectorId: this._connectorId, nodeId: this._repositoryNodeId});
+      this.services.repositoryService.loadComments({connectorId: this._connectorId, nodeId: this._nodeId});
       
     },
 
@@ -258,9 +258,9 @@
         
         var tabContent;
         if(responseJson.renderInfo == "IMAGE") {
-          tabContent = '<div class="artifact-image"><img id="' + responseJson.contentRepresentationId + '" src="' + Activiti.service.REST_PROXY_URI_RELATIVE + "content?connectorId=" + encodeURIComponent(responseJson.connectorId) + "&artifactId=" + encodeURIComponent(responseJson.artifactId) + "&contentRepresentationId=" + encodeURIComponent(responseJson.contentRepresentationId) + '" border=0></img></div>';
+          tabContent = '<div class="artifact-image"><img id="' + responseJson.contentRepresentationId + '" src="' + Activiti.service.REST_PROXY_URI_RELATIVE + "content?connectorId=" + encodeURIComponent(responseJson.connectorId) + "&nodeId=" + encodeURIComponent(responseJson.nodeId) + "&contentRepresentationId=" + encodeURIComponent(responseJson.contentRepresentationId) + '" border=0></img></div>';
         } else if (responseJson.renderInfo == "HTML") {
-          tabContent = '<div class="artifact-html"><iframe src ="' + Activiti.service.REST_PROXY_URI_RELATIVE + "content?connectorId=" + encodeURIComponent(responseJson.connectorId) + "&artifactId=" + encodeURIComponent(responseJson.artifactId) + "&contentRepresentationId=" + encodeURIComponent(responseJson.contentRepresentationId) + '"><p>Your browser does not support iframes.</p></iframe></div>';
+          tabContent = '<div class="artifact-html"><iframe src ="' + Activiti.service.REST_PROXY_URI_RELATIVE + "content?connectorId=" + encodeURIComponent(responseJson.connectorId) + "&nodeId=" + encodeURIComponent(responseJson.nodeId) + "&contentRepresentationId=" + encodeURIComponent(responseJson.contentRepresentationId) + '"><p>Your browser does not support iframes.</p></iframe></div>';
         } else if (responseJson.renderInfo == "HTML_REFERENCE") {
           tabContent = '<div class="artifact-html-reference"><iframe src ="' + responseJson.url + '"><p>Your browser does not support iframes.</p></iframe></div>';
         } else if (responseJson.renderInfo == "BINARY") {
@@ -350,7 +350,7 @@
     onReplyButtonClick: function Artifact_onReplyButtonClick(event, id)
     {
       var replyForm = YAHOO.util.Dom.get(id);
-      var data = {connectorId: this._connectorId, nodeId: this._repositoryNodeId};
+      var data = {connectorId: this._connectorId, nodeId: this._nodeId};
       for(var prop in replyForm.childNodes) {
         if(replyForm.childNodes[prop] && replyForm.childNodes[prop].name == "comment-id") {
           data['answeredCommentId'] = replyForm.childNodes[prop].value;
@@ -376,13 +376,13 @@
       var comment = YAHOO.util.Dom.get("comment-input");
       if(comment.value) {
         this.waitDialog.show();
-        this.services.repositoryService.saveComment({connectorId: this._connectorId, nodeId: this._repositoryNodeId, content: comment.value}); 
+        this.services.repositoryService.saveComment({connectorId: this._connectorId, nodeId: this._nodeId, content: comment.value}); 
       }
     },
     
     onSaveCommentSuccess: function Artifact_onSaveCommentSuccess(response, obj)
     {
-      this.services.repositoryService.loadComments({connectorId: this._connectorId, nodeId: this._repositoryNodeId});
+      this.services.repositoryService.loadComments({connectorId: this._connectorId, nodeId: this._nodeId});
       // TODO: i18n
       Activiti.widget.PopupManager.displayMessage({
         text: 'Successfully added comment'
@@ -396,7 +396,7 @@
 
     onExecuteActionClick: function Artifact_onExecuteActionClick(e)
     {
-      return new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", this.value.connectorId, this.value.artifactId, this.value.actionName);
+      return new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", this.value.connectorId, this.value.nodeId, this.value.actionName);
     },
     
     onTabDataLoaded: function Artifact_onTabDataLoaded()
@@ -404,15 +404,15 @@
       prettyPrint();
     },
 
-    loadTabDataURL: function Artifact_loadTabDataURL(connectorId, artifactId, representationId)
+    loadTabDataURL: function Artifact_loadTabDataURL(connectorId, nodeId, representationId)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "content-representation?connectorId=" + encodeURIComponent(connectorId) + "&artifactId=" + encodeURIComponent(artifactId) + "&representationId=" + encodeURIComponent(representationId);
+      return Activiti.service.REST_PROXY_URI_RELATIVE + "content-representation?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&representationId=" + encodeURIComponent(representationId);
     },
 
     onActiveTabChange: function Artifact_onActiveTabChange(event)
     {
       var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "repositoryNodeId": this._repositoryNodeId, "isRepositoryArtifact": this._isRepositoryArtifact, "name": this._name, "activeTabIndex": newActiveTabIndex}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "nodeId": this._nodeId, "file": this._file, "name": this._name, "activeArtifactViewTabIndex": newActiveTabIndex}, null, true);
       YAHOO.util.Event.preventDefault(event);
     },
 

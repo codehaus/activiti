@@ -1173,19 +1173,15 @@ Activiti.event = function() {
     clickFormEventButton: "clickFormEventButton",
 
     /**
- 		 * Shall be fired when a tree node is selected.
+ 		 * This event is fired whenever the artifact view changes. 
  		 * 
  		 * @property selectTreeLabel
  		 * @type string
  		 */
      updateArtifactView: "updateArtifactView",
      
-     expandTreeNode: "expandTreeNode",
-
-     collapseTreeNode: "collapseTreeNode",
-     
      displayLinks: "displayLinks",
-
+     
     /**
      * Fires when the Processes Table is ready
      * 

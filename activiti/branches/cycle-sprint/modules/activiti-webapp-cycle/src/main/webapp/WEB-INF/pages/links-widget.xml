@@ -10,7 +10,7 @@
       <url>/component/links</url>
       <properties>
         <connectorId>{connectorId}</connectorId>
-        <artifactId>{artifactId}</artifactId>
+        <nodeId>{nodeId}</nodeId>
         <!-- Note that the htmlid will there automatically when coming though the "page resolver mechanism" -->
       </properties>
     </component>
