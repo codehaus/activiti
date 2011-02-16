@@ -6,6 +6,7 @@ import java.util.List;
 import org.activiti.cycle.CycleComponentFactory;
 import org.activiti.cycle.impl.db.CycleProcessSolutionDao;
 import org.activiti.cycle.impl.processsolution.DefaultProcessSolutionTemplate;
+import org.activiti.cycle.impl.processsolution.ProcessSolutionCreate;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.ProcessSolutionTemplate;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
@@ -29,7 +30,8 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
   }
 
   public void createNewProcessSolution() {
-
+    ProcessSolutionCreate processSolutionCreate = CycleComponentFactory.getCycleComponentInstance("processSolutionCreate", ProcessSolutionCreate.class);
+    processSolutionCreate.createNewProcessSolution();
   }
 
   public List<VirtualRepositoryFolder> getFoldersForProcessSolution(String id) {
@@ -46,6 +48,10 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
 
   public ProcessSolutionTemplate getDefaultProcessSolutionTemplate() {
     return CycleComponentFactory.getCycleComponentInstance(DefaultProcessSolutionTemplate.class, DefaultProcessSolutionTemplate.class);
+  }
+
+  public CycleProcessSolutionDao getDao() {
+    return dao;
   }
 
 }
