@@ -16,7 +16,7 @@
    * @return {Activiti.component.Tree} The new component.Tree instance
    * @constructor
    */
-  Activiti.component.Tree = function Tree_constructor(htmlId)
+  Activiti.component.Tree = function Tree_constructor(htmlId, nodesJson, containingNavigationTabIndex)
   {
     Activiti.component.Tree.superclass.constructor.call(this, "Activiti.component.Tree", htmlId);
 
@@ -24,7 +24,10 @@
     this.services.repositoryService = new Activiti.service.RepositoryService(this);
 
     // Listen for updateArtifactView event in order to be able to expand the tree up to the selected artifact
-    this.onEvent(Activiti.event.updateArtifactView, this.onUpdateArtifactView);
+    this.onEvent(Activiti.event.updateProcessSolutionsTree, this.onUpdateProcessSolutionsTree);
+
+    this._nodesJson = nodesJson;
+    this._containingNavigationTabIndex = containingNavigationTabIndex;
 
     this._treeView = {};
     this._dialog = {};
@@ -48,86 +51,74 @@
     */
     onReady: function Tree_onReady()
     {
-
+      if (!Activiti.event.isInitEvent(Activiti.event.updateProcessSolutionsTree)) {
+        this.fireEvent(Activiti.event.updateProcessSolutionsTree, {connectorId: "/", nodeId: ""}, null, true);
+      }
     },
     
     /**
-     * Success callback of the RepositoryService method loadTree. This method is invoked when the asynchronous request to load the tree
-     * returns, it takes the JSON response and creates a YUI TreeView instance with a dynamic load function, specific context menus for
-     * the different nodes and a click event listener to fire an event for other components to listen to.
+     * Event listener for "Activiti.event.updateProcessSolutionsTree" event, checks whether the tree is initialized, 
+     * initializes the tree if it isn't and sets focus to the currently active node if the tree is initialized.
      *
-     * @method onLoadTreeSuccess
-     * @param response {object} The callback response
+     * @method onUpdateArtifactView
+     * @param event {Object} the event that triggered the invokation of this method
+     * @param args {array} an array of arguments containing the object literal of the event at index 1
      */
-    onLoadTreeSuccess: function RepoTree_RepositoryService_onLoadTreeSuccess(response)
+    onUpdateProcessSolutionsTree: function RepoTree_onUpdateProcessSolutionsTree(event, args)
     {
       var me = this;
+      
+      this._connectorId = args[1].value.connectorId;
+      this._nodeId = args[1].value.nodeId;
+      if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
+        // The tree is not yet initialized, the page is initially loaded
 
-      // Handle authentication errors:
-      // If the server reports that there are repositories in the users configuration that need a username and password to log in,
-      // we'll show a dialog that prompts the user to provide his username and password for each of these repositories.
-      if(response.json.authenticationError) {
-        return new Activiti.component.AuthenticationDialog(this.id, response.json.repoInError, response.json.authenticationError);
-      }
-
-      // Login is OK, we can start drawing the tree...
-      var treeNodesJson = response.json;
-      var loadTreeNodes = function (node, fnLoadComplete) {
-        if(node.data.connectorId && node.data.nodeId && node.data.connectorId == me._connectorId && node.data.nodeId == me._nodeId) {
-          me.highlightCurrentNode();
-        }
-        if(node.data.file || node.children.length > 0) {
-          // Don't attempt to load child nodes for artifacts
-          fnLoadComplete();
-        } else {
-          me.services.repositoryService.loadNodeData(node, fnLoadComplete);
-          // TODO: see if there is a way to define a timeout even if the server returns a HTTP 500 status
-          //timeout: 7000
-        }
-      };
-
-      // instantiate the TreeView control
-      me._treeView = new YAHOO.widget.TreeView(this.id, treeNodesJson);
-
-      // set the callback function to dynamically load child nodes
-      // set iconMode to 1 to use the leaf node icon when a node has no children. 
-      me._treeView.setDynamicLoad(loadTreeNodes, 1);
-      me._treeView.render();
-
-      me._treeView.subscribe("clickEvent", this.onLabelClick, null, this);
-
-      var contextMenuDiv = document.getElementById(this.id + "-cycle-tree-context-menu-div");
-      if(contextMenuDiv) {
-        contextMenuDiv.parentNode.removeChild(contextMenuDiv);
-      }
-
-		  me._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
-		      trigger: this.id
-		    });
-
-      me._contextMenu.render(document.body);
-      me._contextMenu.subscribe("triggerContextMenu", function (event, menu) {
-          // retrieve the node the context menu was triggered on
-          var oTarget = this.contextEventTarget;
-          var node = me._treeView.getNodeByElement(oTarget);
-          
-          // clear existing menu items and set up the context menu according to the current node
-          this.clearContent();
-          if(node.data.file) {
-            // this.addItems([]);
-          } else if(node.data.folder) {
-            this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
-            this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
+        // Define a method to dynamically load tree nodes tp pass it to the tree instance later
+        var loadTreeNodes = function (node, fnLoadComplete) {
+          if(node.data.connectorId && node.data.nodeId && node.data.connectorId == me._connectorId && node.data.nodeId == me._nodeId) {
+            me.highlightCurrentNode();
           }
-          this.render();
-        });
+          if(node.data.file || node.children.length > 0) {
+            // TODO: (Nils Preusker, 16.2.2011) check the "node.children.length > 0" part...
+            // Don't attempt to load child nodes for artifacts or nodes that are already loaded
+            fnLoadComplete();
+          } else {
+            me.services.repositoryService.loadNodeData(node, fnLoadComplete);
+          }
+        };
 
-      var reloadLink = document.createElement('a');
-      reloadLink.setAttribute('id', this.id + '-tree-refresh-link');
-      reloadLink.setAttribute('class', 'tree-refresh-link')
-      reloadLink.setAttribute('href', "javascript:location.reload();");
-      reloadLink.innerHTML = "refresh tree";
-      document.getElementById(this.id).appendChild(reloadLink);
+        // instantiate the TreeView control
+        this._treeView = new YAHOO.widget.TreeView(this.id, this._nodesJson);
+
+        // set the callback function to dynamically load child nodes
+        // set iconMode to 1 to use the leaf node icon when a node has no children. 
+        this._treeView.setDynamicLoad(loadTreeNodes, 1);
+        this._treeView.render();
+
+        // Subscribe to the click event of the tree
+        this._treeView.subscribe("clickEvent", this.onClickEvent, null, this);
+        
+        var reloadLink = document.createElement('a');
+        reloadLink.setAttribute('id', this.id + '-tree-refresh-link');
+        reloadLink.setAttribute('class', 'tree-refresh-link')
+        reloadLink.setAttribute('href', "javascript:location.reload();");
+        reloadLink.innerHTML = "refresh tree";
+        document.getElementById(this.id).appendChild(reloadLink);
+      } else {
+        // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
+        this.highlightCurrentNode();
+      }
+    },
+
+    /**
+     * Will fire an Activiti.event.updateArtifactView event so other components may react.
+     *
+     * @method onClickEvent
+     * @param e {object} The click event
+     */
+    onClickEvent: function RepoTree_onClickEvent (event)
+    {
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "nodeId": event.node.data.nodeId, "file": event.node.data.file, "label": event.node.label, "activeNavigationTabIndex": this._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
     },
 
     /**
@@ -196,43 +187,6 @@
     //       
     //     },
 
-    /**
-     * Will fire an Activiti.event.updateArtifactView event so other components may display the node
-     *
-     * @method onLabelClick
-     * @param e {object} The click event
-     */
-    onLabelClick: function RepoTree_onLabelClick (event)
-    {
-  
-      // Map the node properties to the event value object (value object property -> node property):
-      // - nodeId -> node.data.nodeId
-      // - isRepositoryArtifact -> node.data.file
-      // - name -> node.label
-
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "nodeId": event.node.data.nodeId, "file": event.node.data.file, "name": event.node.label, "activeArtifactViewTabIndex": 0}, null, true);
-    },
-
-    /**
-     * Event listener for "Activiti.event.updateArtifactView" event, sets the focus to the currently active node in the tree.
-     *
-     * @method onUpdateArtifactView
-     * @param event {Object} the event that triggered the invokation of this method
-     * @param args {array} an array of arguments containing the object literal of the event at index 1
-     */
-    onUpdateArtifactView: function RepoTree_onUpdateArtifactView(event, args)
-    {
-      this._connectorId = args[1].value.connectorId;
-      this._nodeId = args[1].value.nodeId;
-      if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
-        // tree is not yet initialized, we are coming from an external URL
-        this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._nodeId});
-      } else {
-        // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
-        this.highlightCurrentNode();
-      }
-    },
-
     highlightCurrentNode: function RepoTree_highlightCurrentNode() {
       var me = this;
       var node = this.getNodeByConnectorAndId(this._connectorId, this._nodeId);
@@ -257,3 +211,40 @@
   });
 
 })();
+
+
+// onLoadTreeSuccess: function RepoTree_RepositoryService_onLoadTreeSuccess(response)
+//     {
+//       var me = this;
+
+  // (Nils Preusker, 16.11.2011)
+  // ... just a placeholder to keep the context menu stuff... this still needs to be re-implemented
+
+  // var contextMenuDiv = document.getElementById(this.id + "-cycle-tree-context-menu-div");
+  //    if(contextMenuDiv) {
+  //      contextMenuDiv.parentNode.removeChild(contextMenuDiv);
+  //    }
+  // 
+  //      me._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
+  //          trigger: this.id
+  //        });
+  // 
+  //    me._contextMenu.render(document.body);
+  //    me._contextMenu.subscribe("triggerContextMenu", function (event, menu) {
+  //        // retrieve the node the context menu was triggered on
+  //        var oTarget = this.contextEventTarget;
+  //        var node = me._treeView.getNodeByElement(oTarget);
+  //        
+  //        // clear existing menu items and set up the context menu according to the current node
+  //        this.clearContent();
+  //        if(node.data.file) {
+  //          // this.addItems([]);
+  //        } else if(node.data.folder) {
+  //          this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
+  //          this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
+  //        }
+  //        this.render();
+  //      });
+  // 
+  //    
+  //  },

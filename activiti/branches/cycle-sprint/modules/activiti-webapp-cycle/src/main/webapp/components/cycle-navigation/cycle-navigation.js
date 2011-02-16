@@ -27,8 +27,14 @@
     this.onEvent(Activiti.event.updateArtifactView, this.onUpdateArtifactView);
 
     this.messages = {};
-    this._activeNavigationTabIndex = {};
     this._tabView;
+    
+    this._connectorId = "";
+    this._nodeId = "";
+    this._file = false;
+    this._label = "";
+    this._activeNavigationTabIndex = 0;
+    this._activeArtifactViewTabIndex = 0;
     
     return this;
   };
@@ -45,7 +51,7 @@
     onReady: function CycleNavigation_onReady()
     {
       if (!Activiti.event.isInitEvent(Activiti.event.updateArtifactView)) {
-        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "/", nodeId: ""}, null);
+        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "/", nodeId: ""}, null, true);
       }
     },
 
@@ -59,6 +65,16 @@
      */
     onUpdateArtifactView: function RepoTree_onUpdateArtifactView(event, args)
     {
+      
+      var eventValue = args[1].value;
+      
+      this._connectorId = eventValue.connectorId;
+      this._nodeId = eventValue.nodeId;
+      this._file = eventValue.file;
+      this._label = eventValue.label;
+      this._activeNavigationTabIndex = eventValue.activeNavigationTabIndex;
+      this._activeArtifactViewTabIndex = eventValue.activeArtifactViewTabIndex;
+
       var me = this;
       
       // Check whether the tab view is already initialized
@@ -103,17 +119,16 @@
         
         // Select the active tab without firing an event (last parameter is 'silent=true')
         this._tabView.set("activeTab", this._tabView.getTab(args[1].value.activeNavigationTabIndex), true);
+        
+        // replace the tabViews onActiveTabChange evnet handler with our own one        
+        this._tabView.unsubscribe("activeTabChange", this._tabView._onActiveTabChange);
+        this._tabView.subscribe("activeTabChange", this.onActiveTabChange, null, this);
+      } else {
+        // Update active tab selection silently, without firing an event (last parameter 'true')
+        this._tabView.set("activeTab", this._tabView.getTab(this._activeNavigationTabIndex), true);
       }
 
-      // 4) TODO: deal with event handling and the browser history manager (putting the tab change events on the URL)
-      // replace the tabViews onActiveTabChange evnet handler with our own one
-      // this._tabView.unsubscribe("activeTabChange", this._tabView._onActiveTabChange);
-      //       this._tabView.subscribe("activeTabChange", this.onActiveTabChange, null, this);
-
-      if(args[1].value.activeNavigationTabIndex != this._activeNavigationTabIndex) {
-        
-        
-      }
+      
     },
 
     /**
@@ -132,14 +147,8 @@
     onLoadProcessSolutionsTabSuccess: function Artifact_onLoadProcessSolutionsTabSuccess(tab, response) 
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
-      // parse response, create tab content and set it to the tab
-      
-      var tabContent;
-      
-      // TODO: parse response
-      // new Activiti.component.RepoTree(this.id).setMessages(this.messages);
-      
-      tab.set('content', tabContent);
+      tab.set('content', "<div id='process-solutions-tree-" + this.id + "'></div>");
+      new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0).setMessages(this.messages);
     },
 
     onLoadProcessSolutionsTabFailure: function Artifact_onLoadProcessSolutionsTabFailure(tab, response) 
@@ -160,16 +169,11 @@
     onLoadRepositoriesTabSuccess: function Artifact_onLoadRepositoriesTabSuccess(tab, response) 
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
-      // parse response, create tab content and set it to the tab
-      
-      var tabContent;
-      
-      // TODO: parse response
-      // new Activiti.component.RepoTree(this.id).setMessages(this.messages);
-      
-      tab.set('content', tabContent);
+      tab.set('content', "<div id='repositories-tree-" + this.id + "'></div>");
+      new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1).setMessages(this.messages);
     },
 
+    // TODO: This method is copied from the tab view for artifacts, let's see if we can reuse it here.
     onLoadRepositoriesTabFailure: function Artifact_onLoadRepositoriesTabFailure(tab, response) 
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
@@ -183,6 +187,13 @@
       }
       tab.set('content', tabContent);
       Activiti.widget.PopupManager.displayError(responseJson.message);
+    },
+
+    onActiveTabChange: function CycleNavigation_onActiveTabChange(event)
+    {
+      var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "nodeId": this._nodeId, "file": this._file, "label": this._label, "activeNavigationTabIndex": newActiveTabIndex, "activeArtifactViewTabIndex": this._activeArtifactViewTabIndex}, null, true);
+      YAHOO.util.Event.preventDefault(event);
     }
 
     // TODO: add browser history manager handling, we need to introduce an additional value "activeNavigationTabIndex" and rename "activeTabIndex" to "activeArtifactViewTabIndex"

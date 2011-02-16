@@ -43,7 +43,7 @@
     this._connectorId = "";
     this._nodeId = "";
     this._file = false;
-    this._name = "";
+    this._label = "";
     this._activeTabIndex = 0;
 
     this._fileChooserDialog = {};
@@ -97,8 +97,8 @@
       this._connectorId = eventValue.connectorId;
       this._nodeId = eventValue.nodeId;
       this._file = eventValue.file;
-      this._name = eventValue.name;
-      this._activeTabIndex = eventValue.activeTabIndex;
+      this._label = eventValue.label;
+      this._activeTabIndex = eventValue.activeArtifactViewTabIndex;
 
       // get the header el of the content area
       var headerEl = Selector.query("h1", this.id, true);

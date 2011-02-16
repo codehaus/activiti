@@ -1175,10 +1175,26 @@ Activiti.event = function() {
     /**
  		 * This event is fired whenever the artifact view changes. 
  		 * 
- 		 * @property selectTreeLabel
+ 		 * @property updateArtifactView
  		 * @type string
  		 */
      updateArtifactView: "updateArtifactView",
+
+     /**
+      * This event shall be fired when the process solutions tree needs to be updated.
+      *
+      * @property updateProcessSolutionsTree
+      * @type string
+      */
+     updateProcessSolutionsTree: "updateProcessSolutionsTree",
+
+     /**
+      * This event shall be fired when the repositories tree needs to be updated.
+      *
+      * @property updateRepositoriesTree
+      * @type string
+      */
+     updateRepositoriesTree: "updateRepositoriesTree",
      
      displayLinks: "displayLinks",
      
