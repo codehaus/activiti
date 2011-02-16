@@ -90,7 +90,7 @@ public class ContentGet extends ActivitiStreamingWebScript {
   private void getContent(ActivitiRequest req, WebScriptResponse res) throws IOException {
     CycleContentService contentService = CycleServiceFactory.getContentService();
 
-    // Retrieve the artifactId from the request
+    // Retrieve the nodeId from the request
     String cnonectorId = req.getMandatoryString("connectorId");
     String nodeId = req.getMandatoryString("nodeId");
     String contentRepresentationId = req.getMandatoryString("contentRepresentationId");

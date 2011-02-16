@@ -66,6 +66,6 @@ public class ContentRepresentationGet extends ActivitiCycleWebScript {
       model.put("renderInfo", RenderInfo.HTML);
       model.put("contentRepresentationId", representationId);
       model.put("contentType", CycleApplicationContext.get(HtmlMimeType.class).getContentType());
-    } 
+    }
   }
 }

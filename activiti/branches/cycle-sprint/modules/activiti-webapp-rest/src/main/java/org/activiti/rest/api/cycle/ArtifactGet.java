@@ -36,7 +36,7 @@ public class ArtifactGet extends ActivitiCycleWebScript {
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
 
-    // Retrieve the artifactId from the request
+    // Retrieve the nodeId from the request
     String connectorId = req.getMandatoryString("connectorId");
     String nodeId = req.getString("nodeId");
     String restProxyUri = req.getString("restProxyUri");
@@ -70,7 +70,7 @@ public class ArtifactGet extends ActivitiCycleWebScript {
 
     model.put("downloads", downloads);
     model.put("links", pluginService.getArtifactOpenLinkActions(artifact));
-    model.put("artifactId", artifact.getNodeId());
+    model.put("nodeId", artifact.getNodeId());
     model.put("connectorId", artifact.getConnectorId());
   }
 }
