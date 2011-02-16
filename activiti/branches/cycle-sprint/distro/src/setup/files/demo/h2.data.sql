@@ -108,7 +108,7 @@ insert into ACT_CY_V_FOLDER values('ps1Requirements',
 insert into ACT_CY_V_FOLDER values('ps1Processes',
 								   'Processes',
 								   'Activiti',
-								   '/VacationRequest'
+								   '/VacationRequest',
 								   'ps1',
 								   'Processes');
 insert into ACT_CY_V_FOLDER values('ps1Implementation',
