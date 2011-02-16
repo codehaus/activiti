@@ -38,11 +38,11 @@ public class ArtifactGet extends ActivitiCycleWebScript {
 
     // Retrieve the artifactId from the request
     String connectorId = req.getMandatoryString("connectorId");
-    String artifactId = req.getString("artifactId");
+    String nodeId = req.getString("nodeId");
     String restProxyUri = req.getString("restProxyUri");
 
     // Retrieve the artifact from the repository
-    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, artifactId);
+    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, nodeId);
 
     List<String> contentRepresentations = new ArrayList<String>();
     for (ContentRepresentation representation : contentService.getContentRepresentations(artifact)) {
@@ -57,7 +57,7 @@ public class ArtifactGet extends ActivitiCycleWebScript {
     List<DownloadActionView> downloads = new ArrayList<DownloadActionView>();
     for (DownloadContentAction action : pluginService.getDownloadContentActions(artifact)) {
       try {
-        String url = restProxyUri + "content?connectorId=" + URLEncoder.encode(connectorId, "UTF-8") + "&artifactId=" + URLEncoder.encode(artifactId, "UTF-8")
+        String url = restProxyUri + "content?connectorId=" + URLEncoder.encode(connectorId, "UTF-8") + "&nodeId=" + URLEncoder.encode(nodeId, "UTF-8")
                 + "&contentRepresentationId=" + URLEncoder.encode(action.getContentRepresentation().getId(), "UTF-8");
         downloads.add(new DownloadActionView(action.getId(), url, action.getContentRepresentation().getRepresentationMimeType().getContentType(), action
                 .getContentRepresentation().getId()));

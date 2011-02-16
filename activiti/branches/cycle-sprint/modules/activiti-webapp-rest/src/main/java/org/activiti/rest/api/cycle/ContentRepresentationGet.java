@@ -33,15 +33,15 @@ public class ContentRepresentationGet extends ActivitiCycleWebScript {
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
     String connectorId = req.getMandatoryString("connectorId");
-    String artifactId = req.getString("artifactId");
+    String nodeId = req.getString("nodeId");
     String representationId = req.getString("representationId");
 
-    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, artifactId);
+    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, nodeId);
 
     // Get representation by id to determine whether it is an image...
     try {
       model.put("connectorId", connectorId);
-      model.put("artifactId", artifactId);
+      model.put("nodeId", nodeId);
 
       ContentRepresentation contentRepresentation = contentService.getContentRepresentation(artifact, representationId);
       switch (contentRepresentation.getRenderInfo()) {

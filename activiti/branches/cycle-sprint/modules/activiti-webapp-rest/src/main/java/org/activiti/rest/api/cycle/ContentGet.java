@@ -92,11 +92,11 @@ public class ContentGet extends ActivitiStreamingWebScript {
 
     // Retrieve the artifactId from the request
     String cnonectorId = req.getMandatoryString("connectorId");
-    String artifactId = req.getMandatoryString("artifactId");
+    String nodeId = req.getMandatoryString("nodeId");
     String contentRepresentationId = req.getMandatoryString("contentRepresentationId");
 
     // Retrieve the artifact from the repository
-    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(cnonectorId, artifactId);
+    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(cnonectorId, nodeId);
 
     ContentRepresentation contentRepresentation = contentService.getContentRepresentation(artifact, contentRepresentationId);
 

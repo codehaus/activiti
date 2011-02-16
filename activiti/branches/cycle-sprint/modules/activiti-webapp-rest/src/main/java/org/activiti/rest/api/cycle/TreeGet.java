@@ -21,6 +21,8 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
+import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
+import org.activiti.cycle.impl.connector.ProcessSolutionRepositoryNode;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
 import org.activiti.rest.api.cycle.dto.TreeLeafDto;
 import org.activiti.rest.api.cycle.dto.TreeNodeDto;
@@ -37,7 +39,14 @@ public class TreeGet extends ActivitiCycleWebScript {
 
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
+
     RepositoryNodeCollection rootNodes = this.repositoryService.getChildren("/", "");
+    String treeId = req.getMandatoryString("treeId");
+    if (treeId.equals("repo")) {
+      rootNodes = filterRepositories(rootNodes);
+    } else {
+      rootNodes = filterProcessSolutions(rootNodes);
+    }
     // load tree
     List<TreeFolderDto> tree = new ArrayList<TreeFolderDto>();
     for (RepositoryNode repositoryNode : rootNodes.asList()) {
@@ -54,6 +63,26 @@ public class TreeGet extends ActivitiCycleWebScript {
       }
     }
     model.put("tree", tree);
+  }
+
+  private RepositoryNodeCollection filterRepositories(RepositoryNodeCollection rootNodes) {
+    List<RepositoryNode> resultList = new ArrayList<RepositoryNode>();
+    for (RepositoryNode repositoryNode : rootNodes.asList()) {
+      if (!repositoryNode.getConnectorId().startsWith("ps")) {
+        resultList.add(repositoryNode);
+      }
+    }
+    return new RepositoryNodeCollectionImpl(resultList);
+  }
+
+  private RepositoryNodeCollection filterProcessSolutions(RepositoryNodeCollection rootNodes) {
+    List<RepositoryNode> resultList = new ArrayList<RepositoryNode>();
+    for (RepositoryNode repositoryNode : rootNodes.asList()) {
+      if (repositoryNode.getConnectorId().startsWith("ps")) {
+        resultList.add(repositoryNode);
+      }
+    }
+    return new RepositoryNodeCollectionImpl(resultList);
   }
 
   private void expandTree(List<TreeFolderDto> tree, String connectorId, String nodeId) {
