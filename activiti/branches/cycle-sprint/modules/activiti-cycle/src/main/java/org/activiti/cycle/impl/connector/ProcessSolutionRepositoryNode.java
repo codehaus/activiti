@@ -12,7 +12,7 @@ import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
  * 
  * @author Daniel Meyer
  */
-public class VirtualRepositoryNodeImpl implements RepositoryNode {
+public class ProcessSolutionRepositoryNode implements RepositoryNode {
 
   protected VirtualRepositoryFolder virtualRepositoryFolder;
 
@@ -24,7 +24,7 @@ public class VirtualRepositoryNodeImpl implements RepositoryNode {
 
   protected String nodeId;
 
-  public VirtualRepositoryNodeImpl(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
+  public ProcessSolutionRepositoryNode(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
           RepositoryNode wrappedNode) {
     this.virtualRepositoryFolder = virtualFolder;
     this.connectorId = connectorId;

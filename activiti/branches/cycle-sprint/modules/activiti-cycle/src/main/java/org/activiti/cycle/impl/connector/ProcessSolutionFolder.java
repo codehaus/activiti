@@ -9,7 +9,7 @@ import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
  * 
  * @author Daniel Meyer
  */
-public class ProcessSolutionFolder extends VirtualRepositoryNodeImpl implements RepositoryFolder {
+public class ProcessSolutionFolder extends ProcessSolutionRepositoryNode implements RepositoryFolder {
 
   public ProcessSolutionFolder(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
           RepositoryFolder wrappedFolder) {

@@ -5,7 +5,7 @@ import org.activiti.cycle.RepositoryArtifactType;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 
-public class ProcessSolutionArtifact extends VirtualRepositoryNodeImpl implements RepositoryArtifact {
+public class ProcessSolutionArtifact extends ProcessSolutionRepositoryNode implements RepositoryArtifact {
 
   public ProcessSolutionArtifact(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
           RepositoryArtifact wrappedArtifact) {

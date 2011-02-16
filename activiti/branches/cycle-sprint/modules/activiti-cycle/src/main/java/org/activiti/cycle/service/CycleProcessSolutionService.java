@@ -3,6 +3,7 @@ package org.activiti.cycle.service;
 import java.util.List;
 
 import org.activiti.cycle.processsolution.ProcessSolution;
+import org.activiti.cycle.processsolution.ProcessSolutionTemplate;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 
 /**
@@ -46,4 +47,8 @@ public interface CycleProcessSolutionService {
    */
   public VirtualRepositoryFolder getVirtualRepositoryFolderById(String id);
 
+  /**
+   * @return the default {@link ProcessSolutionTemplate}.
+   */
+  public ProcessSolutionTemplate getDefaultProcessSolutionTemplate();
 }
