@@ -48,8 +48,8 @@ public class ChildNodesGet extends ActivitiCycleWebScript {
       for (RepositoryFolder folder : children.getFolderList()) {
         folders.add(new TreeFolderDto(folder));
       }
-      model.put("files", children.getArtifactList());
-      model.put("folders", children.getFolderList());
+      model.put("files", leafs);
+      model.put("folders", folders);
       return;
 
     } catch (RepositoryException e) {

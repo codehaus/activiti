@@ -66,7 +66,7 @@ public abstract class TreeNodeDto {
   public void setConnectorId(String connectorId) {
     this.connectorId = connectorId;
   }
-
+  
   @Override
   public int hashCode() {
     final int prime = 31;

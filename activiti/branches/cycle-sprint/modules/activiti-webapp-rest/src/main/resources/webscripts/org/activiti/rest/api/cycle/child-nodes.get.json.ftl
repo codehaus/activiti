@@ -10,7 +10,7 @@
 <#macro printFolder folder>
 <#escape x as jsonUtils.encodeJSONString(x)>
 {
-  "label": "${folder.label}",
+  "label": "${folder.label!''}",
   "connectorId": "${folder.connectorId}",
   "nodeId": "${folder.nodeId}",
   "folder": "true"
@@ -21,7 +21,7 @@
 <#macro printFile file>
 <#escape x as jsonUtils.encodeJSONString(x)>
 {
-  "label": "${file.label}",
+  "label": "${file.label!''}",
   "connectorId": "${file.connectorId}",
   "nodeId": "${file.nodeId}",
   "expanded": "true",

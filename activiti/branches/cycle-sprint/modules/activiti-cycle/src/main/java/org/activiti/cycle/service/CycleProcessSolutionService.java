@@ -32,8 +32,9 @@ public interface CycleProcessSolutionService {
    * 
    * @param the
    *          name of the new process solution
+   * @return the id of the new processSolution
    */
-  public void createNewProcessSolution(String name);
+  public String createNewProcessSolution(String name);
 
   /**
    * @param the

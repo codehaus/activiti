@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.cycle.CycleComponentFactory;
+import org.activiti.cycle.impl.components.RuntimeConnectorList;
 import org.activiti.cycle.impl.db.CycleProcessSolutionDao;
 import org.activiti.cycle.impl.processsolution.DefaultProcessSolutionTemplate;
 import org.activiti.cycle.impl.processsolution.ProcessSolutionCreate;
@@ -29,10 +30,13 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
     return new ArrayList<ProcessSolution>(dao.getProcessSolutionList());
   }
 
-  public void createNewProcessSolution(String name) {
+  public String createNewProcessSolution(String name) {
     ProcessSolutionCreate processSolutionCreate = CycleComponentFactory.getCycleComponentInstance("processSolutionCreate", ProcessSolutionCreate.class);
     processSolutionCreate.setName(name);
-    processSolutionCreate.createNewProcessSolution();
+    String processSolutionId = processSolutionCreate.createNewProcessSolution();
+    RuntimeConnectorList runtimeConnectorList = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class);
+    runtimeConnectorList.discardConnectors();
+    return processSolutionId;
   }
 
   public List<VirtualRepositoryFolder> getFoldersForProcessSolution(String id) {

@@ -429,6 +429,11 @@
         class="org.activiti.rest.api.cycle.TreeGet"
         parent="activitiWebScript">
   </bean>
+  
+  <bean id="webscript.org.activiti.rest.api.cycle.process-solution.post"
+  		class="org.activiti.rest.api.cycle.ProcessSolutionPost"
+  		parent="activitiWebScript">
+  </bean>
 
 <bean parent="webscripts.formatmap">
   <property name="formats">

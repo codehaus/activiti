@@ -19,7 +19,6 @@ import org.activiti.cycle.impl.service.CycleProcessSolutionServiceImpl;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.ProcessSolutionTemplate;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
-import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
 
 /**
@@ -31,7 +30,6 @@ import org.activiti.cycle.service.CycleServiceFactory;
 public class ProcessSolutionCreate {
 
   private CycleProcessSolutionServiceImpl processSolutionService = (CycleProcessSolutionServiceImpl) CycleServiceFactory.getProcessSolutionService();
-  private CycleRepositoryService repositoryService = CycleServiceFactory.getRepositoryService();
   private RuntimeConnectorList connectorList = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class);
   private String name;
 
@@ -58,7 +56,7 @@ public class ProcessSolutionCreate {
     return name;
   }
 
-  public void createNewProcessSolution() {
+  public String createNewProcessSolution() {
     ProcessSolutionTemplate template = processSolutionService.getDefaultProcessSolutionTemplate();
 
     ProcessSolutionEntity processSolutionEntity = createProcessSolutionEntity(template);
@@ -85,6 +83,8 @@ public class ProcessSolutionCreate {
         TransactionalConnectorUtils.commitTransaction(participatingConnector, "created new process solution " + name);
       }
 
+      return processSolutionEntity.getId();
+
     } catch (Exception e) {
 
       // rollback repository transactions:
@@ -99,6 +99,8 @@ public class ProcessSolutionCreate {
 
       // delete process solution:
       processSolutionService.getDao().deleteProcessSolutionById(processSolutionEntity.getId());
+
+      throw new RuntimeException("Could not create ProcessSolution " + e.getMessage(), e);
     }
   }
 
