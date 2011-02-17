@@ -22,6 +22,12 @@ public interface ExportMarshaller {
 
   /**
    * Placeholder parsed when creating a filename that is substituted with the
+   * filename of the original file, stripped of the original file's extension.
+   */
+  public static final String PLACEHOLDER_ORIGINAL_FILENAME_WITHOUT_EXTENSION = "$originalNameWithoutExtension";
+
+  /**
+   * Placeholder parsed when creating a filename that is substituted with the
    * date and time at the moment of creation.
    */
   public static final String PLACEHOLDER_DATE_TIME = "$dateTime";

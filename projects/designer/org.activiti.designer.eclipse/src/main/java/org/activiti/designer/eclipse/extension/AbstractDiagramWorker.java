@@ -48,6 +48,7 @@ public abstract class AbstractDiagramWorker {
 
   private static final String REGEX_DATE_TIME = "\\" + ExportMarshaller.PLACEHOLDER_DATE_TIME + "";
   private static final String REGEX_FILENAME = "\\" + ExportMarshaller.PLACEHOLDER_ORIGINAL_FILENAME + "";
+  private static final String REGEX_FILENAME_WITHOUT_EXTENSION = "\\" + ExportMarshaller.PLACEHOLDER_ORIGINAL_FILENAME_WITHOUT_EXTENSION + "";
   private static final String REGEX_EXTENSION = "\\" + ExportMarshaller.PLACEHOLDER_ORIGINAL_FILE_EXTENSION + "";
 
   /**
@@ -140,6 +141,7 @@ public abstract class AbstractDiagramWorker {
     finalSegment = finalSegment.replaceAll(REGEX_DATE_TIME, SDF.format(now.getTime()));
     finalSegment = finalSegment.replaceAll(REGEX_EXTENSION, originalURI.fileExtension());
     finalSegment = finalSegment.replaceAll(REGEX_FILENAME, originalURI.lastSegment());
+    finalSegment = finalSegment.replaceAll(REGEX_FILENAME_WITHOUT_EXTENSION, originalURI.trimFileExtension().lastSegment());
 
     return parentURI.appendSegment(finalSegment);
   }

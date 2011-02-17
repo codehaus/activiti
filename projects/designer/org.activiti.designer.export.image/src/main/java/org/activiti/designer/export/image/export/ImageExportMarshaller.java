@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ImageExportMarshaller extends AbstractExportMarshaller {
 
-  private static final String FILENAME_PATTERN = ExportMarshaller.PLACEHOLDER_ORIGINAL_FILENAME + ".processimage.jpg";
+  private static final String FILENAME_PATTERN = ExportMarshaller.PLACEHOLDER_ORIGINAL_FILENAME_WITHOUT_EXTENSION + ".png";
 
   private IProgressMonitor monitor;
   private Diagram diagram;
@@ -83,7 +83,8 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
       // Retrieve GraphicalViewer from the save handler
       final GraphicalViewer graphicalViewer = ActivitiDiagramEditor.getActiveGraphicalViewer();
 
-      if(graphicalViewer == null || graphicalViewer.getEditPartRegistry() == null) return;
+      if (graphicalViewer == null || graphicalViewer.getEditPartRegistry() == null)
+        return;
       final ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer.getEditPartRegistry().get(LayerManager.ID);
       final IFigure rootFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.PRINTABLE_LAYERS);
       final IFigure gridFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.GRID_LAYER);
@@ -116,7 +117,7 @@ public class ImageExportMarshaller extends AbstractExportMarshaller {
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream(imgLoader.data.length);
 
-      imgLoader.save(baos, SWT.IMAGE_JPEG);
+      imgLoader.save(baos, SWT.IMAGE_PNG);
 
       imageGC.dispose();
       img.dispose();
