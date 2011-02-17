@@ -1,24 +1,25 @@
 package org.activiti.cycle.impl.conf;
 
+import org.activiti.cycle.impl.ActivitiCycleTest;
 import org.activiti.engine.ProcessEngines;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class RepositoryConnectorConfigurationManagerImplTest {
+public class RepositoryConnectorConfigurationManagerImplTest extends ActivitiCycleTest{
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    // ProcessEngines.destroy();
-    ProcessEngines.init();
-    // configurationService = new CycleServiceImpl();
-  }
+//  @BeforeClass
+//  public static void setUp() throws Exception {
+//    // ProcessEngines.destroy();
+//    ProcessEngines.init();
+//    // configurationService = new CycleServiceImpl();
+//  }
 
-  @AfterClass
-  public static void tearDown() throws Exception {
-    // configurationService = null;
-    // ProcessEngines.destroy();
-  }
+//  @AfterClass
+//  public static void tearDown() throws Exception {
+//    // configurationService = null;
+//    // ProcessEngines.destroy();
+//  }
 
   // @Test
   // public void testAPI() {
@@ -132,7 +133,7 @@ public class RepositoryConnectorConfigurationManagerImplTest {
   // + "<org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration>"
   // + "<name>Eclipse Workspace (File System)</name>"
   // +
-  // "<baseFilePath>C:/Dokumente+und+Einstellungen/polenz/workspace/activiti/distro/target/activiti-5.2-SNAPSHOT/apps/eclipse-workspace</baseFilePath>"
+  // "<baseFilePath>C:/Dokumente+und+Einstellungen/polenz/workspace/activiti/distro/target/activiti-5.3-SNAPSHOT/apps/eclipse-workspace</baseFilePath>"
   // +
   // "</org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration>"
   // + "<org.activiti.cycle.impl.connector.signavio.OryxConnectorConfiguration>"
@@ -168,7 +169,7 @@ public class RepositoryConnectorConfigurationManagerImplTest {
   // + "<org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration>"
   // + "<name>Eclipse Workspace (File System)</name>"
   // +
-  // "<baseFilePath>C:/Dokumente+und+Einstellungen/polenz/workspace/activiti/distro/target/activiti-5.2-SNAPSHOT/apps/eclipse-workspace</baseFilePath>"
+  // "<baseFilePath>C:/Dokumente+und+Einstellungen/polenz/workspace/activiti/distro/target/activiti-5.3-SNAPSHOT/apps/eclipse-workspace</baseFilePath>"
   // +
   // "</org.activiti.cycle.impl.connector.fs.FileSystemConnectorConfiguration>"
   // + "<org.activiti.cycle.impl.connector.signavio.OryxConnectorConfiguration>"

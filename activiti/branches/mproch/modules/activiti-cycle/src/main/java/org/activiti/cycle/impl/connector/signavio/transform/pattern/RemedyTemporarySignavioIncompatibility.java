@@ -13,16 +13,19 @@ public class RemedyTemporarySignavioIncompatibility {
   public String transformBpmn20Xml(String xml, String processName) {
     // set process id and name
     processName = AdjustShapeNamesForXmlNCName.adjustForXmlNCName(processName);
+    
     xml = setAttributeText(xml, "process", "id", processName);
+    // in DI as well
+    xml = setAttributeText(xml, "bpmndi:BPMNPlane", "bpmnElement", processName);
+    
     if (!existAttribute(xml, "process", "name")) {
       xml = addAttribute(xml, "process", "name", processName);
-    }
- else {
+    } else {
       // change the name to the process name (much more intuitive for the
       // moment)
       xml = setAttributeText(xml, "process", "name", processName);
     }
-    
+
     return transformBpmn20Xml(xml);
   }
 
@@ -62,7 +65,7 @@ public class RemedyTemporarySignavioIncompatibility {
         
     xml = removeAttribute(xml, "typeLanguage");
     xml = removeAttribute(xml, "expressionLanguage");
-    xml = removeAttribute(xml, "xmlns:bpmndi");
+    //xml = removeAttribute(xml, "xmlns:bpmndi");
    
     return xml;
   }

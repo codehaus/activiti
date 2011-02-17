@@ -13,9 +13,7 @@
 
 package org.activiti.engine.test.history;
 
-import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
-import org.activiti.engine.task.Task;
 import org.activiti.engine.test.Deployment;
 
 
@@ -35,13 +33,16 @@ public class HistoricTaskInstanceUpdateTest extends PluggableActivitiTestCase {
     task.setPriority(12345);
     task.setDescription("Updated description");
     task.setName("Updated name");
+    task.setAssignee("gonzo");
     taskService.saveTask(task);   
 
     taskService.complete(task.getId());
     assertEquals(1, historyService.createHistoricTaskInstanceQuery().count());
 
     HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().singleResult();
+    assertEquals("Updated name", historicTaskInstance.getName());
     assertEquals("Updated description", historicTaskInstance.getDescription());
-    assertEquals("Updated name", historicTaskInstance.getDescription());
+    assertEquals("gonzo", historicTaskInstance.getAssignee());
+    assertEquals("task", historicTaskInstance.getTaskDefinitionKey());
   }
 }

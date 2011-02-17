@@ -29,13 +29,13 @@ import org.activiti.engine.impl.calendar.BusinessCalendar;
 import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.cfg.RuntimeSession;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.db.PersistentObject;
 import org.activiti.engine.impl.history.HistoricActivityInstanceEntity;
 import org.activiti.engine.impl.history.HistoricProcessInstanceEntity;
 import org.activiti.engine.impl.history.HistoricVariableUpdateEntity;
 import org.activiti.engine.impl.history.handler.ActivityInstanceEndHandler;
-import org.activiti.engine.impl.history.handler.HistoryParseListener;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.jobexecutor.TimerDeclarationImpl;
 import org.activiti.engine.impl.pvm.PvmActivity;
@@ -53,16 +53,14 @@ import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
-import org.activiti.engine.impl.pvm.runtime.AtomicOperationDeleteCascade;
-import org.activiti.engine.impl.pvm.runtime.AtomicOperationDeleteCascadeFireActivityEnd;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 import org.activiti.engine.impl.pvm.runtime.OutgoingExecution;
+import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 import org.activiti.engine.impl.task.TaskEntity;
 import org.activiti.engine.impl.variable.VariableDeclaration;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.apache.tools.ant.filters.TokenFilter.DeleteCharacters;
 
 
 /**
@@ -217,6 +215,10 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     createdExecution.setProcessInstance(getProcessInstance());
     createdExecution.setActivity(getActivity());
     
+    if (log.isLoggable(Level.FINE)) {
+      log.fine("Child execution "+createdExecution+" created with parent "+this);
+    }
+    
     return createdExecution;
   }
   
@@ -231,8 +233,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     subProcessInstance.setProcessDefinition((ProcessDefinitionImpl) processDefinition);
     subProcessInstance.setProcessInstance(subProcessInstance);
     
-    CommandContext commandContext = CommandContext.getCurrent();
-    int historyLevel = commandContext.getProcessEngineConfiguration().getHistoryLevel();
+    CommandContext commandContext = Context.getCommandContext();
+    int historyLevel = Context.getProcessEngineConfiguration().getHistoryLevel();
     if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
       DbSqlSession dbSqlSession = commandContext.getSession(DbSqlSession.class);
       HistoricProcessInstanceEntity historicProcessInstance = new HistoricProcessInstanceEntity((ExecutionEntity) subProcessInstance);
@@ -246,8 +248,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     ExecutionEntity newExecution = new ExecutionEntity();
     newExecution.executions = new ArrayList<ExecutionEntity>();
 
-    CommandContext
-      .getCurrent()
+    Context
+      .getCommandContext()
       .getDbSqlSession()
       .insert(newExecution);
 
@@ -274,15 +276,20 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     List<TimerDeclarationImpl> timerDeclarations = (List<TimerDeclarationImpl>) scope.getProperty(BpmnParse.PROPERTYNAME_TIMER_DECLARATION);
     if (timerDeclarations!=null) {
       for (TimerDeclarationImpl timerDeclaration : timerDeclarations) {
-        BusinessCalendar businessCalendar = CommandContext.getCurrent().getProcessEngineConfiguration().getBusinessCalendarManager().getBusinessCalendar(
-                DurationBusinessCalendar.NAME);
-        Date duedate = businessCalendar.resolveDuedate(timerDeclaration.getDuedateDescription());
+        BusinessCalendar businessCalendar = Context
+          .getProcessEngineConfiguration()
+          .getBusinessCalendarManager()
+          .getBusinessCalendar(DurationBusinessCalendar.NAME);
+        Date duedate = businessCalendar.resolveDuedate(timerDeclaration.getDuedateDescriptionValue(this));
 
         TimerEntity timer = new TimerEntity(timerDeclaration);
         timer.setDuedate(duedate);
         timer.setExecution(this);
 
-        CommandContext.getCurrent().getTimerSession().schedule(timer);
+        Context
+          .getCommandContext()
+          .getTimerSession()
+          .schedule(timer);
       }
     }
   }
@@ -338,6 +345,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     if (transition==null) {
       throw new PvmException("transition is null");
     }
+    setActivity((ActivityImpl)transition.getSource());
     setTransition((TransitionImpl) transition);
     performOperation(AtomicOperation.TRANSITION_NOTIFY_LISTENER_END);
   }
@@ -354,10 +362,9 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       List< ? extends ActivityExecution> concurrentExecutions = getParent().getExecutions();
       for (ActivityExecution concurrentExecution: concurrentExecutions) {
         if (concurrentExecution.getActivity()==activity) {
-          if (concurrentExecution.isActive()) {
-            throw new PvmException("didn't expect active execution in "+activity+". bug?");
+          if (!concurrentExecution.isActive()) {
+            inactiveConcurrentExecutionsInActivity.add(concurrentExecution);
           }
-          inactiveConcurrentExecutionsInActivity.add(concurrentExecution);
         } else {
           otherConcurrentExecutions.add(concurrentExecution);
         }
@@ -404,20 +411,10 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       log.fine("transitions to take concurrent: " + transitions);
       log.fine("active concurrent executions: " + concurrentActiveExecutions);
     }
-    
-    boolean allInSameActivity = true;
-    if (concurrentInActiveExecutions.size() > 1) {
-      String activityId = concurrentInActiveExecutions.get(0).getActivityId();
-      for (ExecutionEntity execution: concurrentInActiveExecutions) {
-        if (!execution.isEnded && !execution.getActivityId().equals(activityId)) {
-          allInSameActivity = false;
-        }
-      }
-    }
 
     if ( (transitions.size()==1)
          && (concurrentActiveExecutions.isEmpty())
-         && allInSameActivity
+         && allExecutionsInSameActivity(concurrentInActiveExecutions)
        ) {
 
       List<ExecutionEntity> recyclableExecutionImpls = (List) recyclableExecutions;
@@ -452,7 +449,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
         ExecutionEntity outgoingExecution = null;
         if (recyclableExecutions.isEmpty()) {
           outgoingExecution = concurrentRoot.createExecution();
-          log.fine("new "+outgoingExecution+" created to take transition "+outgoingTransition);
+          log.fine("new "+outgoingExecution+" with parent " 
+                  + outgoingExecution.getParent()+" created to take transition "+outgoingTransition);
         } else {
           outgoingExecution = (ExecutionEntity) recyclableExecutions.remove(0);
           log.fine("recycled "+outgoingExecution+" to take transition "+outgoingTransition);
@@ -477,8 +475,22 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     }
   }
   
+  private boolean allExecutionsInSameActivity(List<ExecutionEntity> executions) {
+    if (executions.size() > 1) {
+      String activityId = executions.get(0).getActivityId();
+      for (ExecutionEntity execution : executions) {
+        if (!execution.isEnded && !execution.getActivityId().equals(activityId)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  
   public void performOperation(AtomicOperation executionOperation) {
-    CommandContext.getCurrent().performOperation(executionOperation, this);
+    Context
+      .getCommandContext()
+      .performOperation(executionOperation, this);
   }
   
   public boolean isActive(String activityId) {
@@ -500,8 +512,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   @SuppressWarnings("unchecked")
   protected void ensureExecutionsInitialized() {
     if (executions==null) {
-      this.executions = (List) CommandContext
-        .getCurrent()
+      this.executions = (List) Context
+        .getCommandContext()
         .getRuntimeSession()
         .findChildExecutionsByParentExecutionId(id);
     }
@@ -574,7 +586,11 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   /** for setting the process definition, this setter must be used as subclasses can override */  
   protected void ensureProcessDefinitionInitialized() {
     if ((processDefinition == null) && (processDefinitionId != null)) {
-      setProcessDefinition(CommandContext.getCurrent().getRepositorySession().findDeployedProcessDefinitionById(processDefinitionId));
+      ProcessDefinitionEntity deployedProcessDefinition = Context
+        .getCommandContext()
+        .getRepositorySession()
+        .findDeployedProcessDefinitionById(processDefinitionId);
+      setProcessDefinition(deployedProcessDefinition);
     }
   }
 
@@ -593,8 +609,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   
   protected void ensureProcessInstanceInitialized() {
     if ((processInstance == null) && (processInstanceId != null)) {
-      processInstance = CommandContext
-        .getCurrent()
+      processInstance =  Context
+        .getCommandContext()
         .getRuntimeSession()
         .findExecutionById(processInstanceId);
     }
@@ -645,8 +661,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
 
   protected void ensureParentInitialized() {
     if (parent == null && parentId != null) {
-      parent = CommandContext
-        .getCurrent()
+      parent = Context
+        .getCommandContext()
         .getRuntimeSession()
         .findExecutionById(parentId);
     }
@@ -688,8 +704,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   
   protected void ensureSuperExecutionInitialized() {
     if (superExecution == null && superExecutionId != null) {
-      superExecution = CommandContext
-        .getCurrent()
+      superExecution = Context
+        .getCommandContext()
         .getRuntimeSession()
         .findExecutionById(superExecutionId);
     }
@@ -706,8 +722,8 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
 
   protected void ensureSubProcessInstanceInitialized() {
     if (subProcessInstance == null) {
-      subProcessInstance = CommandContext
-        .getCurrent()
+      subProcessInstance = Context
+        .getCommandContext()
         .getRuntimeSession()
         .findSubProcessInstanceBySuperExecutionId(id);
     }
@@ -750,10 +766,10 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     // TODO add cancellation of timers
 
     // delete all the tasks
-    CommandContext commandContext = CommandContext.getCurrent();
-    List<TaskEntity> tasks = (List) new TaskQueryImpl()
+    CommandContext commandContext = Context.getCommandContext();
+    List<TaskEntity> tasks = (List) new TaskQueryImpl(commandContext)
       .executionId(id)
-      .executeList(commandContext, null);
+      .list();
     for (TaskEntity task : tasks) {
       if (replacedBy!=null) {
         task.setExecution(replacedBy);
@@ -762,9 +778,9 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       }
     }
 
-    List<Job> jobs = new JobQueryImpl()
+    List<Job> jobs = new JobQueryImpl(commandContext)
       .executionId(id)
-      .executeList(commandContext, null);
+      .list();
     for (Job job: jobs) {
       if (replacedBy!=null) {
         ((JobEntity)job).setExecution((ExecutionEntity) replacedBy);
@@ -788,7 +804,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     this.replacedBy = (ExecutionEntity) replacedBy;
     
     // update the cached historic activity instances that are open
-    CommandContext commandContext = CommandContext.getCurrent();
+    CommandContext commandContext = Context.getCommandContext();
     DbSqlSession dbSqlSession = commandContext.getDbSqlSession();
     List<HistoricActivityInstanceEntity> cachedHistoricActivityInstances = dbSqlSession.findInCache(HistoricActivityInstanceEntity.class);
     for (HistoricActivityInstanceEntity cachedHistoricActivityInstance: cachedHistoricActivityInstances) {
@@ -800,12 +816,14 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     }
     
     // update the persisted historic activity instances that are open
-    List<HistoricActivityInstanceEntity> historicActivityInstances = (List) new HistoricActivityInstanceQueryImpl()
-      .executionId(id)
-      .unfinished()
-      .executeList(commandContext, null);
-    for (HistoricActivityInstanceEntity historicActivityInstance: historicActivityInstances) {
-      historicActivityInstance.setExecutionId(replacedBy.getId());
+    if (Context.getProcessEngineConfiguration().getHistoryLevel()>ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricActivityInstanceEntity> historicActivityInstances = (List) new HistoricActivityInstanceQueryImpl(commandContext)
+        .executionId(id)
+        .unfinished()
+        .list();
+      for (HistoricActivityInstanceEntity historicActivityInstance: historicActivityInstances) {
+        historicActivityInstance.setExecutionId(replacedBy.getId());
+      }
     }
   }
 
@@ -819,8 +837,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
 
   @Override
   protected List<VariableInstanceEntity> loadVariableInstances() {
-    return CommandContext
-      .getCurrentSession(RuntimeSession.class)
+    return Context.getCommandContext().getSession(RuntimeSession.class)
       .findVariableInstancesByExecutionId(id);
   }
 
@@ -831,9 +848,9 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   
   @Override
   protected void initializeActivityInstanceId(HistoricVariableUpdateEntity historicVariableUpdate) {
-    int historyLevel = CommandContext.getCurrent().getProcessEngineConfiguration().getHistoryLevel();
-    if (HistoryParseListener.fullHistoryEnabled(getActivity(), historyLevel)) {
-      HistoricActivityInstanceEntity historicActivityInstance = ActivityInstanceEndHandler.findActivityInstance(this, true);
+    int historyLevel = Context.getProcessEngineConfiguration().getHistoryLevel();
+    if (historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
+      HistoricActivityInstanceEntity historicActivityInstance = ActivityInstanceEndHandler.findActivityInstance(this);
       if (historicActivityInstance!=null) {
         historicVariableUpdate.setActivityInstanceId(historicActivityInstance.getId());
       }
@@ -846,7 +863,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     Map<String, Object> persistentState = new HashMap<String, Object>();
     persistentState.put("processDefinitionId", this.processDefinitionId);
     persistentState.put("businessKey", businessKey);
-    persistentState.put("activitiId", this.activityId);
+    persistentState.put("activityId", this.activityId);
     persistentState.put("isActive", this.isActive);
     persistentState.put("isConcurrent", this.isConcurrent);
     persistentState.put("isScope", this.isScope);

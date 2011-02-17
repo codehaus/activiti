@@ -17,9 +17,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.activiti.engine.impl.cfg.RuntimeSession;
+import org.activiti.engine.impl.cfg.TransactionContext;
 import org.activiti.engine.impl.cfg.TransactionState;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.activiti.engine.impl.jobexecutor.MessageAddedNotification;
 import org.activiti.engine.impl.runtime.JobEntity;
 
@@ -48,9 +51,10 @@ public class DecrementJobRetriesCmd implements Command<Object> {
       job.setExceptionStacktrace(getExceptionStacktrace());
     }
     
-    commandContext.getTransactionContext().addTransactionListener(
-            TransactionState.COMMITTED, 
-            new MessageAddedNotification(commandContext.getProcessEngineConfiguration().getJobExecutor()));
+    JobExecutor jobExecutor = Context.getProcessEngineConfiguration().getJobExecutor();
+    MessageAddedNotification messageAddedNotification = new MessageAddedNotification(jobExecutor);
+    TransactionContext transactionContext = commandContext.getTransactionContext();
+    transactionContext.addTransactionListener(TransactionState.COMMITTED, messageAddedNotification);
     
     return null;
   }

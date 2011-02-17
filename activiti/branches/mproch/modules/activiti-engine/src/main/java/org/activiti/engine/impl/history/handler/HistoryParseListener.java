@@ -13,13 +13,12 @@
 
 package org.activiti.engine.impl.history.handler;
 
-import org.activiti.engine.impl.bpmn.UserTaskActivity;
+import org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.pvm.delegate.ExecutionListener;
 import org.activiti.engine.impl.pvm.delegate.TaskListener;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
-import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
@@ -58,50 +57,54 @@ public class HistoryParseListener implements BpmnParseListener {
   }
 
   public void parseExclusiveGateway(Element exclusiveGwElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(exclusiveGwElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseCallActivity(Element callActivityElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(callActivityElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseManualTask(Element manualTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(manualTaskElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseScriptTask(Element scriptTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(scriptTaskElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseTask(Element taskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(taskElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseUserTask(Element userTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(userTaskElement, activity);
+    addActivityHandlers(activity);
     
     if (activityHistoryEnabled(scope, historyLevel)) {
-      TaskDefinition taskDefinition = ((UserTaskActivity) activity.getActivityBehavior()).getTaskDefinition();
+      TaskDefinition taskDefinition = ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition();
       taskDefinition.addTaskListener(TaskListener.EVENTNAME_ASSIGNMENT, USER_TASK_ASSIGNMENT_HANDLER);
     }
   }
 
   public void parseServiceTask(Element serviceTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(serviceTaskElement, activity);
+    addActivityHandlers(activity);
   }
   
   public void parseBusinessRuleTask(Element businessRuleTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(businessRuleTaskElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseSubProcess(Element subProcessElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(subProcessElement, activity);
+    addActivityHandlers(activity);
   }
 
   public void parseStartEvent(Element startEventElement, ScopeImpl scope, ActivityImpl activity) {
-    if (fullHistoryEnabled(scope.getProcessDefinition(), historyLevel)) {
+    if (fullHistoryEnabled(historyLevel)) {
       activity.addExecutionListener(ExecutionListener.EVENTNAME_END, START_EVENT_END_HANDLER);
     }
+  }
+  
+  public void parseSendTask(Element sendTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    addActivityHandlers(activity);
   }
 
   public void parseEndEvent(Element endEventElement, ScopeImpl scope, ActivityImpl activity) {
@@ -121,41 +124,30 @@ public class HistoryParseListener implements BpmnParseListener {
 
   public void parseSequenceFlow(Element sequenceFlowElement, ScopeImpl scopeElement, TransitionImpl transition) {
   }
+  
+  public void parseMultiInstanceLoopCharacteristics(Element activityElement, 
+          Element multiInstanceLoopCharacteristicsElement, ActivityImpl activity) {
+  }
 
   // helper methods ///////////////////////////////////////////////////////////
   
-  protected void addActivityHandlers(Element activityElement, ActivityImpl activity) {
+  protected void addActivityHandlers(ActivityImpl activity) {
     if (activityHistoryEnabled(activity, historyLevel)) {
       activity.addExecutionListener(ExecutionListener.EVENTNAME_START, ACTIVITY_INSTANCE_START_LISTENER, 0);
       activity.addExecutionListener(ExecutionListener.EVENTNAME_END, ACTIVITI_INSTANCE_END_LISTENER);
     }
   }
   
-  public static boolean fullHistoryEnabled(ScopeImpl scopeElement, int historyLevel) {
-    return determineHistoryLevel(scopeElement, historyLevel) >= ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL;
+  public static boolean fullHistoryEnabled(int historyLevel) {
+    return historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL;
   }
   
   public static boolean auditHistoryEnabled(ScopeImpl scopeElement, int historyLevel) {
-    return determineHistoryLevel(scopeElement, historyLevel) >= ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT;
+    return historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT;
   }
   
   public static boolean activityHistoryEnabled(ScopeImpl scopeElement, int historyLevel) {
-    return determineHistoryLevel(scopeElement, historyLevel) >= ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY;
-  }
-  
-  public static int determineHistoryLevel(ScopeImpl scopeElement, int historyLevel) {
-    ProcessDefinitionImpl processDefinition = scopeElement.getProcessDefinition();
-    if (processDefinition != null) {
-      Integer processHistoryLevel = ((ProcessDefinitionEntity) processDefinition).getHistoryLevel();
-      if (processHistoryLevel != null) {
-        return Math.min(historyLevel, ((ProcessDefinitionEntity) scopeElement.getProcessDefinition()).getHistoryLevel());
-      }
-    }
-    return historyLevel;
+    return historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY;
   }
 
-  public void parseSendTask(Element sendTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    addActivityHandlers(sendTaskElement, activity);
-  }
-  
 }

@@ -13,9 +13,11 @@
 
 package org.activiti.engine.impl.db;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,10 +25,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.ActivitiOptimisticLockingException;
 import org.activiti.engine.impl.TablePageQueryImpl;
 import org.activiti.engine.impl.cfg.ManagementSession;
-import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.repository.PropertyEntity;
 import org.activiti.engine.management.TableMetaData;
@@ -40,43 +41,53 @@ import org.apache.ibatis.session.RowBounds;
 public class DbManagementSession implements ManagementSession, Session {
   
   private static Logger log = Logger.getLogger(DbManagementSession.class.getName());
-
-  protected static String[] tableNames = new String[]{
-    "ACT_GE_PROPERTY",
-    "ACT_GE_BYTEARRAY",
-    "ACT_RE_DEPLOYMENT",
-    "ACT_RU_EXECUTION",
-    "ACT_ID_GROUP",
-    "ACT_ID_MEMBERSHIP",
-    "ACT_ID_USER",
-    "ACT_RU_JOB",
-    "ACT_RE_PROCDEF",
-    "ACT_RU_TASK",
-    "ACT_RU_IDENTITYLINK",
-    "ACT_RU_VARIABLE",
-    "ACT_HI_PROCINST",
-    "ACT_HI_ACTINST",
-    "ACT_HI_TASKINST",
-    "ACT_HI_DETAIL"
-  };
-
-
+  
   protected DbSqlSession dbSqlSession;
 
   public DbManagementSession() {
-    this.dbSqlSession = CommandContext.getCurrentSession(DbSqlSession.class);
+    this.dbSqlSession = Context.getCommandContext().getSession(DbSqlSession.class);
   }
   
   public Map<String, Long> getTableCount() {
     Map<String, Long> tableCount = new HashMap<String, Long>();
     try {
-      for (String tableName: tableNames) {
+      for (String tableName: getTablesPresentInDatabase()) {
         tableCount.put(tableName, getTableCount(tableName));
       }
+      log.fine("Number of rows per activiti table: "+tableCount);
     } catch (Exception e) {
       throw new ActivitiException("couldn't get table counts", e);
     }
     return tableCount;
+  }
+
+  public List<String> getTablesPresentInDatabase() {
+    List<String> tableNames = new ArrayList<String>();
+    Connection connection = null;
+    try {
+      connection = dbSqlSession.getSqlSession().getConnection();
+      DatabaseMetaData databaseMetaData = connection.getMetaData();
+      ResultSet tables = null;
+      try {
+        log.fine("retrieving activiti tables from jdbc metadata");
+        String tableNameFilter = "ACT_%";
+        if ("postgres".equals(dbSqlSession.getDbSqlSessionFactory().getDatabaseType())) {
+          tableNameFilter = "act_%";
+        }
+        tables = databaseMetaData.getTables(null, null, tableNameFilter, DbSqlSession.JDBC_METADATA_TABLE_TYPES);
+        while (tables.next()) {
+          String tableName = tables.getString("TABLE_NAME");
+          tableName = tableName.toUpperCase();
+          tableNames.add(tableName);
+          log.fine("  retrieved activiti table name "+tableName);
+        }
+      } finally {
+        tables.close();
+      }
+    } catch (Exception e) {
+      throw new ActivitiException("couldn't get activiti table names using metadata: "+e.getMessage(), e); 
+    }
+    return tableNames;
   }
 
   protected long getTableCount(String tableName) {
@@ -111,24 +122,17 @@ public class DbManagementSession implements ManagementSession, Session {
         .getSqlSession()
         .getConnection()
         .getMetaData();
-      DbMetaDataHandler databaseMetaDataHandler = TableMetaDataCacheHandler.getInstance().getDatabaseHandler(metaData);
-      TableMetaData resultCached = null;
-      if( (resultCached = databaseMetaDataHandler.getFromCache(tableName)) != null)
-      {
-    	  return resultCached; 
+
+      if ("postgres".equals(dbSqlSession.getDbSqlSessionFactory().getDatabaseType())) {
+        tableName = tableName.toLowerCase();
       }
-      else
-      {
-    	  tableName = databaseMetaDataHandler.handleTableName(tableName);
-      }
+
       ResultSet resultSet = metaData.getColumns(null, null, tableName, null);
       while(resultSet.next()) {
-        String name = resultSet.getString("COLUMN_NAME");
-        String type = resultSet.getString("TYPE_NAME");
+        String name = resultSet.getString("COLUMN_NAME").toUpperCase();
+        String type = resultSet.getString("TYPE_NAME").toUpperCase();
         result.addColumnMetaData(name, type);
       }
-      
-      databaseMetaDataHandler.addToCache(result);
       
     } catch (SQLException e) {
       throw new ActivitiException("Could not retrieve database metadata: " + e.getMessage());

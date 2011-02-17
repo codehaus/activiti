@@ -16,11 +16,15 @@ package org.activiti.engine.impl.cfg;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
@@ -44,11 +48,11 @@ import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.RuntimeServiceImpl;
 import org.activiti.engine.impl.ServiceImpl;
 import org.activiti.engine.impl.TaskServiceImpl;
-import org.activiti.engine.impl.bpmn.ItemInstance;
-import org.activiti.engine.impl.bpmn.MessageInstance;
+import org.activiti.engine.impl.bpmn.data.ItemInstance;
 import org.activiti.engine.impl.bpmn.deployer.BpmnDeployer;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
+import org.activiti.engine.impl.bpmn.webservice.MessageInstance;
 import org.activiti.engine.impl.calendar.BusinessCalendarManager;
 import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.calendar.MapBusinessCalendarManager;
@@ -81,7 +85,11 @@ import org.activiti.engine.impl.jobexecutor.JobExecutorTimerSessionFactory;
 import org.activiti.engine.impl.jobexecutor.JobHandler;
 import org.activiti.engine.impl.jobexecutor.TimerExecuteNestedActivityJobHandler;
 import org.activiti.engine.impl.repository.Deployer;
+import org.activiti.engine.impl.scripting.BeansResolverFactory;
+import org.activiti.engine.impl.scripting.ResolverFactory;
+import org.activiti.engine.impl.scripting.ScriptBindingsFactory;
 import org.activiti.engine.impl.scripting.ScriptingEngines;
+import org.activiti.engine.impl.scripting.VariableScopeResolverFactory;
 import org.activiti.engine.impl.util.IoUtil;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.variable.BooleanType;
@@ -143,7 +151,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   // COMMAND EXECUTORS ////////////////////////////////////////////////////////
   
   // Command executor and interceptor stack
-  /** the configurable list which will be {@link #initializeInterceptorChain(List) processed} to build the {@link #commandExecutorTxRequired} */
+  /** the configurable list which will be {@link #initInterceptorChain(java.util.List) processed} to build the {@link #commandExecutorTxRequired} */
   protected List<CommandInterceptor> customPreCommandInterceptorsTxRequired;
   protected List<CommandInterceptor> customPostCommandInterceptorsTxRequired;
   
@@ -152,7 +160,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   /** this will be initialized during the configurationComplete() */
   protected CommandExecutor commandExecutorTxRequired;
   
-  /** the configurable list which will be {@link #initializeInterceptorChain(List) processed} to build the {@link #commandExecutorTxRequiresNew} */
+  /** the configurable list which will be {@link #initInterceptorChain(List) processed} to build the {@link #commandExecutorTxRequiresNew} */
   protected List<CommandInterceptor> customPreCommandInterceptorsTxRequiresNew;
   protected List<CommandInterceptor> customPostCommandInterceptorsTxRequiresNew;
 
@@ -160,8 +168,8 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
 
   /** this will be initialized during the configurationComplete() */
   protected CommandExecutor commandExecutorTxRequiresNew;
-
-  // SESSIOB FACTORIES ////////////////////////////////////////////////////////
+  
+  // SESSION FACTORIES ////////////////////////////////////////////////////////
 
   protected List<SessionFactory> customSessionFactories;
   protected DbSqlSessionFactory dbSqlSessionFactory;
@@ -195,14 +203,15 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   protected List<AbstractFormType> customFormTypes;
   protected FormTypes formTypes;
 
-  protected List<String> customScriptingEngineClasses;
-  protected ScriptingEngines scriptingEngines;
-  
   protected List<VariableType> customPreVariableTypes;
   protected List<VariableType> customPostVariableTypes;
   protected VariableTypes variableTypes;
   
   protected ExpressionManager expressionManager;
+  protected List<String> customScriptingEngineClasses;
+  protected ScriptingEngines scriptingEngines;
+  protected List<ResolverFactory> resolverFactories;
+  
   protected BusinessCalendarManager businessCalendarManager;
 
   protected String wsSyncFactoryClassName = DEFAULT_WS_SYNC_FACTORY;
@@ -214,6 +223,12 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   
   protected List<BpmnParseListener> preParseListeners;
   protected List<BpmnParseListener> postParseListeners;
+
+  protected Map<Object, Object> beans;
+
+  protected boolean isDbIdentityUsed = true;
+  protected boolean isDbHistoryUsed = true;
+  protected boolean isDbCycleUsed = false;
   
   // buildProcessEngine ///////////////////////////////////////////////////////
   
@@ -228,6 +243,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     initHistoryLevel();
     initExpressionManager();
     initVariableTypes();
+    initBeans();
     initFormEngines();
     initFormTypes();
     initScriptingEngines();
@@ -359,6 +375,47 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       // ACT-233: connection pool of Ibatis is not properely initialized if this is not called!
       ((PooledDataSource)dataSource).forceCloseAll();
     }
+
+    initDatabaseType();
+  }
+  
+  protected static Properties databaseTypeMappings = getDefaultDatabaseTypeMappings();
+  
+  protected static Properties getDefaultDatabaseTypeMappings() {
+    Properties databaseTypeMappings = new Properties();
+    databaseTypeMappings.setProperty("H2","h2");
+    databaseTypeMappings.setProperty("MySQL","mysql");
+    databaseTypeMappings.setProperty("Oracle","oracle");
+    databaseTypeMappings.setProperty("PostgreSQL","postgres");
+    databaseTypeMappings.setProperty("Microsoft SQL Server","mssql");
+    databaseTypeMappings.setProperty("DB2","db2");
+    return databaseTypeMappings;
+  }
+
+  public void initDatabaseType() {
+    Connection connection = null;
+    try {
+      connection = dataSource.getConnection();
+      DatabaseMetaData databaseMetaData = connection.getMetaData();
+      String databaseProductName = databaseMetaData.getDatabaseProductName();
+      log.fine("database product name: '"+databaseProductName+"'");
+      databaseType = databaseTypeMappings.getProperty(databaseProductName);
+      if (databaseType==null) {
+        throw new ActivitiException("couldn't deduct database type from database product name '"+databaseProductName+"'");
+      }
+      log.fine("using database type: "+databaseType);
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (connection!=null) {
+          connection.close();
+        }
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
   }
   
   // myBatis SqlSessionFactory ////////////////////////////////////////////////
@@ -422,6 +479,9 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       dbSqlSessionFactory.setDatabaseType(databaseType);
       dbSqlSessionFactory.setIdGenerator(idGenerator);
       dbSqlSessionFactory.setSqlSessionFactory(sqlSessionFactory);
+      dbSqlSessionFactory.setDbIdentityUsed(isDbIdentityUsed);
+      dbSqlSessionFactory.setDbHistoryUsed(isDbHistoryUsed);
+      dbSqlSessionFactory.setDbCycleUsed(isDbCycleUsed);
       addSessionFactory(dbSqlSessionFactory);
     }
     if (customSessionFactories!=null) {
@@ -594,8 +654,13 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   }
 
   protected void initScriptingEngines() {
+    if (resolverFactories==null) {
+      resolverFactories = new ArrayList<ResolverFactory>();
+      resolverFactories.add(new VariableScopeResolverFactory());
+      resolverFactories.add(new BeansResolverFactory());
+    }
     if (scriptingEngines==null) {
-      scriptingEngines = new ScriptingEngines();
+      scriptingEngines = new ScriptingEngines(new ScriptBindingsFactory(resolverFactories));
     }
   }
 
@@ -632,6 +697,12 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
           variableTypes.addType(new JPAEntityVariableType());
         }        
       }
+    }
+  }
+  
+  protected void initBeans() {
+    if (beans == null) {
+      beans = new HashMap<Object, Object>();
     }
   }
 
@@ -1053,7 +1124,30 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   public void setCustomPostBPMNParseListeners(List<BpmnParseListener> postParseListeners) {
     this.postParseListeners = postParseListeners;
   }
+  
+  public List<BpmnParseListener> getPreParseListeners() {
+    return preParseListeners;
+  }
 
+  public void setPreParseListeners(List<BpmnParseListener> preParseListeners) {
+    this.preParseListeners = preParseListeners;
+  }
+  
+  public List<BpmnParseListener> getPostParseListeners() {
+    return postParseListeners;
+  }
+  
+  public void setPostParseListeners(List<BpmnParseListener> postParseListeners) {
+    this.postParseListeners = postParseListeners;
+  }
+
+  public Map<Object, Object> getBeans() {
+    return beans;
+  }
+
+  public void setBeans(Map<Object, Object> beans) {
+    this.beans = beans;
+  }
 
   @Override
   public ProcessEngineConfigurationImpl setClassLoader(ClassLoader classLoader) {
@@ -1197,5 +1291,45 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   public ProcessEngineConfigurationImpl setJpaCloseEntityManager(boolean jpaCloseEntityManager) {
     this.jpaCloseEntityManager = jpaCloseEntityManager;
     return this;
+  }
+
+  
+  public boolean isDbIdentityUsed() {
+    return isDbIdentityUsed;
+  }
+
+  
+  public void setDbIdentityUsed(boolean isDbIdentityUsed) {
+    this.isDbIdentityUsed = isDbIdentityUsed;
+  }
+
+  
+  public boolean isDbHistoryUsed() {
+    return isDbHistoryUsed;
+  }
+
+  
+  public void setDbHistoryUsed(boolean isDbHistoryUsed) {
+    this.isDbHistoryUsed = isDbHistoryUsed;
+  }
+
+  
+  public boolean isDbCycleUsed() {
+    return isDbCycleUsed;
+  }
+
+  
+  public void setDbCycleUsed(boolean isDbCycleUsed) {
+    this.isDbCycleUsed = isDbCycleUsed;
+  }
+
+  
+  public List<ResolverFactory> getResolverFactories() {
+    return resolverFactories;
+  }
+
+  
+  public void setResolverFactories(List<ResolverFactory> resolverFactories) {
+    this.resolverFactories = resolverFactories;
   }
 }

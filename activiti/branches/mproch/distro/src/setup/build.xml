@@ -9,7 +9,7 @@
   <property file="build.${db}.properties" />
 
   <property name="activiti.home" value=".." /> 
-  <property name="activiti.version" value="5.2-SNAPSHOT" />   
+  <property name="activiti.version" value="5.3-SNAPSHOT" />   
   <property name="apache.mirror.url" value="http://mirrors.enquira.co.uk/apache/" />
   
   <property name="cycle.workspace" location="${activiti.home}/workspace/activiti-cycle-examples"/>
@@ -122,6 +122,16 @@
         <include name="persistence-api-*.jar" />
       </fileset>
     </move>
+
+    <!-- mkdir dir="${activiti.home}/workspace/activiti-cxf-examples/libs-runtime" />
+    <copy todir="${activiti.home}/workspace/activiti-cxf-examples/libs-runtime">
+      <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.runtime.txt" />
+      <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.runtime.feature.cxf.txt" />
+    </copy>
+    <mkdir dir="${activiti.home}/workspace/activiti-cxf-examples/libs-test" />
+    <copy todir="${activiti.home}/workspace/activiti-cxf-examples/libs-test">
+      <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.test.txt" />
+    </copy -->
   </target>
   
   <!-- ### DEMO #################################################################### -->
@@ -174,70 +184,24 @@
   <condition property="db.is.oracle">
     <equals arg1="${db}" arg2="oracle" casesensitive="false"/>
   </condition>
+  <condition property="db.is.mssql">
+    <equals arg1="${db}" arg2="mssql" casesensitive="false"/>
+  </condition>
+  <condition property="db.is.db2">
+    <equals arg1="${db}" arg2="db2" casesensitive="false"/>
+  </condition>
 
   <target name="db.create" 
-          description="Creates the Activiti tables in the DB">
+          description="Creates the Activiti tables in the DB"
+  	      depends="internal.classpath.libs">
     <echo message="creating db" />
-    <antcall target="internal.classpath.libs" /> 
-    <antcall target="internal.db.create.engine" /> 
-    <antcall target="internal.db.create.cycle" />
+    <java classname="org.activiti.engine.impl.db.DbSchemaUpdate" classpathref="classpath.libs" />
   </target>
 
-  <target name="internal.db.create.engine"
-          depends="internal.classpath.libs">
-    <sql driver="${jdbc.driver}" 
-         password="${jdbc.password}" 
-         url="${jdbc.url}" 
-         userid="${jdbc.username}"
-         classpathref="classpath.libs">
-      <javaresource name="org/activiti/db/create/activiti.${db}.create.sql" 
-                    classpathref="classpath.libs" /> 
-    </sql>
-  </target>
-
-  <target name="internal.db.create.cycle"
-          if="cycle.is.enabled" 
-          depends="internal.classpath.libs">
-    <sql driver="${jdbc.driver}" 
-         password="${jdbc.password}" 
-         url="${jdbc.url}" 
-         userid="${jdbc.username}"
-         classpathref="classpath.libs" >
-      <javaresource name="org/activiti/db/cycle/create/activiti.${db}.create.sql" 
-                    classpathref="classpath.libs" /> 
-    </sql>
-  </target>
-  
   <target name="db.drop"
           description="Drops the Activiti tables from the DB"
-          depends="internal.classpath.libs,
-                   internal.db.drop.engine,
-                   internal.db.drop.cycle"/>
-  
-  <target name="internal.db.drop.engine">
-    <sql driver="${jdbc.driver}" 
-         password="${jdbc.password}" 
-         url="${jdbc.url}" 
-         classpathref="classpath.libs"
-         userid="${jdbc.username}">
-      <transaction>
-        <javaresource name="org/activiti/db/drop/activiti.${db}.drop.sql"
-                      classpathref="classpath.libs"/> 
-      </transaction>
-    </sql>
-  </target>
-
-  <target name="internal.db.drop.cycle" if="cycle.is.enabled">
-    <sql driver="${jdbc.driver}" 
-         password="${jdbc.password}" 
-         url="${jdbc.url}" 
-         userid="${jdbc.username}"
-         classpathref="classpath.libs">
-      <transaction> 
-         <javaresource name="org/activiti/db/cycle/drop/activiti.${db}.drop.sql" 
-                    classpathref="classpath.libs" /> 
-      </transaction>
-    </sql>
+          depends="internal.classpath.libs">
+    <java classname="org.activiti.engine.impl.db.DbSchemaDrop" classpathref="classpath.libs" />
   </target>
 
   <target name="db.demo.data" 
@@ -262,33 +226,6 @@
          src="build/demo/${db}.data.sql"/>
 
     <ant antfile="../workspace/activiti-engine-examples/build.xml" target="deploy" inheritall="false" />
-    <!-- zip destfile="${activiti.home}/setup/build/activiti-examples.bar">
-      <fileset dir="${activiti.home}/workspace/activiti-engine-examples/src">
-        <include name="org/activiti/examples/bpmn/usertask/taskassignee/TaskAssigneeTest.testTaskAssignee.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/usertask/taskcandidate/TaskCandidateTest.testMixedCandidateUserAndGroup.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/usertask/taskcandidate/TaskCandidateTest.testMultipleCandidateGroups.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/usertasktaskcandidate/TaskCandidateTest.testMultipleCandidateUsers.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/usertask/taskcandidate/TaskCandidateTest.testSingleCandidateGroup.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/usertask/FinancialReportProcess.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/subprocess/SubProcessTest.fixSystemFailureProcess.bpmn20.xml"/>
-        <include name="org/activiti/examples/bpmn/subprocess/SubProcessTest.fixSystemFailureProcess.png"/>
-        <include name="org/activiti/examples/taskforms/VacationRequest.bpmn20.xml"/>
-        <include name="org/activiti/examples/taskforms/request.form"/>
-        <include name="org/activiti/examples/taskforms/approve.form"/>
-        <include name="org/activiti/examples/taskforms/adjustRequest.form"/>
-        <include name="org/activiti/examples/bpmn/event/timer/BoundaryTimerEventTest.testInterruptingTimerDuration.bpmn20.xml" />
-      </fileset>
-    </zip>
-    <taskdef name="deploy-bar" classname="org.activiti.engine.impl.ant.DeployBarTask">
-      <classpath>
-        <pathelement path="files/demo"/>
-        <fileset dir="build">
-          <include name="activiti-cfg.jar"/>
-        </fileset>
-        <fileset dir="${activiti.home}/setup/files/dependencies/libs" />
-      </classpath>
-    </taskdef>
-    <deploy-bar file="${activiti.home}/setup/build/activiti-examples.bar" / -->
   </target>
 
   <!-- ### DB #################################################################### -->
@@ -594,10 +531,13 @@ set JAVA_OPTS=%JAVA_OPTS% @tomcat.java.opts@
     <taskdef name="launch" classname="org.activiti.engine.impl.ant.LaunchTask" classpathref="classpath.libs" />
   </target>
   
-  <target name="internal.classpath.libs">
+  <target name="internal.classpath.libs" depends="cfg.create">
     <path id="classpath.libs">
       <fileset dir="${activiti.home}/setup/files/dependencies/libs">
         <include name="*.jar" />
+      </fileset>
+      <fileset dir="${activiti.home}/setup/build">
+        <include name="activiti-cfg.jar" />
       </fileset>
     </path>
   </target>
@@ -609,6 +549,8 @@ set JAVA_OPTS=%JAVA_OPTS% @tomcat.java.opts@
       <include name="mysql-*.jar" if="db.is.mysql"/>
       <include name="postgresql-*.jar" if="db.is.postgres"/>
       <include name="ojdbc5*.jar" if="db.is.oracle"/>
+      <include name="jtds-*.jar" if="db.is.mssql"/>
+	  <include name="db2jcc*.jar" if="db.is.db2"/>
     </fileset>
   </target>
 
@@ -628,6 +570,7 @@ set JAVA_OPTS=%JAVA_OPTS% @tomcat.java.opts@
   </condition>
   
   <target name="internal.download.activiti.modeler" unless="is.activiti.modeler.available">
+    <echo message="You're downloading the Activiti Modeler, distributed under MIT license.  For more info, see the user guide" />
     <echo message="This could take a while. Set the 'feature.modeler' property to 'disabled' in the build.properties or in your user.home/.activiti/build.properties to skip this step" />
     <mkdir dir="${downloads.dir}"/>
     <get src="${activiti.modeler.download.url}" dest="${downloads.dir}/activiti-modeler-${activiti.version}.war"/>

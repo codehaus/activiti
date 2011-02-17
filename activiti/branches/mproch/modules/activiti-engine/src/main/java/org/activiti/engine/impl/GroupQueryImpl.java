@@ -32,15 +32,15 @@ public class GroupQueryImpl extends AbstractQuery<GroupQuery, Group> implements 
   protected String nameLike;
   protected String type;
   protected String userId;
-  
-  public GroupQueryImpl() {
-    
+
+  public GroupQueryImpl(CommandContext commandContext) {
+    super(commandContext);
   }
-  
+
   public GroupQueryImpl(CommandExecutor commandExecutor) {
     super(commandExecutor);
   }
-  
+
   public GroupQuery groupId(String id) {
     if (id == null) {
       throw new ActivitiException("Provided id is null");

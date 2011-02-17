@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricDetail;
@@ -30,6 +32,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.test.Deployment;
+import org.activiti.engine.test.api.runtime.DummySerializable;
 import org.activiti.engine.test.history.SerializableVariable;
 
 
@@ -278,16 +281,24 @@ public class FullHistoryTest extends ResourceActivitiTestCase {
     assertEquals("Activiti rocks", historicProperty1.getPropertyValue());
     assertEquals(startedDate, historicProperty1.getTime());
     assertEquals(processInstance.getId(), historicProperty1.getProcessInstanceId());
-    assertNull(historicProperty1.getActivityInstanceId());
     assertNull(historicProperty1.getTaskId());
+    
+    assertNotNull(historicProperty1.getActivityInstanceId());
+    HistoricActivityInstance historicActivityInstance = historyService.createHistoricActivityInstanceQuery().activityInstanceId(historicProperty1.getActivityInstanceId()).singleResult();
+    assertNotNull(historicActivityInstance);
+    assertEquals("start", historicActivityInstance.getActivityId());
     
     HistoricFormProperty historicProperty2 = (HistoricFormProperty) props.get(1);
     assertEquals("formProp2", historicProperty2.getPropertyId());
     assertEquals("12345", historicProperty2.getPropertyValue());
     assertEquals(startedDate, historicProperty2.getTime());
     assertEquals(processInstance.getId(), historicProperty2.getProcessInstanceId());
-    assertNull(historicProperty2.getActivityInstanceId());
     assertNull(historicProperty2.getTaskId());
+    
+    assertNotNull(historicProperty2.getActivityInstanceId());
+    historicActivityInstance = historyService.createHistoricActivityInstanceQuery().activityInstanceId(historicProperty2.getActivityInstanceId()).singleResult();
+    assertNotNull(historicActivityInstance);
+    assertEquals("start", historicActivityInstance.getActivityId());
     
     HistoricFormProperty historicProperty3 = (HistoricFormProperty) props.get(2);
     assertEquals("formProp3", historicProperty3.getPropertyId());
@@ -295,7 +306,7 @@ public class FullHistoryTest extends ResourceActivitiTestCase {
     assertEquals(startedDate, historicProperty3.getTime());
     assertEquals(processInstance.getId(), historicProperty3.getProcessInstanceId());
     String activityInstanceId = historicProperty3.getActivityInstanceId();
-    HistoricActivityInstance historicActivityInstance = historyService.createHistoricActivityInstanceQuery().activityInstanceId(activityInstanceId).singleResult();
+    historicActivityInstance = historyService.createHistoricActivityInstanceQuery().activityInstanceId(activityInstanceId).singleResult();
     assertNotNull(historicActivityInstance);
     assertEquals(taskActivityId, historicActivityInstance.getActivityId());
     assertNotNull(historicProperty3.getTaskId());
@@ -544,5 +555,131 @@ public class FullHistoryTest extends ResourceActivitiTestCase {
     assertEquals(2, historicTaskVariableUpdates.size());
 
     historyService.deleteHistoricTaskInstance(taskId);
+    
+    // Check if the variable updates have been removed as well
+    historicTaskVariableUpdates = historyService.createHistoricDetailQuery()
+      .taskId(taskId)
+      .variableUpdates()
+      .orderByVariableName().asc()
+      .list();
+  
+     assertEquals(0, historicTaskVariableUpdates.size());
+  }
+  
+  // ACT-592
+  @Deployment
+  public void testSetVariableOnProcessInstanceWithTimer() {
+    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("timerVariablesProcess");
+    runtimeService.setVariable(processInstance.getId(), "myVar", 123456L);
+    assertEquals(123456L, runtimeService.getVariable(processInstance.getId(), "myVar"));
+  }
+  
+  
+  @Deployment
+  public void testDeleteHistoricProcessInstance() {
+    // Start process-instance with some variables set
+    Map<String, Object> vars = new HashMap<String, Object>();
+    vars.put("processVar", 123L);
+    vars.put("anotherProcessVar", new DummySerializable());
+    
+    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("HistoricTaskInstanceTest", vars);
+    assertNotNull(processInstance);
+    
+    // Set 2 task properties
+    Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+    taskService.setVariableLocal(task.getId(), "taskVar", 45678);
+    taskService.setVariableLocal(task.getId(), "anotherTaskVar", "value");
+ 
+    // Finish the task, this end the process-instance
+    taskService.complete(task.getId());
+    
+    assertEquals(1, historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstance.getId()).count());
+    assertEquals(2, historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstance.getId()).count());
+    assertEquals(4, historyService.createHistoricDetailQuery().processInstanceId(processInstance.getId()).count());
+    assertEquals(1, historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstance.getId()).count());
+    
+    // Delete the historic process-instance
+    historyService.deleteHistoricProcessInstance(processInstance.getId());
+    
+    // Verify no traces are left in the history tables
+    assertEquals(0, historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstance.getId()).count());
+    assertEquals(0, historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstance.getId()).count());
+    assertEquals(0, historyService.createHistoricDetailQuery().processInstanceId(processInstance.getId()).count());
+    assertEquals(0, historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstance.getId()).count());
+    
+    try {
+      // Delete the historic process-instance, which is still running
+      historyService.deleteHistoricProcessInstance("unexisting");
+      fail("Exception expected when deleting process-instance that is still running");
+    } catch(ActivitiException ae) {
+      // Expected exception
+      assertTextPresent("No historic process instance found with id: unexisting", ae.getMessage());
+    }
+  }
+  
+  @Deployment
+  public void testDeleteRunningHistoricProcessInstance() {
+    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("HistoricTaskInstanceTest");
+    assertNotNull(processInstance);
+    
+    try {
+      // Delete the historic process-instance, which is still running
+      historyService.deleteHistoricProcessInstance(processInstance.getId());
+      fail("Exception expected when deleting process-instance that is still running");
+    } catch(ActivitiException ae) {
+      // Expected exception
+      assertTextPresent("Process instance is still running, cannot delete historic process instance", ae.getMessage());
+    }
+  }
+  
+  /**
+   * Test created to validate ACT-621 fix.
+   */
+  @Deployment
+  public void testHistoricFormPropertiesOnReEnteringActivity() {
+    Map<String, Object> variables = new HashMap<String, Object>();
+    variables.put("comeBack", Boolean.TRUE);
+    
+    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("HistoricFormPropertiesProcess", variables);
+    assertNotNull(processInstance);
+    
+    // Submit form on task
+    Map<String, String> data = new HashMap<String, String>();
+    data.put("formProp1", "Property value");
+    
+    Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+    formService.submitTaskFormData(task.getId(), data);
+    
+    // Historic property should be available
+    List<HistoricDetail> details = historyService.createHistoricDetailQuery()
+      .formProperties()
+      .processInstanceId(processInstance.getId())
+      .list();
+    assertNotNull(details);
+    assertEquals(1, details.size());
+    
+    // Task should be active in the same activity as the previous one
+    task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+    formService.submitTaskFormData(task.getId(), data);
+    
+    details = historyService.createHistoricDetailQuery()
+      .formProperties()
+      .processInstanceId(processInstance.getId())
+      .list();
+    assertNotNull(details);
+    assertEquals(2, details.size());
+    
+    // Should have 2 different historic activity instance ID's, with the same activityId
+    Assert.assertNotSame(details.get(0).getActivityInstanceId(), details.get(1).getActivityInstanceId());
+    
+    HistoricActivityInstance historicActInst1 = historyService.createHistoricActivityInstanceQuery()
+      .activityInstanceId(details.get(0).getActivityInstanceId())
+      .singleResult();
+    
+    HistoricActivityInstance historicActInst2 = historyService.createHistoricActivityInstanceQuery()
+      .activityInstanceId(details.get(1).getActivityInstanceId())
+      .singleResult();
+    
+    assertEquals(historicActInst1.getActivityId(), historicActInst2.getActivityId());
   }
 }

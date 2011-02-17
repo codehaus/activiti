@@ -26,6 +26,7 @@ import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
 import org.activiti.engine.impl.ProcessInstanceQueryImpl;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.cfg.RepositorySession;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.repository.Deployer;
@@ -47,8 +48,8 @@ public class DbRepositorySession implements Session, RepositorySession {
   
   public DbRepositorySession(DbRepositorySessionFactory dbRepositorySessionFactory) {
     this.dbRepositorySessionFactory = dbRepositorySessionFactory;
-    this.dbSqlSession = CommandContext
-      .getCurrent()
+    this.dbSqlSession = Context
+      .getCommandContext()
       .getSession(DbSqlSession.class);
   }
 
@@ -73,12 +74,12 @@ public class DbRepositorySession implements Session, RepositorySession {
 
   public void deleteDeployment(String deploymentId, boolean cascade) {
     if (cascade) {
-      CommandContext commandContext = CommandContext.getCurrent();
-      List<ProcessDefinition> processDefinitions = new ProcessDefinitionQueryImpl()
+      CommandContext commandContext = Context.getCommandContext();
+      List<ProcessDefinition> processDefinitions = new ProcessDefinitionQueryImpl(commandContext)
         .deploymentId(deploymentId)
-        .executeList(commandContext, null);
+        .list();
 
-      int historyLevel = commandContext.getProcessEngineConfiguration().getHistoryLevel();
+      int historyLevel = Context.getProcessEngineConfiguration().getHistoryLevel();
       boolean isHistoryEnabled = historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY;
       
       for (ProcessDefinition processDefinition: processDefinitions) {
@@ -94,9 +95,9 @@ public class DbRepositorySession implements Session, RepositorySession {
   }
 
   private void deleteProcessInstances(CommandContext commandContext, ProcessDefinition processDefinition) {
-    List<ProcessInstance> processInstances = new ProcessInstanceQueryImpl()
+    List<ProcessInstance> processInstances = new ProcessInstanceQueryImpl(commandContext)
         .processDefinitionId(processDefinition.getId())
-        .executeList(commandContext, null);
+        .list();
       
       for (ProcessInstance processInstance: processInstances) {
         commandContext
@@ -106,9 +107,9 @@ public class DbRepositorySession implements Session, RepositorySession {
   }
 
   private void deleteHistoricProcessInstances(CommandContext commandContext, ProcessDefinition processDefinition) {
-    List<HistoricProcessInstance> historicProcessInstances = new HistoricProcessInstanceQueryImpl()
+    List<HistoricProcessInstance> historicProcessInstances = new HistoricProcessInstanceQueryImpl(commandContext)
       .processDefinitionId(processDefinition.getId())
-      .executeList(commandContext, null);
+      .list();
     
     for (HistoricProcessInstance historicProcessInstance: historicProcessInstances) {
       commandContext

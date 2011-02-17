@@ -20,11 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.activiti.engine.impl.bpmn.deployer.ProcessDiagramCanvas;
+import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramCanvas;
 import org.activiti.kickstart.bpmn20.model.BaseElement;
 import org.activiti.kickstart.bpmn20.model.Definitions;
 import org.activiti.kickstart.bpmn20.model.FlowElement;
 import org.activiti.kickstart.bpmn20.model.Process;
+import org.activiti.kickstart.bpmn20.model.activity.Task;
+import org.activiti.kickstart.bpmn20.model.activity.type.ScriptTask;
+import org.activiti.kickstart.bpmn20.model.activity.type.ServiceTask;
 import org.activiti.kickstart.bpmn20.model.activity.type.UserTask;
 import org.activiti.kickstart.bpmn20.model.bpmndi.BPMNEdge;
 import org.activiti.kickstart.bpmn20.model.bpmndi.BPMNPlane;
@@ -35,7 +38,7 @@ import org.activiti.kickstart.bpmn20.model.connector.SequenceFlow;
 import org.activiti.kickstart.bpmn20.model.event.EndEvent;
 import org.activiti.kickstart.bpmn20.model.event.StartEvent;
 import org.activiti.kickstart.bpmn20.model.gateway.ParallelGateway;
-import org.activiti.kickstart.dto.AdhocWorkflowDto;
+import org.activiti.kickstart.dto.KickstartWorkflowDto;
 import org.activiti.kickstart.dto.TaskBlock;
 
 /**
@@ -63,7 +66,7 @@ public class ProcessDiagramGenerator {
   protected int TASK_BLOCK_WIDTH = GATEWAY_WIDTH + TASK_WIDTH + SEQUENCE_FLOW_WIDTH + LONG_SEQUENCE_FLOW_WITHOUT_ARROW_WIDTH;
 
   // Instance members
-  protected AdhocWorkflowDto adhocWorkflow;
+  protected KickstartWorkflowDto adhocWorkflow;
 
   // Will be set during image generation
   protected int startX;
@@ -75,7 +78,7 @@ public class ProcessDiagramGenerator {
   protected Map<String, List<SequenceFlow>> incomingSequenceFlowMapping;
   protected Set<String> handledElements;
 
-  public ProcessDiagramGenerator(AdhocWorkflowDto adhocWorkflow) {
+  public ProcessDiagramGenerator(KickstartWorkflowDto adhocWorkflow) {
     this.adhocWorkflow = adhocWorkflow;
   }
 
@@ -121,18 +124,14 @@ public class ProcessDiagramGenerator {
                   + SEQUENCE_FLOW_WIDTH, startY + EVENT_WIDTH / 2);
           drawParallelBlock(currentWidth, startY - EVENT_WIDTH / 2, parallelGateway);
 
-        } else if (flowElement instanceof UserTask) {
-
+        } else if (flowElement instanceof Task) {
           drawSequenceFlow(incomingSequenceFlowMapping.get(flowElement.getId()).get(0), 
                   currentWidth, startY + EVENT_WIDTH / 2, currentWidth
                   + SEQUENCE_FLOW_WIDTH, startY + EVENT_WIDTH / 2);
-          drawUserTask(flowElement, currentWidth, startY - ((TASK_HEIGHT - EVENT_WIDTH) / 2), 
+          drawTask(flowElement, currentWidth, startY - ((TASK_HEIGHT - EVENT_WIDTH) / 2), 
                   TASK_WIDTH, TASK_HEIGHT);
-
         }
-
       }
-
     }
 
     return processDiagramCanvas.generateImage("png");
@@ -227,7 +226,7 @@ public class ProcessDiagramGenerator {
               centerOfRhombus + SEQUENCE_FLOW_WIDTH, currentHeight);
 
       FlowElement userTask = sequenceFlow1.getTargetRef();
-      drawUserTask(userTask, centerOfRhombus + SEQUENCE_FLOW_WIDTH, 
+      drawTask(userTask, centerOfRhombus + SEQUENCE_FLOW_WIDTH, 
               currentHeight - ((TASK_HEIGHT + TASK_HEIGHT_SPACING) / 2), TASK_WIDTH, TASK_HEIGHT);
       handledElements.add(sequenceFlow1.getTargetRef().getId());
 
@@ -248,7 +247,7 @@ public class ProcessDiagramGenerator {
               startY  + EVENT_WIDTH / 2);
 
       FlowElement userTask = sequenceFlow1.getTargetRef();
-      drawUserTask(sequenceFlow1.getTargetRef(), centerOfRhombus + SEQUENCE_FLOW_WIDTH, 
+      drawTask(sequenceFlow1.getTargetRef(), centerOfRhombus + SEQUENCE_FLOW_WIDTH, 
               startY - ((TASK_HEIGHT - GATEWAY_HEIGHT)), TASK_WIDTH, TASK_HEIGHT);
       handledElements.add(sequenceFlow1.getTargetRef().getId());
 
@@ -268,7 +267,7 @@ public class ProcessDiagramGenerator {
       drawSequenceFlow(sequenceFlow1, centerOfRhombus, y + GATEWAY_HEIGHT, centerOfRhombus, 
               currentHeight, centerOfRhombus + SEQUENCE_FLOW_WIDTH, currentHeight);
       FlowElement userTask = sequenceFlow1.getTargetRef();
-      drawUserTask(sequenceFlow1.getTargetRef(), centerOfRhombus + SEQUENCE_FLOW_WIDTH, 
+      drawTask(sequenceFlow1.getTargetRef(), centerOfRhombus + SEQUENCE_FLOW_WIDTH, 
               currentHeight - ((TASK_HEIGHT + TASK_HEIGHT_SPACING) / 2), TASK_WIDTH,
               TASK_HEIGHT);
 
@@ -313,12 +312,19 @@ public class ProcessDiagramGenerator {
     createDiagramInterchangeInformation(flowElement, x, y, width, height);
   }
 
-  protected void drawUserTask(FlowElement flowElement, int x, int y, int width, int height) {
-    processDiagramCanvas.drawUserTask(flowElement.getName(), x, y, width, height);
+  protected void drawTask(FlowElement flowElement, int x, int y, int width,
+          int height) {
+    if (flowElement instanceof UserTask) {
+      processDiagramCanvas.drawUserTask(flowElement.getName(), x, y, width, height);
+    } else if (flowElement instanceof ServiceTask) {
+      processDiagramCanvas.drawServiceTask(flowElement.getName(), x, y, width, height);
+    } else if (flowElement instanceof ScriptTask) {
+      processDiagramCanvas.drawScriptTask(flowElement.getName(), x, y, width, height);
+    }
     currentWidth += TASK_WIDTH;
-
     createDiagramInterchangeInformation(flowElement, x, y, width, height);
   }
+
 
   protected void drawSequenceFlow(SequenceFlow sequenceFlow, int... waypoints) {
 
@@ -326,8 +332,8 @@ public class ProcessDiagramGenerator {
     int minX = Integer.MAX_VALUE;
     int maxX = 0;
     for (int i = 2; i < waypoints.length; i += 2) { // waypoints.size()
-                                                    // minimally 4: x1, y1, x2,
-                                                    // y2
+      // minimally 4: x1, y1, x2,
+      // y2
       if (i < waypoints.length - 2) {
         processDiagramCanvas.drawSequenceflowWithoutArrow(waypoints[i - 2], 
                 waypoints[i - 1], waypoints[i], waypoints[i + 1], false);

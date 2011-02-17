@@ -41,7 +41,8 @@ public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<Process
   
   protected CommandExecutor commandExecutor;
   
-  public ProcessInstanceQueryImpl() {
+  public ProcessInstanceQueryImpl(CommandContext commandContext) {
+    super(commandContext);
   }
   
   public ProcessInstanceQueryImpl(CommandExecutor commandExecutor) {
@@ -119,7 +120,7 @@ public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<Process
   
   public long executeCount(CommandContext commandContext) {
     checkQueryOk();
-    ensureVariablesInitialized(commandContext.getProcessEngineConfiguration());
+    ensureVariablesInitialized();
     return commandContext
       .getRuntimeSession()
       .findProcessInstanceCountByQueryCriteria(this);
@@ -127,7 +128,7 @@ public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<Process
 
   public List<ProcessInstance> executeList(CommandContext commandContext, Page page) {
     checkQueryOk();
-    ensureVariablesInitialized(commandContext.getProcessEngineConfiguration());
+    ensureVariablesInitialized();
     return commandContext
       .getRuntimeSession()
       .findProcessInstanceByQueryCriteria(this, page);
@@ -159,8 +160,4 @@ public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<Process
   public String getSubProcessInstanceId() {
     return subProcessInstanceId;
   }
-  public List<QueryVariableValue> getVariables() {
-    return variables;
-  }
-  
 }

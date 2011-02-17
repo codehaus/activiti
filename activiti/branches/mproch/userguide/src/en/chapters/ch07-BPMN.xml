@@ -1574,11 +1574,11 @@ public class FakeLdapService {
 
 		    <para>
 		      The return value of a script task can be assigned to an already existing or to a new process variable by
-              specifying the process variable name as a literal value for the <emphasis>'activiti:resultVariableName'</emphasis> attribute
+              specifying the process variable name as a literal value for the <emphasis>'activiti:resultVariable'</emphasis> attribute
               of a script task definition. Any existing value for a specific process variable will be overwritten by the result
               value of the script execution. When not specifying a result variable name, the script result value gets ignored.
 <programlisting>
-&lt;scriptTask id=&quot;theScriptTask&quot; name=&quot;Execute script&quot; scriptFormat=&quot;juel&quot; activiti:resultVariableName=&quot;myVar&quot;&gt;
+&lt;scriptTask id=&quot;theScriptTask&quot; name=&quot;Execute script&quot; scriptFormat=&quot;juel&quot; activiti:resultVariable=&quot;myVar&quot;&gt;
   &lt;script&gt;#{echo}&lt;/script&gt;
 &lt;/scriptTask&gt;</programlisting>
 
@@ -1759,13 +1759,17 @@ public class ToUppercase implements JavaDelegate {
       <title>Field injection</title>
       
         <para>
-        It's possible to inject values into the fields of the delegated classes. The following types of injection are supported:
-        <itemizedlist>
-          <listitem><para>Fixed string values</para></listitem>
-          <listitem><para>Expressions</para></listitem>
-        </itemizedlist>
-      </para>
-      
+          It's possible to inject values into the fields of the delegated classes. The following types of injection are supported:
+          <itemizedlist>
+            <listitem><para>Fixed string values</para></listitem>
+            <listitem><para>Expressions</para></listitem>
+          </itemizedlist>
+        </para>
+        <para>
+          If available, the value is injected through a public setter method on your delegated class, folowing the Java Bean naming conventions (eg. field <literal>fistName</literal> has setter <literal>setFirstName(...)</literal>). 
+          If no setter is available for that field, the value of private member will be set on the delegate. SecurityManagers in some environments don't allow modifying private fields,
+          so it's safer to expose a public setter-method for the fields you want to have injected.
+        </para>
         <para>
           The following code snippet shows how to inject a constant value into a field. Field injection
           is supported when using the <emphasis>'class'</emphasis> attribute.
@@ -1864,13 +1868,13 @@ public class ReverseStringsFieldInjected implements JavaDelegate {
 
          <para>
            The return value of a service execution (for service task using expression only) can be assigned to an already existing or to a new process variable by
-           specifying the process variable name as a literal value for the <emphasis>'activiti:resultVariableName'</emphasis> attribute
+           specifying the process variable name as a literal value for the <emphasis>'activiti:resultVariable'</emphasis> attribute
            of a service task definition. Any existing value for a specific process variable will be overwritten by the result
            value of the service execution. When not specifying a result variable name, the service execution result value gets ignored.
 <programlisting>
 &lt;serviceTask id=&quot;aMethodExpressionServiceTask&quot;
     activiti:expression=&quot;#{myService.doSomething()}&quot;
-    activiti:resultVariableName=&quot;myVar&quot; /&gt;
+    activiti:resultVariable=&quot;myVar&quot; /&gt;
 </programlisting>
              
            In the example above, the result of the service execution (the return value of the <emphasis>'doSomething()'</emphasis> method invocation on an object that is made available
@@ -2716,6 +2720,34 @@ assertNotNull(execution);
         </para>
         
         <para>
+          You can use expressions for the timer duration, by doing so you can influence the timer duration
+          based on process variables. The process variables must contain the ISO 8601 string for the duration.
+<programlisting>
+&lt;boundaryEvent id=&quot;escalationTimer&quot; cancelActivity=&quot;true&quot; attachedToRef=&quot;firstLineSupport&quot;&gt;
+   <emphasis role="bold">&lt;timerEventDefinition&gt;
+    &lt;timeDuration&gt;${duration}&lt;/timeDuration&gt;
+  &lt;/timerEventDefinition&gt;</emphasis>
+&lt;/boundaryEvent&gt;          
+</programlisting>
+          In the grafical representation, the line of the circle is dotted as you can see in this example above:
+          
+          <mediaobject><imageobject><imagedata align="center" fileref="images/bpmn.non.interrupting.boundary.timer.event.png"/></imageobject></mediaobject>
+          
+          A typical use case is sending an escalation email additionally but not interrupt the normal process flow.
+        </para>        
+
+        <para>
+          Since BPMn 2.0 there is the difference between the interrupting and non interrupting timer event. The 
+          interrupting is the default. The non-interrupting leads to the original activity is <emphasis role="bold">not</emphasis>
+          interrupted but the activity stays there. Instead an additional executions is created and send over the
+          outgoing transition of the event. In the XML representation, the <emphasis>cancelActivity</emphasis> attribute
+          is set to false:
+<programlisting>
+&lt;boundaryEvent id=&quot;escalationTimer&quot; cancelActivity=&quot;false&quot; attachedToRef=&quot;firstLineSupport&quot;/&gt;
+</programlisting>
+        </para>
+        
+        <para>
           <emphasis role="bold">Note:</emphasis> boundary timer events are only fired when 
           the job executor is enabled (i.e. <emphasis>jobExecutorActivate</emphasis>
           needs to be set to <literal>true</literal> in the <literal>activiti.cfg.xml</literal>, since the job
@@ -3021,6 +3053,39 @@ assertNotNull(execution);
           Note that the process definition of the subprocess is <emphasis role="bold">resolved 
           at runtime</emphasis>. This means that the subprocess can be deployed independently
           from the calling process, if needed.
+        </para>
+        
+      </section>
+
+      <section id="bpmnCallActivityParameters">
+        <title>Passing Parameters</title>
+        <para>
+          You can pass process variables to the sub process and vice versa. The data is copied into the subprocess when it is
+          started and copied back into the main process when it ends.
+<programlisting>
+&lt;callActivity id=&quot;callSubProcess&quot; calledElement=&quot;checkCreditProcess&quot; /&gt;
+	  &lt;extensionElements&gt;
+	    &lt;activiti:in source=&quot;someVariableInMainProcess&quot; target=&quot;nameOfVariableInSubProcess&quot; /&gt;
+	    &lt;activiti:out source=&quot;someVariableInSubProcss&quot; target=&quot;nameOfVariableInMainProcess&quot; /&gt;
+	  &lt;/extensionElements&gt;
+&lt;/callActivity&gt;
+</programlisting>
+          We used an Activiti Extension as a shortcut for the BPMN standard elements called <emphasis>dataInputAssociation</emphasis>
+          and <emphasis>dataOutputAssociation</emphasis>, which only work if you declare process variables in the BPMN 2.0
+          standard way.
+        </para>
+        
+        <para>
+          It is possible to use expressions here as well:
+<programlisting>
+&lt;callActivity id=&quot;callSubProcess&quot; calledElement=&quot;checkCreditProcess&quot; /&gt;
+	  &lt;extensionElements&gt;
+	    &lt;activiti:in sourceExpression=&quot;${x+5}"&quot; target=&quot;y&quot; /&gt;
+	    &lt;activiti:out source=&quot;${y+5}&quot; target=&quot;z&quot; /&gt;
+	  &lt;/extensionElements&gt;
+&lt;/callActivity&gt;
+</programlisting>
+          So in the end z = y+5 = x+5+5 :-)
         </para>
         
       </section>

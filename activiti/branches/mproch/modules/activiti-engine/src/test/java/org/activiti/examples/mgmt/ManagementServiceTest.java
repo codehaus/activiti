@@ -30,7 +30,7 @@ public class ManagementServiceTest extends PluggableActivitiTestCase {
   public void testTableCount() {
     Map<String, Long> tableCount = managementService.getTableCount();
 
-    assertEquals(new Long(3), tableCount.get("ACT_GE_PROPERTY"));
+    assertEquals(new Long(4), tableCount.get("ACT_GE_PROPERTY"));
     assertEquals(new Long(0), tableCount.get("ACT_GE_BYTEARRAY"));
     assertEquals(new Long(0), tableCount.get("ACT_RE_DEPLOYMENT"));
     assertEquals(new Long(0), tableCount.get("ACT_RU_EXECUTION"));
@@ -40,7 +40,6 @@ public class ManagementServiceTest extends PluggableActivitiTestCase {
     assertEquals(new Long(0), tableCount.get("ACT_RE_PROCDEF"));
     assertEquals(new Long(0), tableCount.get("ACT_RU_TASK"));
     assertEquals(new Long(0), tableCount.get("ACT_RU_IDENTITYLINK"));
-    ;
   }
 
   public void testGetTableMetaData() {
@@ -54,8 +53,8 @@ public class ManagementServiceTest extends PluggableActivitiTestCase {
     assertTrue(assigneeIndex >= 0);
     assertTrue(createTimeIndex >= 0);
     
-    assertOneOf(new String [] {"VARCHAR", "NVARCHAR2"}, tableMetaData.getColumnTypes().get(assigneeIndex));
-    assertOneOf(new String [] {"TIMESTAMP", "TIMESTAMP(6)"}, tableMetaData.getColumnTypes().get(createTimeIndex));
+    assertOneOf(new String [] {"VARCHAR", "NVARCHAR2", "nvarchar"}, tableMetaData.getColumnTypes().get(assigneeIndex));
+    assertOneOf(new String [] {"TIMESTAMP", "TIMESTAMP(6)", "datetime"}, tableMetaData.getColumnTypes().get(createTimeIndex));
   }
   
   private void assertOneOf(String[] possibleValues, String currentValue) {

@@ -12,14 +12,15 @@
  */
 package org.activiti.kickstart.ui;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
 import org.activiti.kickstart.KickStartApplication;
 
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.Window;
 
 /**
@@ -29,18 +30,20 @@ import com.vaadin.ui.Window;
  * 
  * @author Joram Barrez
  */
-public class ViewManager {
+public class ViewManager implements Serializable {
 
+  private static final long serialVersionUID = 4097162454884471228L;
+  
   public static final String EDIT_ADHOC_WORKFLOW = "editAdhocWorkflow";
   public static final String PROCESS_SUCESSFULLY_DEPLOYED = "processSuccessfullyDeployed";
   public static final String SELECT_ADHOC_WORKFLOW = "selectAdhocWorkflow";
 
   protected KickStartApplication application;
-  protected SplitPanel splitPanel;
+  protected HorizontalSplitPanel splitPanel;
   protected Map<String, Panel> views = new HashMap<String, Panel>();
   protected Stack<Panel> screenStack = new Stack<Panel>();
 
-  public ViewManager(KickStartApplication application, SplitPanel splitPanel) {
+  public ViewManager(KickStartApplication application, HorizontalSplitPanel splitPanel) {
     this.application = application;
     this.splitPanel = splitPanel;
   }
@@ -52,6 +55,7 @@ public class ViewManager {
     } else {
       panel = views.get(viewName);
     }
+    
     splitPanel.setSecondComponent(panel);
   }
 

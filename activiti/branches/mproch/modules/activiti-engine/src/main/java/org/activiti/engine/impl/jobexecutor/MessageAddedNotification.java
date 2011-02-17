@@ -25,8 +25,8 @@ public class MessageAddedNotification implements TransactionListener {
   
   private static Logger log = Logger.getLogger(MessageAddedNotification.class.getName());
   
-  private final JobExecutor jobExecutor;
-
+  protected JobExecutor jobExecutor;
+  
   public MessageAddedNotification(JobExecutor jobExecutor) {
     this.jobExecutor = jobExecutor;
   }

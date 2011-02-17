@@ -14,10 +14,16 @@
 package org.activiti.engine.impl.history;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.history.HistoricDetail;
 import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.impl.HistoricDetailQueryImpl;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.PersistentObject;
+import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.runtime.ExecutionEntity;
 import org.activiti.engine.impl.task.TaskEntity;
 import org.activiti.engine.impl.util.ClockUtil;
@@ -33,6 +39,7 @@ public class HistoricTaskInstanceEntity extends HistoricScopeInstanceEntity impl
   protected String description;
   protected String assignee;
   protected String taskDefinitionKey;
+  protected int priority;
 
   public HistoricTaskInstanceEntity() {
   }
@@ -61,11 +68,28 @@ public class HistoricTaskInstanceEntity extends HistoricScopeInstanceEntity impl
     persistentState.put("durationInMillis", durationInMillis);
     persistentState.put("deleteReason", deleteReason);
     persistentState.put("taskDefinitionKey", taskDefinitionKey);
+    persistentState.put("priority", priority);
     return persistentState;
   }
 
-  // getters and setters //////////////////////////////////////////////////////
+  public void delete() {
+    CommandContext commandContext = Context.getCommandContext();
+    
+    int historyLevel = Context.getProcessEngineConfiguration().getHistoryLevel();
+    if (historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
+      HistoricDetailQueryImpl variableQuery = 
+        (HistoricDetailQueryImpl) new HistoricDetailQueryImpl(commandContext).taskId(id);
+      
+      List<HistoricDetail> details = variableQuery.list();
+      for(HistoricDetail detail : details) {
+        ((HistoricDetailEntity) detail).delete();
+      }
+    }
+    
+    commandContext.getDbSqlSession().delete(HistoricTaskInstanceEntity.class, id);
+  }
   
+  // getters and setters //////////////////////////////////////////////////////
   public String getExecutionId() {
     return executionId;
   }
@@ -96,5 +120,10 @@ public class HistoricTaskInstanceEntity extends HistoricScopeInstanceEntity impl
   public void setTaskDefinitionKey(String taskDefinitionKey) {
     this.taskDefinitionKey = taskDefinitionKey;
   }
-  
+  public int getPriority() {
+    return priority;
+  }
+  public void setPriority(int priority) {
+    this.priority = priority;
+  }
 }

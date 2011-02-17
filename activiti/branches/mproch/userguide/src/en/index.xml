@@ -17,11 +17,12 @@
   <!ENTITY ch15 SYSTEM "chapters/ch15-Explorer.xml">
   <!ENTITY ch16 SYSTEM "chapters/ch16-Probe.xml">
   <!ENTITY ch17 SYSTEM "chapters/ch17-KickStart.xml">
+  <!ENTITY ch18 SYSTEM "chapters/ch18-Migration.xml">
 ]>
 
 <book>
 
-  <bookinfo><title>Activiti 5.2-SNAPSHOT User Guide</title></bookinfo>
+  <bookinfo><title>Activiti 5.3-SNAPSHOT User Guide</title></bookinfo>
   
   <toc />
   
@@ -42,5 +43,6 @@
 &ch15;
 &ch16;
 &ch17;
+&ch18;
   
 </book>

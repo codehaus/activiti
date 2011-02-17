@@ -38,6 +38,7 @@ public class AtomicOperationActivityEnd extends AbstractEventAtomicOperation {
     return ExecutionListener.EVENTNAME_END;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void eventNotificationsCompleted(InterpretableExecution execution) {
     ActivityImpl activity = (ActivityImpl) execution.getActivity();
@@ -67,7 +68,6 @@ public class AtomicOperationActivityEnd extends AbstractEventAtomicOperation {
         execution.remove();
         parentScopeExecution.setActivity(parentActivity);
         parentScopeExecution.performOperation(ACTIVITY_END);
-        // TODO prune if necessary
       }
 
     } else { // execution.isConcurrent() && !execution.isScope()
@@ -92,6 +92,9 @@ public class AtomicOperationActivityEnd extends AbstractEventAtomicOperation {
             }
             lastConcurrent.getExecutions().clear();
           }
+          
+          // Copy execution-local variables of lastConcurrent
+          concurrentRoot.setVariablesLocal(lastConcurrent.getVariablesLocal());
           
           lastConcurrent.remove();
         } else {

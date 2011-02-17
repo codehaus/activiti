@@ -40,7 +40,8 @@ public class ExecutionQueryImpl extends ExecutionVariableQueryImpl<ExecutionQuer
   
   protected CommandExecutor commandExecutor;
   
-  public ExecutionQueryImpl() {
+  public ExecutionQueryImpl(CommandContext commandContext) {
+    super(commandContext);
   }
   
   public ExecutionQueryImpl(CommandExecutor commandExecutor) {
@@ -110,7 +111,7 @@ public class ExecutionQueryImpl extends ExecutionVariableQueryImpl<ExecutionQuer
   
   public long executeCount(CommandContext commandContext) {
     checkQueryOk();
-    ensureVariablesInitialized(commandContext.getProcessEngineConfiguration());
+    ensureVariablesInitialized();
     return commandContext
       .getRuntimeSession()
       .findExecutionCountByQueryCriteria(this);
@@ -119,7 +120,7 @@ public class ExecutionQueryImpl extends ExecutionVariableQueryImpl<ExecutionQuer
   @SuppressWarnings("unchecked")
   public List<Execution> executeList(CommandContext commandContext, Page page) {
     checkQueryOk();
-    ensureVariablesInitialized(commandContext.getProcessEngineConfiguration());
+    ensureVariablesInitialized();
     return (List) commandContext
       .getRuntimeSession()
       .findExecutionsByQueryCriteria(this, page);

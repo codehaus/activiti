@@ -134,7 +134,7 @@ Activiti.widget.createSubmitDialog = function(component, name)
 {
   var dialog = new YAHOO.widget.Dialog(component.id + "-" + name,
   {
-    fixedcenter: true,
+    fixedcenter: "contained",
     visible: false,
     constraintoviewport: true,
     modal: true,
@@ -426,7 +426,7 @@ Activiti.widget.PopupManager = function()
           draggable:true,
           modal: true,
           constraintoviewport: true,
-          fixedcenter: true,
+          fixedcenter: "contained",
           effect:
           {
             effect:YAHOO.widget.ContainerEffect.FADE,
@@ -1077,7 +1077,7 @@ Activiti.widget.PopupManager = function()
 
       // Use a Dialog (instead of a Panel) to take use of it's getData method
       this.dialog = new YAHOO.widget.Dialog(dialog, {
-        fixedcenter: true,
+        fixedcenter: "contained",
         visible: false,
         constraintoviewport: true,
         modal: true,

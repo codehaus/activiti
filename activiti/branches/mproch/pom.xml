@@ -8,7 +8,7 @@
   <artifactId>activiti-root</artifactId>
 
   <packaging>pom</packaging>
-  <version>5.2-SNAPSHOT</version>
+  <version>5.3-SNAPSHOT</version>
   <properties>
     <spring.framework.version>3.0.3.RELEASE</spring.framework.version>
     <spring.surf.version>1.0.0-RC2</spring.surf.version>
@@ -16,7 +16,7 @@
 
       <!-- OSGi bundles properties -->
       <activiti.artifact/>
-      <activiti.osgi.import.activiti.version>version="[$(version;==;${activiti.osgi.version.clean}),$(version;=+;${activiti.wosgi.version.clean}))"</activiti.osgi.import.activiti.version>
+      <activiti.osgi.import.activiti.version>version="[$(version;==;${activiti.osgi.version.clean}),$(version;=+;${activiti.osgi.version.clean}))"</activiti.osgi.import.activiti.version>
       <activiti.osgi.import.strict.version>version="[$(version;===;${activiti.osgi.version.clean}),$(version;==+;${activiti.osgi.version.clean}))"</activiti.osgi.import.strict.version>
       <activiti.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</activiti.osgi.import.default.version>
       <activiti.osgi.import.defaults>
@@ -136,6 +136,18 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.6</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.sourceforge.jtds</groupId>
+        <artifactId>jtds</artifactId>
+        <version>1.2.4</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.ibm.db2.jcc</groupId>
+        <artifactId>db2jcc4</artifactId>
+		<version>9.7</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -296,22 +308,22 @@
         <!-- cycle restlet dependencies -->
         <groupId>org.restlet.jee</groupId>
         <artifactId>org.restlet</artifactId>
-        <version>2.0.1</version>
+        <version>2.0.4</version>
       </dependency>
       <dependency>
         <groupId>org.restlet.jee</groupId>
         <artifactId>org.restlet.ext.json</artifactId>
-        <version>2.0.1</version>
+        <version>2.0.4</version>
       </dependency>
       <dependency>
         <groupId>org.restlet.jee</groupId>
         <artifactId>org.restlet.ext.xml</artifactId>
-        <version>2.0.1</version>
+        <version>2.0.4</version>
       </dependency>
       <dependency>
         <groupId>org.restlet.jee</groupId>
         <artifactId>org.restlet.ext.httpclient</artifactId>
-        <version>2.0.1</version>
+        <version>2.0.4</version>
       </dependency>
       <dependency>
         <!-- required for Activiti Cycle Plugin Scanning -->
@@ -412,7 +424,7 @@
       <dependency>
         <groupId>com.vaadin</groupId>
         <artifactId>vaadin</artifactId>
-        <version>6.4.8</version>
+        <version>6.5.0</version>
       </dependency>
       <!-- Camel integration -->
       <dependency>
@@ -484,7 +496,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7</version>
+        <version>2.7.1</version>
         <configuration>
           <failIfNoTests>false</failIfNoTests>
           <trimStackTrace>false</trimStackTrace>
@@ -524,17 +536,6 @@
                     </versions>
                 </configuration>
             </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-source-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <goals>
-                          <goal>jar</goal>
-                      </goals>
-                  </execution>
-              </executions>
-          </plugin>
     </plugins>
   </build>
 
@@ -553,6 +554,21 @@
         <module>modules/activiti-cxf</module>
         <module>modules/activiti-mule</module>
       </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>check</id>
@@ -623,6 +639,7 @@
         <module>modules/activiti-osgi</module>
         <module>modules/activiti-osgi-rest</module>
 	<module>modules/activiti-camel</module>
+	<module>modules/activiti-jbpm-migration</module>
       </modules>
     </profile>
     <profile>

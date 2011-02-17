@@ -15,10 +15,9 @@ package org.activiti.engine.impl.history.handler;
 
 import java.util.List;
 
-import org.activiti.engine.ActivitiException;
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.impl.HistoricActivityInstanceQueryImpl;
-import org.activiti.engine.impl.Page;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.history.HistoricActivityInstanceEntity;
 import org.activiti.engine.impl.interceptor.CommandContext;
@@ -35,15 +34,18 @@ public class ActivityInstanceEndHandler implements ExecutionListener {
   public void notify(ExecutionListenerExecution execution) {
     ExecutionEntity executionEntity = (ExecutionEntity) execution;
     HistoricActivityInstanceEntity historicActivityInstance = findActivityInstance(executionEntity);
-    historicActivityInstance.markEnded(null);
+    if (historicActivityInstance!=null) {
+      historicActivityInstance.markEnded(null);
+    }
   }
 
+  /**
+   * Finds the {@link HistoricActivityInstanceEntity} that is active in the given
+   * execution. Uses the {@link DbSqlSession} cache to make sure the right instance
+   * is returned, regardless of whether or not entities have already been flushed to DB.
+   */
   public static HistoricActivityInstanceEntity findActivityInstance(ExecutionEntity execution) {
-    return findActivityInstance(execution, false);
-  }
-
-  public static HistoricActivityInstanceEntity findActivityInstance(ExecutionEntity execution, boolean isNullAllowed) {
-    CommandContext commandContext = CommandContext.getCurrent();
+    CommandContext commandContext = Context.getCommandContext();
 
     String executionId = execution.getId();
     String activityId = execution.getActivityId();
@@ -61,11 +63,11 @@ public class ActivityInstanceEndHandler implements ExecutionListener {
       }
     }
     
-    List<HistoricActivityInstance> historicActivityInstances = new HistoricActivityInstanceQueryImpl()
+    List<HistoricActivityInstance> historicActivityInstances = new HistoricActivityInstanceQueryImpl(commandContext)
       .executionId(executionId)
       .activityId(activityId)
       .unfinished()
-      .executeList(commandContext, new Page(0, 1));
+      .listPage(0, 1);
     
     if (!historicActivityInstances.isEmpty()) {
       return (HistoricActivityInstanceEntity) historicActivityInstances.get(0);
@@ -75,10 +77,6 @@ public class ActivityInstanceEndHandler implements ExecutionListener {
       return findActivityInstance((ExecutionEntity) execution.getParent());
     }
     
-    if (isNullAllowed) {
-      return null;
-    }
-     
-    throw new ActivitiException("no existing history activity entity found for execution "+executionId+" in activity "+activityId);
+    return null;
   }
 }

@@ -16,14 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.kickstart.dto.FormDto;
-import org.activiti.kickstart.dto.TaskDto;
+import org.activiti.kickstart.dto.UserTaskDto;
 import org.activiti.kickstart.model.TaskFormModel;
 import org.activiti.kickstart.model.TaskFormModelListener;
 import org.activiti.kickstart.ui.ViewManager;
 import org.activiti.kickstart.ui.listener.AddTaskClickListener;
 import org.activiti.kickstart.ui.listener.DeleteTaskClickListener;
 import org.activiti.kickstart.ui.listener.ShowFormClickListener;
-import org.activiti.kickstart.util.ExpressionUtil;
 
 import com.vaadin.data.Item;
 import com.vaadin.ui.Button;
@@ -48,7 +47,8 @@ public class TaskTable extends Table implements TaskFormModelListener {
 
     setEditable(true);
     setColumnReorderingAllowed(true);
-    setPageLength(size());
+
+    setPageLength(0);
 
     addContainerProperty("name", String.class, null);
     addContainerProperty("assignee", String.class, null);
@@ -73,7 +73,7 @@ public class TaskTable extends Table implements TaskFormModelListener {
     setColumnWidth("actions", 170);
   }
 
-  public void addTaskRow(TaskDto task) {
+  public void addTaskRow(UserTaskDto task) {
     Object taskItemId = addTaskRow(null, task.getName(), task.getAssignee(), task.getGroups(), task.getDescription(), task.getStartsWithPrevious());
     if (task.getForm() != null) {
       taskFormModel.addForm(taskItemId, task.getForm());
@@ -150,12 +150,12 @@ public class TaskTable extends Table implements TaskFormModelListener {
     return actionButtons;
   }
 
-  public List<TaskDto> getTasks() {
-    List<TaskDto> tasks = new ArrayList<TaskDto>();
+  public List<UserTaskDto> getTasks() {
+    List<UserTaskDto> tasks = new ArrayList<UserTaskDto>();
     for (Object itemId : getItemIds()) {
       Item item = getItem(itemId);
 
-      TaskDto task = new TaskDto();
+      UserTaskDto task = new UserTaskDto();
       task.setName((String) item.getItemProperty("name").getValue());
       task.setAssignee((String) item.getItemProperty("assignee").getValue());
       task.setGroups((String) item.getItemProperty("groups").getValue());

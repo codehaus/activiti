@@ -13,7 +13,9 @@
 
 package org.activiti.engine.impl.db;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.history.HistoricTaskInstance;
@@ -21,7 +23,8 @@ import org.activiti.engine.impl.HistoricTaskInstanceQueryImpl;
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.TaskQueryImpl;
 import org.activiti.engine.impl.cfg.TaskSession;
-import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.history.HistoricTaskInstanceEntity;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.task.IdentityLinkEntity;
 import org.activiti.engine.impl.task.TaskEntity;
@@ -36,7 +39,7 @@ public class DbTaskSession implements TaskSession, Session {
   protected DbSqlSession dbSqlSession;
 
   public DbTaskSession() {
-    this.dbSqlSession = CommandContext.getCurrentSession(DbSqlSession.class);
+    this.dbSqlSession = Context.getCommandContext().getSession(DbSqlSession.class);
   }
 
   public TaskEntity findTaskById(String id) {
@@ -61,6 +64,16 @@ public class DbTaskSession implements TaskSession, Session {
     return dbSqlSession.selectList("selectIdentityLinksByTask", taskId);
   }
 
+  @SuppressWarnings("unchecked")
+  public List<IdentityLinkEntity> findIdentityLinkByTaskUserGroupAndType(String taskId, String userId, String groupId, String type) {
+    Map<String, String> parameters = new HashMap<String, String>();
+    parameters.put("taskId", taskId);
+    parameters.put("userId", userId);
+    parameters.put("groupId", groupId);
+    parameters.put("type", type);
+    return dbSqlSession.selectList("selectIdentityLinkByTaskUserGroupAndType", parameters);
+  }
+
   public long findHistoricTaskInstanceCountByQueryCriteria(HistoricTaskInstanceQueryImpl historicTaskInstanceQuery) {
     return (Long) dbSqlSession.selectOne("selectHistoricTaskInstanceCountByQueryCriteria", historicTaskInstanceQuery);
   }
@@ -69,11 +82,26 @@ public class DbTaskSession implements TaskSession, Session {
   public List<HistoricTaskInstance> findHistoricTaskInstancesByQueryCriteria(HistoricTaskInstanceQueryImpl historicTaskInstanceQuery, Page page) {
     return dbSqlSession.selectList("selectHistoricTaskInstancesByQueryCriteria", historicTaskInstanceQuery, page);
   }
+  
+  public HistoricTaskInstanceEntity findHistoricTaskInstanceById(String id) {
+    if (id == null) {
+      throw new ActivitiException("Invalid historic task id : null");
+    }
+    return (HistoricTaskInstanceEntity) dbSqlSession.selectOne("selectHistoricTaskInstance", id);
+  }
+  
+  public void deleteHistoricTaskInstance(String taskId) {
+    HistoricTaskInstanceEntity historicTaskInstance = findHistoricTaskInstanceById(taskId);
+    if(historicTaskInstance == null) {
+      throw new ActivitiException("No historic task instance found for id '" + taskId + "'");
+    }
+    
+    historicTaskInstance.delete();
+  }
 
   public void close() {
   }
 
   public void flush() {
   }
-
 }

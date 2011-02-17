@@ -16,13 +16,14 @@ package org.activiti.spring;
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
 
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.javax.el.ELContext;
 import org.activiti.engine.impl.javax.el.ELResolver;
 import org.springframework.context.ApplicationContext;
 
-
 /**
  * @author Tom Baeyens
+ * @author Frederik Heremans
  */
 public class ApplicationContextElResolver extends ELResolver {
 
@@ -51,6 +52,13 @@ public class ApplicationContextElResolver extends ELResolver {
   }
 
   public void setValue(ELContext context, Object base, Object property, Object value) {
+    if(base == null) {
+      String key = (String) property;
+      if (applicationContext.containsBean(key)) {
+        throw new ActivitiException("Cannot set value of '" + property + 
+          "', it resolves to a bean defined in the Spring application-context.");
+      }
+    }
   }
 
   public Class< ? > getCommonPropertyType(ELContext context, Object arg) {
