@@ -263,6 +263,10 @@
     // {connectorId: "...", nodeId: "...", content: "..."}  
     saveComment: function RepositoryService_saveComment(obj) {
       this.jsonPost(Activiti.service.REST_PROXY_URI_RELATIVE + "comment", obj, null, "saveComment");
+    },
+    
+    createProcessSolution: function RepositoryService_saveComment(obj) {
+      this.jsonPost(Activiti.service.REST_PROXY_URI_RELATIVE + "process-solution", obj, null, "createProcessSolution");
     }
 
   });
