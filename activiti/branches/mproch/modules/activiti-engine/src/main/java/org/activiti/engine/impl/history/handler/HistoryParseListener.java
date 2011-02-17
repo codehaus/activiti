@@ -129,6 +129,10 @@ public class HistoryParseListener implements BpmnParseListener {
           Element multiInstanceLoopCharacteristicsElement, ActivityImpl activity) {
   }
 
+  public void parseIntermediateTimerEventDefinition(Element timerEventDefinition, ActivityImpl timerActivity) {
+    addActivityHandlers(timerActivity);
+  }
+
   // helper methods ///////////////////////////////////////////////////////////
   
   protected void addActivityHandlers(ActivityImpl activity) {

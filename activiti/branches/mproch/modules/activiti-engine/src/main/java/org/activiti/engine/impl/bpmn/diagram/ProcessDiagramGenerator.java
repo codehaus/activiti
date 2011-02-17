@@ -150,7 +150,16 @@ public class ProcessDiagramGenerator {
                 activityImpl.getWidth(), activityImpl.getHeight());
       }
     });
-    
+
+
+    // Boundary catch error
+    activityDrawInstructions.put("intermediateTimer", new DrawInstruction() {
+      public void draw(ProcessDiagramCanvas processDiagramCreator, ActivityImpl activityImpl) {
+        processDiagramCreator.drawCatchingTimerEvent(activityImpl.getX(), activityImpl.getY(),
+                activityImpl.getWidth(), activityImpl.getHeight());
+      }
+    });
+
     // subprocess
     activityDrawInstructions.put("subProcess", new DrawInstruction() {
       public void draw(ProcessDiagramCanvas processDiagramCreator, ActivityImpl activityImpl) {
