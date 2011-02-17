@@ -90,25 +90,25 @@ insert  into  ACT_CY_CONFIG values ('1',
 									</processSolutionTemplate>');	
 
 insert 	into ACT_CY_PROCESS_SOLUTION values ('ps1',
-											 'Holiday Manager',
+											 'Easy Bugfiling Process',
 											 'IN_SPECIFICATION');
 											 
 insert into ACT_CY_V_FOLDER values('ps1Management',
 								   'Management',
 								   'Workspace',
-								   '/HolidayManager/Management',
+								   '/EasyBugFilingProcess/Management',
 								   'ps1',
 								   'Management');
 insert into ACT_CY_V_FOLDER values('ps1Requirements',
 								   'Requirements',
 								   'Workspace',
-								   '/HolidayManager/Requirements',
+								   '/EasyBugFilingProcess/Requirements',
 								   'ps1',
 								   'Requirements');
 insert into ACT_CY_V_FOLDER values('ps1Implementation',
 								   'Implementation',
 								   'Workspace',
-								   '/HolidayManager/Implementation',
+								   '/EasyBugFilingProcess/Implementation',
 								   'ps1',
 								   'Implementation');
 
