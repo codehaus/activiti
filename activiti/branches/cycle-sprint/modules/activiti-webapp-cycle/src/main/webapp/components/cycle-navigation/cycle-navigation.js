@@ -51,7 +51,7 @@
     onReady: function CycleNavigation_onReady()
     {
       if (!Activiti.event.isInitEvent(Activiti.event.updateArtifactView)) {
-        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "/", nodeId: ""}, null, true);
+        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "PS", nodeId: "", label: "", file: ""}, null, true);
       }
       
       var reloadLink = document.createElement('a');
@@ -90,7 +90,7 @@
         this._tabView = new YAHOO.widget.TabView();
         
         // Add tab for the "process solutions" tree
-        var processSolutionsTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: "PS", nodeId: "", treeId: "ps"});
+        var processSolutionsTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: this._connectorId, nodeId: this._nodeId, treeId: "ps"});
         var processSolutionsTab = new YAHOO.widget.Tab({
           label: this.msg("label.process-solutions"), 
           dataSrc: processSolutionsTreeUrl, 
@@ -106,7 +106,7 @@
         this._tabView.addTab(processSolutionsTab);
 
         // Add tab for the "repositories" tree
-        var repositoriesTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: "/", nodeId: "", treeId: "repo"});
+        var repositoriesTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: this._connectorId, nodeId: this._nodeId, treeId: "repo"});
         var repositoriesTab = new YAHOO.widget.Tab({
           label: this.msg("label.repositories"), 
           dataSrc: repositoriesTreeUrl,

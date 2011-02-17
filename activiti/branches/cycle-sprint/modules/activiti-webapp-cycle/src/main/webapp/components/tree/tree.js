@@ -69,17 +69,8 @@
     {
       this._connectorId = args[1].value.connectorId;
       this._nodeId = args[1].value.nodeId;
-
-      if(this._containingNavigationTabIndex == args[1].value.activeNavigationTabIndex) {
-        // We only need to react if the tree is currently visible
-      
-        if(/*!this._treeView._nodes || */!this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
-          // If the tree is not yet initialized, The tree is either not initialized or the requested node is not yet loaded 
-        
-        } else {
-          // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
-          this.highlightCurrentNode();
-        }
+      if(this._containingNavigationTabIndex == args[1].value.activeNavigationTabIndex && this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
+        this.highlightCurrentNode();
       }
     },
 
@@ -110,6 +101,40 @@
 
       // Subscribe to the click event of the tree
       this._treeView.subscribe("clickEvent", this.onClickEvent, null, this);
+
+      // TODO: (Nils Preusker, 17.2.2011), This is a hard coded implementation of "dynamic" context menu entries, based on the type of the tree node.
+      // There are several ways of doing this right in the future:
+      // 1) Dynamically load contextr menu when it is invoked. THis includes adding a "context-menu.get" webscript and javascript logic to render it.
+      //    The disadvantage is that the context menues would take some time to load, which might be counter intuitive for the user.
+      // 2) Add context menu information to the data array that every tree node contains and render a context menu based on that.
+      // Another issue is that the related dialogs should be dynamic aswell. Maybe we could use a similar approach like we did for the actions menu.
+      var contextMenuDiv = document.getElementById(this.id + "-cycle-tree-context-menu-div");
+
+      if(contextMenuDiv) {
+         contextMenuDiv.parentNode.removeChild(contextMenuDiv);
+      }
+
+      me._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
+        trigger: this.id
+      });
+      
+      me._contextMenu.render(document.body);
+      me._contextMenu.subscribe("triggerContextMenu", function (event, menu) {
+        // retrieve the node the context menu was triggered on
+        var oTarget = this.contextEventTarget;
+        var node = me._treeView.getNodeByElement(oTarget);
+     
+        // clear existing menu items and set up the context menu according to the current node
+        this.clearContent();
+        if(node.data.file) {
+          // this.addItems([]);
+        } else if(node.data.folder) {
+          this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
+          this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
+        }
+        this.render();
+      });
+      
     },
 
     /**
@@ -130,7 +155,7 @@
      * @method onCreateArtifactContextMenuClick
      * @param eventName {string} the name of the event that lead to the invokation of this method
      * @param params {Array} array of parameters that contains the event that lead to the invokation of this method
-     * @param node the tree node that the context menu was invoked on
+     * @param node {Object} the tree node that the context menu was invoked on
      * @return {Activiti.component.CreateArtifactDialog} dialog to provide details for the new artifact
      */
     onCreateArtifactContextMenuClick: function RepoTree_onCreateArtifactContextMenuClick(eventName, params, node)
@@ -221,40 +246,3 @@
   });
 
 })();
-
-
-// onLoadTreeSuccess: function RepoTree_RepositoryService_onLoadTreeSuccess(response)
-//     {
-//       var me = this;
-
-  // (Nils Preusker, 16.11.2011)
-  // ... just a placeholder to keep the context menu stuff... this still needs to be re-implemented
-
-  // var contextMenuDiv = document.getElementById(this.id + "-cycle-tree-context-menu-div");
-  //    if(contextMenuDiv) {
-  //      contextMenuDiv.parentNode.removeChild(contextMenuDiv);
-  //    }
-  // 
-  //      me._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
-  //          trigger: this.id
-  //        });
-  // 
-  //    me._contextMenu.render(document.body);
-  //    me._contextMenu.subscribe("triggerContextMenu", function (event, menu) {
-  //        // retrieve the node the context menu was triggered on
-  //        var oTarget = this.contextEventTarget;
-  //        var node = me._treeView.getNodeByElement(oTarget);
-  //        
-  //        // clear existing menu items and set up the context menu according to the current node
-  //        this.clearContent();
-  //        if(node.data.file) {
-  //          // this.addItems([]);
-  //        } else if(node.data.folder) {
-  //          this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
-  //          this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
-  //        }
-  //        this.render();
-  //      });
-  // 
-  //    
-  //  },
