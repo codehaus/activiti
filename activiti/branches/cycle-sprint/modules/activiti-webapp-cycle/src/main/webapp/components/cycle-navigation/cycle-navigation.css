@@ -1,5 +1,9 @@
+#Activiti #content #left .activiti-component div.yui-content {
+  overflow: auto;
+}
+
 /* Override padding for YUI tab view headings */
-#Activiti #content #left .activiti-component .yui-navset li a {
+#Activiti #content #left .activiti-component div.yui-navset li a {
   padding: 0px;
 }
 

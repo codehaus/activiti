@@ -199,7 +199,7 @@
     onActiveTabChange: function CycleNavigation_onActiveTabChange(event)
     {
       var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "nodeId": this._nodeId, "file": this._file, "label": this._label, "activeNavigationTabIndex": newActiveTabIndex, "activeArtifactViewTabIndex": this._activeArtifactViewTabIndex}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": "", "nodeId": "", "file": "", "label": "", "activeNavigationTabIndex": newActiveTabIndex, "activeArtifactViewTabIndex": this._activeArtifactViewTabIndex}, null, true);
       YAHOO.util.Event.preventDefault(event);
     }
 

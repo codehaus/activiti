@@ -71,16 +71,15 @@
       this._nodeId = args[1].value.nodeId;
 
       if(this._containingNavigationTabIndex == args[1].value.activeNavigationTabIndex) {
-        // alert("the event interests me in tab " + this._containingNavigationTabIndex + "...");
-        // this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._nodeId});          
-      }
+        // We only need to react if the tree is currently visible
       
-      if(!this._treeView._nodes || !this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
-        // The tree is not yet initialized
+        if(/*!this._treeView._nodes || */!this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
+          // If the tree is not yet initialized, The tree is either not initialized or the requested node is not yet loaded 
         
-      } else {
-        // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
-        this.highlightCurrentNode();
+        } else {
+          // tree is initialized, this is either a regular click on the tree or an event from the browser history manager
+          this.highlightCurrentNode();
+        }
       }
     },
 
