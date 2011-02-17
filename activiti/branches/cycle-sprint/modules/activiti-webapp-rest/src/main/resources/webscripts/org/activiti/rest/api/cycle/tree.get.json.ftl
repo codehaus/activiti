@@ -12,6 +12,7 @@
   "connectorId": "${node.connectorId}",
   "nodeId": "${node.nodeId}",<#if (node.expanded??) && (node.expanded = "true")>
   "expanded": "${node.expanded}",
+  "type": "${node.type!''}",
   </#if>
   <#if node.folder??>"folder": "true"<#if (node.children??) && (node.children?size > 0)>,
   "children": [

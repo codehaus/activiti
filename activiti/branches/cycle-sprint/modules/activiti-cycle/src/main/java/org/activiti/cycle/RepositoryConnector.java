@@ -228,6 +228,8 @@ public interface RepositoryConnector {
    */
   public void setName(String name);
 
+  public String concatenateNodeId(String prefix, String suffix);
+
   // public String getGlobalId(RepositoryNode node);
 
 }

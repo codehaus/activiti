@@ -527,10 +527,10 @@ public class SignavioConnector extends AbstractRepositoryConnector implements Si
       Request jsonRequest = new Request(Method.POST, new Reference(getConfiguration().getDirectoryRootUrl()), createFolderRep);
       jsonRequest.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
       sendRequest(jsonRequest);
-      
+
       // TODO: create response object which contains the ID or maybe skip the
       // whole artifact returning?
-      
+
       // <!> HACK: getting the created folder through iteration of the child
       // nodes of the parent folder and comparing the names...
       RepositoryNodeCollection nodes = getChildren(parentFolderId);
@@ -542,7 +542,7 @@ public class SignavioConnector extends AbstractRepositoryConnector implements Si
           return (RepositoryFolder) node;
         }
       }
- 
+
       return null;
     } catch (Exception ex) {
       // throw new RepositoryNodeNotFoundException(getConfiguration().getName(),
@@ -800,6 +800,10 @@ public class SignavioConnector extends AbstractRepositoryConnector implements Si
 
   public SignavioConnectorConfiguration getConfiguration() {
     return configuration;
+  }
+
+  public String concatenateNodeId(String prefix, String suffix) {
+    return prefix + ";" + suffix;
   }
 
 }

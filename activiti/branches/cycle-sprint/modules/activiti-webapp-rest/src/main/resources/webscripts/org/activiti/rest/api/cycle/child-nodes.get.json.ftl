@@ -13,6 +13,7 @@
   "label": "${folder.label!''}",
   "connectorId": "${folder.connectorId}",
   "nodeId": "${folder.nodeId}",
+  "type": "${folder.type!''}",
   "folder": "true"
 }
 </#escape>
@@ -26,7 +27,8 @@
   "nodeId": "${file.nodeId}",
   "expanded": "true",
   "file": "true",
-  "labelStyle": "${file.labelStyle}"
+  "labelStyle": "${file.labelStyle}",
+  "type": "${file.type!''}"
 }
 </#escape>
 </#macro>

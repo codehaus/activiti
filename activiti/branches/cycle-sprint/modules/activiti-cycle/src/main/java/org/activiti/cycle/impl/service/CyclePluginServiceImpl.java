@@ -23,6 +23,7 @@ import org.activiti.cycle.impl.CycleComponentComparator;
 import org.activiti.cycle.impl.DownloadContentActionImpl;
 import org.activiti.cycle.impl.action.Actions;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
+import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.service.CyclePluginService;
 import org.activiti.cycle.service.CycleServiceFactory;
 
@@ -103,6 +104,12 @@ public class CyclePluginServiceImpl implements CyclePluginService {
   }
 
   public Set<RepositoryArtifactOpenLinkAction> getArtifactOpenLinkActions(RepositoryArtifact artifact) {
+
+    if(artifact instanceof ProcessSolutionArtifact) {
+      ProcessSolutionArtifact processSolutionArtifact = (ProcessSolutionArtifact) artifact;      
+      artifact = (RepositoryArtifact) processSolutionArtifact.getWrappedNode();
+    }
+    
     // TODO: cache this somewhere?
     // TODO: refactor the RepositoryArtifactOpenLinkActions altogether?
     Set<RepositoryArtifactOpenLinkAction> list = new HashSet<RepositoryArtifactOpenLinkAction>();

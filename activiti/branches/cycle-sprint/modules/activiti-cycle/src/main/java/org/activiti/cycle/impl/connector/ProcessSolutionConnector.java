@@ -94,14 +94,16 @@ public class ProcessSolutionConnector implements RepositoryConnector {
       // id == processsolution/virtualFolderId
       return new ProcessSolutionFolder(getId(), id, virtualFolder, ps, null);
     }
-
+    relativePath = id.replace(processSolutionId + "/" + virtualFolderId + "/", "");
     // id == processsolution/virtualFolderId/...
+    RepositoryConnector connector = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class).getConnectorById(
+            virtualFolder.getConnectorId());
+
     try {
-      RepositoryFolder folder = repositoryService.getRepositoryFolder(virtualFolder.getConnectorId(), virtualFolder.getReferencedNodeId() + "/" + relativePath);
+      RepositoryFolder folder = connector.getRepositoryFolder(connector.concatenateNodeId(virtualFolder.getReferencedNodeId(), relativePath));
       return new ProcessSolutionFolder(getId(), id, virtualFolder, ps, folder);
     } catch (Exception e) {
-      RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(virtualFolder.getConnectorId(), virtualFolder.getReferencedNodeId() + "/"
-              + relativePath);
+      RepositoryArtifact artifact = connector.getRepositoryArtifact(connector.concatenateNodeId(virtualFolder.getReferencedNodeId(), relativePath));
       return new ProcessSolutionArtifact(getId(), id, virtualFolder, ps, artifact);
     }
   }
@@ -238,6 +240,10 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public void setName(String name) {
+  }
+
+  public String concatenateNodeId(String prefix, String suffix) {
+    return null;
   }
 
 }

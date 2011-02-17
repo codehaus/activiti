@@ -20,6 +20,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+import javassist.expr.Instanceof;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.cycle.ContentRepresentation;
@@ -27,6 +29,7 @@ import org.activiti.cycle.MimeType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryAuthenticationException;
 import org.activiti.cycle.context.CycleApplicationContext;
+import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.impl.connector.signavio.transform.TransformationException;
 import org.activiti.cycle.impl.mimetype.HtmlMimeType;
 import org.activiti.cycle.impl.mimetype.JsonMimeType;
@@ -91,12 +94,16 @@ public class ContentGet extends ActivitiStreamingWebScript {
     CycleContentService contentService = CycleServiceFactory.getContentService();
 
     // Retrieve the nodeId from the request
-    String cnonectorId = req.getMandatoryString("connectorId");
+    String connectorId = req.getMandatoryString("connectorId");
     String nodeId = req.getMandatoryString("nodeId");
     String contentRepresentationId = req.getMandatoryString("contentRepresentationId");
 
     // Retrieve the artifact from the repository
-    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(cnonectorId, nodeId);
+    RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, nodeId);
+
+    if (artifact instanceof ProcessSolutionArtifact) {
+      artifact = ((ProcessSolutionArtifact) artifact).getWrappedNode();
+    }
 
     ContentRepresentation contentRepresentation = contentService.getContentRepresentation(artifact, contentRepresentationId);
 

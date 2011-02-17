@@ -20,5 +20,9 @@ public class ProcessSolutionArtifact extends ProcessSolutionRepositoryNode imple
       return null;
     }
   }
+  
+  public RepositoryArtifact getWrappedNode() {
+    return (RepositoryArtifact) super.getWrappedNode();
+  }
 
 }

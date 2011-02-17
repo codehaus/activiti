@@ -14,6 +14,8 @@
 package org.activiti.rest.api.cycle.dto;
 
 import org.activiti.cycle.RepositoryNode;
+import org.activiti.cycle.impl.connector.ProcessSolutionRepositoryNode;
+import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 
 /**
  * @author Nils Preusker (nils.preusker@camunda.com)
@@ -24,11 +26,20 @@ public abstract class TreeNodeDto {
   protected String connectorId;
   protected String nodeId;
   protected String expanded;
+  protected String type;
 
   public TreeNodeDto(RepositoryNode node) {
     this.label = node.getMetadata().getName();
     this.connectorId = node.getConnectorId();
     this.nodeId = node.getNodeId();
+
+    if (node instanceof ProcessSolutionRepositoryNode) {
+      VirtualRepositoryFolder vFolder = ((ProcessSolutionRepositoryNode) node).getVirtualRepositoryFolder();
+      if (vFolder != null) {
+        type = vFolder.getType();
+      }
+    }
+
   }
 
   public TreeNodeDto() {
@@ -66,7 +77,15 @@ public abstract class TreeNodeDto {
   public void setConnectorId(String connectorId) {
     this.connectorId = connectorId;
   }
-  
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

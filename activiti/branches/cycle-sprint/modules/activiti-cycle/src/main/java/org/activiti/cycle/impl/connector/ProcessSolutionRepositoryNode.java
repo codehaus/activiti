@@ -23,7 +23,7 @@ public class ProcessSolutionRepositoryNode implements RepositoryNode {
   protected String connectorId;
 
   protected String nodeId;
-
+  
   public ProcessSolutionRepositoryNode(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
           RepositoryNode wrappedNode) {
     this.virtualRepositoryFolder = virtualFolder;
