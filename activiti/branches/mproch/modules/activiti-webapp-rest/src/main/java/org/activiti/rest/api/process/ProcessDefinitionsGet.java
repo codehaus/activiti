@@ -65,8 +65,6 @@ public class ProcessDefinitionsGet extends ActivitiPagingWebScript {
         StartFormData startFormData = getFormService().getStartFormData(p.getId());
         if (startFormData != null) {
           restProcessDefinition.setStartFormResourceKey(startFormData.getFormKey());
-          restProcessDefinition.setGraphicNotationDefined(isGraphicNotationDefined(p.getId()));
-
         }
         
         restProcessDefinition.setGraphicNotationDefined(isGraphicNotationDefined(p.getId()));
