@@ -9,6 +9,7 @@ import org.activiti.cycle.ContentRepresentation;
 import org.activiti.cycle.CycleComponentFactory;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryConnector;
+import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
@@ -156,20 +157,37 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
   public RepositoryArtifact createArtifact(String parentFolderId, String artifactName, String artifactType, Content artifactContent)
           throws RepositoryNodeNotFoundException {
-    return null;
+    ProcessSolutionFolder folder = (ProcessSolutionFolder) getRepositoryNode(parentFolderId);
+    if (folder.getVirtualRepositoryFolder() == null) {
+      throw new RepositoryException("Cannot create artifact in the top-level folder. ");
+    }
+    if (folder.getWrappedNode() == null) {
+      return repositoryService.createArtifact(folder.getVirtualRepositoryFolder().getConnectorId(), folder.getVirtualRepositoryFolder().getReferencedNodeId(),
+              artifactName, artifactType, artifactContent);
+    }
+    return repositoryService.createArtifact(folder.getWrappedNode().getConnectorId(), folder.getWrappedNode().getNodeId(), artifactName, artifactType,
+            artifactContent);
   }
 
   public RepositoryArtifact createArtifactFromContentRepresentation(String parentFolderId, String artifactName, String artifactType,
           String contentRepresentationName, Content artifactContent) throws RepositoryNodeNotFoundException {
-    return null;
+    return createArtifact(parentFolderId, artifactName, artifactType, artifactContent);
   }
 
   public RepositoryArtifact createEmptyArtifact(String parentFolderId, String artifactName, String artifactType) throws RepositoryNodeNotFoundException {
-    return null;
+    throw new RuntimeException("Not implemented");
   }
 
   public RepositoryFolder createFolder(String parentFolderId, String name) throws RepositoryNodeNotFoundException {
-    return null;
+    ProcessSolutionFolder folder = (ProcessSolutionFolder) getRepositoryNode(parentFolderId);
+    if (folder.getVirtualRepositoryFolder() == null) {
+      throw new RepositoryException("Cannot create artifact in the top-level folder. ");
+    }
+    if (folder.getWrappedNode() == null) {
+      return repositoryService.createFolder(folder.getVirtualRepositoryFolder().getConnectorId(), folder.getVirtualRepositoryFolder().getReferencedNodeId(),
+              name);
+    }
+    return repositoryService.createFolder(folder.getWrappedNode().getConnectorId(), folder.getWrappedNode().getNodeId(), name);
   }
 
   public Content getContent(String artifactId) throws RepositoryNodeNotFoundException {
@@ -187,9 +205,13 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public void deleteArtifact(String artifactId) throws RepositoryNodeNotFoundException {
+    ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
+    repositoryService.deleteArtifact(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId());
   }
 
   public void deleteFolder(String folderId) throws RepositoryNodeNotFoundException {
+    ProcessSolutionFolder folder = (ProcessSolutionFolder) getRepositoryNode(folderId);
+    repositoryService.deleteFolder(folder.wrappedNode.getConnectorId(), folder.wrappedNode.getNodeId());
   }
 
   public void executeParameterizedAction(String artifactId, String actionId, Map<String, Object> parameters) throws Exception {

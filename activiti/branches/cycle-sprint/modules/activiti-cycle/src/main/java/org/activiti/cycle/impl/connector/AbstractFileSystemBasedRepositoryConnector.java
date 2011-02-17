@@ -87,6 +87,10 @@ public abstract class AbstractFileSystemBasedRepositoryConnector extends Abstrac
   }
 
   public String concatenateNodeId(String prefix, String suffix) {
-    return prefix + "/" + suffix;
+    String concatChar = "/";
+    if(prefix.endsWith(concatChar) || suffix.startsWith("/")) {
+      concatChar = "";
+    }
+    return prefix + concatChar + suffix;
   }
 }
