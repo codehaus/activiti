@@ -21,8 +21,6 @@ import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
 
-import com.sun.xml.bind.v2.model.runtime.RuntimeReferencePropertyInfo;
-
 /**
  * Virtual {@link RepositoryConnector} for {@link ProcessSolution}s
  * 
@@ -128,8 +126,7 @@ public class ProcessSolutionConnector implements RepositoryConnector {
     if (wrappedFolder != null) {
       // get child nodes of wrapped folder
       childNodes = repositoryService.getChildren(wrappedFolder.getConnectorId(), wrappedFolder.getNodeId());
-    }else 
-    if (virtualFolder != null) {
+    } else if (virtualFolder != null) {
       // get child nodes of virtual folder
       childNodes = repositoryService.getChildren(virtualFolder.getConnectorId(), virtualFolder.getReferencedNodeId());
     }

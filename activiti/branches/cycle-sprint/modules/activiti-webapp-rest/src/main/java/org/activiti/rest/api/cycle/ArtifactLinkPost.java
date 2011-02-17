@@ -41,7 +41,7 @@ public class ArtifactLinkPost extends ActivitiCycleWebScript {
     // String tgtElementId = req.getMandatoryString("targetElementId");
 
     String targetConnectorId = req.getMandatoryString(obj, "targetConnectorId");
-    String targetnodeId = req.getMandatoryString(obj, "targetnodeId");
+    String targetnodeId = req.getMandatoryString(obj, "targetNodeId");
 
     RepositoryArtifactLinkEntity link = new RepositoryArtifactLinkEntity();
     link.setSourceConnectorId(sourceConnectorId);
