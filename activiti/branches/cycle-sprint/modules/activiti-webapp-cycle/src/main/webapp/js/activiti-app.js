@@ -72,7 +72,7 @@
     loadChildNodes: function RepositoryService_loadChildNodes(node, fnLoadComplete, treeId)
     {
       var obj = [node, fnLoadComplete];
-      this.jsonGet(this.loadChildNodesURL(node.data.connectorId, node.data.nodeId, treeId), obj, "loadNodeData");
+      this.jsonGet(this.loadChildNodesURL(node.data.connectorId, node.data.nodeId, treeId), obj, "loadChildNodes");
     },
 
     /**
@@ -433,7 +433,7 @@
 		  this._dialog.render(document.body);
 		  
 			// load the json representation of the tree, onLoadTreeSuccess will be called due to naming convention
-			this.services.repositoryService.loadTree();
+			this.services.repositoryService.loadTree({treeId: "repo"});
 		
 		},
 		
@@ -456,7 +456,7 @@
 					// Don't attempt to load child nodes for artifacts
 					fnLoadComplete();
 				} else {
-					me.services.repositoryService.loadNodeData(node, fnLoadComplete);
+					me.services.repositoryService.loadChildNodes(node, fnLoadComplete, "repo");
 					// TODO: see if there is a way to define a timeout even if the server returns a HTTP 500 status
 					//timeout: 7000
 				}
@@ -490,7 +490,7 @@
      * TODO: documentation
 		 * 
      */
-		onLoadNodeDataSuccess: function FileChooserDialog_RepositoryService_onLoadNodeDataSuccess(response, obj)
+		onLoadChildNodesSuccess: function FileChooserDialog_RepositoryService_onLoadChildNodesSuccess(response, obj)
     {
       // Retrieve rest api response
       var treeNodesJson = response.json;
@@ -501,32 +501,6 @@
 			    node.enableHighlight = this._highlightFolders;
 			  } else if( this._showFiles && treeNodesJson[i].file ) {
 			    var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj[0], true);
-			    if(treeNodesJson[i].contentType) {
-            if(treeNodesJson[i].contentType === "image/png" || treeNodesJson[i].contentType === "image/gif" || treeNodesJson[i].contentType === "image/jpeg") {
-              node.labelStyle = "icon-img";
-            } else if(treeNodesJson[i].contentType === "application/xml") {
-              node.labelStyle = "icon-code-red";
-            } else if(treeNodesJson[i].contentType === "text/html") {
-              node.labelStyle = "icon-www";
-            } else if(treeNodesJson[i].contentType === "text/plain") {
-              node.labelStyle = "icon-txt";
-            } else if(treeNodesJson[i].contentType === "application/pdf") {
-              node.labelStyle = "icon-pdf";
-            } else if(treeNodesJson[i].contentType === "application/json;charset=UTF-8") {
-              node.labelStyle = "icon-code-blue";
-            } else if(treeNodesJson[i].contentType === "application/msword") {
-              node.labelStyle = "icon-doc";
-            } else if(treeNodesJson[i].contentType === "application/powerpoint") {
-              node.labelStyle = "icon-ppt";
-            } else if(treeNodesJson[i].contentType === "application/excel") {
-              node.labelStyle = "icon-xls";
-            } else if(treeNodesJson[i].contentType === "application/javascript") {
-              node.labelStyle = "icon-code-blue";
-            } else {
-              // Use white page as default icon for all other content types
-              node.labelStyle = "icon-blank";
-            }
-          }
           node.enableHighlight = this._highlightFiles;
 			  }
 			}

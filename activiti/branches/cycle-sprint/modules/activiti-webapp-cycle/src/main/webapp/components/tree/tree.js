@@ -154,15 +154,15 @@
     },
 
     /**
-     * Success callback of the RepositoryService method loadNodeData. This method gets invoked when the asynchronous request returns. It creates a
+     * Success callback of the RepositoryService method loadChildNodes. This method gets invoked when the asynchronous request returns. It creates a
      * new TextNode instacne based on the JSON in the response and inserts it into the tree. It also determines the file type and sets the style 
      * attribute of the node accordingly.
      * 
-     * @method onLoadNodeDataSuccess
+     * @method onLoadChildNodesSuccess
      * @param response the response object that contains the JSON response string
      * @param obj an array of objects that contains the containing node at index 0 and the loadComplete callback of the treeView component at index 1
      */
-    onLoadNodeDataSuccess: function RepoTree_RepositoryService_onLoadNodeDataSuccess(response, obj)
+    onLoadChildNodesSuccess: function RepoTree_RepositoryService_onLoadChildNodesSuccess(response, obj)
     {
       var me = this;
       if(response.json.authenticationError) {
@@ -183,13 +183,13 @@
     },
 
     /**
-     * Failure callback of the RepositoryService method loadNodeData. This method gets invoked if anything goes wrong while loading a tree node. 
+     * Failure callback of the RepositoryService method loadChildNodes. This method gets invoked if anything goes wrong while loading a tree node. 
      *
-     * @method onLoadNodeDataFailure
+     * @method onLoadChildNodesFailure
      * @param response the response object that contains the JSON response string
      * @param obj an array of objects that contains the containing node at index 0 and the loadComplete callback of the treeView component at index 1
      */
-    onLoadNodeDataFailure: function RepoTree_RepositoryService_onLoadNodeDataFailure(response, obj)
+    onLoadChildNodesFailure: function RepoTree_RepositoryService_onLoadChildNodesFailure(response, obj)
     {
       // TODO: see how we can show a custom error message here.
 

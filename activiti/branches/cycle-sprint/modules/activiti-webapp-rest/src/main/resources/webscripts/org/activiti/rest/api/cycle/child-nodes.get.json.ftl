@@ -26,7 +26,7 @@
   "nodeId": "${file.nodeId}",
   "expanded": "true",
   "file": "true",
-  "contentType": "${file.labelStyle}"
+  "labelStyle": "${file.labelStyle}"
 }
 </#escape>
 </#macro>
