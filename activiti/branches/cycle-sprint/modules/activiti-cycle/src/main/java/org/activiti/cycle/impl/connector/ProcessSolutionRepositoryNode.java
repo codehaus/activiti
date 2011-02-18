@@ -23,7 +23,7 @@ public class ProcessSolutionRepositoryNode implements RepositoryNode {
   protected String connectorId;
 
   protected String nodeId;
-  
+
   public ProcessSolutionRepositoryNode(String connectorId, String nodeId, VirtualRepositoryFolder virtualFolder, ProcessSolution processSolution,
           RepositoryNode wrappedNode) {
     this.virtualRepositoryFolder = virtualFolder;
@@ -34,24 +34,35 @@ public class ProcessSolutionRepositoryNode implements RepositoryNode {
   }
 
   public String getConnectorId() {
+    if (wrappedNode != null) {
+      return wrappedNode.getConnectorId();
+    }
     return connectorId;
   }
 
   public String getNodeId() {
+    if (wrappedNode != null) {
+      return wrappedNode.getNodeId();
+    }
     return nodeId;
   }
 
   public String getGlobalUniqueId() {
+    if (wrappedNode != null) {
+      return wrappedNode.getGlobalUniqueId();
+    }
     return nodeId;
   }
 
   public RepositoryNodeMetadata getMetadata() {
+    if (wrappedNode != null) {
+      return wrappedNode.getMetadata();
+    }
+
     return new RepositoryNodeMetadataImpl() {
 
       public String getName() {
-        if (wrappedNode != null) {
-          return wrappedNode.getMetadata().getName();
-        } else if (virtualRepositoryFolder != null) {
+        if (virtualRepositoryFolder != null) {
           return virtualRepositoryFolder.getLabel();
         }
         return processSolution.getLabel();

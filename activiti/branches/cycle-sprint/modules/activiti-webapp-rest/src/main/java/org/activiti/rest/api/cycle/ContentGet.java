@@ -101,10 +101,6 @@ public class ContentGet extends ActivitiStreamingWebScript {
     // Retrieve the artifact from the repository
     RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, nodeId);
 
-    if (artifact instanceof ProcessSolutionArtifact) {
-      artifact = ((ProcessSolutionArtifact) artifact).getWrappedNode();
-    }
-
     ContentRepresentation contentRepresentation = contentService.getContentRepresentation(artifact, contentRepresentationId);
 
     MimeType contentType = contentRepresentation.getRepresentationMimeType();

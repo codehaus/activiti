@@ -22,7 +22,7 @@ import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
-import org.activiti.cycle.impl.connector.ProcessSolutionRepositoryNode;
+import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
 import org.activiti.rest.api.cycle.dto.TreeLeafDto;
 import org.activiti.rest.api.cycle.dto.TreeNodeDto;
@@ -54,6 +54,12 @@ public class TreeGet extends ActivitiCycleWebScript {
     }
     String connectorId = req.getString("connectorId");
     String nodeId = req.getString("nodeId");
+    String vFolderId = req.getString("vFolderId");
+    if (vFolderId != null && vFolderId.length() > 0) {
+      // if vFolder is set, load the tree using the ProcessSolutionConenctor
+      VirtualRepositoryFolder virtualRepositoryFolder = processSolutionService.getVirtualRepositoryFolderById(vFolderId);
+      connectorId = "ps-" + virtualRepositoryFolder.getProcessSolutionId();
+    }
     if (connectorId != null && nodeId != null) {
       try {
         // try to expand the tree

@@ -14,6 +14,7 @@
   "connectorId": "${folder.connectorId}",
   "nodeId": "${folder.nodeId}",
   "type": "${folder.type!''}",
+  "vFolderId": "${folder.vFolderId!''}",
   "folder": "true"
 }
 </#escape>
@@ -28,6 +29,7 @@
   "expanded": "true",
   "file": "true",
   "labelStyle": "${file.labelStyle}",
+  "vFolderId": "${folder.vFolderId!''}",
   "type": "${file.type!''}"
 }
 </#escape>

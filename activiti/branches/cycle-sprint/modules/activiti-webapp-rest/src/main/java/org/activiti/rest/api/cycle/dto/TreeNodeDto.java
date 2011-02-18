@@ -27,6 +27,7 @@ public abstract class TreeNodeDto {
   protected String nodeId;
   protected String expanded;
   protected String type;
+  protected String vFolderId;
 
   public TreeNodeDto(RepositoryNode node) {
     this.label = node.getMetadata().getName();
@@ -34,9 +35,13 @@ public abstract class TreeNodeDto {
     this.nodeId = node.getNodeId();
 
     if (node instanceof ProcessSolutionRepositoryNode) {
-      VirtualRepositoryFolder vFolder = ((ProcessSolutionRepositoryNode) node).getVirtualRepositoryFolder();
+      ProcessSolutionRepositoryNode processSolutionRepositoryNode = (ProcessSolutionRepositoryNode) node;
+      VirtualRepositoryFolder vFolder = processSolutionRepositoryNode.getVirtualRepositoryFolder();
       if (vFolder != null) {
         type = vFolder.getType();
+        if (processSolutionRepositoryNode.getWrappedNode() != null) {
+          vFolderId = vFolder.getId();
+        }
       }
     }
 
@@ -84,6 +89,14 @@ public abstract class TreeNodeDto {
 
   public void setType(String type) {
     this.type = type;
+  }
+
+  public String getvFolderId() {
+    return vFolderId;
+  }
+
+  public void setvFolderId(String vFolderId) {
+    this.vFolderId = vFolderId;
   }
 
   @Override

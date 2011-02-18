@@ -56,4 +56,5 @@ public interface CycleProcessSolutionService {
    * @return the default {@link ProcessSolutionTemplate}.
    */
   public ProcessSolutionTemplate getDefaultProcessSolutionTemplate();
+
 }
