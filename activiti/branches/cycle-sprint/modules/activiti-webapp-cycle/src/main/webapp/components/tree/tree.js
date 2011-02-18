@@ -72,7 +72,7 @@
       if(this._containingNavigationTabIndex == args[1].value.activeNavigationTabIndex) {
         if(this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
           this.highlightCurrentNode();          
-        } else {
+        } else if(this._connectorId && this._nodeId) {
           this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this.nodeId, treeId: this._treeId});
         }
       } 
@@ -145,19 +145,19 @@
           } else if(node.data.folder) {
             if(node.data.type && node.data.type == "Management") {
               // TODO: add listener
-              this.addItem({ text: "Add new business document...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
+              this.addItem({ text: "Add new business document...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New business document", node: node}, scope: me } });
             } else if(node.data.type && node.data.type == "Requirements") {
               // TODO: add listener
-              this.addItem({ text: "Add new requirement...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
+              this.addItem({ text: "Add new requirement...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New requirement", node: node} , scope: me } });
             }
-            this.addItem({ text: "Create Process Solution...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateProcessSolutionContextMenuClick, obj: node, scope: me } });
+            this.addItem({ text: "Create Process Solution...", onclick: { fn: me.onCreateProcessSolutionContextMenuClick, obj: node, scope: me } });
           }
         } else {
           if(node.data.file) {
             // this.addItems([]);
           } else if(node.data.folder) {
-            this.addItem({ text: "New artifact...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateArtifactContextMenuClick, obj: node, scope: me } });
-            this.addItem({ text: "New folder...", value: {connectorId: node.data.connectorId, nodeId: node.data.nodeId}, onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
+            this.addItem({ text: "New artifact...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New artifact", node: node}, scope: me } });
+            this.addItem({ text: "New folder...", onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
           }          
         }
 
@@ -187,9 +187,9 @@
      * @param node {Object} the tree node that the context menu was invoked on
      * @return {Activiti.component.CreateArtifactDialog} dialog to provide details for the new artifact
      */
-    onCreateArtifactContextMenuClick: function Tree_onCreateArtifactContextMenuClick(eventName, params, node)
+    onCreateArtifactContextMenuClick: function Tree_onCreateArtifactContextMenuClick(eventName, params, obj)
     {
-      return new Activiti.component.CreateArtifactDialog(this.id, node.data.connectorId, node.data.nodeId);
+      return new Activiti.component.CreateArtifactDialog(this.id, obj.node.data.connectorId, obj.node.data.nodeId, obj.title);
     },
 
     /**

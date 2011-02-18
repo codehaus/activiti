@@ -125,6 +125,9 @@
         if(eventValue.nodeId) {
           // instantiate the tagging component
           new Activiti.component.TaggingComponent(this.id, {connectorId: eventValue.connectorId, nodeId: eventValue.nodeId, repositoryNodeLabel: eventValue.name}, "tags-div");
+        } else {
+          var tagsDiv = document.getElementById('tags-div');
+          tagsDiv.innerHTML = "";
         }
         // Check whether the selected node is a file node. If so, load its data
         if(this._file ) {
@@ -132,7 +135,7 @@
         }
         // Update the heading that displays the name of the selected node
         headerEl.id = "header-" + eventValue.nodeId;
-        headerEl.innerHTML = eventValue.name||'';
+        headerEl.innerHTML = eventValue.label||'';
         // Remove the comments
         var commentsDiv = YAHOO.util.Dom.get(this.id + '-comments');
         if(commentsDiv) {

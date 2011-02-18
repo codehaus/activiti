@@ -606,13 +606,14 @@
 	 * @return {Activiti.component.CreateArtifactDialog} The new component.CreateArtifactDialog instance
 	 * @constructor
 	 */
-	Activiti.component.CreateArtifactDialog = function CreateArtifactDialog_constructor(htmlId, connectorId, parentFolderId)
+	Activiti.component.CreateArtifactDialog = function CreateArtifactDialog_constructor(htmlId, connectorId, parentFolderId, title)
   {
     Activiti.component.CreateArtifactDialog.superclass.constructor.call(this, "Activiti.component.CreateArtifactDialog", htmlId);
 
     this._dialog = {};
 		this._connectorId = connectorId;
 		this._parentFolderId = parentFolderId;
+		this._title = title;
 
     return this;
   };
@@ -632,7 +633,7 @@
 
 	    // TODO: i18n
 
-      content.innerHTML = '<div class="bd"><form id="' + this.id + '-artifact-upload-form" action="' + Activiti.service.REST_PROXY_URI_RELATIVE + 'artifact" method="POST" enctype="multipart/form-data" accept-charset="utf-8"><h1>Create new artifact</h1><table><tr><td><label>Name:<br/><input type="text" name="artifactName" value="" /></label><br/></td></tr><tr><td><label>Upload a file:<br/><input type="file" name="file" value="" /></label><br/></td></tr></table><input type="hidden" name="connectorId" value="' + this._connectorId + '" /><input type="hidden" name="parentFolderId" value="' + this._parentFolderId + '" /></form></div>';
+      content.innerHTML = '<div class="bd"><form id="' + this.id + '-artifact-upload-form" action="' + Activiti.service.REST_PROXY_URI_RELATIVE + 'artifact" method="POST" enctype="multipart/form-data" accept-charset="utf-8"><h1>' + this._title + '</h1><table><tr><td><label>Name:<br/><input type="text" name="artifactName" value="" /></label><br/></td></tr><tr><td><label>Upload a file:<br/><input type="file" name="file" value="" /></label><br/></td></tr></table><input type="hidden" name="connectorId" value="' + this._connectorId + '" /><input type="hidden" name="parentFolderId" value="' + this._parentFolderId + '" /></form></div>';
 
       this._dialog = new YAHOO.widget.Dialog(content, {
         fixedcenter: true,
@@ -656,6 +657,17 @@
 		},
 
     onSubmit: function CreateArtifactDialog_onSubmit(event, dialog) {
+      var data = dialog.getData();
+
+      // Make sure we submit a file name and a proper file extension
+      if(!data.artifactName) {
+        // If the name field is empty, replace it with the name of the upload file
+        dialog.form.artifactName.value = data.file;
+      } else if(data.artifactName.indexOf(".") === -1) {
+        // If the name doesn't have an extension, use the one from the upload file
+        dialog.form.artifactName.value += data.file.substr(data.file.indexOf("."), data.file.length);
+      }
+
       if (dialog.form.enctype && dialog.form.enctype == "multipart/form-data") {
         var d = dialog.form.ownerDocument;
         var iframe = d.createElement("iframe");
