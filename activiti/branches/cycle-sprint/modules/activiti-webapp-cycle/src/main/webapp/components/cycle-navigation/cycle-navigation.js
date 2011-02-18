@@ -31,6 +31,7 @@
     
     this._connectorId = "";
     this._nodeId = "";
+    this._vFolderId = "";
     this._file = false;
     this._label = "";
     this._activeNavigationTabIndex = 0;
@@ -51,11 +52,10 @@
     onReady: function CycleNavigation_onReady()
     {
       if (!Activiti.event.isInitEvent(Activiti.event.updateArtifactView)) {
-        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "PS", nodeId: "", label: "", file: ""}, null, true);
+        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "PS", nodeId: "", vFolderId: "", label: "", file: ""}, null, true);
       }
       
       var reloadLink = document.createElement('a');
-      // reloadLink.setAttribute('id', this.id + '-tree-refresh-link');
       reloadLink.setAttribute('class', 'tree-refresh-link')
       reloadLink.setAttribute('href', "javascript:location.reload();");
       reloadLink.innerHTML = "refresh tree";
@@ -77,6 +77,7 @@
       
       this._connectorId = eventValue.connectorId;
       this._nodeId = eventValue.nodeId;
+      this._vFolderId = eventValue.vFolderId; 
       this._file = eventValue.file;
       this._label = eventValue.label;
       this._activeNavigationTabIndex = eventValue.activeNavigationTabIndex;
@@ -106,7 +107,7 @@
         this._tabView.addTab(processSolutionsTab);
 
         // Add tab for the "repositories" tree
-        var repositoriesTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: this._connectorId, nodeId: this._nodeId, treeId: "repo"});
+        var repositoriesTreeUrl = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: this._connectorId, nodeId: this._nodeId, vFolderId: this._connectorId, treeId: "repo"});
         var repositoriesTab = new YAHOO.widget.Tab({
           label: this.msg("label.repositories"), 
           dataSrc: repositoriesTreeUrl,
@@ -155,7 +156,7 @@
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
       tab.set('content', "<div id='process-solutions-tree-" + this.id + "'></div>");
-      new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0, "ps").setMessages(this.messages);
+      new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0, this._connectorId, this._nodeId, this._vFolderId, "ps").setMessages(this.messages);
     },
 
     onLoadProcessSolutionsTabFailure: function Artifact_onLoadProcessSolutionsTabFailure(tab, response) 
@@ -177,7 +178,7 @@
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
       tab.set('content', "<div id='repositories-tree-" + this.id + "'></div>");
-      new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1, "repo").setMessages(this.messages);
+      new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1, this._connectorId, this._nodeId, this._vFolderId, "repo").setMessages(this.messages);
     },
 
     // TODO: This method is copied from the tab view for artifacts, let's see if we can reuse it here.

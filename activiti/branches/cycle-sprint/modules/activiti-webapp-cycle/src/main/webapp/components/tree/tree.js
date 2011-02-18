@@ -16,7 +16,7 @@
    * @return {Activiti.component.Tree} The new component.Tree instance
    * @constructor
    */
-  Activiti.component.Tree = function Tree_constructor(htmlId, nodesJson, containingNavigationTabIndex, treeId)
+  Activiti.component.Tree = function Tree_constructor(htmlId, nodesJson, containingNavigationTabIndex, connectorId, nodeId, vFolderId, treeId)
   {
     Activiti.component.Tree.superclass.constructor.call(this, "Activiti.component.Tree", htmlId);
 
@@ -36,8 +36,9 @@
     
     this._contextMenu = {};
     
-    this._connectorId = "";
-    this._nodeId = "";
+    this._connectorId = connectorId;
+    this._nodeId = nodeId;
+    this._vFolderId = vFolderId;
 
     return this;
   };
@@ -73,7 +74,7 @@
         if(this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
           this.highlightCurrentNode();          
         } else if(this._connectorId && this._nodeId) {
-          this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this.nodeId, treeId: this._treeId});
+          this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._nodeId, vFolderId: this._vFolderId, treeId: this._treeId});
         }
       } 
     },
@@ -97,7 +98,7 @@
           // Don't attempt to load child nodes for artifacts or nodes that are already loaded
           fnLoadComplete();
         } else {
-          me.services.repositoryService.loadChildNodes(node, fnLoadComplete, me._treeId);
+          me.services.repositoryService.loadChildNodes({connectorId: me._connectorId, nodeId: me._nodeId, vFolderId: me._vFolderId, treeId: me._treeId}, node, fnLoadComplete);
         }
       };
 
@@ -164,6 +165,10 @@
         this.render();
       });
       
+      if(this._connectorId && this._nodeId) {
+        this.highlightCurrentNode();
+      }
+      
     },
 
     /**
@@ -174,7 +179,7 @@
      */
     onClickEvent: function Tree_onClickEvent(event)
     {
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "nodeId": event.node.data.nodeId, "file": event.node.data.file, "label": event.node.label, "activeNavigationTabIndex": this._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "nodeId": event.node.data.nodeId, "vFolderId": event.node.data.vFolderId, "file": event.node.data.file, "label": event.node.label, "activeNavigationTabIndex": this._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
     },
 
     /**
@@ -189,7 +194,12 @@
      */
     onCreateArtifactContextMenuClick: function Tree_onCreateArtifactContextMenuClick(eventName, params, obj)
     {
-      return new Activiti.component.CreateArtifactDialog(this.id, obj.node.data.connectorId, obj.node.data.nodeId, obj.title);
+      var me = this;
+      var fnOnUpload = function(response) {
+        var json = YAHOO.lang.JSON.parse(response.responseText);
+        me.fireEvent(Activiti.event.updateArtifactView, {"connectorId": json.connectorId, "nodeId": json.nodeId, "vFolderId": json.vFolderId, "file": "true", "label": json.label, "activeNavigationTabIndex": me._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
+      };
+      return new Activiti.component.CreateArtifactDialog(this.id, obj.node.data.connectorId, obj.node.data.nodeId, obj.title, fnOnUpload);
     },
 
     /**
@@ -264,13 +274,13 @@
 
       if(treeNodesJson) {
         for(var i = 0; i<treeNodesJson.length; i++) {
-          var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj[0], treeNodesJson[i].expanded);
+          var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj.parentNode, treeNodesJson[i].expanded);
         }
       }
 
       // call the fnLoadComplete function that the treeView component provides to 
       // indicate that the loading of the sub nodes was successfull.
-      obj[1]();
+      obj.fnLoadComplete();
     },
 
     /**
@@ -285,7 +295,7 @@
       // TODO: see how we can show a custom error message here.
 
       // call the trees load complete function anyway to keep the rest of the tree usable.
-      obj[1]();
+      obj.fnLoadComplete();
     },
 
     highlightCurrentNode: function Tree_highlightCurrentNode() {

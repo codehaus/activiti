@@ -36,7 +36,7 @@
   {
 
     /**
-     * Loads the repository tree
+     * Loads the tree
      *
      * @method loadTree
      */
@@ -65,10 +65,10 @@
      *
      * @method loadChildNodes
      */
-    loadChildNodes: function RepositoryService_loadChildNodes(node, fnLoadComplete, treeId)
+    loadChildNodes: function RepositoryService_loadChildNodes(data, node, fnLoadComplete)
     {
-      var obj = [node, fnLoadComplete];
-      this.jsonGet(this.loadChildNodesURL(node.data.connectorId, node.data.nodeId, treeId), obj, "loadChildNodes");
+      var obj = {parentNode: node, fnLoadComplete: fnLoadComplete};
+      this.jsonGet(this.loadChildNodesURL(data), obj, "loadChildNodes");
     },
 
     /**
@@ -77,9 +77,13 @@
      * @method loadTreeURL
      * @return {string} The url
      */
-    loadChildNodesURL: function RepositoryService_loadChildNodesURL(connectorId, nodeId, treeId)
+    loadChildNodesURL: function RepositoryService_loadChildNodesURL(data)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&treeId=" + encodeURIComponent(treeId);
+      var url = Activiti.service.REST_PROXY_URI_RELATIVE + "child-nodes";
+      if(data) {
+        url += "?" + Activiti.service.Ajax.jsonToParamString(data);
+      }
+      return url;
     },
 
     /**

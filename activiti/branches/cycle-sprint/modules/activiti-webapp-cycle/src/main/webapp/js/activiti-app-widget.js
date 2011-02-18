@@ -176,7 +176,7 @@
 					// Don't attempt to load child nodes for artifacts
 					fnLoadComplete();
 				} else {
-					me.services.repositoryService.loadChildNodes(node, fnLoadComplete, "repo");
+					me.services.repositoryService.loadChildNodes({connectorId: node.data.connectorId, nodeId: node.data.nodeId, vFolderId: node.data.vFolderId, treeId: "repo"}, node, fnLoadComplete);
 					// TODO: see if there is a way to define a timeout even if the server returns a HTTP 500 status
 					//timeout: 7000
 				}
@@ -217,17 +217,17 @@
 
 			for(var i = 0; i<treeNodesJson.length; i++) {
 			  if( treeNodesJson[i].folder ) {
-			    var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj[0], false);
+			    var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj.parentNode, false);
 			    node.enableHighlight = this._highlightFolders;
 			  } else if( this._showFiles && treeNodesJson[i].file ) {
-			    var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj[0], true);
+			    var node = new YAHOO.widget.TextNode(treeNodesJson[i], obj.parentNode, true);
           node.enableHighlight = this._highlightFiles;
 			  }
 			}
 
 			// call the fnLoadComplete function that the treeView component provides to 
 			// indicate that the loading of the sub nodes was successfull.
-			obj[1]();
+			obj.fnLoadComplete();
     },
     
     /**
@@ -603,10 +603,12 @@
 	 * @param htmlId {String} The HTML id of the parent element
 	 * @param connectorId {String} The id of the connector the artifact should be created in
 	 * @param parentFolderId The id of the folder the artifact should be created in
+	 * @param title {String} The title that will be displayed in the dialog
+	 * @param fnOnUpload {function} Callback handler for the upload, will be called when the upload succeeded
 	 * @return {Activiti.component.CreateArtifactDialog} The new component.CreateArtifactDialog instance
 	 * @constructor
 	 */
-	Activiti.component.CreateArtifactDialog = function CreateArtifactDialog_constructor(htmlId, connectorId, parentFolderId, title)
+	Activiti.component.CreateArtifactDialog = function CreateArtifactDialog_constructor(htmlId, connectorId, parentFolderId, title, fnOnUpload)
   {
     Activiti.component.CreateArtifactDialog.superclass.constructor.call(this, "Activiti.component.CreateArtifactDialog", htmlId);
 
@@ -614,6 +616,7 @@
 		this._connectorId = connectorId;
 		this._parentFolderId = parentFolderId;
 		this._title = title;
+		this._onUpload = fnOnUpload;
 
     return this;
   };
@@ -647,7 +650,7 @@
         ]
       });
 
-      this._dialog.callback.upload = this.onUpload;
+      this._dialog.callback.upload = this._onUpload;
 		  this._dialog.render(document.body);
 
       // TODO: validation
@@ -685,18 +688,6 @@
 
     onCancel: function CreateArtifactDialog_onCancel() {
       this.cancel();
-    },
-
-    onUpload: function CreateArtifactDialog_onUplaod(o) {
-      // TODO: fire an event for e.g. the tree to reload it's nodes etc.
-      // TODO: i18n
-      if(o.responseText.indexOf("success: true") != -1) {
-        Activiti.widget.PopupManager.displayMessage({
-          text: "Successfully created artifact"
-        });
-      } else {
-        Activiti.widget.PopupManager.displayError("Unable to create artifact");
-      }
     }
 
 	});
