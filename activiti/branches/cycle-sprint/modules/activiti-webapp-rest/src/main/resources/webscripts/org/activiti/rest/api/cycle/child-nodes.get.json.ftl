@@ -29,7 +29,7 @@
   "expanded": "true",
   "file": "true",
   "labelStyle": "${file.labelStyle}",
-  "vFolderId": "${folder.vFolderId!''}",
+  "vFolderId": "${file.vFolderId!''}",
   "type": "${file.type!''}"
 }
 </#escape>

@@ -11,7 +11,7 @@
   "label": "${node.label}",
   "connectorId": "${node.connectorId}",
   "nodeId": "${node.nodeId}",
-  "vFolderId": "${folder.vFolderId!''}",
+  "vFolderId": "${node.vFolderId!''}",
   "type": "${node.type!''}",<#if (node.expanded??) && (node.expanded = "true")>
   "expanded": "${node.expanded}",
   </#if>
