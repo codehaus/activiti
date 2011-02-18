@@ -5,7 +5,8 @@
 
 <#escape x as jsonUtils.encodeJSONString(x)>
 {
-  "success": <#if result??>${result?string}<#else>false</#if>
+  "nodeId" : "${artifact.nodeId!''}",
+  "connectorId" : "${artifact.connectorId!''}"
 }
 </#escape>
 

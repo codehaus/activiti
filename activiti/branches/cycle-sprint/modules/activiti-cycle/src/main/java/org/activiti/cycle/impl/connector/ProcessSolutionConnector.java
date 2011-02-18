@@ -155,18 +155,24 @@ public class ProcessSolutionConnector implements RepositoryConnector {
     }
     return new RepositoryNodeCollectionImpl(resultList);
   }
+
   public RepositoryArtifact createArtifact(String parentFolderId, String artifactName, String artifactType, Content artifactContent)
           throws RepositoryNodeNotFoundException {
     ProcessSolutionFolder folder = (ProcessSolutionFolder) getRepositoryNode(parentFolderId);
     if (folder.getVirtualRepositoryFolder() == null) {
       throw new RepositoryException("Cannot create artifact in the top-level folder. ");
     }
+    RepositoryArtifact newArtifact = null;
     if (folder.getWrappedNode() == null) {
-      return repositoryService.createArtifact(folder.getVirtualRepositoryFolder().getConnectorId(), folder.getVirtualRepositoryFolder().getReferencedNodeId(),
-              artifactName, artifactType, artifactContent);
+      newArtifact = repositoryService.createArtifact(folder.getVirtualRepositoryFolder().getConnectorId(), folder.getVirtualRepositoryFolder()
+              .getReferencedNodeId(), artifactName, artifactType, artifactContent);
+    } else {
+      newArtifact = repositoryService.createArtifact(folder.getWrappedNode().getConnectorId(), folder.getWrappedNode().getNodeId(), artifactName, artifactType,
+              artifactContent);
     }
-    return repositoryService.createArtifact(folder.getWrappedNode().getConnectorId(), folder.getWrappedNode().getNodeId(), artifactName, artifactType,
-            artifactContent);
+    String relativePath = newArtifact.getNodeId().replace(folder.getVirtualRepositoryFolder().getReferencedNodeId(), "");
+    String virtualPath = folder.getNodeId() + "/" + relativePath;
+    return new ProcessSolutionArtifact(getId(), virtualPath, folder.getVirtualRepositoryFolder(), folder.getProcessSolution(), newArtifact);
   }
 
   public RepositoryArtifact createArtifactFromContentRepresentation(String parentFolderId, String artifactName, String artifactType,

@@ -3,6 +3,11 @@
 	<@cycleLib.printAuthenticationException authenticationException/>
 <#else>
 
-<p>success: <#if result??>${result?string}<#else>false</#if></p>
+<#escape x as jsonUtils.encodeJSONString(x)>
+{
+  "nodeId" : "${artifact.nodeId!''}",
+  "connectorId" : "${artifact.connectorId!''}"
+}
+</#escape>
 
 </#if>

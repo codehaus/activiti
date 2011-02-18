@@ -47,8 +47,9 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     Content artifactContent = new Content();
     artifactContent.setValue(file.getInputStream());
     try {
-      repositoryService.createArtifact(connectorId, parentFolderId, artifactName, artifactType, artifactContent);
+      RepositoryArtifact createdArtifact = repositoryService.createArtifact(connectorId, parentFolderId, artifactName, artifactType, artifactContent);
       model.put("result", true);
+      model.put("artifact", createdArtifact);
     } catch (Exception e) {
       model.put("result", false);
     }
