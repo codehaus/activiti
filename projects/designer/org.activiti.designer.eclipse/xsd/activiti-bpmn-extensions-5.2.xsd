@@ -276,7 +276,7 @@
       </documentation>
     </annotation>
     <complexType>
-      <sequence>
+      <sequence minOccurs="0" maxOccurs="unbounded">
         <element ref="tns:field" />
       </sequence>
       <attribute name="class" type="string">
@@ -328,7 +328,7 @@
       </documentation>
     </annotation>
     <complexType>
-      <sequence>
+      <sequence minOccurs="0" maxOccurs="unbounded">
         <element ref="tns:field" />
       </sequence>
       <attribute name="class" type="string">
@@ -355,7 +355,7 @@
           </documentation>
         </annotation>
       </attribute>
-      <attribute name="event" use="required">
+      <attribute name="event" use="optional">
         <annotation>
           <documentation>
             The event on which the delegation class or expression will be executed.
@@ -371,5 +371,33 @@
       </attribute>
     </complexType>
   </element>
+  
+  <element name="in">
+    <annotation>
+      <documentation>
+        Element to specify Data Input in Activiti Shortcuts
+        (compare to DataInputAssociation in BPMN)
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="source" type="string" use="optional"/>
+      <attribute name="sourceExpression" type="tns:tExpression" use="optional"/>
+      <attribute name="target" type="string" use="required" />
+    </complexType>
+  </element>
+  <element name="out">
+    <annotation>
+      <documentation>
+        Element to specify Data Output in Activiti Shortcuts
+        (compare to DataOutputAssociation in BPMN)
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="source" type="string" use="optional"/>
+      <attribute name="sourceExpression" type="tns:tExpression" use="optional"/>
+      <attribute name="target" type="string" use="required" />
+    </complexType>
+  </element>
+  
   
 </schema>
