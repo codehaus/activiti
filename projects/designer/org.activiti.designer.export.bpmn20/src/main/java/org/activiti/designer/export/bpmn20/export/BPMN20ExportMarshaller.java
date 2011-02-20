@@ -243,7 +243,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       StartEvent startEvent = (StartEvent) object;
       // start StartEvent element
       xtw.writeStartElement("startEvent");
-      xtw.writeAttribute("id", startEvent.getId());
+      xtw.writeAttribute("id", subProcessId + startEvent.getId());
       xtw.writeAttribute("name", startEvent.getName());
 
       if(startEvent.getFormKey() != null && startEvent.getFormKey().length() > 0) {
@@ -257,7 +257,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       EndEvent endEvent = (EndEvent) object;
       // start EndEvent element
       xtw.writeStartElement("endEvent");
-      xtw.writeAttribute("id", endEvent.getId());
+      xtw.writeAttribute("id", subProcessId + endEvent.getId());
       xtw.writeAttribute("name", endEvent.getName());
 
       // end EndEvent element
