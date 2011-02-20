@@ -1,5 +1,8 @@
 package org.activiti.designer.diagram;
 
+import org.activiti.designer.features.AddBoundaryTimerFeature;
+import org.activiti.designer.features.AddCallActivityFeature;
+import org.activiti.designer.features.AddEmbeddedSubProcessFeature;
 import org.activiti.designer.features.AddEndEventFeature;
 import org.activiti.designer.features.AddExclusiveGatewayFeature;
 import org.activiti.designer.features.AddGatewayFeature;
@@ -10,9 +13,11 @@ import org.activiti.designer.features.AddScriptTaskFeature;
 import org.activiti.designer.features.AddSequenceFlowFeature;
 import org.activiti.designer.features.AddServiceTaskFeature;
 import org.activiti.designer.features.AddStartEventFeature;
-import org.activiti.designer.features.AddSubProcessFeature;
 import org.activiti.designer.features.AddUserTaskFeature;
 import org.activiti.designer.features.CopyFlowElementFeature;
+import org.activiti.designer.features.CreateBoundaryTimerFeature;
+import org.activiti.designer.features.CreateCallActivityFeature;
+import org.activiti.designer.features.CreateEmbeddedSubProcessFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
 import org.activiti.designer.features.CreateMailTaskFeature;
@@ -23,13 +28,16 @@ import org.activiti.designer.features.CreateScriptTaskFeature;
 import org.activiti.designer.features.CreateSequenceFlowFeature;
 import org.activiti.designer.features.CreateServiceTaskFeature;
 import org.activiti.designer.features.CreateStartEventFeature;
-import org.activiti.designer.features.CreateSubProcessFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
 import org.activiti.designer.features.DeleteFlowElementFeature;
+import org.activiti.designer.features.DeleteSequenceFlowFeature;
 import org.activiti.designer.features.DirectEditFlowElementFeature;
 import org.activiti.designer.features.PasteFlowElementFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
+import org.activiti.designer.features.SubProcessResizeFeature;
 import org.activiti.designer.features.UpdateFlowElementFeature;
+import org.eclipse.bpmn2.BoundaryEvent;
+import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FlowElement;
@@ -52,6 +60,7 @@ import org.eclipse.graphiti.features.IDeleteFeature;
 import org.eclipse.graphiti.features.IDirectEditingFeature;
 import org.eclipse.graphiti.features.IFeature;
 import org.eclipse.graphiti.features.IPasteFeature;
+import org.eclipse.graphiti.features.IResizeShapeFeature;
 import org.eclipse.graphiti.features.IUpdateFeature;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.context.ICopyContext;
@@ -60,10 +69,12 @@ import org.eclipse.graphiti.features.context.IDeleteContext;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.context.IPasteContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
+import org.eclipse.graphiti.features.context.IResizeShapeContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
 public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
@@ -97,8 +108,12 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			return new AddExclusiveGatewayFeature(this);
 		} else if (context.getNewObject() instanceof Gateway) {
 			return new AddGatewayFeature(this);
+		} else if (context.getNewObject() instanceof BoundaryEvent) {
+      return new AddBoundaryTimerFeature(this);
 		} else if (context.getNewObject() instanceof SubProcess) {
-			return new AddSubProcessFeature(this);
+      return new AddEmbeddedSubProcessFeature(this);
+    /*} else if (context.getNewObject() instanceof CallActivity) {
+			return new AddCallActivityFeature(this);*/
 		}
 		return super.getAddFeature(context);
 	}
@@ -108,8 +123,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this),
 				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
 				new CreateMailTaskFeature(this), new CreateManualTaskFeature(this), new CreateReceiveTaskFeature(this),
-				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this),
-				new CreateSubProcessFeature(this) };
+				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this), new CreateBoundaryTimerFeature(this),
+				new CreateEmbeddedSubProcessFeature(this), /*new CreateCallActivityFeature(this)*/ };
 	}
 
 	@Override
@@ -162,8 +177,18 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 	}
 
 	@Override
+  public IResizeShapeFeature getResizeShapeFeature(IResizeShapeContext context) {
+	  Shape shape = context.getShape();
+    Object bo = getBusinessObjectForPictogramElement(shape);
+    if (bo instanceof SubProcess) {
+        return new SubProcessResizeFeature(this);
+    }
+    return super.getResizeShapeFeature(context);
+  }
+
+  @Override
 	public ICustomFeature[] getCustomFeatures(ICustomContext context) {
-		return new ICustomFeature[] { new SaveBpmnModelFeature(this) };
+		return new ICustomFeature[] { new SaveBpmnModelFeature(this), new DeleteSequenceFlowFeature(this) };
 	}
 
 }

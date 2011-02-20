@@ -1,5 +1,8 @@
 package org.activiti.designer.eclipse.editor;
 
+import java.io.File;
+
+import org.activiti.designer.eclipse.bpmnimport.ImportBpmnUtil;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.editor.sync.DiagramUpdater;
 import org.eclipse.core.resources.IFile;
@@ -144,6 +147,13 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
       if (isBPM2FileType((IFileEditorInput) editorInput)) {
         associatedBPMN2File = ((IFileEditorInput) editorInput).getFile();
         final IFile diagramFile = getAssociatedDiagramIFile(associatedBPMN2File);
+        if(diagramFile.exists() == false) {
+          String bpmnFile = associatedBPMN2File.getRawLocation().toFile().getAbsolutePath();
+          String processName = bpmnFile.substring(bpmnFile.lastIndexOf(File.separator) + 1);
+          processName = processName.replace(".xml", "");
+          processName = processName.replace(".bpmn20", "");
+          ImportBpmnUtil.createDiagram(processName, bpmnFile, associatedBPMN2File.getProject());
+        }
         final IEditorInput diagramFileEditorInput = new FileEditorInput(diagramFile);
 
         // creates DiagramEditorInput from FileEditorInput
@@ -207,10 +217,11 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
     final Diagram diagram = ((DiagramEditorInput) diagramEditor.getEditorInput()).getDiagram();
     final URI originalURI = diagram.eResource().getURI();
     final URI parentURI = originalURI.trimSegments(1);
-    final String REGEX_FILENAME = "\\" + "$originalFile" + "";
+    final String REGEX_FILENAME = "\\$originalFile";
 
     String finalSegment = "$originalFile" + ".bpmn20.xml";
-    finalSegment = finalSegment.replaceAll(REGEX_FILENAME, originalURI.lastSegment());
+    finalSegment = finalSegment.replaceAll(REGEX_FILENAME, originalURI.lastSegment().substring(
+            0, originalURI.lastSegment().indexOf(".")));
 
     return parentURI.appendSegment(finalSegment);
   }
@@ -232,7 +243,7 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
     final IPath parentPath = originalPath.removeLastSegments(1);
 
     String finalSegment = originalPath.lastSegment();
-    finalSegment = finalSegment.replace(".activiti.bpmn20.xml", ".activiti");
+    finalSegment = finalSegment.replace(".bpmn20.xml", ".activiti");
     final IPath returnPath = parentPath.append(new Path(finalSegment));
     return returnPath;
   }

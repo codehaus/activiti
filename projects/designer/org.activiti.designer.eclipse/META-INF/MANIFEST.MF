@@ -24,6 +24,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  org.activiti.designer.eclipse.bpmn,
+ org.activiti.designer.eclipse.bpmnimport,
  org.activiti.designer.eclipse.common,
  org.activiti.designer.eclipse.editor,
  org.activiti.designer.eclipse.extension,

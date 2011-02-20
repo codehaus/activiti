@@ -58,7 +58,11 @@ public class ActivitiDiagramEditor extends DiagramEditor {
 				.getAdapter(GraphicalViewer.class);
 
 		// Regular save
-		super.doSave(monitor);
+		try {
+		  super.doSave(monitor);
+		} catch(Throwable e) {
+		  e.printStackTrace();
+		}
 
 		// Determine list of ExportMarshallers to invoke after regular save
 		final Collection<ExportMarshaller> marshallers = ExtensionPointUtil

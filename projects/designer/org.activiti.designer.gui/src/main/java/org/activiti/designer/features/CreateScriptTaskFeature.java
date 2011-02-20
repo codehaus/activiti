@@ -3,6 +3,7 @@ package org.activiti.designer.features;
 import org.activiti.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.ScriptTask;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
@@ -17,7 +18,8 @@ public class CreateScriptTaskFeature extends AbstractCreateBPMNFeature {
 
 	@Override
 	public boolean canCreate(ICreateContext context) {
-		return context.getTargetContainer() instanceof Diagram;
+	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
 	}
 
 	@Override
@@ -26,7 +28,12 @@ public class CreateScriptTaskFeature extends AbstractCreateBPMNFeature {
 		newScriptTask.setId(getNextId());
 		newScriptTask.setName("Script Task");
 		
-		getDiagram().eResource().getContents().add(newScriptTask);
+		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(newScriptTask);
+    } else {
+      getDiagram().eResource().getContents().add(newScriptTask);
+    }
 		
 		addGraphicalRepresentation(context, newScriptTask);
 		return new Object[] { newScriptTask };

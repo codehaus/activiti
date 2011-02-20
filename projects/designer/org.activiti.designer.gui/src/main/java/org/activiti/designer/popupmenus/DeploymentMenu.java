@@ -103,6 +103,14 @@ public class DeploymentMenu implements org.eclipse.ui.IObjectActionDelegate{
                 createFolderStructure(newPackageFolder);
                 formResource.copy(newPackageFolder.getFile(formFilename).getFullPath(), true, new NullProgressMonitor());
               }
+              
+              // png
+              memberList = new ArrayList<IFile>();
+              getMembersWithFilter(resourceFolder, ".png");
+              for (IFile pngResource : memberList) {
+                String pngFilename = pngResource.getName();
+                pngResource.copy(tempbarFolder.getFile(pngFilename).getFullPath(), true, new NullProgressMonitor());
+              }
           
               compressPackage(rootFolder, tempbarFolder, processName + ".bar");
               
@@ -165,7 +173,7 @@ public class DeploymentMenu implements org.eclipse.ui.IObjectActionDelegate{
     final IFile archiveFile = workspace.getRoot().getFile(
             destination.getFile(fileName).getFullPath());
     final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(archiveFile.getLocation().toFile()));
-    final String absoluteDirPathToStrip = folderToPackage.getLocation().toFile().getAbsolutePath();
+    final String absoluteDirPathToStrip = folderToPackage.getLocation().toFile().getAbsolutePath() + File.separator;
     try {
       zipDirectory(out, base, absoluteDirPathToStrip);
     } finally {
@@ -183,6 +191,7 @@ public class DeploymentMenu implements org.eclipse.ui.IObjectActionDelegate{
         continue;
       }
       final String entryName = StringUtils.removeStart(file.getAbsolutePath(), absoluteDirPathToStrip);
+      System.out.println("entryName " + entryName);
       ZipEntry entry = new ZipEntry(entryName);
       out.putNextEntry(entry);
       if (file.isFile()) {

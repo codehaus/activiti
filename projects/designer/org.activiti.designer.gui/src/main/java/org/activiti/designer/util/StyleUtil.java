@@ -32,23 +32,52 @@ public class StyleUtil {
 
 	// Midnight Blue
 	private static final IColorConstant BPMN_CLASS_FOREGROUND = new ColorConstant(25, 25, 112);
+	
+	private static final IColorConstant BOUNDARY_EVENT_FOREGROUND = new ColorConstant(255, 255, 0);
+	
+	private static final IColorConstant EMBEDDED_PROCESS_FOREGROUND = new ColorConstant(0, 0, 0);
 
 	public static Style getStyleForEClass(Diagram diagram) {
 		final String styleId = "BPMN-CLASS"; //$NON-NLS-1$
 
 		Style style = findStyle(diagram, styleId);
-
-		IGaService gaService = Graphiti.getGaService();
 		if (style == null) { // style not found - create new style
+		  IGaService gaService = Graphiti.getGaService();
 			style = gaService.createStyle(diagram, styleId);
 			style.setForeground(gaService.manageColor(diagram, BPMN_CLASS_FOREGROUND));
-			// gaService.setRenderingStyle(style,
-			// TutorialColoredAreas.getLimeWhiteAdaptions());
 			gaService.setRenderingStyle(style, PredefinedColoredAreas.getBlueWhiteGlossAdaptions());
 			style.setLineWidth(2);
 		}
 		return style;
 	}
+	
+	public static Style getStyleForBoundaryEvent(Diagram diagram) {
+    final String styleId = "BOUNDARY-EVENT"; //$NON-NLS-1$
+
+    Style style = findStyle(diagram, styleId);
+    if (style == null) { // style not found - create new style
+      IGaService gaService = Graphiti.getGaService();
+      style = gaService.createStyle(diagram, styleId);
+      style.setForeground(gaService.manageColor(diagram, BOUNDARY_EVENT_FOREGROUND));
+      gaService.setRenderingStyle(style, PredefinedColoredAreas.getLightYellowAdaptions());
+      style.setLineWidth(2);
+    }
+    return style;
+  }
+	
+	public static Style getStyleForEmbeddedProcess(Diagram diagram) {
+    final String styleId = "EMBEDDED-PROCESS"; //$NON-NLS-1$
+
+    Style style = findStyle(diagram, styleId);
+    if (style == null) { // style not found - create new style
+      IGaService gaService = Graphiti.getGaService();
+      style = gaService.createStyle(diagram, styleId);
+      style.setForeground(gaService.manageColor(diagram, EMBEDDED_PROCESS_FOREGROUND));
+      gaService.setRenderingStyle(style, PredefinedColoredAreas.getLightGrayAdaptions());
+      style.setLineWidth(2);
+    }
+    return style;
+  }
 
 	public static Style getStyleForPolygon(Diagram diagram) {
 		final String styleId = "BPMN-POLYGON-ARROW"; //$NON-NLS-1$

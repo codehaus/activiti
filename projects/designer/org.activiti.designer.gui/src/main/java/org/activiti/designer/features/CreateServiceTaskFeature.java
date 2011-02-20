@@ -10,6 +10,7 @@ import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.ServiceTask;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
@@ -31,7 +32,8 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
 
   @Override
   public boolean canCreate(ICreateContext context) {
-    return context.getTargetContainer() instanceof Diagram;
+    Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
   }
 
   @Override
@@ -72,8 +74,13 @@ public class CreateServiceTaskFeature extends AbstractCreateBPMNFeature {
       }
 
     }
-
-    getDiagram().eResource().getContents().add(newServiceTask);
+    
+    Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(newServiceTask);
+    } else {
+      getDiagram().eResource().getContents().add(newServiceTask);
+    }
 
     // do the add
     addGraphicalRepresentation(context, newServiceTask);

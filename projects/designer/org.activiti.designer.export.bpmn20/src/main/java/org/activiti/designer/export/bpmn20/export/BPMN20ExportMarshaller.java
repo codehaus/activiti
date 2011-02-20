@@ -20,7 +20,6 @@ import org.activiti.designer.eclipse.extension.export.AbstractExportMarshaller;
 import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
 import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.designer.eclipse.preferences.PreferencesUtil;
-import org.activiti.designer.eclipse.util.Util;
 import org.eclipse.bpmn2.ActivitiListener;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
@@ -29,7 +28,9 @@ import org.eclipse.bpmn2.Documentation;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FieldExtension;
+import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.FlowNode;
+import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.MailTask;
 import org.eclipse.bpmn2.ManualTask;
 import org.eclipse.bpmn2.ParallelGateway;
@@ -41,23 +42,21 @@ import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.UserTask;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.algorithms.styles.Point;
+import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
+import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
 import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.ILinkService;
-import org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal;
 
 /**
  * @author Tiese Barrell
@@ -247,6 +246,10 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       xtw.writeAttribute("id", startEvent.getId());
       xtw.writeAttribute("name", startEvent.getName());
 
+      if(startEvent.getFormKey() != null && startEvent.getFormKey().length() > 0) {
+        xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "formKey", startEvent.getFormKey());
+      }
+      
       // end StartEvent element
       xtw.writeEndElement();
 
@@ -535,17 +538,22 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
     } else if (object instanceof SubProcess) {
       SubProcess subProcess = (SubProcess) object;
-      // start SubProcess element
-      xtw.writeStartElement("subProcess");
-      xtw.writeAttribute("id", subProcess.getId());
-      if (subProcess.getName() != null) {
-        xtw.writeAttribute("name", subProcess.getName());
+      List<FlowElement> flowElementList = subProcess.getFlowElements();
+      if(flowElementList != null && flowElementList.size() > 0) {
+        // start SubProcess element
+        xtw.writeStartElement("subProcess");
+        xtw.writeAttribute("id", subProcess.getId());
+        if (subProcess.getName() != null) {
+          xtw.writeAttribute("name", subProcess.getName());
+        }
+        
+        for (FlowElement flowElement : flowElementList) {
+          createXML(flowElement, xtw, subProcess.getId());
+        }
+
+        // end SubProcess element
+        xtw.writeEndElement();
       }
-
-      this.createSubProcessXML(xtw, subProcess.getId());
-
-      // end SubProcess element
-      xtw.writeEndElement();
     }
   }
 
@@ -615,7 +623,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     }
   }
 
-  private void createSubProcessXML(XMLStreamWriter xtw, String subProcessId) throws Exception {
+  /*private void createSubProcessXML(XMLStreamWriter xtw, String subProcessId) throws Exception {
 
     IResource resource = getResource(Util.getSubProcessURI(diagram, subProcessId));
 
@@ -627,7 +635,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     for (EObject object : contents) {
       createXML(object, xtw, subProcessId + "_");
     }
-  }
+  }*/
 
   private void createDIXML(Diagram diagram, XMLStreamWriter xtw, Process process) throws Exception {
     ILinkService linkService = Graphiti.getLinkService();
@@ -675,27 +683,114 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     for (EObject bpmnObject : contents) {
       if (bpmnObject instanceof SequenceFlow) {
         SequenceFlow sequenceFlow = (SequenceFlow) bpmnObject;
-        xtw.writeStartElement(BPMNDI_PREFIX, "BPMNEdge", BPMNDI_NAMESPACE);
-        xtw.writeAttribute("bpmnElement", sequenceFlow.getId());
-        xtw.writeAttribute("id", "BPMNEdge_" + sequenceFlow.getId());
+        
         if (flowNodeMap.containsKey(sequenceFlow.getSourceRef().getId()) && flowNodeMap.containsKey(sequenceFlow.getTargetRef().getId())) {
+          
+          FreeFormConnection freeFormConnection = null;
+          EList<Point> bendPointList = null;
+          
+          for(Connection connection : diagram.getConnections()) {
+            EObject linkedSequenceFlowObj = linkService.getBusinessObjectForLinkedPictogramElement(
+                    connection.getGraphicsAlgorithm().getPictogramElement());
+            if(linkedSequenceFlowObj instanceof SequenceFlow == false) continue;
+            
+            SequenceFlow linkedSequenceFlow = (SequenceFlow) linkedSequenceFlowObj;
+            if(linkedSequenceFlow.getId().equals(sequenceFlow.getId()) == false) continue;
+            
+            freeFormConnection = (FreeFormConnection) connection;
+            bendPointList = freeFormConnection.getBendpoints();
+          }
+          
+          if(freeFormConnection == null) continue;
+          
+          xtw.writeStartElement(BPMNDI_PREFIX, "BPMNEdge", BPMNDI_NAMESPACE);
+          xtw.writeAttribute("bpmnElement", sequenceFlow.getId());
+          xtw.writeAttribute("id", "BPMNEdge_" + sequenceFlow.getId());
+          
           GraphicsAlgorithm sourceConnection = flowNodeMap.get(sequenceFlow.getSourceRef().getId());
           GraphicsAlgorithm targetConnection = flowNodeMap.get(sequenceFlow.getTargetRef().getId());
-          xtw.writeStartElement(OMGDI_PREFIX, "waypoint", OMGDI_NAMESPACE);
-          xtw.writeAttribute("x", "" + (sourceConnection.getX() + sourceConnection.getWidth()));
-          xtw.writeAttribute("y", "" + (sourceConnection.getY() + (sourceConnection.getHeight() / 2)));
-          xtw.writeEndElement();
-          xtw.writeStartElement(OMGDI_PREFIX, "waypoint", OMGDI_NAMESPACE);
-          xtw.writeAttribute("x", "" + targetConnection.getX());
-          xtw.writeAttribute("y", "" + (targetConnection.getY() + (targetConnection.getHeight() / 2)));
+          
+          if(sequenceFlow.getSourceRef() instanceof Gateway && getAmountOfOutgoingConnections(
+                  sequenceFlow.getSourceRef().getId()) > 1) {
+            
+            int y = 0;
+            if(sourceConnection.getY() > targetConnection.getY()) {
+              y = sourceConnection.getY();
+            } else {
+              y = sourceConnection.getY() + sourceConnection.getHeight();
+            }
+            createWayPoint(sourceConnection.getX() + (sourceConnection.getWidth() / 2), y, xtw);
+            
+          } else {
+            createWayPoint(sourceConnection.getX() + sourceConnection.getWidth(),
+                    sourceConnection.getY() + (sourceConnection.getHeight() / 2), xtw);
+          }
+          
+          if(bendPointList != null && bendPointList.size() > 0) {
+            for (Point point : bendPointList) {
+              createWayPoint(point.getX(), point.getY(), xtw);
+            }
+          }
+          
+          if(sequenceFlow.getTargetRef() instanceof Gateway && getAmountOfIncomingConnections(
+                  sequenceFlow.getTargetRef().getId()) > 1) {
+            
+            int y = 0;
+            if(targetConnection.getY() > sourceConnection.getY()) {
+              y = targetConnection.getY();
+            } else {
+              y = targetConnection.getY() + targetConnection.getHeight();
+            }
+            createWayPoint(targetConnection.getX() + (targetConnection.getWidth() / 2), y, xtw);
+            
+          } else {
+            createWayPoint(targetConnection.getX(),
+                    targetConnection.getY() + (targetConnection.getHeight() / 2), xtw);
+          }
           xtw.writeEndElement();
         }
-        xtw.writeEndElement();
       }
     }
-
     xtw.writeEndElement();
-
+    xtw.writeEndElement();
+  }
+  
+  private int getAmountOfIncomingConnections(String id) {
+    int amount = 0;
+    ILinkService linkService = Graphiti.getLinkService();
+    for(Connection connection : diagram.getConnections()) {
+      EObject linkedSequenceFlowObj = linkService.getBusinessObjectForLinkedPictogramElement(
+              connection.getGraphicsAlgorithm().getPictogramElement());
+      if(linkedSequenceFlowObj instanceof SequenceFlow == false) continue;
+      
+      SequenceFlow linkedSequenceFlow = (SequenceFlow) linkedSequenceFlowObj;
+      if(linkedSequenceFlow.getTargetRef().getId().equals(id)) {
+        amount++;
+      }
+    }
+    return amount;
+  }
+  
+  private int getAmountOfOutgoingConnections(String id) {
+    int amount = 0;
+    ILinkService linkService = Graphiti.getLinkService();
+    for(Connection connection : diagram.getConnections()) {
+      EObject linkedSequenceFlowObj = linkService.getBusinessObjectForLinkedPictogramElement(
+              connection.getGraphicsAlgorithm().getPictogramElement());
+      if(linkedSequenceFlowObj instanceof SequenceFlow == false) continue;
+      
+      SequenceFlow linkedSequenceFlow = (SequenceFlow) linkedSequenceFlowObj;
+      if(linkedSequenceFlow.getSourceRef().getId().equals(id)) {
+        amount++;
+      }
+    }
+    return amount;
+  }
+  
+  private void createWayPoint(int x, int y, XMLStreamWriter xtw) throws Exception {
+    xtw.writeStartElement(OMGDI_PREFIX, "waypoint", OMGDI_NAMESPACE);
+    xtw.writeAttribute("x", "" + x);
+    xtw.writeAttribute("y", "" + y);
     xtw.writeEndElement();
   }
 

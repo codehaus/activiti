@@ -46,6 +46,9 @@ public class ActivitiImageProvider extends AbstractImageProvider {
   public static final String IMG_SUBPROCESS_EXPANDED = PREFIX + "subprocess.expanded"; //$NON-NLS-1$
 
   public static final String IMG_ACTION_ZOOM = PREFIX + "action.magnifier"; //$NON-NLS-1$
+  
+  public static final String IMG_BOUNDARY_TIMER = PREFIX + "boundary.timer"; //$NON-NLS-1$
+  public static final String IMG_BOUNDARY_ERROR = PREFIX + "boundary.error"; //$NON-NLS-1$
 
   @Override
   protected void addAvailableImages() {
@@ -64,6 +67,8 @@ public class ActivitiImageProvider extends AbstractImageProvider {
     addImageFilePath(IMG_SUBPROCESS_COLLAPSED, "icons/type.subprocess.collapsed.png"); //$NON-NLS-1$
     addImageFilePath(IMG_SUBPROCESS_EXPANDED, "icons/type.subprocess.expanded.png"); //$NON-NLS-1$
     addImageFilePath(IMG_ACTION_ZOOM, "icons/action.magnifier.png"); //$NON-NLS-1$
+    addImageFilePath(IMG_BOUNDARY_TIMER, "icons/timer.png"); //$NON-NLS-1$
+    addImageFilePath(IMG_BOUNDARY_ERROR, "icons/error.png"); //$NON-NLS-1$
   }
 
 }

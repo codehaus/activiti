@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.bpmn2.BaseElement;
+import org.eclipse.bpmn2.FlowElement;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -199,6 +201,21 @@ public class ActivitiUiUtil {
     if (!idCache.containsKey(featureIdKey)) {
       determinedId = 0;
       for (EObject contentObject : diagram.eResource().getContents()) {
+        
+        if(contentObject instanceof SubProcess) {
+          
+          for (FlowElement flowElement : ((SubProcess) contentObject).getFlowElements()) {
+            
+            if (flowElement.getClass() == featureClass) {
+              String contentObjectId = flowElement.getId().replace(featureIdKey, "");
+              Integer intGatewayNumber = Integer.valueOf(contentObjectId);
+              if (intGatewayNumber > determinedId) {
+                determinedId = intGatewayNumber;
+              }
+            }
+          }
+        }
+        
         if (contentObject.getClass() == featureClass) {
           BaseElement tempElement = (BaseElement) contentObject;
           String contentObjectId = tempElement.getId().replace(featureIdKey, "");

@@ -10,6 +10,7 @@ import org.activiti.designer.util.OSEnum;
 import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.ServiceTask;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.Task;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
@@ -44,11 +45,11 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
   @Override
   public PictogramElement add(IAddContext context) {
     final Task addedTask = (Task) context.getNewObject();
-    final Diagram targetDiagram = (Diagram) context.getTargetContainer();
+    final ContainerShape parent = context.getTargetContainer();
 
     // CONTAINER SHAPE WITH ROUNDED RECTANGLE
     final IPeCreateService peCreateService = Graphiti.getPeCreateService();
-    final ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
+    final ContainerShape containerShape = peCreateService.createContainerShape(parent, true);
     final IGaService gaService = Graphiti.getGaService();
 
     DiagramBaseShape baseShape = DiagramBaseShape.ACTIVITY;
@@ -103,7 +104,12 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
         // in a real scenario the business model would have its own
         // resource
         if (addedTask.eResource() == null) {
-          getDiagram().eResource().getContents().add(addedTask);
+          Object parentObject = getBusinessObjectForPictogramElement(parent);
+          if (parentObject instanceof SubProcess) {
+            ((SubProcess) parentObject).getFlowElements().add(addedTask);
+          } else {
+            getDiagram().eResource().getContents().add(addedTask);
+          }
         }
 
         // create link and wire it
@@ -163,7 +169,12 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
         // own
         // resource
         if (addedTask.eResource() == null) {
-          getDiagram().eResource().getContents().add(addedTask);
+          Object parentObject = getBusinessObjectForPictogramElement(parent);
+          if (parentObject instanceof SubProcess) {
+            ((SubProcess) parentObject).getFlowElements().add(addedTask);
+          } else {
+            getDiagram().eResource().getContents().add(addedTask);
+          }
         }
 
         // create link and wire it
@@ -193,7 +204,12 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
         // diagram
         // in a real scenario the business model would have its own resource
         if (addedTask.eResource() == null) {
-          getDiagram().eResource().getContents().add(addedTask);
+          Object parentObject = getBusinessObjectForPictogramElement(parent);
+          if (parentObject instanceof SubProcess) {
+            ((SubProcess) parentObject).getFlowElements().add(addedTask);
+          } else {
+            getDiagram().eResource().getContents().add(addedTask);
+          }
         }
 
         // create link and wire it
@@ -273,18 +289,16 @@ public abstract class AddTaskFeature extends AbstractAddShapeFeature {
     gaService.setLocationAndSize(ellipse, 0, 0, 0, 0);
     layoutPictogramElement(containerShape);
 
-    // TODO: temporary
-    // containerShape.getGraphicsAlgorithm().setLineVisible(true);
-    // containerShape.getGraphicsAlgorithm().setLineWidth(1);
-
     return containerShape;
   }
 
   @Override
   public boolean canAdd(IAddContext context) {
     if (context.getNewObject() instanceof Task) {
-      // check if user wants to add to a diagram
-      if (context.getTargetContainer() instanceof Diagram) {
+      
+      Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+      
+      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess) {
         return true;
       }
     }

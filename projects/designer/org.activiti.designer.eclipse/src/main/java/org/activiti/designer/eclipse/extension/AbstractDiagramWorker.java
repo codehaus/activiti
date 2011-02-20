@@ -323,5 +323,15 @@ public abstract class AbstractDiagramWorker {
       e.printStackTrace();
     }
   }
+  
+  protected IMarker[] getMarkers(IResource resource) {
+    IMarker[] markers = null;
+    try {
+      markers = resource.findMarkers(ActivitiBPMNDiagramConstants.ACTIVITI_GENERAL_MARKER_ID, true, IResource.DEPTH_INFINITE);
+    } catch (CoreException e) {
+      e.printStackTrace();
+    }
+    return markers;
+  }
 
 }

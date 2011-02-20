@@ -3,6 +3,7 @@ package org.activiti.designer.features;
 import org.activiti.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.EndEvent;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
@@ -17,7 +18,8 @@ public class CreateEndEventFeature extends AbstractCreateBPMNFeature {
 	}
 
 	public boolean canCreate(ICreateContext context) {
-		return context.getTargetContainer() instanceof Diagram;
+	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
 	}
 
 	public Object[] create(ICreateContext context) {
@@ -26,7 +28,12 @@ public class CreateEndEventFeature extends AbstractCreateBPMNFeature {
 		endEvent.setId(getNextId());
 		endEvent.setName("End");
 		
-		getDiagram().eResource().getContents().add(endEvent);
+		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(endEvent);
+    } else {
+      getDiagram().eResource().getContents().add(endEvent);
+    }
 
 		// do the add
 		addGraphicalRepresentation(context, endEvent);

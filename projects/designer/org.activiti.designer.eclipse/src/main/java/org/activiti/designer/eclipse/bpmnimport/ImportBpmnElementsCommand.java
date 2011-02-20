@@ -1,6 +1,5 @@
-package org.activiti.designer.popupmenus;
+package org.activiti.designer.eclipse.bpmnimport;
 
-import org.activiti.designer.bpmn.BpmnFileReader;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;

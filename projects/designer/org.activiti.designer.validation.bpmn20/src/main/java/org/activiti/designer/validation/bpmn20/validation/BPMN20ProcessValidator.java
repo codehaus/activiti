@@ -5,8 +5,8 @@ package org.activiti.designer.validation.bpmn20.validation;
 
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.validation.AbstractProcessValidator;
-import org.activiti.designer.eclipse.util.Util;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
+import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.ScriptTask;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
@@ -59,6 +59,8 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
     this.monitor = monitor;
     this.diagram = diagram;
 
+    boolean validBpmn = true;
+    
     monitor.beginTask("", 100);
 
     // Clear problems for this diagram first
@@ -67,83 +69,74 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
     URI diagramURI = getURIForDiagram(diagram);
     // TODO: marshall parent instead
     if (!diagramURI.toPlatformString(true).contains("subprocess")) {
-      boolean validBpmn = validateDiagram(getResourceForDiagram(diagram).getContents());
+      validateDiagram(getResourceForDiagram(diagram).getContents());
 
-      if (validBpmn) {
-
-        monitor.worked(100);
+      if (getMarkers(getResource(diagram.eResource().getURI())) != null && 
+              getMarkers(getResource(diagram.eResource().getURI())).length > 0) {
+        
+        validBpmn = false;
       }
-
-      return validBpmn;
     }
-    monitor.done();
-    return true;
+    return validBpmn;
   }
 
-  private boolean validateDiagram(EList<EObject> contents) {
+  private void validateDiagram(EList<EObject> contents) {
 
     for (EObject object : contents) {
-      if (object instanceof UserTask) {
-        UserTask userTask = (UserTask) object;
-        boolean potentialOwnerIsSet = false;
-        if (userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
-          potentialOwnerIsSet = true;
-        }
-        if (userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0) {
-          potentialOwnerIsSet = true;
-        }
-        if (userTask.getCandidateGroups() != null && userTask.getCandidateGroups().size() > 0) {
-          potentialOwnerIsSet = true;
-        }
-        if (potentialOwnerIsSet == false) {
-          createErrorMessage("UserTask " + userTask.getName() + " has no assignee, candidate users, candidate groups set");
-          return false;
-        }
+      if(object instanceof FlowElement) {
+        validateElement((FlowElement) object);
+      }
+    }
+  }
+  
+  private void validateElement(FlowElement flowElement) {
+    if (flowElement instanceof UserTask) {
+      UserTask userTask = (UserTask) flowElement;
+      boolean potentialOwnerIsSet = false;
+      if (userTask.getAssignee() != null && userTask.getAssignee().length() > 0) {
+        potentialOwnerIsSet = true;
+      }
+      if (userTask.getCandidateUsers() != null && userTask.getCandidateUsers().size() > 0) {
+        potentialOwnerIsSet = true;
+      }
+      if (userTask.getCandidateGroups() != null && userTask.getCandidateGroups().size() > 0) {
+        potentialOwnerIsSet = true;
+      }
+      if (potentialOwnerIsSet == false) {
+        createErrorMessage("UserTask " + userTask.getName() + " has no assignee, candidate users, candidate groups set");
+      }
 
-      } else if (object instanceof ScriptTask) {
-        ScriptTask scriptTask = (ScriptTask) object;
-        if (scriptTask.getScriptFormat() == null || scriptTask.getScriptFormat().length() == 0) {
-          createErrorMessage("ScriptTask " + scriptTask.getName() + " has no format specified");
-          return false;
-        }
-        if (scriptTask.getScript() == null || scriptTask.getScript().length() == 0) {
-          createErrorMessage("ScriptTask " + scriptTask.getName() + " has no script logic specified");
-          return false;
-        }
+    } else if (flowElement instanceof ScriptTask) {
+      ScriptTask scriptTask = (ScriptTask) flowElement;
+      if (scriptTask.getScriptFormat() == null || scriptTask.getScriptFormat().length() == 0) {
+        createErrorMessage("ScriptTask " + scriptTask.getName() + " has no format specified");
+      }
+      if (scriptTask.getScript() == null || scriptTask.getScript().length() == 0) {
+        createErrorMessage("ScriptTask " + scriptTask.getName() + " has no script logic specified");
+      }
 
-      } else if (object instanceof ServiceTask && ExtensionUtil.isCustomServiceTask(object) == false) {
-        ServiceTask serviceTask = (ServiceTask) object;
-        if ((serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0 || "classType".equalsIgnoreCase(serviceTask
-                .getImplementationType())) && serviceTask.getImplementation() == null || serviceTask.getImplementation().length() == 0) {
-          createErrorMessage("ServiceTask " + serviceTask.getName() + " has no class specified");
-          return false;
-        }
-      } else if (object instanceof SequenceFlow) {
-        SequenceFlow sequenceFlow = (SequenceFlow) object;
-        if (sequenceFlow.getSourceRef() == null || sequenceFlow.getSourceRef().getId() == null || sequenceFlow.getSourceRef().getId().length() == 0) {
-          createErrorMessage("SequenceFlow " + sequenceFlow.getName() + " has no source activity");
-          return false;
-        }
-        if (sequenceFlow.getTargetRef() == null || sequenceFlow.getTargetRef().getId() == null || sequenceFlow.getTargetRef().getId().length() == 0) {
-          createErrorMessage("SequenceFlow " + sequenceFlow.getName() + " has no target activity");
-          return false;
-        }
-      } else if (object instanceof SubProcess) {
-        SubProcess subProcess = (SubProcess) object;
-
-        final URI subprocessURI = Util.getSubProcessURI(diagram, subProcess.getId());
-
-        // TODO
-        // Clear problems for this sub diagram first
-        // clearProblems(getResource(subprocessURI));
-
-        if (!resourceExists(subprocessURI)) {
-          createErrorMessage("SubProcess " + subProcess.getName() + " has no diagram yet. Double click to create a sub process diagram.");
-          return false;
+    } else if (flowElement instanceof ServiceTask && ExtensionUtil.isCustomServiceTask(flowElement) == false) {
+      ServiceTask serviceTask = (ServiceTask) flowElement;
+      if ((serviceTask.getImplementationType() == null || serviceTask.getImplementationType().length() == 0 || "classType".equalsIgnoreCase(serviceTask
+              .getImplementationType())) && serviceTask.getImplementation() == null || serviceTask.getImplementation().length() == 0) {
+        createErrorMessage("ServiceTask " + serviceTask.getName() + " has no class specified");
+      }
+    } else if (flowElement instanceof SequenceFlow) {
+      SequenceFlow sequenceFlow = (SequenceFlow) flowElement;
+      if (sequenceFlow.getSourceRef() == null || sequenceFlow.getSourceRef().getId() == null || sequenceFlow.getSourceRef().getId().length() == 0) {
+        createErrorMessage("SequenceFlow " + sequenceFlow.getName() + " has no source activity");
+      }
+      if (sequenceFlow.getTargetRef() == null || sequenceFlow.getTargetRef().getId() == null || sequenceFlow.getTargetRef().getId().length() == 0) {
+        createErrorMessage("SequenceFlow " + sequenceFlow.getName() + " has no target activity");
+      }
+    } else if (flowElement instanceof SubProcess) {
+      SubProcess subProcess = (SubProcess) flowElement;
+      if(subProcess.getFlowElements() != null) {
+        for (FlowElement subElement : subProcess.getFlowElements()) {
+          validateElement(subElement);
         }
       }
     }
-    return true;
   }
 
   private void createErrorMessage(String message) {

@@ -7,11 +7,11 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
-public class CreateSubProcessFeature extends AbstractCreateBPMNFeature {
+public class CreateEmbeddedSubProcessFeature extends AbstractCreateBPMNFeature {
 
 	public static final String FEATURE_ID_KEY = "subprocess";
 
-	public CreateSubProcessFeature(IFeatureProvider fp) {
+	public CreateEmbeddedSubProcessFeature(IFeatureProvider fp) {
 		super(fp, "SubProcess", "Add sub process");
 	}
 

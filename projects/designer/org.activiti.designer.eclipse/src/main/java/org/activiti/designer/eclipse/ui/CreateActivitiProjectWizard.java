@@ -142,7 +142,7 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 	}
 	
 	private String createPOMFile() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
 		buffer.append("    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n");
 		buffer.append("  <modelVersion>4.0.0</modelVersion>\n");
@@ -197,7 +197,7 @@ public class CreateActivitiProjectWizard extends BasicNewProjectResourceWizard {
 		return buffer.toString();
 	}
 	
-	private void addDependency(StringBuffer buffer, String groupId, String artifactId, String version) {
+	private void addDependency(StringBuilder buffer, String groupId, String artifactId, String version) {
 		buffer.append("    <dependency>\n")
 			.append("      <groupId>")
 			.append(groupId)

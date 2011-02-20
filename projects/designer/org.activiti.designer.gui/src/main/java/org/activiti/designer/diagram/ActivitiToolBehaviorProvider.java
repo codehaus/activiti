@@ -14,7 +14,9 @@ import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.extension.AbstractDiagramWorker;
 import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
+import org.activiti.designer.features.CreateBoundaryTimerFeature;
 import org.activiti.designer.features.CreateCustomServiceTaskFeature;
+import org.activiti.designer.features.CreateEmbeddedSubProcessFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
 import org.activiti.designer.features.CreateMailTaskFeature;
@@ -23,14 +25,15 @@ import org.activiti.designer.features.CreateParallelGatewayFeature;
 import org.activiti.designer.features.CreateScriptTaskFeature;
 import org.activiti.designer.features.CreateServiceTaskFeature;
 import org.activiti.designer.features.CreateStartEventFeature;
-import org.activiti.designer.features.CreateSubProcessFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
+import org.activiti.designer.features.DeleteSequenceFlowFeature;
 import org.activiti.designer.features.ExpandCollapseSubProcessFeature;
 import org.activiti.designer.features.SaveBpmnModelFeature;
 import org.activiti.designer.integration.palette.PaletteEntry;
 import org.activiti.designer.property.extension.CustomServiceTaskContext;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.bpmn2.StartEvent;
 import org.eclipse.bpmn2.SubProcess;
@@ -40,6 +43,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -93,8 +97,10 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
     toolMapping.put(CreateParallelGatewayFeature.class, PaletteEntry.PARALLEL_GATEWAY);
     toolMapping.put(CreateScriptTaskFeature.class, PaletteEntry.SCRIPT_TASK);
     toolMapping.put(CreateServiceTaskFeature.class, PaletteEntry.SERVICE_TASK);
-    toolMapping.put(CreateSubProcessFeature.class, PaletteEntry.SUBPROCESS);
+    //toolMapping.put(CreateCallActivityFeature.class, PaletteEntry.CALL_ACTIVITY);
+    toolMapping.put(CreateEmbeddedSubProcessFeature.class, PaletteEntry.SUBPROCESS);
     toolMapping.put(CreateUserTaskFeature.class, PaletteEntry.USER_TASK);
+    toolMapping.put(CreateBoundaryTimerFeature.class, PaletteEntry.BOUNDARY_TIMER);
   }
 
   @Override
@@ -158,17 +164,35 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
 
   @Override
   public IContextMenuEntry[] getContextMenu(ICustomContext context) {
+    List<IContextMenuEntry> menuList = new ArrayList<IContextMenuEntry>();
+    
+    if(context.getPictogramElements() != null) {
+      for (PictogramElement pictogramElement : context.getPictogramElements()) {
+        if(pictogramElement.getLink() == null) continue;
+        EList<EObject> boList = pictogramElement.getLink().getBusinessObjects();
+        if(boList != null) {
+          for (EObject bObject : boList) {
+            if(bObject instanceof SequenceFlow) {
+              ContextMenuEntry subMenuDelete = new ContextMenuEntry(new DeleteSequenceFlowFeature(getFeatureProvider()), context);
+              subMenuDelete.setText("Delete sequence flow"); //$NON-NLS-1$
+              subMenuDelete.setSubmenu(false);
+              menuList.add(subMenuDelete);
+            }
+          }
+        }
+      }
+    }
 
     ContextMenuEntry subMenuExport = new ContextMenuEntry(new SaveBpmnModelFeature(getFeatureProvider()), context);
     subMenuExport.setText("Export to BPMN 2.0 XML"); //$NON-NLS-1$
     subMenuExport.setSubmenu(false);
+    menuList.add(subMenuExport);
 
     ContextMenuEntry subMenuExpandOrCollapse = new ContextMenuEntry(new ExpandCollapseSubProcessFeature(getFeatureProvider()), context);
     subMenuExpandOrCollapse.setText("Expand/Collapse Subprocess"); //$NON-NLS-1$
     subMenuExpandOrCollapse.setSubmenu(false);
 
-    IContextMenuEntry ret[] = new IContextMenuEntry[] { subMenuExport };
-    return ret;
+    return menuList.toArray(new IContextMenuEntry[menuList.size()]);
   }
 
   @Override
@@ -217,11 +241,15 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("receivetask".equalsIgnoreCase(toolEntry.getLabel())) {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("boundarytimer".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
           gatewayCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
           gatewayCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("subprocess".equalsIgnoreCase(toolEntry.getLabel())) {
+          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("callactivity".equalsIgnoreCase(toolEntry.getLabel())) {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
         }
       }
@@ -332,14 +360,14 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
         imageRenderingDecorator.setMessage("A start event should have exactly one outgoing sequence flow"); //$NON-NLS-1$
         return new IDecorator[] { imageRenderingDecorator };
       }
-    } else if (bo instanceof SubProcess) {
+    /*} else if (bo instanceof SubProcess) {
       SubProcess subProcess = (SubProcess) bo;
 
       if (!subProcessDiagramExists(subProcess)) {
         IDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_INFORMATION_TSK);
         imageRenderingDecorator.setMessage("This subprocess does not have a diagram model yet");//$NON-NLS-1$
         return new IDecorator[] { imageRenderingDecorator };
-      }
+      }*/
     } else if (bo instanceof ServiceTask && bo instanceof EObject && ExtensionUtil.isCustomServiceTask((EObject) bo)) {
 
       final Resource resource = pe.getLink().eResource();

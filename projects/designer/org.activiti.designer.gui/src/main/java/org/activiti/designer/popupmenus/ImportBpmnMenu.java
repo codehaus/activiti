@@ -1,11 +1,11 @@
 package org.activiti.designer.popupmenus;
 
 import java.io.File;
-import java.io.IOException;
 
+import org.activiti.designer.eclipse.bpmnimport.ImportBpmnElementsCommand;
+import org.activiti.designer.eclipse.bpmnimport.ImportBpmnUtil;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
-import org.activiti.designer.eclipse.ui.ExportMarshallerRunnable;
 import org.activiti.designer.util.OSEnum;
 import org.activiti.designer.util.OSUtil;
 import org.eclipse.core.resources.IFile;
@@ -13,10 +13,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
-import org.eclipse.emf.transaction.util.TransactionUtil;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -30,7 +26,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.progress.IProgressService;
 
 public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
 
@@ -65,40 +60,7 @@ public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
     processName = processName.replace(".xml", "");
     processName = processName.replace(".bpmn20", "");
 
-    // Get the default resource set to hold the new resource
-    ResourceSet resourceSet = new ResourceSetImpl();
-    TransactionalEditingDomain editingDomain = TransactionUtil.getEditingDomain(resourceSet);
-    if (editingDomain == null) {
-      // Not yet existing, create one
-      editingDomain = TransactionalEditingDomain.Factory.INSTANCE.createEditingDomain(resourceSet);
-    }
-
-    // Create the data within a command and save (must not happen inside
-    // the command since finishing the command will trigger setting the 
-    // modification flag on the resource which will be used by the save
-    // operation to determine which resources need to be saved)
-    ImportBpmnElementsCommand operation = new ImportBpmnElementsCommand(javaProject.getProject(), 
-            editingDomain, processName, bpmnFile);
-    editingDomain.getCommandStack().execute(operation);
-    try {
-      operation.getCreatedResource().save(null);
-    } catch (IOException e) {
-      IStatus status = new Status(IStatus.ERROR, ActivitiPlugin.getID(), e.getMessage(), e); //$NON-NLS-1$
-      ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Error Occured", e.getMessage(), status);
-    }
-
-    // Dispose the editing domain to eliminate memory leak
-    editingDomain.dispose();
-    
-    IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
-
-    ExportMarshallerRunnable runnable = new ExportMarshallerRunnable(operation.getDiagram(), 
-            ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_NAME);
-    try {
-      progressService.busyCursorWhile(runnable);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    ImportBpmnElementsCommand operation = ImportBpmnUtil.createDiagram(processName, bpmnFile, javaProject.getProject());
 
     // Open the editor
     String platformString = operation.getCreatedResource().getURI().toPlatformString(true);

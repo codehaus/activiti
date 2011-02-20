@@ -2,6 +2,8 @@ package org.activiti.designer.features;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
+import org.activiti.designer.util.OSEnum;
+import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
@@ -23,9 +25,9 @@ import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
-public class AddSubProcessFeature extends AbstractAddShapeFeature {
+public class AddEmbeddedSubProcessFeature extends AbstractAddShapeFeature {
 
-	public AddSubProcessFeature(IFeatureProvider fp) {
+	public AddEmbeddedSubProcessFeature(IFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -43,8 +45,8 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 
 		// check whether the context has a size (e.g. from a create feature)
 		// otherwise define a default size for the shape
-		final int width = context.getWidth() <= 0 ? 105 : context.getWidth();
-		final int height = context.getHeight() <= 0 ? 55 : context.getHeight();
+		final int width = context.getWidth() <= 0 ? 205 : context.getWidth();
+		final int height = context.getHeight() <= 0 ? 205 : context.getHeight();
 
 		final IGaService gaService = Graphiti.getGaService();
 		RoundedRectangle roundedRectangle; // need to access it later
@@ -57,7 +59,7 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 			// create and set visible rectangle inside invisible rectangle
 			roundedRectangle = gaService.createRoundedRectangle(invisibleRectangle, 5, 5);
 			roundedRectangle.setParentGraphicsAlgorithm(invisibleRectangle);
-			roundedRectangle.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+			roundedRectangle.setStyle(StyleUtil.getStyleForEmbeddedProcess(getDiagram()));
 			gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
 
 			// if addedClass has no resource we add it to the resource of the
@@ -82,7 +84,10 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.getFont().setBold(true);
-			gaService.setLocationAndSize(text, 0, 20, width, 20);
+      if (OSUtil.getOperatingSystem() == OSEnum.Mac) {
+        text.getFont().setSize(11);
+      }
+			gaService.setLocationAndSize(text, 0, 0, width, 20);
 
 			// create link and wire it
 			link(shape, addedSubProcess);
@@ -96,19 +101,6 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 			// direct editing shall be opened after object creation
 			directEditingInfo.setPictogramElement(shape);
 			directEditingInfo.setGraphicsAlgorithm(text);
-		}
-
-		{
-			final Shape shape = peCreateService.createShape(containerShape, false);
-			final Image image = gaService.createImage(shape, getIcon());
-
-			// calculate position for icon
-			final int iconWidthAndHeight = 10;
-			final int padding = 5;
-			final int xPos = (roundedRectangle.getWidth() / 2) - (iconWidthAndHeight / 2);
-			final int yPos = roundedRectangle.getHeight() - padding - iconWidthAndHeight;
-
-			gaService.setLocationAndSize(image, xPos, yPos, iconWidthAndHeight, iconWidthAndHeight);
 		}
 
 		// add a chopbox anchor to the shape
@@ -136,6 +128,8 @@ public class AddSubProcessFeature extends AbstractAddShapeFeature {
 		}
 		return false;
 	}
+	
+	
 
 	protected String getIcon() {
 		return ActivitiImageProvider.IMG_SUBPROCESS_COLLAPSED;

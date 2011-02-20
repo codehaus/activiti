@@ -72,7 +72,9 @@ public class SequenceFlowSynchronizer {
 		}
 
 		private void setup() {
-
+		  
+		  if(this.graphicalRepresentation.getStart().getParent() == null) return;
+		  
 			final EObject startPE = this.graphicalRepresentation.getStart().getParent().getLink().getBusinessObjects()
 					.get(0);
 			targetStartObject = (FlowElement) startPE;
@@ -85,10 +87,13 @@ public class SequenceFlowSynchronizer {
 
 			businessModelObjectToUpdate = (SequenceFlow) this.graphicalRepresentation.getLink().getBusinessObjects()
 					.get(0);
-
-			businessStartId = businessModelObjectToUpdate.getSourceRef().getId();
-			businessEndId = businessModelObjectToUpdate.getTargetRef().getId();
-
+			
+			if(businessModelObjectToUpdate.getSourceRef() != null) {
+			  businessStartId = businessModelObjectToUpdate.getSourceRef().getId();
+			}
+			if(businessModelObjectToUpdate.getTargetRef() != null) {
+			  businessEndId = businessModelObjectToUpdate.getTargetRef().getId();
+			}
 		}
 
 		public boolean isOutOfSync() {

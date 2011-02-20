@@ -6,6 +6,7 @@ import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.Event;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
@@ -31,11 +32,11 @@ public class AddEventFeature extends AbstractAddShapeFeature {
 	@Override
 	public PictogramElement add(IAddContext context) {
 		final Event addedEvent = (Event) context.getNewObject();
-		final Diagram targetDiagram = (Diagram) context.getTargetContainer();
+		final ContainerShape parent = context.getTargetContainer();
 
 		// CONTAINER SHAPE WITH CIRCLE
 		final IPeCreateService peCreateService = Graphiti.getPeCreateService();
-		final ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
+		final ContainerShape containerShape = peCreateService.createContainerShape(parent, true);
 
 		// check whether the context has a size (e.g. from a create feature)
 		// otherwise define a default size for the shape
@@ -61,7 +62,12 @@ public class AddEventFeature extends AbstractAddShapeFeature {
 			// diagram
 			// in a real scenario the business model would have its own resource
 			if (addedEvent.eResource() == null) {
-				getDiagram().eResource().getContents().add(addedEvent);
+				Object parentObject = getBusinessObjectForPictogramElement(parent);
+	      if (parentObject instanceof SubProcess) {
+	        ((SubProcess) parentObject).getFlowElements().add(addedEvent);
+	      } else {
+	        getDiagram().eResource().getContents().add(addedEvent);
+	      }
 			}
 
 			// create link and wire it
@@ -118,10 +124,12 @@ public class AddEventFeature extends AbstractAddShapeFeature {
 	@Override
 	public boolean canAdd(IAddContext context) {
 		if (context.getNewObject() instanceof Event) {
-			// check if user wants to add to a diagram
-			if (context.getTargetContainer() instanceof Diagram) {
-				return true;
-			}
+		  
+		  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+      
+      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess) {
+        return true;
+      }
 		}
 		return false;
 	}

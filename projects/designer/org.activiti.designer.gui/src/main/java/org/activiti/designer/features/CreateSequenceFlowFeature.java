@@ -8,12 +8,13 @@ import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.StartEvent;
-import org.eclipse.emf.common.util.EList;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateConnectionContext;
 import org.eclipse.graphiti.features.context.impl.AddConnectionContext;
 import org.eclipse.graphiti.mm.pictograms.Anchor;
 import org.eclipse.graphiti.mm.pictograms.Connection;
+import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 
 public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeature {
 
@@ -55,7 +56,7 @@ public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeatu
 
 		if (source != null && target != null) {
 			// create new business object
-			SequenceFlow sequenceFlow = createSequenceFlow(source, target);
+			SequenceFlow sequenceFlow = createSequenceFlow(source, target, context);
 
 			// add connection for business object
 			AddConnectionContext addContext = new AddConnectionContext(context.getSourceAnchor(),
@@ -82,7 +83,7 @@ public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeatu
 	/**
 	 * Creates a SequenceFlow between two BaseElements.
 	 */
-	private SequenceFlow createSequenceFlow(FlowNode source, FlowNode target) {
+	private SequenceFlow createSequenceFlow(FlowNode source, FlowNode target, ICreateConnectionContext context) {
 		SequenceFlow sequenceFlow = Bpmn2Factory.eINSTANCE.createSequenceFlow();
 
 		sequenceFlow.setId(getNextId());
@@ -94,8 +95,18 @@ public class CreateSequenceFlowFeature extends AbstractCreateBPMNConnectionFeatu
 		} else {
 			sequenceFlow.setName("");
 		}
-
-		getDiagram().eResource().getContents().add(sequenceFlow);
+		
+		Object parentObject = null;
+		if(context.getSourcePictogramElement().eContainer() instanceof ContainerShape) {
+		  ContainerShape parentShape = (ContainerShape) context.getSourcePictogramElement().eContainer();
+		  parentObject = getBusinessObjectForPictogramElement(parentShape.getGraphicsAlgorithm().getPictogramElement());
+		}
+		
+    if (parentObject != null && parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(sequenceFlow);
+    } else {
+      getDiagram().eResource().getContents().add(sequenceFlow);
+    }
 
 		source.getOutgoing().add(sequenceFlow);
 		target.getIncoming().add(sequenceFlow);

@@ -126,6 +126,12 @@
                id="org.activiti.designer.listenerTab.TaskTab"
                tab="org.activiti.designer.listenerTab">
          </propertySection>
+         <propertySection
+               class="org.activiti.designer.property.PropertyStartEventSection"
+               filter="org.activiti.designer.property.PropertyStartEventFilter"
+               id="org.activiti.designer.mainConfigTab.startevent"
+               tab="org.activiti.designer.mainConfigTab">
+         </propertySection>
       </propertySections>
    </extension>
    <extension
