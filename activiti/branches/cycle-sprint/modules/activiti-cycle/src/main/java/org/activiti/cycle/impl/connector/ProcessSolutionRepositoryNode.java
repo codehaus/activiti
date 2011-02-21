@@ -56,16 +56,27 @@ public class ProcessSolutionRepositoryNode implements RepositoryNode {
 
   public RepositoryNodeMetadata getMetadata() {
     if (wrappedNode != null) {
-      return wrappedNode.getMetadata();
+      if (!wrappedNode.getMetadata().getParentFolderId().equals(virtualRepositoryFolder.getReferencedNodeId())) {
+        return wrappedNode.getMetadata();
+      }
     }
 
     return new RepositoryNodeMetadataImpl() {
 
       public String getName() {
+        if(wrappedNode != null) {
+          return wrappedNode.getMetadata().getName();
+        }
         if (virtualRepositoryFolder != null) {
           return virtualRepositoryFolder.getLabel();
         }
         return processSolution.getLabel();
+      }
+      public String getParentFolderId() {
+        if (wrappedNode != null) {
+          return processSolution.getId() + "/" + virtualRepositoryFolder.getId();
+        }
+        return "/";
       }
     };
   }

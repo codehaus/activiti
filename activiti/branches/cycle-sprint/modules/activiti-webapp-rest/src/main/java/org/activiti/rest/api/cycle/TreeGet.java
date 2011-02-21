@@ -21,7 +21,9 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
+import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
+import org.activiti.cycle.impl.connector.ProcessSolutionRepositoryNode;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
 import org.activiti.rest.api.cycle.dto.TreeLeafDto;
@@ -59,6 +61,7 @@ public class TreeGet extends ActivitiCycleWebScript {
       // if vFolder is set, load the tree using the ProcessSolutionConenctor
       VirtualRepositoryFolder virtualRepositoryFolder = processSolutionService.getVirtualRepositoryFolderById(vFolderId);
       connectorId = "ps-" + virtualRepositoryFolder.getProcessSolutionId();
+      CycleRequestContext.set("vFolderId", vFolderId);
     }
     if (connectorId != null && nodeId != null) {
       try {
@@ -114,13 +117,13 @@ public class TreeGet extends ActivitiCycleWebScript {
         expandNode((TreeFolderDto) treeNodeDtoForTheCurrentNode, false, connectorId);
       }
       String parentId = node.getMetadata().getParentFolderId();
-      while (parentId != null && parentId.length() > 0 && parentId != connectorRootNode.getNodeId()) {
+      while (parentId != null && parentId.length() > 0 && !parentId.equals(connectorRootNode.getNodeId())) {
         RepositoryNode parentNode = repositoryService.getRepositoryNode(connectorId, parentId);
         TreeFolderDto parentTreeNode = (TreeFolderDto) getTreeNodeDto(parentNode, true);
         expandNode(parentTreeNode, false, connectorId);
         parentTreeNode.replaceNode(treeNodeDtoForTheCurrentNode);
         treeNodeDtoForTheCurrentNode = parentTreeNode;
-        parentId = parentNode.getMetadata().getParentFolderId();
+        parentId = parentNode.getMetadata().getParentFolderId();        
       }
       connectorRootNode.replaceNode(treeNodeDtoForTheCurrentNode);
     }

@@ -27,6 +27,7 @@ import org.activiti.cycle.context.CycleContext;
 import org.activiti.cycle.context.CycleContextType;
 import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.context.CycleSessionContext;
+import org.activiti.cycle.event.CycleEventListener;
 import org.activiti.cycle.impl.CycleComponentInvocationHandler;
 import org.activiti.cycle.impl.Interceptor;
 import org.activiti.cycle.transform.ContentArtifactTypeTransformation;
@@ -256,6 +257,7 @@ public abstract class CycleComponentFactory {
     componentTypes.add(ContentMimeTypeTransformation.class);
     componentTypes.add(MimeType.class);
     componentTypes.add(RepositoryArtifactType.class);
+    componentTypes.add(CycleEventListener.class);
 
     // scan for components
     scanForComponents();

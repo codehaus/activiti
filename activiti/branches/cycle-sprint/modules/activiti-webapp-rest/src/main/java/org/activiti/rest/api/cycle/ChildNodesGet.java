@@ -21,6 +21,7 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryException;
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNodeCollection;
+import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
 import org.activiti.rest.api.cycle.dto.TreeLeafDto;
@@ -42,7 +43,10 @@ public class ChildNodesGet extends ActivitiCycleWebScript {
     String vFolderId = req.getString("vFolderId");
     if (vFolderId != null && vFolderId.length() > 0) {
       VirtualRepositoryFolder virtualRepositoryFolder = processSolutionService.getVirtualRepositoryFolderById(vFolderId);
-      connectorId = "ps-" + virtualRepositoryFolder.getProcessSolutionId();
+      if (virtualRepositoryFolder != null) {
+        connectorId = "ps-" + virtualRepositoryFolder.getProcessSolutionId();
+        CycleRequestContext.set("vFolderId", vFolderId);
+      }
     }
     try {
       RepositoryNodeCollection children = repositoryService.getChildren(connectorId, nodeId);

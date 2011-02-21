@@ -14,6 +14,7 @@ import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
+import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
 import org.activiti.cycle.processsolution.ProcessSolution;
@@ -66,47 +67,79 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public RepositoryNode getRepositoryNode(String id) throws RepositoryNodeNotFoundException {
+
+    String processSolutionId = getProcessSolutionId(id);
+    String virtualFolderId = getVirtualFolderId(id);
+    VirtualRepositoryFolder virtualFolder = null;
+    if (virtualFolderId != null) {
+      virtualFolder = processSolutionService.getVirtualRepositoryFolderById(virtualFolderId);
+      if (virtualFolder == null) {
+        virtualFolderId = null;
+      }
+    }
     if ("".equals(id) || id == null) {
       throw new RepositoryNodeNotFoundException(id);
     }
 
-    String processSolutionId = getProcessSolutionId(id);
     if ("/".equals(id)) {
       processSolutionId = this.processSolutionId;
     }
+    
+  if(!processSolutionId.equals(this.processSolutionId)) {
+    processSolutionId = null;
+  }
+    ProcessSolution processSolution;
+    RepositoryConnector connector;
+    // get the vFolderId from the request:
+    String vFolderId = CycleRequestContext.get("vFolderId", String.class);
+    if (vFolderId != null && virtualFolderId == null && processSolutionId == null) {
+      virtualFolderId = vFolderId;
+      virtualFolder = processSolutionService.getVirtualRepositoryFolderById(vFolderId);
+      processSolutionId = virtualFolder.getProcessSolutionId();
+      connector = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class).getConnectorById(
+              virtualFolder.getConnectorId());
+      processSolution = processSolutionService.getProcessSolutionById(processSolutionId);
+      if (virtualFolder.getReferencedNodeId().equals(id)) {
+        return new ProcessSolutionFolder(getId(), "/" + processSolutionId + "/" + virtualFolderId, null, processSolution, null);
+      }
+    } else {
 
-    if (processSolutionId == null) {
-      throw new RepositoryNodeNotFoundException(id);
-    }
-    if (processSolutionId.equals(this.processSolutionId) == false) {
-      throw new RepositoryNodeNotFoundException(id);
-    }
-    // id=id of a processSolution
-    ProcessSolution ps = processSolutionService.getProcessSolutionById(processSolutionId);
+      if (processSolutionId == null) {
+        throw new RepositoryNodeNotFoundException(id);
+      }
 
-    String virtualFolderId = getVirtualFolderId(id);
-    if (virtualFolderId == null) {
-      return new ProcessSolutionFolder(getId(), id, null, ps, null);
-    }
+      if (processSolutionId.equals(this.processSolutionId) == false) {
+        throw new RepositoryNodeNotFoundException(id);
+      }
+      // id=id of a processSolution
+      processSolution = processSolutionService.getProcessSolutionById(processSolutionId);
 
-    VirtualRepositoryFolder virtualFolder = processSolutionService.getVirtualRepositoryFolderById(virtualFolderId);
-    String relativePath = id.replace(processSolutionId + "/" + virtualFolderId, "");
-    if (relativePath.length() == 0) {
-      // id == processsolution/virtualFolderId
-      return new ProcessSolutionFolder(getId(), id, virtualFolder, ps, null);
+      if (virtualFolderId == null) {
+        return new ProcessSolutionFolder(getId(), id, null, processSolution, null);
+      }
+
+      virtualFolder = processSolutionService.getVirtualRepositoryFolderById(virtualFolderId);
+      String relativePath = id.replace(processSolutionId + "/" + virtualFolderId, "");
+      if (relativePath.length() == 0) {
+        // id == processsolution/virtualFolderId
+        return new ProcessSolutionFolder(getId(), id, virtualFolder, processSolution, null);
+      }
+      relativePath = id.replace(processSolutionId + "/" + virtualFolderId + "/", "");
+
+      // id == processsolution/virtualFolderId/...
+      connector = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class).getConnectorById(
+              virtualFolder.getConnectorId());
+      id = connector.concatenateNodeId(virtualFolder.getReferencedNodeId(), relativePath);
     }
-    relativePath = id.replace(processSolutionId + "/" + virtualFolderId + "/", "");
-    // id == processsolution/virtualFolderId/...
-    RepositoryConnector connector = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class).getConnectorById(
-            virtualFolder.getConnectorId());
 
     try {
-      RepositoryFolder folder = connector.getRepositoryFolder(connector.concatenateNodeId(virtualFolder.getReferencedNodeId(), relativePath));
-      return new ProcessSolutionFolder(getId(), id, virtualFolder, ps, folder);
+      RepositoryFolder folder = connector.getRepositoryFolder(id);
+      return new ProcessSolutionFolder(getId(), id, virtualFolder, processSolution, folder);
     } catch (Exception e) {
-      RepositoryArtifact artifact = connector.getRepositoryArtifact(connector.concatenateNodeId(virtualFolder.getReferencedNodeId(), relativePath));
-      return new ProcessSolutionArtifact(getId(), id, virtualFolder, ps, artifact);
+      RepositoryArtifact artifact = connector.getRepositoryArtifact(id);
+      return new ProcessSolutionArtifact(getId(), id, virtualFolder, processSolution, artifact);
     }
+
   }
   public RepositoryArtifact getRepositoryArtifact(String id) throws RepositoryNodeNotFoundException {
     return (RepositoryArtifact) getRepositoryNode(id);
