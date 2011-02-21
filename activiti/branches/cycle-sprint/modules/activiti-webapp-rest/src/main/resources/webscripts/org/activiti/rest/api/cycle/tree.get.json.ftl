@@ -12,7 +12,7 @@
   "connectorId": "${node.connectorId}",
   "nodeId": "${node.nodeId}",
   "vFolderId": "${node.vFolderId!''}",
-  "type": "${node.type!''}",<#if (node.expanded??) && (node.expanded = "true")>
+  "vFolderType": "${node.type!''}",<#if (node.expanded??) && (node.expanded = "true")>
   "expanded": "${node.expanded}",
   </#if>
   <#if node.folder??>"folder": "true"<#if (node.children??) && (node.children?size > 0)>,

@@ -13,7 +13,7 @@
   "label": "${folder.label!''}",
   "connectorId": "${folder.connectorId}",
   "nodeId": "${folder.nodeId}",
-  "type": "${folder.type!''}",
+  "vFolderType": "${folder.type!''}",
   "vFolderId": "${folder.vFolderId!''}",
   "folder": "true"
 }
@@ -30,7 +30,7 @@
   "file": "true",
   "labelStyle": "${file.labelStyle}",
   "vFolderId": "${file.vFolderId!''}",
-  "type": "${file.type!''}"
+  "vFolderType": "${file.type!''}"
 }
 </#escape>
 </#macro>
