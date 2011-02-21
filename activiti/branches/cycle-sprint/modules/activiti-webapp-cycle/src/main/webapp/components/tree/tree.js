@@ -74,7 +74,7 @@
         if(this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
           this.highlightCurrentNode();          
         } else if(this._connectorId && this._nodeId) {
-          this.services.repositoryService.loadTree({connectorId: this._connectorId, nodeId: this._nodeId, vFolderId: this._vFolderId, treeId: this._treeId});
+          this.services.repositoryService.loadTree({connectorId: this._connectorId||'', nodeId: this._nodeId||'', vFolderId: this._vFolderId||'', treeId: this._treeId||''});
         }
       } 
     },
@@ -98,7 +98,7 @@
           // Don't attempt to load child nodes for artifacts or nodes that are already loaded
           fnLoadComplete();
         } else {
-          me.services.repositoryService.loadChildNodes({connectorId: node.data.connectorId, nodeId: node.data.nodeId, vFolderId: node.data.vFolderId, treeId: me._treeId}, node, fnLoadComplete);
+          me.services.repositoryService.loadChildNodes({connectorId: node.data.connectorId||'', nodeId: node.data.nodeId||'', vFolderId: node.data.vFolderId||'', treeId: me._treeId||''}, node, fnLoadComplete);
         }
       };
 
