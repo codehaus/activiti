@@ -179,7 +179,7 @@
      */
     onClickEvent: function Tree_onClickEvent(event)
     {
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": event.node.data.connectorId, "nodeId": event.node.data.nodeId, "vFolderId": event.node.data.vFolderId, "file": event.node.data.file, "label": event.node.label, "activeNavigationTabIndex": this._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._containingNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: event.node.data.connectorId, nodeId: event.node.data.nodeId, vFolderId: event.node.data.vFolderId, label: event.node.label, file: event.node.data.file}, null, true);
     },
 
     /**
@@ -197,7 +197,7 @@
       var me = this;
       var fnOnUpload = function(response) {
         var json = YAHOO.lang.JSON.parse(response.responseText);
-        me.fireEvent(Activiti.event.updateArtifactView, {"connectorId": json.connectorId, "nodeId": json.nodeId, "vFolderId": json.vFolderId, "file": "true", "label": json.label, "activeNavigationTabIndex": me._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
+        me.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: me._containingNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: json.connectorId, nodeId: json.nodeId, vFolderId: json.vFolderId, label: json.label, file: "true"}, null, true);
       };
       return new Activiti.component.CreateArtifactDialog(this.id, obj.node.data.connectorId, obj.node.data.nodeId, obj.title, fnOnUpload);
     },
@@ -243,14 +243,13 @@
           }
         ]
       });
-
 		  dialog.render(document.body);
 		  dialog.show();
     },
     
     onCreateProcessSolutionSuccess: function Tree_onCreateProcessSolutionSuccess(response, obj) {
       if(response.json) {
-        this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": response.json.connectorId, "nodeId": response.json.nodeId, "folder": response.json.folder, "label": response.json.label, "activeNavigationTabIndex": this._containingNavigationTabIndex, "activeArtifactViewTabIndex": 0}, null, true);
+        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._containingNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: response.json.connectorId, nodeId: response.json.nodeId, label: response.json.label, folder: response.json.folder}, null, true);
       }
     },
     

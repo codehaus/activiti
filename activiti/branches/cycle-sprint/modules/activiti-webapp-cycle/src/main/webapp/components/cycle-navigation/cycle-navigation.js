@@ -52,9 +52,9 @@
     onReady: function CycleNavigation_onReady()
     {
       if (!Activiti.event.isInitEvent(Activiti.event.updateArtifactView)) {
-        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, connectorId: "PS", nodeId: "", vFolderId: "", label: "", file: ""}, null, true);
+        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: 0, activeArtifactViewTabIndex: 0, connectorId: "PS", nodeId: '', vFolderId: '', label: '', file: ''}, null, true);
       }
-      
+
       var reloadLink = document.createElement('a');
       reloadLink.setAttribute('class', 'tree-refresh-link')
       reloadLink.setAttribute('href', "javascript:location.reload();");
@@ -72,19 +72,17 @@
      */
     onUpdateArtifactView: function RepoTree_onUpdateArtifactView(event, args)
     {
-      
+      var me = this;      
       var eventValue = args[1].value;
       
+      this._activeNavigationTabIndex = eventValue.activeNavigationTabIndex;
+      this._activeArtifactViewTabIndex = eventValue.activeArtifactViewTabIndex;
       this._connectorId = eventValue.connectorId;
       this._nodeId = eventValue.nodeId;
       this._vFolderId = eventValue.vFolderId; 
-      this._file = eventValue.file;
       this._label = eventValue.label;
-      this._activeNavigationTabIndex = eventValue.activeNavigationTabIndex;
-      this._activeArtifactViewTabIndex = eventValue.activeArtifactViewTabIndex;
+      this._file = eventValue.file;
 
-      var me = this;
-      
       // Check whether the tab view is already initialized
       if(!this._tabView) {
         // Initialize the tab view
@@ -135,8 +133,14 @@
         // Update active tab selection silently, without firing an event (last parameter 'true')
         this._tabView.set("activeTab", this._tabView.getTab(this._activeNavigationTabIndex), true);
       }
-
+      // Known limitation: 
+      // If a user clicks a link in the links list of an artifact and the repository tree is not yet initialized (tab has not been clicked since last page load), 
+      // the tree doesn't open because the tabs datasource still uses the initial URL. The first shot at fixing this by updating the tabs data source didn't work.
+      // Here is the code anyway...
       
+      // if(this._tabView.getTab(1) && this._tabView.getTab(1)._configs.dataLoaded.value) {
+      //   this._tabView.getTab(1)._configs.dataSrc = Activiti.service.REST_PROXY_URI_RELATIVE + "tree?" + Activiti.service.Ajax.jsonToParamString({connectorId: this._connectorId||'', nodeId: this._nodeId||'', vFolderId: this._vFolderId||'', treeId: "repo"});
+      // }
     },
 
     /**
@@ -200,18 +204,9 @@
     onActiveTabChange: function CycleNavigation_onActiveTabChange(event)
     {
       var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": "", "nodeId": "", "file": "", "label": "", "activeNavigationTabIndex": newActiveTabIndex, "activeArtifactViewTabIndex": this._activeArtifactViewTabIndex}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: newActiveTabIndex, activeArtifactViewTabIndex: '', connectorId: '', nodeId: '', vFolderId: '', label: '', file: ''}, null, true);
       YAHOO.util.Event.preventDefault(event);
     }
-
-    // TODO: add browser history manager handling, we need to introduce an additional value "activeNavigationTabIndex" and rename "activeTabIndex" to "activeArtifactViewTabIndex"
-    // onActiveTabChange: function CycleNavigation_onActiveTabChange(event)
-    // {
-    //   var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
-    //   this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "repositoryNodeId": this._repositoryNodeId, "isRepositoryArtifact": this._isRepositoryArtifact, "name": this._name, "activeTabIndex": newActiveTabIndex}, null, true);
-    //   YAHOO.util.Event.preventDefault(event);
-    // }
-
   });
 
 })();

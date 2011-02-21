@@ -184,7 +184,7 @@
 
       var linksTab = new YAHOO.widget.Tab({ 
         label: "Links", 
-        dataSrc: Activiti.constants.URL_CONTEXT + 'component/links?htmlid=' + this.id + '_links_tab&connectorId=' + artifactJson.connectorId + '&nodeId=' + artifactJson.nodeId,
+        dataSrc: Activiti.constants.URL_CONTEXT + 'component/links?' + Activiti.service.Ajax.jsonToParamString({htmlid: this.id + '_links_tab', connectorId: artifactJson.connectorId, nodeId: artifactJson.nodeId, vFolderId: artifactJson.vFolderId||'', activeNavigationTabIndex: this._activeNavigationTabIndex, activeArtifactViewTabIndex: this._activeTabIndex}),
         cacheData: true
       });
       linksTab.addListener("contentChange", this.onTabDataLoaded);
@@ -417,7 +417,7 @@
     onActiveTabChange: function Artifact_onActiveTabChange(event)
     {
       var newActiveTabIndex = this._tabView.getTabIndex(event.newValue);
-      this.fireEvent(Activiti.event.updateArtifactView, {"connectorId": this._connectorId, "nodeId": this._nodeId, "file": this._file, "name": this._name, "activeNavigationTabIndex": this._activeNavigationTabIndex, "activeArtifactViewTabIndex": newActiveTabIndex}, null, true);
+      this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._activeNavigationTabIndex, activeArtifactViewTabIndex: newActiveTabIndex, connectorId: this._connectorId, nodeId: this._nodeId, vFolderId: this._vFolderId, label: this._label, file: this._file}, null, true);
       YAHOO.util.Event.preventDefault(event);
     },
 

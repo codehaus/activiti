@@ -16,13 +16,21 @@
    * @return {Activiti.component.Links} The new component.Links instance
    * @constructor
    */
-  Activiti.component.Links = function Links_constructor(htmlId, connectorId, nodeId)
+  Activiti.component.Links = function Links_constructor(htmlId, connectorId, nodeId, vFolderId, activeNavigationTabIndex, activeArtifactViewTabIndex)
   {
     Activiti.component.Links.superclass.constructor.call(this, "Activiti.component.Links", htmlId);
+
+    if (!connectorId || !nodeId) {
+      throw new Error("Mandatory parameters are missing ");
+    }
+
     this.service = new Activiti.service.RepositoryService(this);
 
     this._connectorId = connectorId;
     this._nodeId = nodeId;
+    this._vFolderId = vFolderId||'';
+    this._activeNavigationTabIndex = activeNavigationTabIndex||0;
+    this._activeArtifactViewTabIndex = activeArtifactViewTabIndex||0;
 
     this._linksDataTable = {};
     this._incomingLinksDataTable = {};
@@ -128,11 +136,12 @@
             nodeId = data["targetArtifact.nodeId"],
             artifactName = data["targetArtifact.label"];
 
+            var eventDescriptor = {activeNavigationTabIndex: 1, activeArtifactViewTabIndex: 0, connectorId: connectorId, nodeId: nodeId, vFolderId: '', label: artifactName, file: true};
             if(datatable.id.indexOf('links-widget')  != -1) {
-              var url = Activiti.constants.URL_CONTEXT + "start#event=" + Activiti.util.eventDescriptorToState('updateArtifactView', {"connectorId": encodeURIComponent(connectorId), "nodeId": encodeURIComponent(nodeId), "file": true, "name": encodeURIComponent(artifactName), "activeTabIndex": 0});
+              var url = Activiti.constants.URL_CONTEXT + "start#event=" + Activiti.util.eventDescriptorToState('updateArtifactView', eventDescriptor);
               window.open(url);
             } else {
-              me.fireEvent(Activiti.event.updateArtifactView, {"connectorId": connectorId, "nodeId": nodeId, "file": true, "name": artifactName, "activeTabIndex": 0}, null, true);
+              me.fireEvent(Activiti.event.updateArtifactView, eventDescriptor, null, true);
             }
           }
         },
@@ -211,11 +220,12 @@
             nodeId = data["sourceArtifact.nodeId"],
             artifactName = data["sourceArtifact.label"];
             
+            var eventDescriptor = {activeNavigationTabIndex: 1, activeArtifactViewTabIndex: 0, connectorId: connectorId, nodeId: nodeId, vFolderId: '', label: artifactName, file: true};
             if(datatable.id.indexOf('links-widget')  != -1) {
-              var url = Activiti.constants.URL_CONTEXT + "start#event=" + Activiti.util.eventDescriptorToState('updateArtifactView', {"connectorId": encodeURIComponent(connectorId), "nodeId": encodeURIComponent(nodeId), "file": true, "name": encodeURIComponent(artifactName), "activeTabIndex": 0});
+              var url = Activiti.constants.URL_CONTEXT + "start#event=" + Activiti.util.eventDescriptorToState('updateArtifactView', eventDescriptor);
               window.open(url);
             } else {
-              me.fireEvent(Activiti.event.updateArtifactView, {"connectorId": connectorId, "nodeId": nodeId, "file": true, "name": artifactName, "activeTabIndex": 0}, null, true);
+              me.fireEvent(Activiti.event.updateArtifactView, eventDescriptor, null, true);
             }
           }
         },
@@ -273,7 +283,7 @@
      * @param obj {object} An object that contains the connector id and the id of the target artifact
      */
     onAddLinkSubmit: function Links_onAddLinkSubmit(obj) {
-      this.service.createArtifactLink({"connectorId": this._connectorId, "nodeId": this._nodeId, "targetConnectorId": obj.connectorId,"targetNodeId": obj.nodeId});
+      this.service.createArtifactLink({"connectorId": this._connectorId, "nodeId": this._nodeId, "targetConnectorId": obj.connectorId, "targetNodeId": obj.nodeId});
     },
 
     /**
