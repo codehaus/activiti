@@ -98,7 +98,7 @@
           // Don't attempt to load child nodes for artifacts or nodes that are already loaded
           fnLoadComplete();
         } else {
-          me.services.repositoryService.loadChildNodes({connectorId: me._connectorId, nodeId: me._nodeId, vFolderId: me._vFolderId, treeId: me._treeId}, node, fnLoadComplete);
+          me.services.repositoryService.loadChildNodes({connectorId: node.data.connectorId, nodeId: node.data.nodeId, vFolderId: node.data.vFolderId, treeId: me._treeId}, node, fnLoadComplete);
         }
       };
 
