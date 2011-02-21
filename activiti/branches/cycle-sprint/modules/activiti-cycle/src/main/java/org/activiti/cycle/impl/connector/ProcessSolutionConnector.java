@@ -84,10 +84,10 @@ public class ProcessSolutionConnector implements RepositoryConnector {
     if ("/".equals(id)) {
       processSolutionId = this.processSolutionId;
     }
-    
-  if(!processSolutionId.equals(this.processSolutionId)) {
-    processSolutionId = null;
-  }
+
+    if (!processSolutionId.equals(this.processSolutionId)) {
+      processSolutionId = null;
+    }
     ProcessSolution processSolution;
     RepositoryConnector connector;
     // get the vFolderId from the request:
@@ -214,7 +214,21 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   }
 
   public RepositoryArtifact createEmptyArtifact(String parentFolderId, String artifactName, String artifactType) throws RepositoryNodeNotFoundException {
-    throw new RuntimeException("Not implemented");
+    ProcessSolutionFolder folder = (ProcessSolutionFolder) getRepositoryNode(parentFolderId);
+    if (folder.getVirtualRepositoryFolder() == null) {
+      throw new RepositoryException("Cannot create artifact in the top-level folder. ");
+    }
+    RepositoryArtifact newArtifact = null;
+    if (folder.getWrappedNode() == null) {
+      newArtifact = repositoryService.createEmptyArtifact(folder.getVirtualRepositoryFolder().getConnectorId(), folder.getVirtualRepositoryFolder()
+              .getReferencedNodeId(), artifactName, artifactType);
+    } else {
+      newArtifact = repositoryService.createEmptyArtifact(folder.getWrappedNode().getConnectorId(), folder.getWrappedNode().getNodeId(), artifactName,
+              artifactType);
+    }
+    String relativePath = newArtifact.getNodeId().replace(folder.getVirtualRepositoryFolder().getReferencedNodeId(), "");
+    String virtualPath = folder.getNodeId() + "/" + relativePath;
+    return new ProcessSolutionArtifact(getId(), virtualPath, folder.getVirtualRepositoryFolder(), folder.getProcessSolution(), newArtifact);
   }
 
   public RepositoryFolder createFolder(String parentFolderId, String name) throws RepositoryNodeNotFoundException {

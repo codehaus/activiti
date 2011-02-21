@@ -129,6 +129,10 @@ public class CycleRepositoryServiceImpl implements CycleRepositoryService {
     return getRepositoryConnector(connectorId).createArtifact(parentFolderId, artifactName, artifactType, artifactContent);
   }
 
+  public RepositoryArtifact createEmptyArtifact(String connectorId, String parentFolderId, String artifactName, String artifactType) {
+    return getRepositoryConnector(connectorId).createEmptyArtifact(parentFolderId, artifactName, artifactType);
+  }
+
   public RepositoryArtifact createArtifactFromContentRepresentation(String connectorId, String parentFolderId, String artifactName, String artifactType,
           String contentRepresentationName, Content artifactContent) throws RepositoryNodeNotFoundException {
     return getRepositoryConnector(connectorId).createArtifactFromContentRepresentation(parentFolderId, artifactName, artifactType, contentRepresentationName,

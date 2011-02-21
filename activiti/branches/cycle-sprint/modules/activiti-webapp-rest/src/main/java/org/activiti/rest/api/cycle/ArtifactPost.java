@@ -13,11 +13,15 @@
 
 package org.activiti.rest.api.cycle;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.activiti.cycle.Content;
 import org.activiti.cycle.RepositoryArtifact;
+import org.activiti.cycle.action.RepositoryArtifactOpenLinkAction;
 import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
+import org.activiti.rest.api.cycle.dto.UrlActionDto;
 import org.activiti.rest.util.ActivitiRequest;
 import org.activiti.rest.util.ActivitiRequestObject;
 import org.springframework.extensions.webscripts.Cache;
@@ -46,15 +50,26 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     String artifactType = "";
 
     Content artifactContent = new Content();
-    artifactContent.setValue(file.getInputStream());
+    if (file != null) {
+      artifactContent.setValue(file.getInputStream());
+    }
+    RepositoryArtifact createdArtifact = null;
     try {
-      RepositoryArtifact createdArtifact = repositoryService.createArtifact(connectorId, parentFolderId, artifactName, artifactType, artifactContent);
+      if (artifactContent.isNull()) {
+        createdArtifact = repositoryService.createEmptyArtifact(connectorId, parentFolderId, artifactName, artifactType);
+      } else {
+        createdArtifact = repositoryService.createArtifact(connectorId, parentFolderId, artifactName, artifactType, artifactContent);
+      }
       model.put("result", true);
       if (createdArtifact instanceof ProcessSolutionArtifact) {
-        model.put("vFolderId", ((ProcessSolutionArtifact)createdArtifact).getVirtualRepositoryFolder().getId());
+        model.put("vFolderId", ((ProcessSolutionArtifact) createdArtifact).getVirtualRepositoryFolder().getId());
       }
-      
       model.put("artifact", createdArtifact);
+      List<UrlActionDto> link = new ArrayList<UrlActionDto>();
+      for (RepositoryArtifactOpenLinkAction openLinkAction : pluginService.getArtifactOpenLinkActions(createdArtifact)) {
+        link.add(new UrlActionDto(openLinkAction.getId(), openLinkAction.getUrl().toString()));
+      }
+      model.put("links", link);
     } catch (Exception e) {
       model.put("result", false);
     }

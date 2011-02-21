@@ -3,13 +3,16 @@
 	<@cycleLib.printAuthenticationException authenticationException/>
 <#else>
 
-<#escape x as jsonUtils.encodeJSONString(x)>
 {
   "nodeId" : "${artifact.nodeId!''}",
   "connectorId" : "${artifact.connectorId!''}",
   "vFolderId" : "${vFolderId!''}",
-  "label" : "${artifact.metadata.name!''}"
+  "label" : "${artifact.metadata.name!''}",
+  "openLinks" : [
+  <#list links as link>{
+    "${link.actionId}" : "${link.url!''}"
+  }<#if link_has_next>,</#if></#list>
+  ]
 }
-</#escape>
 
 </#if>

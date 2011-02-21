@@ -231,7 +231,7 @@ public class FileSystemConnector extends AbstractFileSystemBasedRepositoryConnec
 
     return getRepositoryArtifact(getRepositoryNodeId(parentFolderId, artifactName));
   }
-
+  
   public RepositoryArtifact createArtifactFromContentRepresentation(String parentFolderId, String artifactName, String artifactType,
           String contentRepresentationName, Content artifactContent) throws RepositoryNodeNotFoundException {
     return createArtifact(parentFolderId, artifactName, artifactType, artifactContent);
