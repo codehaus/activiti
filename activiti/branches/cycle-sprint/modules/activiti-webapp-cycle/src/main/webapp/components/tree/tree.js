@@ -33,9 +33,9 @@
 
     this._treeView = {};
     this._dialog = {};
-    
-    this._contextMenu = {};
-    
+
+    this._activeNavigationTabIndex = 0;
+
     this._connectorId = connectorId;
     this._nodeId = nodeId;
     this._vFolderId = vFolderId;
@@ -54,6 +54,7 @@
     */
     onReady: function Tree_onReady()
     {
+      // Initialize the tree
       this.initTree();
     },
     
@@ -68,8 +69,13 @@
      */
     onUpdateArtifactView: function Tree_onUpdateArtifactView(event, args)
     {
-      this._connectorId = args[1].value.connectorId;
-      this._nodeId = args[1].value.nodeId;
+      var eventValue = args[1].value;
+      this._connectorId = eventValue.connectorId;
+      this._nodeId = eventValue.nodeId;
+      this._vFolderId = eventValue.vFolderId; 
+      
+      this._activeNavigationTabIndex = eventValue.activeNavigationTabIndex;
+
       if(this._containingNavigationTabIndex == args[1].value.activeNavigationTabIndex) {
         if(this.getNodeByConnectorAndId(this._connectorId, this._nodeId)) {
           this.highlightCurrentNode();          
@@ -112,63 +118,6 @@
 
       // Subscribe to the click event of the tree
       this._treeView.subscribe("clickEvent", this.onClickEvent, null, this);
-
-      var contextMenuDiv = document.getElementById(this.id + "-cycle-tree-context-menu-div");
-
-      if(contextMenuDiv) {
-         contextMenuDiv.parentNode.removeChild(contextMenuDiv);
-      }
-
-      me._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
-        trigger: this.id
-      });
-      
-      me._contextMenu.render(document.body);
-      me._contextMenu.subscribe("triggerContextMenu", function (event, menu) {
-        // retrieve the node the context menu was triggered on
-        var oTarget = this.contextEventTarget;
-        var node = me._treeView.getNodeByElement(oTarget);
-  
-        // clear existing menu items and set up the context menu according to the current node
-        this.clearContent();
-
-        // TODO: (Nils Preusker, 17.2.2011), This is a hard coded implementation of "dynamic" context menu entries, based on the type of the tree node.
-        // There are several ways of doing this right in the future:
-        // 1) Dynamically load contextr menu when it is invoked. THis includes adding a "context-menu.get" webscript and javascript logic to render it.
-        //    The disadvantage is that the context menues would take some time to load, which might be counter intuitive for the user.
-        // 2) Add context menu information to the data array that every tree node contains and render a context menu based on that.
-        // 
-        // Another issue is that the related dialogs should be dynamic as well. Maybe we could use a similar approach like we did for the actions menu.
-        
-        if(me._treeId == "ps") {
-          if(node.data.file) {
-            // this.addItems([]);
-          } else if(node.data.folder) {
-            if(node.data.vFolderType && node.data.vFolderType == "Management") {
-              // TODO: add listener
-              this.addItem({ text: "Add new business document...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New business document", node: node}, scope: me } });
-            } else if(node.data.vFolderType && node.data.vFolderType == "Requirements") {
-              // TODO: add listener
-              this.addItem({ text: "Add new requirement...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New requirement", node: node} , scope: me } });
-            }
-            this.addItem({ text: "Create Process Solution...", onclick: { fn: me.onCreateProcessSolutionContextMenuClick, obj: node, scope: me } });
-          }
-        } else {
-          if(node.data.file) {
-            // this.addItems([]);
-          } else if(node.data.folder) {
-            this.addItem({ text: "New artifact...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New artifact", node: node}, scope: me } });
-            this.addItem({ text: "New folder...", onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
-          }          
-        }
-
-        this.render();
-      });
-      
-      if(this._connectorId && this._nodeId) {
-        this.highlightCurrentNode();
-      }
-      
     },
 
     /**
@@ -182,77 +131,6 @@
       this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._containingNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: event.node.data.connectorId, nodeId: event.node.data.nodeId, vFolderId: event.node.data.vFolderId, label: event.node.label, file: event.node.data.file}, null, true);
     },
 
-    /**
-     * This method is invoked when the "Create artifact here..." context menu item is clicked. It returns a new dialog component to
-     * provide details for the new artifact.
-     *
-     * @method onCreateArtifactContextMenuClick
-     * @param eventName {string} the name of the event that lead to the invokation of this method
-     * @param params {Array} array of parameters that contains the event that lead to the invokation of this method
-     * @param node {Object} the tree node that the context menu was invoked on
-     * @return {Activiti.component.CreateArtifactDialog} dialog to provide details for the new artifact
-     */
-    onCreateArtifactContextMenuClick: function Tree_onCreateArtifactContextMenuClick(eventName, params, obj)
-    {
-      var me = this;
-      var fnOnUpload = function(response) {
-        var json = YAHOO.lang.JSON.parse(response.responseText);
-        me.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: me._containingNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: json.connectorId, nodeId: json.nodeId, vFolderId: json.vFolderId, label: json.label, file: "true"}, null, true);
-      };
-      return new Activiti.component.CreateArtifactDialog(this.id, obj.node.data.connectorId, obj.node.data.nodeId, obj.title, fnOnUpload);
-    },
-
-    /**
-     * This method is invoked when the "Create folder here..." context menu item is clicked. It returns a new dialog component to
-     * provide details for the new folder.
-     *
-     * @method onCreateArtifactContextMenuClick
-     * @param eventName {string} the name of the event that lead to the invokation of this method
-     * @param params {Array} array of parameters that contains the event that lead to the invokation of this method
-     * @param node the tree node that the context menu was invoked on
-     * @return {Activiti.component.CreateFolderDialog} dialog to provide details for the new folder
-     */
-    onCreateFolderContextMenuClick: function Tree_onCreateFolderContextMenuClick(eventName, params, node)
-    {
-      return new Activiti.component.CreateFolderDialog(this.id, node.data.connectorId, node.data.nodeId);
-    },
-
-    onCreateProcessSolutionContextMenuClick: function Tree_onCreateProcessSolutionContextMenuClick(eventName, params, node) {
-      var me = this;
-		  var content = document.createElement("div");
-      content.innerHTML = '<div class="bd"><form id="' + this.id + '-create-process-solution-form" accept-charset="utf-8"><h1>Create new Process Solution</h1><table><tr><td><label>Name:<br/><input type="text" name="processSolutionName" value="" /></label><br/></td></tr></table></form></div>';      
-    
-      var dialog = new YAHOO.widget.Dialog(content, 
-      {
-        fixedcenter: "contained",
-        visible: false,
-        constraintoviewport: true,
-        modal: true,
-        hideaftersubmit: false,
-        buttons: [
-          { text: Activiti.i18n.getMessage("button.ok") , handler: { fn: function CreateFolderDialog_onSubmit(event, dialog) {
-              me.services.repositoryService.createProcessSolution(dialog.getData());
-              if (dialog) {
-                dialog.destroy();
-              }
-            }, isDefault:true }
-          },
-          { text: Activiti.i18n.getMessage("button.cancel"), handler: { fn: function CreateFolderDialog_onCancel(event, dialog) {
-              dialog.cancel();
-            }}
-          }
-        ]
-      });
-		  dialog.render(document.body);
-		  dialog.show();
-    },
-    
-    onCreateProcessSolutionSuccess: function Tree_onCreateProcessSolutionSuccess(response, obj) {
-      if(response.json) {
-        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._containingNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: response.json.connectorId, nodeId: response.json.nodeId, label: response.json.label, folder: response.json.folder}, null, true);
-      }
-    },
-    
     /**
      * Success callback of the RepositoryService method loadChildNodes. This method gets invoked when the asynchronous request returns. It creates a
      * new TextNode instacne based on the JSON in the response and inserts it into the tree. It also determines the file type and sets the style 
@@ -308,9 +186,9 @@
       }
     },
 
-    getNodeByConnectorAndId: function Tree_getNodeByConnectorAndId(connectorId, id) {
+    getNodeByConnectorAndId: function Tree_getNodeByConnectorAndId(connectorId, nodeId) {
       var nodes = this._treeView.getNodesBy( function(node) {
-        if(node.data.connectorId && node.data.nodeId && node.data.connectorId === connectorId && node.data.nodeId === id) {
+        if(node.data.connectorId && node.data.connectorId === connectorId && node.data.nodeId && node.data.nodeId === nodeId) {
           return true;
         }
         return false;

@@ -132,6 +132,11 @@
       return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&actionName=" + encodeURIComponent(artifactActionName);
     },
 
+    createArtifact: function RepositoryService_createArtifact(artifactLiteral)
+    {
+      this.jsonPost(Activiti.service.REST_PROXY_URI_RELATIVE + 'artifact', artifactLiteral, null, "createArtifact");
+    },
+
     /**
      * Creates a new artifactLink by posting the provided artifactLinkLiteral parameter to the
      * REST API. The 'artifactLinkLiteral' is an object literal that should contain the following

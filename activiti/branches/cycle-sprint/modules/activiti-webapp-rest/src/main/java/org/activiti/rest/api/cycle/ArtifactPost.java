@@ -38,15 +38,19 @@ public class ArtifactPost extends ActivitiCycleWebScript {
 
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
-    FormField file = ((WebScriptServletRequest) req.getWebScriptRequest()).getFileField("file");
+    FormField file = null;
+    try{
+      file = ((WebScriptServletRequest) req.getWebScriptRequest()).getFileField("file");
+    } catch (NullPointerException npe) {
+      // We can just ignore this exception since an empty "file" field is valid.
+    }
 
     ActivitiRequestObject obj = req.getBody();
 
     String connectorId = req.getMandatoryString(obj, "connectorId");
     String parentFolderId = req.getMandatoryString(obj, "parentFolderId");
     String artifactName = req.getMandatoryString(obj, "artifactName");
-    // TODO: what are the possible types and where can I get them/ how can I
-    // visualize them in the UI?
+    // TODO: set a meaningful value for artifactType
     String artifactType = "";
 
     Content artifactContent = new Content();

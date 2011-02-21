@@ -37,6 +37,11 @@
     this._activeNavigationTabIndex = 0;
     this._activeArtifactViewTabIndex = 0;
     
+    this._processSolutionsTree = {};
+    this._repoTree = {};
+    
+    this._contextMenu = {};
+    
     return this;
   };
 
@@ -129,11 +134,62 @@
         // replace the tabViews onActiveTabChange evnet handler with our own one        
         this._tabView.unsubscribe("activeTabChange", this._tabView._onActiveTabChange);
         this._tabView.subscribe("activeTabChange", this.onActiveTabChange, null, this);
+
+        // Initialize the context menu
+
+        // TODO: (Nils Preusker, 17.2.2011), This is a hard coded implementation of "dynamic" context menu entries, based on the type of the tree node.
+        // There are several ways of doing this right in the future:
+        // 1) Dynamically load contextr menu when it is invoked. THis includes adding a "context-menu.get" webscript and javascript logic to render it.
+        //    The disadvantage is that the context menues would take some time to load, which might be counter intuitive for the user.
+        // 2) Add context menu information to the data array that every tree node contains and render a context menu based on that.
+        // 
+        // Another issue is that the related dialogs should be dynamic as well. Maybe we could use a similar approach like we did for the actions menu.
+        
+        this._contextMenu = new YAHOO.widget.ContextMenu(this.id + "-cycle-tree-context-menu-div", {
+          trigger: this.id
+        });
+
+        this._contextMenu.render(document.body);
+        this._contextMenu.subscribe("triggerContextMenu", function (event, menu) {
+          // retrieve the node the context menu was triggered on
+          var target = this.contextEventTarget;
+          var node = me._processSolutionsTree._treeView ? me._processSolutionsTree._treeView.getNodeByElement(target) : null;
+          if(me._activeNavigationTabIndex === 0 && node) {
+            this.clearContent();
+            if(node.data.file) {
+              // this.addItems([]);
+            } else if(node.data.folder) {
+              if(node.data.vFolderType && node.data.vFolderType == "Management") {
+                this.addItem({ text: "Add New Business Document...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New business document", node: node}, scope: me } });
+              } else if(node.data.vFolderType && node.data.vFolderType == "Requirements") {
+                this.addItem({ text: "Add New Requirement...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New requirement", node: node} , scope: me } });
+              } else if(node.data.vFolderType && node.data.vFolderType == "Processes") {
+                this.addItem({ text: "Add New Process Diagram...", onclick: { fn: me.onAddNewProcessDiagramContextMenuClick, obj: node, scope: me } });
+              }
+              this.addItem({ text: "Create Process Solution...", onclick: { fn: me.onCreateProcessSolutionContextMenuClick, obj: node, scope: me } });
+            }
+            this.render();
+          } else if (me._activeNavigationTabIndex === 1) {
+            node = me._repoTree._treeView ? me._repoTree._treeView.getNodeByElement(target) : null;
+            if(node) {
+              this.clearContent();
+              if(node.data.file) {
+                // this.addItems([]);
+              } else if(node.data.folder) {
+                this.addItem({ text: "New artifact...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New artifact", node: node}, scope: me } });
+                this.addItem({ text: "New folder...", onclick: { fn: me.onCreateFolderContextMenuClick, obj: node, scope: me } });
+              }          
+              this.render();
+            }
+          }
+        });
+        
       } else {
         // Update active tab selection silently, without firing an event (last parameter 'true')
         this._tabView.set("activeTab", this._tabView.getTab(this._activeNavigationTabIndex), true);
       }
-      // Known limitation: 
+      // TODO:
+      // ** Known limitation ** 
       // If a user clicks a link in the links list of an artifact and the repository tree is not yet initialized (tab has not been clicked since last page load), 
       // the tree doesn't open because the tabs datasource still uses the initial URL. The first shot at fixing this by updating the tabs data source didn't work.
       // Here is the code anyway...
@@ -144,11 +200,126 @@
     },
 
     /**
-    * We need to override the Base_setMessage method here so that we can store the messages and pass 
-    * them on to the components that are instanciated here.
-    *
-    * @method setMessages
-    */
+     * This method is invoked when the "Create artifact here..." context menu item is clicked. It returns a new dialog component to
+     * provide details for the new artifact.
+     *
+     * @method onCreateArtifactContextMenuClick
+     * @param eventName {string} the name of the event that lead to the invokation of this method
+     * @param params {Array} array of parameters that contains the event that lead to the invokation of this method
+     * @param node {Object} the tree node that the context menu was invoked on
+     * @return {Activiti.component.CreateArtifactDialog} dialog to provide details for the new artifact
+     */
+    onCreateArtifactContextMenuClick: function CycleNavigation_onCreateArtifactContextMenuClick(eventName, params, obj)
+    {
+      var me = this;
+      var fnOnUpload = function(response) {
+        var json = YAHOO.lang.JSON.parse(response.responseText);
+        me.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: me._activeNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: json.connectorId, nodeId: json.nodeId, vFolderId: json.vFolderId, label: json.label, file: "true"}, null, true);
+      };
+      return new Activiti.component.CreateArtifactDialog(this.id, obj.node.data.connectorId, obj.node.data.nodeId, obj.title, fnOnUpload);
+    },
+
+    onAddNewProcessDiagramContextMenuClick: function CycleNavigation_onAddNewProcessDiagramContextMenuClick(eventName, params, node)
+    {
+      this.services.repositoryService.createArtifact({connectorId: node.data.connectorId, parentFolderId: node.data.nodeId, artifactName: 'New Model', file: ''});
+    },
+    
+    onCreateArtifactSuccess: function CycleNavigation_onCreateArtifactSuccess(response, obj)
+    {
+      // Open the new model in the Activiti Modeler using the URL from the response
+      var responseJson = YAHOO.lang.JSON.parse(response.serverResponse.responseText);
+      window.open(responseJson.openLinks[0]["Open modeler"],'test');
+
+      // Show dialog to refresh tree
+      var me = this;
+		  var content = document.createElement("div");
+      content.innerHTML = '<div class="bd"><form id="' + this.id + '-refresh-page" accept-charset="utf-8"><h1>Content might have changed</h1><p>The content of the current folder might have changed.<br/>Would you like to refresh the view?</p></form></div>';
+
+      var dialog = new YAHOO.widget.Dialog(content, 
+      {
+        fixedcenter: "contained",
+        visible: false,
+        constraintoviewport: true,
+        modal: true,
+        hideaftersubmit: false,
+        buttons: [
+          { text: this.msg("button.yes") , handler: { fn: function(event, dialog) {
+              // TODO: We should fire an event here instead but we'll need the parent folder id in the response.
+              location.reload();
+            }, isDefault:true }
+          },
+          { text: this.msg("button.no"), handler: { fn: function(event, dialog) {
+              dialog.cancel();
+            }}
+          }
+        ]
+      });
+		  dialog.render(document.body);
+		  dialog.show();
+    },
+    
+    onCreateArtifactFailure: function CycleNavigation_onCreateArtifactFailure(response, obj)
+    {
+      // TODO: Show error message
+    },
+
+    /**
+     * This method is invoked when the "Create folder here..." context menu item is clicked. It returns a new dialog component to
+     * provide details for the new folder.
+     *
+     * @method onCreateArtifactContextMenuClick
+     * @param eventName {string} the name of the event that lead to the invokation of this method
+     * @param params {Array} array of parameters that contains the event that lead to the invokation of this method
+     * @param node the tree node that the context menu was invoked on
+     * @return {Activiti.component.CreateFolderDialog} dialog to provide details for the new folder
+     */
+    onCreateFolderContextMenuClick: function CycleNavigation_onCreateFolderContextMenuClick(eventName, params, node)
+    {
+      return new Activiti.component.CreateFolderDialog(this.id, node.data.connectorId, node.data.nodeId);
+    },
+
+    onCreateProcessSolutionContextMenuClick: function CycleNavigation_onCreateProcessSolutionContextMenuClick(eventName, params, node) {
+      var me = this;
+		  var content = document.createElement("div");
+      content.innerHTML = '<div class="bd"><form id="' + this.id + '-create-process-solution-form" accept-charset="utf-8"><h1>Create new Process Solution</h1><table><tr><td><label>Name:<br/><input type="text" name="processSolutionName" value="" /></label><br/></td></tr></table></form></div>';      
+    
+      var dialog = new YAHOO.widget.Dialog(content, 
+      {
+        fixedcenter: "contained",
+        visible: false,
+        constraintoviewport: true,
+        modal: true,
+        hideaftersubmit: false,
+        buttons: [
+          { text: Activiti.i18n.getMessage("button.ok") , handler: { fn: function CreateFolderDialog_onSubmit(event, dialog) {
+              me.services.repositoryService.createProcessSolution(dialog.getData());
+              if (dialog) {
+                dialog.destroy();
+              }
+            }, isDefault:true }
+          },
+          { text: Activiti.i18n.getMessage("button.cancel"), handler: { fn: function CreateFolderDialog_onCancel(event, dialog) {
+              dialog.cancel();
+            }}
+          }
+        ]
+      });
+		  dialog.render(document.body);
+		  dialog.show();
+    },
+    
+    onCreateProcessSolutionSuccess: function CycleNavigation_onCreateProcessSolutionSuccess(response, obj) {
+      if(response.json) {
+        this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._activeNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: response.json.connectorId, nodeId: response.json.nodeId, vFolderId: response.json.vFolderId||'', label: response.json.label, folder: response.json.folder}, null, true);
+      }
+    },
+
+    /**
+     * We need to override the Base_setMessage method here so that we can store the messages and pass 
+     * them on to the components that are instanciated here.
+     *
+     * @method setMessages
+     */
     setMessages: function CycleNavigation_setMessages(messages) 
     {
       this.messages = messages;
@@ -160,7 +331,7 @@
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
       tab.set('content', "<div id='process-solutions-tree-" + this.id + "'></div>");
-      new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0, this._connectorId, this._nodeId, this._vFolderId, "ps").setMessages(this.messages);
+      this._processSolutionsTree = new Activiti.component.Tree("process-solutions-tree-" + this.id, responseJson, 0, this._connectorId, this._nodeId, this._vFolderId, "ps").setMessages(this.messages);
     },
 
     onLoadProcessSolutionsTabFailure: function Artifact_onLoadProcessSolutionsTabFailure(tab, response) 
@@ -182,10 +353,9 @@
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
       tab.set('content', "<div id='repositories-tree-" + this.id + "'></div>");
-      new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1, this._connectorId, this._nodeId, this._vFolderId, "repo").setMessages(this.messages);
+      this._repoTree = new Activiti.component.Tree("repositories-tree-" + this.id, responseJson, 1, this._connectorId, this._nodeId, this._vFolderId, "repo").setMessages(this.messages);
     },
 
-    // TODO: This method is copied from the tab view for artifacts, let's see if we can reuse it here.
     onLoadRepositoriesTabFailure: function Artifact_onLoadRepositoriesTabFailure(tab, response) 
     {
       var responseJson = YAHOO.lang.JSON.parse(response.responseText);
