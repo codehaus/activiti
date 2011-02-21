@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.activiti.cycle.Content;
 import org.activiti.cycle.RepositoryArtifact;
+import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
 import org.activiti.rest.util.ActivitiRequest;
 import org.activiti.rest.util.ActivitiRequestObject;
 import org.springframework.extensions.webscripts.Cache;
@@ -49,6 +50,10 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     try {
       RepositoryArtifact createdArtifact = repositoryService.createArtifact(connectorId, parentFolderId, artifactName, artifactType, artifactContent);
       model.put("result", true);
+      if (createdArtifact instanceof ProcessSolutionArtifact) {
+        model.put("vFolderId", ((ProcessSolutionArtifact)createdArtifact).getVirtualRepositoryFolder().getId());
+      }
+      
       model.put("artifact", createdArtifact);
     } catch (Exception e) {
       model.put("result", false);

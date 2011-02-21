@@ -7,6 +7,7 @@
 {
   "nodeId" : "${artifact.nodeId!''}",
   "connectorId" : "${artifact.connectorId!''}",
+  "vFolderId" : "${vFolderId!''}",
   "label" : "${artifact.metadata.name!''}"
 }
 </#escape>
