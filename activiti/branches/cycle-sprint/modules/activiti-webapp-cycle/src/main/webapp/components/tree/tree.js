@@ -144,10 +144,10 @@
           if(node.data.file) {
             // this.addItems([]);
           } else if(node.data.folder) {
-            if(node.data.type && node.data.type == "Management") {
+            if(node.data.vFolderType && node.data.vFolderType == "Management") {
               // TODO: add listener
               this.addItem({ text: "Add new business document...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New business document", node: node}, scope: me } });
-            } else if(node.data.type && node.data.type == "Requirements") {
+            } else if(node.data.vFolderType && node.data.vFolderType == "Requirements") {
               // TODO: add listener
               this.addItem({ text: "Add new requirement...", onclick: { fn: me.onCreateArtifactContextMenuClick, obj: {title: "New requirement", node: node} , scope: me } });
             }
