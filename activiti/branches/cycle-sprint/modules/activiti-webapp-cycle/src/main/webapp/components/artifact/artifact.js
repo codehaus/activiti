@@ -131,7 +131,7 @@
         }
         // Check whether the selected node is a file node. If so, load its data
         if(this._file ) {
-          this.services.repositoryService.loadArtifact(eventValue.connectorId, eventValue.nodeId);
+          this.services.repositoryService.loadArtifact({connectorId: eventValue.connectorId, nodeId: eventValue.nodeId, vFolderId: eventValue.vFolderId});
         }
         // Update the heading that displays the name of the selected node
         headerEl.id = "header-" + eventValue.nodeId;

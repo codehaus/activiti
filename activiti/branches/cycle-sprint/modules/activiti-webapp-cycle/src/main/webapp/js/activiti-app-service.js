@@ -90,24 +90,27 @@
      * Loads an artifact (id and url)
      *
      * @method loadArtifact
-     * @param nodeId {string} The id of the artifact to be loaded
-     * @param obj {Object} Helper object to be sent to the callback
+     * @param artifactLiteral {Object} Object literal containing connectorId, nodeId and vFolderId
      */
-    loadArtifact: function RepositoryService_loadArtifact(connectorId, nodeId)
+    loadArtifact: function RepositoryService_loadArtifact(artifactLiteral)
     {
-      this.jsonGet(this.loadArtifactURL(connectorId, nodeId), null, "loadArtifact");
+      this.jsonGet(this.loadArtifactURL(artifactLiteral), null, "loadArtifact");
     },
 
     /**
-     * Creates the GET url used to load the artifact
+     * Creates the GET url to load an artifact
      *
      * @method loadArtifactURL
-     * @param nodeId {string} The id of the artifact
+     * @param artifactLiteral {Object} Object literal containing connectorId, nodeId and vFolderId
      * @return {string} The url
      */
-    loadArtifactURL: function RepositoryService_loadArtifactURL(connectorId, nodeId)
+    loadArtifactURL: function RepositoryService_loadArtifactURL(artifactLiteral)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&restProxyUri=" + encodeURIComponent(Activiti.service.REST_PROXY_URI_RELATIVE);
+      var url = Activiti.service.REST_PROXY_URI_RELATIVE + "artifact";
+      if(artifactLiteral) {
+        url += "?" + Activiti.service.Ajax.jsonToParamString(artifactLiteral);
+      }
+      return url;
     },
 
     // TODO: doc
