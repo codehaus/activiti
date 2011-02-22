@@ -227,7 +227,7 @@
         var actionsMenuItems = [];
         var actions = [];
         for(i = 0; i<artifactJson.actions.length; i++) {
-          actions.push({ text: artifactJson.actions[i].label, value: {connectorId: artifactJson.connectorId, nodeId: artifactJson.nodeId, actionName: artifactJson.actions[i].name}, onclick: { fn: this.onExecuteActionClick } });
+          actions.push({ text: artifactJson.actions[i].label, value: {connectorId: artifactJson.connectorId, nodeId: artifactJson.nodeId, vFolderId: artifactJson.vFolderId, actionName: artifactJson.actions[i].name}, onclick: { fn: this.onExecuteActionClick } });
         }
         if(actions.length > 0) {
           actionsMenuItems.push(actions);
@@ -401,7 +401,7 @@
 
     onExecuteActionClick: function Artifact_onExecuteActionClick(e)
     {
-      return new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", this.value.connectorId, this.value.nodeId, this.value.actionName);
+      return new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", this.value.connectorId, this.value.nodeId, this.value.vFolderId, this.value.actionName);
     },
     
     onTabDataLoaded: function Artifact_onTabDataLoaded()

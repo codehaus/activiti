@@ -7,6 +7,7 @@
 {
   "connectorId": "${connectorId}",
   "nodeId": "${nodeId}",
+  "vFolderId": "${vFolderId!''}",
   "contentRepresentations": [
   <#list contentRepresentations as contentRepresentation>
       "${contentRepresentation}"

@@ -113,16 +113,31 @@
       return url;
     },
 
-    // TODO: doc
-    loadArtifactActionForm: function RepositoryService_loadArtifactActionForm(connectorId, nodeId, artifactActionName, obj)
+    /**
+     * Loads artifact action forms.
+     *
+     * @method loadArtifactActionForm
+     * @param artifactLiteral {Object} Object literal containing connectorId, nodeId, vFolderId and actionName
+     */
+    loadArtifactActionForm: function RepositoryService_loadArtifactActionForm(artifactLiteral)
     {
-      this.jsonGet(this.loadArtifactActionFormURL(connectorId, nodeId, artifactActionName), obj, "loadArtifactActionForm");
+      this.jsonGet(this.loadArtifactActionFormURL(artifactLiteral), null, "loadArtifactActionForm");
     },
 
-    // TODO: doc
-    loadArtifactActionFormURL: function RepositoryService_loadArtifactActionFormURL(connectorId, nodeId, artifactActionName)
+    /**
+     * Composes the URL to load artifact action forms.
+     *
+     * @method loadArtifactActionFormURL
+     * @param artifactLiteral {Object} Object literal containing connectorId, nodeId, vFolderId and actionName
+     * @return {string} The URL
+     */
+    loadArtifactActionFormURL: function RepositoryService_loadArtifactActionFormURL(artifactLiteral)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action-form?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&actionName=" + encodeURIComponent(artifactActionName);
+      var url = Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action-form";
+      if(artifactLiteral) {
+        url += "?" + Activiti.service.Ajax.jsonToParamString(artifactLiteral);
+      }
+      return url;
     },
 
     executeArtifactAction: function RepositoryService_executeArtifactAction(connectorId, nodeId, artifactActionName, variables, obj)
