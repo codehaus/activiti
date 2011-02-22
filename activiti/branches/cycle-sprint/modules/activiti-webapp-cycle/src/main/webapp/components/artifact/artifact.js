@@ -424,28 +424,39 @@
     onClickFormEventButton: function Artifact_onClickFormEventButton(event, args)
     {
       var obj = args[1].value;
-      
-      var callbackFn = function (args) {
 
-        var connectorIdInput = Selector.query("input[name=targetConnectorId]", obj.activitiFormWidget.dialog.form, true);
-        connectorIdInput.value = args.connectorId;
-
-        var targetFolderId = Selector.query("input[name=targetFolderId]", obj.activitiFormWidget.dialog.form, true);
-        targetFolderId.value = args.nodeId;
-        targetFolderId.type = "hidden";
-
-        var formEventValueSpan = Selector.query("span[class=form-Event-value]", obj.activitiFormWidget.dialog.form, true);
-        formEventValueSpan.innerHTML = args.nodeName;
-
-        obj.activitiFormWidget.doValidate();
-      };
-      
       if(obj.inputName === "targetFolderId") {
-        return new Activiti.component.FileChooserDialog(this.id, callbackFn, false, null, true, false);  
+        return new Activiti.component.FileChooserDialog(this.id, function (args) {
+
+          var connectorIdInput = Selector.query("input[name=targetConnectorId]", obj.activitiFormWidget.dialog.form, true);
+          connectorIdInput.value = args.connectorId;
+
+          var targetFolderId = Selector.query("input[name=targetFolderId]", obj.activitiFormWidget.dialog.form, true);
+          targetFolderId.value = args.nodeId;
+          targetFolderId.type = "hidden";
+
+          var formEventValueSpan = Selector.query("span[class=form-Event-value]", obj.activitiFormWidget.dialog.form, true);
+          formEventValueSpan.innerHTML = args.nodeName;
+
+          obj.activitiFormWidget.doValidate();
+        }, false, null, true, false);  
       } else if (obj.inputName === "targetArtifactId") {
         var treeRootConnectorId = Selector.query("input[name=treeRootConnectorId]", obj.activitiFormWidget.dialog.form, true).value,
         treeRootNodeId = Selector.query("input[name=treeRootNodeId]", obj.activitiFormWidget.dialog.form, true).value;
-        return new Activiti.component.FileChooserDialog(this.id, callbackFn, true, null, false, true, treeRootConnectorId, treeRootNodeId);
+        return new Activiti.component.FileChooserDialog(this.id, function (args) {
+
+          var connectorIdInput = Selector.query("input[name=targetConnectorId]", obj.activitiFormWidget.dialog.form, true);
+          connectorIdInput.value = args.connectorId;
+
+          var targetArtifactId = Selector.query("input[name=targetArtifactId]", obj.activitiFormWidget.dialog.form, true);
+          targetArtifactId.value = args.nodeId;
+          targetArtifactId.type = "hidden";
+
+          var formEventValueSpan = Selector.query("span[class=form-Event-value]", obj.activitiFormWidget.dialog.form, true);
+          formEventValueSpan.innerHTML = args.nodeName;
+
+          obj.activitiFormWidget.doValidate();
+        }, true, null, false, true, treeRootConnectorId, treeRootNodeId);
       }
     },
 

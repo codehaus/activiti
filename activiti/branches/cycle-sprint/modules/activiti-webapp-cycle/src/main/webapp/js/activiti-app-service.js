@@ -140,14 +140,34 @@
       return url;
     },
 
-    executeArtifactAction: function RepositoryService_executeArtifactAction(connectorId, nodeId, artifactActionName, variables, obj)
+    /**
+     * Sends the form fields of an artifact action form to the server using HTTP PUT.
+     *
+     * @method executeArtifactAction
+     * @param actionLiteral {Object} Object literal containing the connectorId, nodeId, vFolderId of the node 
+     *        the action is to be executed on and actionName (the name of the action)
+     * @param variables {Object} Object literal containing the generic form variables
+     */
+    executeArtifactAction: function RepositoryService_executeArtifactAction(actionLiteral, variables, obj)
     {
-      this.jsonPut(this.executeArtifactFormURL(connectorId, nodeId, artifactActionName), variables, obj, "executeArtifactAction");
+      this.jsonPut(this.executeArtifactFormURL(actionLiteral), variables, obj, "executeArtifactAction");
     },
 
-    executeArtifactFormURL: function RepositoryService_executeArtifactFormURL(connectorId, nodeId, artifactActionName)
+    /**
+     * Creates the HTTP PUT URL to execute artifact actions.
+     *
+     * @method executeArtifactFormURL
+     * @param actionLiteral {Object} Object literal containing the connectorId, nodeId, vFolderId of the node 
+     *        the action is to be executed on and actionName (the name of the action)
+     * @return The HTTP PUT URL to execute artifact actions
+     */
+    executeArtifactFormURL: function RepositoryService_executeArtifactFormURL(actionLiteral)
     {
-      return Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action?connectorId=" + encodeURIComponent(connectorId) + "&nodeId=" + encodeURIComponent(nodeId) + "&actionName=" + encodeURIComponent(artifactActionName);
+      var url = Activiti.service.REST_PROXY_URI_RELATIVE + "artifact-action";
+      if(actionLiteral) {
+        url += "?" + Activiti.service.Ajax.jsonToParamString(actionLiteral);
+      }
+      return url;
     },
 
     createArtifact: function RepositoryService_createArtifact(artifactLiteral)

@@ -57,7 +57,7 @@
     doSubmit: function ExecuteArtifactActionForm__doSubmit(variables)
     {
       this.waitDialog.show();
-      this.service.executeArtifactAction(this.connectorId, this.nodeId, this.artifactActionName, variables);
+      this.service.executeArtifactAction({connectorId: this.connectorId, nodeId: this.nodeId, vFolderId: this.vFolderId, actionName: this.artifactActionName}, variables);
       if (this.dialog) {
         this.dialog.destroy();
       }
