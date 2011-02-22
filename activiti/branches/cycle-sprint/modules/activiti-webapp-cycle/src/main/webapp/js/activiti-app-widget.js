@@ -82,7 +82,7 @@
 /**
  * Activiti Cycle FileChooserDialog constructor.
  *
- * @namespace Activiti.widget
+ * @namespace Activiti.component
  * @class Activiti.component.FileChooserDialog
  */
 (function()
@@ -99,11 +99,17 @@
 	/**
 	 * FileChooserDialog constructor.
 	 *
-	 * @param {String} htmlId The HTML id of the parent element
+	 * @param htmlId {String} The HTML id of the parent element
+	 * @param callbackFn {function} The function that shall be invoked when submitting the dialog
+	 * @param scope {Object} The scope the callback shall be called in or null if scope can be the FileChooserDialog component
+	 * @param highlightFolders {boolean} Flag to indicate whether folders should be selectable in the tree
+	 * @param highlightFiles {boolean} Flag to indicate whether files should be selectable in the tree
+	 * @param treeRootConnectorId {String} Optional parameter to specify a root folder for the tree
+	 * @param treeRootNodeId {String} Optional parameter to specify a root folder for the tree
 	 * @return {Activiti.component.FileChooserDialog} The new Activiti.component.FileChooserDialog instance
 	 * @constructor
 	 */
-	Activiti.component.FileChooserDialog = function FileChooserDialog_constructor(htmlId, callbackFn, showFiles, scope, highlightFolders, highlightFiles)
+	Activiti.component.FileChooserDialog = function FileChooserDialog_constructor(htmlId, callbackFn, showFiles, scope, highlightFolders, highlightFiles, treeRootConnectorId, treeRootNodeId)
   {
     Activiti.component.FileChooserDialog.superclass.constructor.call(this, "Activiti.component.FileChooserDialog", htmlId);
 
@@ -119,6 +125,10 @@
     this._highlightFolders = highlightFolders;
     this._highlightFiles = highlightFiles;
 
+    // Optional parameters to provide a root node when loading the tree 
+    this._treeRootConnectorId = treeRootConnectorId||null;
+    this._treeRootNodeId = treeRootNodeId||null;
+
     return this;
   };
 
@@ -133,7 +143,6 @@
 		*/
 		onReady: function FileChooserDialog_onReady()
 		{
-		  
 		  var content = document.createElement("div");
 	    // TODO: i18n
       content.innerHTML = '<div class="bd"><h1>Select ' + (this._highlightFolders ? 'folder' : 'file') + '</h1><div id="fileChooserTree" class="ygtv-checkbox"/></div>';
@@ -149,12 +158,17 @@
           { text: "Cancel", handler: { fn: this.onCancel, scope: this } }
         ]
       });
-		  
+
 		  this._dialog.render(document.body);
-		  
-			// load the json representation of the tree, onLoadTreeSuccess will be called due to naming convention
-			this.services.repositoryService.loadTree({treeId: "repo"});
-		
+
+			// load the json representation of the tree, onLoadTreeSuccess will be called when the load function returns
+      var treeConfig;
+      if(this._treeRootConnectorId && this._treeRootNodeId) {
+        treeConfig = {treeId: "ps", treeRootConnectorId: this._treeRootConnectorId, treeRootNodeId: this._treeRootNodeId};
+      } else {
+        treeConfig = {treeId: "repo"};
+      }
+			this.services.repositoryService.loadTree(treeConfig);
 		},
 		
 		/**
