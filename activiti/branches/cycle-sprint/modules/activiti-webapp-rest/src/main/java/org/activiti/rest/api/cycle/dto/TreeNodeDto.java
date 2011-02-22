@@ -14,7 +14,6 @@
 package org.activiti.rest.api.cycle.dto;
 
 import org.activiti.cycle.RepositoryNode;
-import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionRepositoryNode;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 

@@ -31,7 +31,7 @@ public class TreeLeafDto extends TreeNodeDto {
   public TreeLeafDto(RepositoryArtifact artifact) {
     super(artifact);
     this.expanded = String.valueOf(Boolean.TRUE);
-    setArtifactType(artifact.getArtifactType()); 
+    setArtifactType(artifact.getArtifactType());
   }
 
   public String getFile() {
@@ -42,10 +42,9 @@ public class TreeLeafDto extends TreeNodeDto {
     return labelStyle;
   }
   public void setArtifactType(RepositoryArtifactType type) {
-    if(type instanceof ProcessSolutionHomeArtifactType) {
+    if (type instanceof ProcessSolutionHomeArtifactType) {
       this.labelStyle = "icon-home";
-    }
-    if (type.getName().equals("image/png") || type.getName().equals("image/gif") || type.getName().equals("image/jpeg")) {
+    } else if (type.getName().equals("image/png") || type.getName().equals("image/gif") || type.getName().equals("image/jpeg")) {
       this.labelStyle = "icon-img";
     } else if (type.getName().equals("application/xml")) {
       this.labelStyle = "icon-code-red";
@@ -69,7 +68,6 @@ public class TreeLeafDto extends TreeNodeDto {
       // Use white page as default icon for all other content types
       this.labelStyle = "icon-blank";
     }
-    
-     
+
   }
 }

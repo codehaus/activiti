@@ -69,7 +69,7 @@ public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFo
                 .getProcessSolutionId());
         for (VirtualRepositoryFolder virtualRepositoryFolder : folders) {
           if (virtualRepositoryFolder.getType().equals("Processes")) {
-            currentProcessesFolder.setFolderId(virtualRepositoryFolder.getId());
+            currentProcessesFolder.setFolderId(virtualRepositoryFolder.getProcessSolutionId() + "/" + virtualRepositoryFolder.getId());
             currentProcessesFolder.setConnectorId("ps-" + virtualRepositoryFolder.getProcessSolutionId());
           }
         }
