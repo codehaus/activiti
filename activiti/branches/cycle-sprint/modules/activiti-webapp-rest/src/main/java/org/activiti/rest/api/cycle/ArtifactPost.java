@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.activiti.cycle.Content;
 import org.activiti.cycle.RepositoryArtifact;
+import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.action.RepositoryArtifactOpenLinkAction;
 import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
 import org.activiti.rest.api.cycle.dto.UrlActionDto;
@@ -39,7 +40,7 @@ public class ArtifactPost extends ActivitiCycleWebScript {
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
     FormField file = null;
-    try{
+    try {
       file = ((WebScriptServletRequest) req.getWebScriptRequest()).getFileField("file");
     } catch (NullPointerException npe) {
       // We can just ignore this exception since an empty "file" field is valid.
@@ -53,12 +54,16 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     // TODO: set a meaningful value for artifactType
     String artifactType = "";
 
+    artifactName = getNonExistingArtifactName(artifactName, connectorId, parentFolderId);
+
     Content artifactContent = new Content();
     if (file != null) {
       artifactContent.setValue(file.getInputStream());
     }
     RepositoryArtifact createdArtifact = null;
+
     try {
+
       if (artifactContent.isNull()) {
         createdArtifact = repositoryService.createEmptyArtifact(connectorId, parentFolderId, artifactName, artifactType);
       } else {
@@ -77,5 +82,29 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     } catch (Exception e) {
       model.put("result", false);
     }
+  }
+
+  protected String getNonExistingArtifactName(String artifactName, String connectorId, String parentFolderId) {
+    String name = "";
+    for (char c : artifactName.toCharArray()) {
+      if (Character.isLetter(c) || Character.isDigit(c) || "_".equals(c) || ".".equals(c)) {
+        name += c;
+      }
+    }
+    artifactName = name;
+    String uniqueName = artifactName;
+    int counter = 0;
+    boolean exists = true;
+    while (exists) {
+      // test if exists:
+      RepositoryNodeCollection collection = repositoryService.getChildren(connectorId, parentFolderId);
+      if (collection.getArtifactByName(uniqueName) == null) {
+        exists = false;
+      } else {
+        uniqueName = artifactName + counter;
+        counter++;
+      }
+    }
+    return uniqueName;
   }
 }

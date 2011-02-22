@@ -115,6 +115,9 @@ public class TreeGet extends ActivitiCycleWebScript {
       TreeNodeDto treeNodeDtoForTheCurrentNode = getTreeNodeDto(node, false);
       if (treeNodeDtoForTheCurrentNode instanceof TreeFolderDto) {
         expandNode((TreeFolderDto) treeNodeDtoForTheCurrentNode, false, connectorId);
+        if (((TreeFolderDto) treeNodeDtoForTheCurrentNode).getChildren().size() > 0) {
+          treeNodeDtoForTheCurrentNode.setExpanded(String.valueOf(Boolean.TRUE));
+        }
       }
       String parentId = node.getMetadata().getParentFolderId();
       while (parentId != null && parentId.length() > 0 && !parentId.equals(connectorRootNode.getNodeId())) {
@@ -123,7 +126,7 @@ public class TreeGet extends ActivitiCycleWebScript {
         expandNode(parentTreeNode, false, connectorId);
         parentTreeNode.replaceNode(treeNodeDtoForTheCurrentNode);
         treeNodeDtoForTheCurrentNode = parentTreeNode;
-        parentId = parentNode.getMetadata().getParentFolderId();        
+        parentId = parentNode.getMetadata().getParentFolderId();
       }
       connectorRootNode.replaceNode(treeNodeDtoForTheCurrentNode);
     }
