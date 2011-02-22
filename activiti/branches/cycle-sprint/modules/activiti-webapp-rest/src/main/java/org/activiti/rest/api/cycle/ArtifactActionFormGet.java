@@ -15,6 +15,7 @@ package org.activiti.rest.api.cycle;
 import java.util.Map;
 
 import org.activiti.cycle.RepositoryNodeNotFoundException;
+import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.rest.util.ActivitiRequest;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -44,6 +45,13 @@ public class ArtifactActionFormGet extends ActivitiCycleWebScript {
     String connectorId = req.getMandatoryString("connectorId");
     String nodeId = req.getMandatoryString("nodeId");
     String actionId = req.getMandatoryString("actionName");
+    String vFolderId = req.getString("vFolderId");
+
+    // Retrieve the artifact from the repository
+    if (vFolderId != null && vFolderId.length() > 0) {
+      connectorId = "ps-" + processSolutionService.getVirtualRepositoryFolderById(vFolderId).getProcessSolutionId();
+      CycleRequestContext.set("vFolderId", vFolderId);
+    }
 
     String form;
     try {

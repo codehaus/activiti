@@ -87,7 +87,7 @@ public class ArtifactPost extends ActivitiCycleWebScript {
   protected String getNonExistingArtifactName(String artifactName, String connectorId, String parentFolderId) {
     String name = "";
     for (char c : artifactName.toCharArray()) {
-      if (Character.isLetter(c) || Character.isDigit(c) || "_".equals(c) || ".".equals(c)) {
+      if (Character.isLetter(c) || Character.isDigit(c) || "_".equals(String.valueOf(c)) || ".".equals(String.valueOf(c))) {
         name += c;
       }
     }
@@ -101,7 +101,7 @@ public class ArtifactPost extends ActivitiCycleWebScript {
       if (collection.getArtifactByName(uniqueName) == null) {
         exists = false;
       } else {
-        uniqueName = artifactName + counter;
+        uniqueName = counter + artifactName;
         counter++;
       }
     }

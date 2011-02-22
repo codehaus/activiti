@@ -86,12 +86,16 @@ public class FormHandler {
         } else if ("checkbox".equals(currentElement.getAttribute("type"))) {
           nameAttribute = currentElement.getAttribute("name");
           valueAttribute = currentElement.getAttribute("property");
+        } else if("hidden".equals(currentElement.getAttribute("type"))) {
+          nameAttribute = currentElement.getAttribute("name");
+          valueAttribute = currentElement.getAttribute("value");
         }
       }
       if ("checkbox".equals(currentElement.getTagName())) {
         nameAttribute = currentElement.getAttribute("name");
         valueAttribute = currentElement.getAttribute("property");
       }
+     
 
       if (nameAttribute == null || nameAttribute.length() == 0 || valueAttribute == null) {
         continue;
