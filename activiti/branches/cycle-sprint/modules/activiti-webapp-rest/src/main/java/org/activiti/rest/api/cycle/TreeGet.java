@@ -23,7 +23,6 @@ import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
-import org.activiti.cycle.impl.connector.ProcessSolutionRepositoryNode;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
 import org.activiti.rest.api.cycle.dto.TreeLeafDto;
@@ -42,7 +41,20 @@ public class TreeGet extends ActivitiCycleWebScript {
   @Override
   protected void execute(ActivitiRequest req, Status status, Cache cache, Map<String, Object> model) {
 
-    RepositoryNodeCollection rootNodes = this.repositoryService.getChildren("/", "");
+    String treeRootNodeId = req.getString("treeRootNodeId");
+    String treeRootConnectorId = req.getString("treeRootConnectorId");
+
+    RepositoryNodeCollection rootNodes = null;
+    if (treeRootNodeId != null && treeRootNodeId.length() > 0 && !treeRootNodeId.equals("undefined") && treeRootConnectorId != null
+            && treeRootConnectorId.length() > 0 && !treeRootConnectorId.equals("undefined")) {
+      // load custom "rootNode"
+      List<RepositoryNode> rootNodesList = new ArrayList<RepositoryNode>();
+      rootNodesList.add(repositoryService.getRepositoryNode(treeRootConnectorId, treeRootNodeId));
+      rootNodes = new RepositoryNodeCollectionImpl(rootNodesList);
+    } else {
+      // load all roots
+      rootNodes = this.repositoryService.getChildren("/", "");
+    }
     String treeId = req.getMandatoryString("treeId");
     if (treeId.equals("repo")) {
       rootNodes = filterRepositories(rootNodes);

@@ -2,7 +2,7 @@ package org.activiti.rest.api.cycle;
 
 import java.util.Map;
 
-import org.activiti.cycle.impl.connector.ProcessSolutionConnector;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionConnector;
 import org.activiti.rest.api.cycle.dto.TreeFolderDto;
 import org.activiti.rest.util.ActivitiRequest;
 import org.activiti.rest.util.ActivitiRequestObject;

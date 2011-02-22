@@ -1,4 +1,4 @@
-package org.activiti.cycle.impl.connector;
+package org.activiti.cycle.impl.processsolution.connector;
 
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
@@ -10,7 +10,7 @@ import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 /**
  * A {@link RepositoryFolder}-implementation for virtual folders
  * 
- * @author Daniel Meyer
+ * @author daniel.meyer@camunda.com
  */
 public class ProcessSolutionRepositoryNode implements RepositoryNode {
 
@@ -64,11 +64,14 @@ public class ProcessSolutionRepositoryNode implements RepositoryNode {
     return new RepositoryNodeMetadataImpl() {
 
       public String getName() {
-        if(wrappedNode != null) {
+        if (wrappedNode != null) {
           return wrappedNode.getMetadata().getName();
         }
         if (virtualRepositoryFolder != null) {
           return virtualRepositoryFolder.getLabel();
+        }
+        if (nodeId.endsWith(ProcessSolutionConnector.PS_HOME_NAME)) {
+          return "Home";
         }
         return processSolution.getLabel();
       }

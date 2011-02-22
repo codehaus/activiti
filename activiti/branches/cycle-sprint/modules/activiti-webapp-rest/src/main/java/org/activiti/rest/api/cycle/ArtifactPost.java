@@ -21,7 +21,7 @@ import org.activiti.cycle.Content;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.action.RepositoryArtifactOpenLinkAction;
-import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.rest.api.cycle.dto.UrlActionDto;
 import org.activiti.rest.util.ActivitiRequest;
 import org.activiti.rest.util.ActivitiRequestObject;

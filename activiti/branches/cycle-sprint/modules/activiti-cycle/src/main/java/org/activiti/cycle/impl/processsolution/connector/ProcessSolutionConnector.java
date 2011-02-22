@@ -1,4 +1,4 @@
-package org.activiti.cycle.impl.connector;
+package org.activiti.cycle.impl.processsolution.connector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,7 @@ import org.activiti.cycle.RepositoryNodeNotFoundException;
 import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
+import org.activiti.cycle.impl.processsolution.representation.ProcessSolutionHomeContentRepresentation;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.cycle.service.CycleProcessSolutionService;
@@ -33,6 +34,8 @@ public class ProcessSolutionConnector implements RepositoryConnector {
   protected CycleProcessSolutionService processSolutionService = CycleServiceFactory.getProcessSolutionService();
 
   protected CycleRepositoryService repositoryService = CycleServiceFactory.getRepositoryService();
+
+  public static String PS_HOME_NAME = "/PSHOME";
 
   protected final String processSolutionId;
 
@@ -114,6 +117,10 @@ public class ProcessSolutionConnector implements RepositoryConnector {
       // id=id of a processSolution
       processSolution = processSolutionService.getProcessSolutionById(processSolutionId);
 
+      if (id.endsWith(PS_HOME_NAME)) {
+        return new ProcessSolutionArtifact(getId(), id, null, processSolution, null);
+      }
+
       if (virtualFolderId == null) {
         return new ProcessSolutionFolder(getId(), id, null, processSolution, null);
       }
@@ -180,6 +187,9 @@ public class ProcessSolutionConnector implements RepositoryConnector {
         }
       }
     } else {
+      // add Home folder:
+      resultList.add(new ProcessSolutionArtifact(getId(), processSolutionId + PS_HOME_NAME, null, processSolutionFolder.processSolution, null));
+
       // get children of process solution:
       for (VirtualRepositoryFolder virtualChildfolder : processSolutionService.getFoldersForProcessSolution(processSolutionId)) {
         String childNodeId = processSolutionId + "/" + virtualChildfolder.getId();
@@ -245,6 +255,10 @@ public class ProcessSolutionConnector implements RepositoryConnector {
 
   public Content getContent(String artifactId) throws RepositoryNodeNotFoundException {
     ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
+    if (artifactId.endsWith(PS_HOME_NAME)) {
+      return CycleComponentFactory.getCycleComponentInstance(ProcessSolutionHomeContentRepresentation.class, ProcessSolutionHomeContentRepresentation.class)
+              .getContent(artifact);
+    }
     return repositoryService.getContent(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId());
   }
 

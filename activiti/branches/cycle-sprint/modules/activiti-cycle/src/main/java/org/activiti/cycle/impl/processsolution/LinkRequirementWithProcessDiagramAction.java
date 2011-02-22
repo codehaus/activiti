@@ -13,8 +13,8 @@ import org.activiti.cycle.action.ArtifactAwareParameterizedAction;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleContextType;
 import org.activiti.cycle.impl.ParameterizedHtmlFormTemplateAction;
-import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.impl.db.entity.RepositoryArtifactLinkEntity;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
@@ -57,6 +57,9 @@ public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFo
   public boolean isApplicable(RepositoryArtifact toArtifact) {
     if (toArtifact instanceof ProcessSolutionArtifact) {
       ProcessSolutionArtifact processSolutionArtifact = (ProcessSolutionArtifact) toArtifact;
+      if (processSolutionArtifact.getVirtualRepositoryFolder() == null) {
+        return false;
+      }
       if ("Requirements".equals(processSolutionArtifact.getVirtualRepositoryFolder().getType())) {
         // set values for the 'currentProcessesFolder' in the request context
         CurrentProcessesFolder currentProcessesFolder = CycleComponentFactory.getCycleComponentInstance("currentProcessesFolder", CurrentProcessesFolder.class);
@@ -67,7 +70,7 @@ public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFo
         for (VirtualRepositoryFolder virtualRepositoryFolder : folders) {
           if (virtualRepositoryFolder.getType().equals("Processes")) {
             currentProcessesFolder.setFolderId(virtualRepositoryFolder.getId());
-            currentProcessesFolder.setConnectorId("ps-"+virtualRepositoryFolder.getProcessSolutionId());
+            currentProcessesFolder.setConnectorId("ps-" + virtualRepositoryFolder.getProcessSolutionId());
           }
         }
 

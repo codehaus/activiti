@@ -1,4 +1,4 @@
-package org.activiti.cycle.impl.connector;
+package org.activiti.cycle.impl.processsolution.connector;
 
 import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.processsolution.ProcessSolution;

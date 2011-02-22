@@ -23,7 +23,7 @@ import org.activiti.cycle.impl.CycleComponentComparator;
 import org.activiti.cycle.impl.DownloadContentActionImpl;
 import org.activiti.cycle.impl.action.Actions;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
-import org.activiti.cycle.impl.connector.ProcessSolutionArtifact;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.service.CyclePluginService;
 import org.activiti.cycle.service.CycleServiceFactory;
 

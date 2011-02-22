@@ -22,7 +22,7 @@ import org.activiti.cycle.ContentRepresentation;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.action.DownloadContentAction;
 import org.activiti.cycle.context.CycleRequestContext;
-import org.activiti.cycle.impl.connector.ProcessSolutionRepositoryNode;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionRepositoryNode;
 import org.activiti.rest.api.cycle.dto.DownloadActionView;
 import org.activiti.rest.util.ActivitiRequest;
 import org.springframework.extensions.webscripts.Cache;
@@ -45,7 +45,7 @@ public class ArtifactGet extends ActivitiCycleWebScript {
 
     String vFolderId = req.getString("vFolderId");
 
-    if (vFolderId != null && vFolderId.length() > 0) {
+    if (vFolderId != null && vFolderId.length() > 0 && !vFolderId.equals("undefined")) {
       connectorId = "ps-" + processSolutionService.getVirtualRepositoryFolderById(vFolderId).getProcessSolutionId();
       CycleRequestContext.set("vFolderId", vFolderId);
     }
@@ -82,7 +82,10 @@ public class ArtifactGet extends ActivitiCycleWebScript {
     model.put("nodeId", artifact.getNodeId());
     model.put("connectorId", artifact.getConnectorId());
     if (artifact instanceof ProcessSolutionRepositoryNode) {
-      model.put("vFolderId", ((ProcessSolutionRepositoryNode) artifact).getVirtualRepositoryFolder().getId());
+      ProcessSolutionRepositoryNode processSolutionRepositoryNode = (ProcessSolutionRepositoryNode) artifact;
+      if (processSolutionRepositoryNode.getVirtualRepositoryFolder() != null) {
+        model.put("vFolderId", processSolutionRepositoryNode.getVirtualRepositoryFolder().getId());
+      }
     }
   }
 }

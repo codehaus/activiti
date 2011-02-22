@@ -12,8 +12,8 @@ import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleApplicationContext;
 import org.activiti.cycle.context.CycleContextType;
-import org.activiti.cycle.impl.connector.ProcessSolutionConnector;
 import org.activiti.cycle.impl.connector.view.TagConnector;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionConnector;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.service.CycleServiceFactory;
 
