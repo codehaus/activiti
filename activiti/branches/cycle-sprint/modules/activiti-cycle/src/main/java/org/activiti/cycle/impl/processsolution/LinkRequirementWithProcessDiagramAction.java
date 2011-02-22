@@ -54,7 +54,7 @@ public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFo
     return null;
   }
 
-  public boolean isApplicable(RepositoryArtifact toArtifact) {
+  public boolean isApplicable(RepositoryArtifact toArtifact) {    
     if (toArtifact instanceof ProcessSolutionArtifact) {
       ProcessSolutionArtifact processSolutionArtifact = (ProcessSolutionArtifact) toArtifact;
       if (processSolutionArtifact.getVirtualRepositoryFolder() == null) {

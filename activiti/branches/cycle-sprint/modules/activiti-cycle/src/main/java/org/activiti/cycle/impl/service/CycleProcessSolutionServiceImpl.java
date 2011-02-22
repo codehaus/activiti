@@ -6,6 +6,7 @@ import java.util.List;
 import org.activiti.cycle.CycleComponentFactory;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
 import org.activiti.cycle.impl.db.CycleProcessSolutionDao;
+import org.activiti.cycle.impl.db.entity.ProcessSolutionEntity;
 import org.activiti.cycle.impl.processsolution.DefaultProcessSolutionTemplate;
 import org.activiti.cycle.impl.processsolution.ProcessSolutionCreate;
 import org.activiti.cycle.processsolution.ProcessSolution;
@@ -57,6 +58,10 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
 
   public CycleProcessSolutionDao getDao() {
     return dao;
+  }
+
+  public ProcessSolution updateProcessSolution(ProcessSolution processSolution) {
+    return dao.saveProcessSolution((ProcessSolutionEntity) processSolution);
   }
 
 }

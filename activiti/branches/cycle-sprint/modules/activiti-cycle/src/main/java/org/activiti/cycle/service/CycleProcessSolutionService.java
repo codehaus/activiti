@@ -57,4 +57,8 @@ public interface CycleProcessSolutionService {
    */
   public ProcessSolutionTemplate getDefaultProcessSolutionTemplate();
 
+  /**
+   * Update a {@link ProcessSolution}
+   */
+  public ProcessSolution updateProcessSolution(ProcessSolution processSolution);
 }

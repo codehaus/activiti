@@ -6,6 +6,6 @@ package org.activiti.cycle.event;
  */
 public interface CycleCompensatingEventListener<T> extends CycleEventListener<T> {
 
-  public void compensateEvent(T Event);
+  public void compensateEvent(T event);
 
 }
