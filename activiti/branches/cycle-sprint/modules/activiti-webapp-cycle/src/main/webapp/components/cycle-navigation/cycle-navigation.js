@@ -221,6 +221,13 @@
 
     onAddNewProcessDiagramContextMenuClick: function CycleNavigation_onAddNewProcessDiagramContextMenuClick(eventName, params, node)
     {
+      // Remember the attributes of the current node (the folder that will contain the new artifact) in order to re-load the tree later
+      this._connectorId = node.data.connectorId;
+      this._nodeId = node.data.nodeId;
+      this._vFolderId = node.data.vFolderId; 
+      this._label = node.label;
+      this._file = node.data.file;
+      // Call the repository service to create the new artifact
       this.services.repositoryService.createArtifact({connectorId: node.data.connectorId, parentFolderId: node.data.nodeId, artifactName: 'New Model', file: ''});
     },
     
@@ -244,7 +251,9 @@
         hideaftersubmit: false,
         buttons: [
           { text: this.msg("button.yes") , handler: { fn: function(event, dialog) {
-              // TODO: We should fire an event here instead but we'll need the parent folder id in the response.
+              // Fire an event to select the parent folder of the new artifact
+              me.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: me._activeNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: me._connectorId, nodeId: me._nodeId, vFolderId: me._vFolderId, label: me._label, file: me._file}, null, true);
+              // Reload the page in order to re-fetch the files that might have changed
               location.reload();
             }, isDefault:true }
           },
