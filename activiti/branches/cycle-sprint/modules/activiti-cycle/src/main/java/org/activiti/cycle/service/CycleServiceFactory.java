@@ -50,5 +50,9 @@ public class CycleServiceFactory {
   public static CycleProcessSolutionService getProcessSolutionService() {
     return CycleServiceConfiguration.getInstance().getProcessSolutionService();
   }
+  
+  public static CycleEventService getCycleEventService() {
+    return CycleServiceConfiguration.getInstance().getCycleEventService();
+  }
 
 }

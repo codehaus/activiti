@@ -3,6 +3,7 @@ package org.activiti.cycle.impl.service;
 import org.activiti.cycle.impl.db.impl.CycleDaoMyBatisImpl;
 import org.activiti.cycle.service.CycleConfigurationService;
 import org.activiti.cycle.service.CycleContentService;
+import org.activiti.cycle.service.CycleEventService;
 import org.activiti.cycle.service.CyclePluginService;
 import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
@@ -30,6 +31,8 @@ public class CycleServiceConfiguration {
 
   private CycleProcessSolutionServiceImpl cycleProcessSolutionServiceImpl;
 
+  private CycleEventServiceImpl cycleEventServiceImpl;
+
   private CycleServiceConfiguration() {
     wireServices();
     initializeServices();
@@ -45,6 +48,7 @@ public class CycleServiceConfiguration {
     cyclePluginServiceImpl = new CyclePluginServiceImpl();
     cycleContentServiceImpl = new CycleContentServiceImpl();
     cycleProcessSolutionServiceImpl = new CycleProcessSolutionServiceImpl();
+    cycleEventServiceImpl = new CycleEventServiceImpl();
 
     // wire-up
     repositoryService.setLinkDao(dao);
@@ -93,6 +97,10 @@ public class CycleServiceConfiguration {
 
   public CycleProcessSolutionServiceImpl getProcessSolutionService() {
     return cycleProcessSolutionServiceImpl;
+  }
+
+  public CycleEventServiceImpl getCycleEventService() {
+    return cycleEventServiceImpl;
   }
 
   public static CycleServiceConfiguration getInstance() {
