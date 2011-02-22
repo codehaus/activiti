@@ -17,15 +17,16 @@
    * @return {Activiti.widget.ExecuteArtifactActionForm} The new Activiti.widget.ExecuteArtifactActionForm instance
    * @constructor
    */
-  Activiti.widget.ExecuteArtifactActionForm = function ExecuteArtifactActionForm_constructor(id, connectorId, nodeId, artifactActionName)
+  Activiti.widget.ExecuteArtifactActionForm = function ExecuteArtifactActionForm_constructor(id, connectorId, nodeId, vFolderId, artifactActionName)
   {
     Activiti.widget.ExecuteArtifactActionForm.superclass.constructor.call(this, id);
     this.connectorId = connectorId;
     this.nodeId = nodeId;
+    this.vFolderId = vFolderId;
     this.artifactActionName = artifactActionName;
     this.service = new Activiti.service.RepositoryService(this);
     this.service.setCallback("loadArtifactActionForm", { fn: this.onLoadFormSuccess, scope: this }, {fn: this.onLoadFormFailure, scope: this });
-    this.service.loadArtifactActionForm(this.connectorId, this.nodeId, this.artifactActionName);
+    this.service.loadArtifactActionForm({connectorId: this.connectorId, nodeId: this.nodeId, vFolderId: this.vFolderId, actionName: this.artifactActionName});
 
     this.waitDialog = 
     		new YAHOO.widget.Panel("wait",  
@@ -135,7 +136,6 @@
 		  
 		  var content = document.createElement("div");
 	    // TODO: i18n
-	    // TODO: make heading depend on configuration: "folder/ file" etc. ...
       content.innerHTML = '<div class="bd"><h1>Select ' + (this._highlightFolders ? 'folder' : 'file') + '</h1><div id="fileChooserTree" class="ygtv-checkbox"/></div>';
 
       this._dialog = new YAHOO.widget.Dialog(content, {
@@ -177,8 +177,6 @@
 					fnLoadComplete();
 				} else {
 					me.services.repositoryService.loadChildNodes({connectorId: node.data.connectorId, nodeId: node.data.nodeId, vFolderId: node.data.vFolderId, treeId: "repo"}, node, fnLoadComplete);
-					// TODO: see if there is a way to define a timeout even if the server returns a HTTP 500 status
-					//timeout: 7000
 				}
 			};
 
