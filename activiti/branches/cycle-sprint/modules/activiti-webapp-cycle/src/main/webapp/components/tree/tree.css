@@ -11,6 +11,8 @@
 	height:8em;
 }
 
+.icon-home { display:block; height: 16px; padding-left: 20px; white-space: nowrap; background: transparent url("/activiti-cycle/res/images/home.png") 0 0px no-repeat; }
+
 /* File type icons for tree nodes */
 .icon-doc-blue { display:block; height: 16px; padding-left: 20px; white-space: nowrap; background: transparent url("/activiti-cycle/res/images/doctype-icons.png") 0 0px no-repeat; }
 .icon-doc { display:block; height: 16px; padding-left: 20px; white-space: nowrap; background: transparent url("/activiti-cycle/res/images/doctype-icons.png") 0 -16px no-repeat; }
