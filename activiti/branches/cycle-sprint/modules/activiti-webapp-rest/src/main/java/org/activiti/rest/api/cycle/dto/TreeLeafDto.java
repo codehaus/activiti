@@ -15,6 +15,7 @@ package org.activiti.rest.api.cycle.dto;
 
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryArtifactType;
+import org.activiti.cycle.impl.processsolution.artifacttype.ProcessSolutionHomeArtifactType;
 
 /**
  * @author Nils Preusker (nils.preusker@camunda.com)
@@ -30,7 +31,7 @@ public class TreeLeafDto extends TreeNodeDto {
   public TreeLeafDto(RepositoryArtifact artifact) {
     super(artifact);
     this.expanded = String.valueOf(Boolean.TRUE);
-    setArtifactType(artifact.getArtifactType());
+    setArtifactType(artifact.getArtifactType()); 
   }
 
   public String getFile() {
@@ -41,6 +42,9 @@ public class TreeLeafDto extends TreeNodeDto {
     return labelStyle;
   }
   public void setArtifactType(RepositoryArtifactType type) {
+    if(type instanceof ProcessSolutionHomeArtifactType) {
+      this.labelStyle = "icon-home";
+    }
     if (type.getName().equals("image/png") || type.getName().equals("image/gif") || type.getName().equals("image/jpeg")) {
       this.labelStyle = "icon-img";
     } else if (type.getName().equals("application/xml")) {
@@ -65,5 +69,7 @@ public class TreeLeafDto extends TreeNodeDto {
       // Use white page as default icon for all other content types
       this.labelStyle = "icon-blank";
     }
+    
+     
   }
 }
