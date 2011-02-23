@@ -71,8 +71,8 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
     createMavenProject(targetFolderId, targetName, comment, targetConnector, createLink, processes);
 
   }
-  public void createMavenProject(String targetFolderId, String targetName, String comment, RepositoryConnector targetConnector, boolean createLink,
-          List<RepositoryArtifact> processes) {
+  public Map<RepositoryArtifact, RepositoryArtifact> createMavenProject(String targetFolderId, String targetName, String comment,
+          RepositoryConnector targetConnector, boolean createLink, List<RepositoryArtifact> processes) {
     Map<RepositoryArtifact, RepositoryArtifact> bpmnArtifacts = null;
     TransactionalConnectorUtils.beginTransaction(targetConnector);
     try {
@@ -98,6 +98,7 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
         repositoryService.addArtifactLink(link);
       }
     }
+    return bpmnArtifacts;
   }
   public String getProcessName(RepositoryArtifact artifact) {
     return artifact.getMetadata().getName();

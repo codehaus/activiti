@@ -13,6 +13,9 @@ import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.ProcessSolutionTemplate;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.cycle.service.CycleProcessSolutionService;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.impl.identity.UserEntity;
 
 /**
  * Default implementation of the {@link CycleProcessSolutionService}-interface.
@@ -62,6 +65,11 @@ public class CycleProcessSolutionServiceImpl implements CycleProcessSolutionServ
 
   public ProcessSolution updateProcessSolution(ProcessSolution processSolution) {
     return dao.saveProcessSolution((ProcessSolutionEntity) processSolution);
+  }
+
+  public List<User> getProcessSolutionCollaborators(String processSolutionId, String processSolutionCollaboratorRole) {
+    // for the moment, do nothing:
+    return ProcessEngines.getDefaultProcessEngine().getIdentityService().createUserQuery().list();
   }
 
 }

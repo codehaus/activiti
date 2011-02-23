@@ -5,6 +5,7 @@ import java.util.List;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.ProcessSolutionTemplate;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
+import org.activiti.engine.identity.User;
 
 /**
  * Cycle-serivce for managing {@link ProcessSolution}s and
@@ -61,4 +62,6 @@ public interface CycleProcessSolutionService {
    * Update a {@link ProcessSolution}
    */
   public ProcessSolution updateProcessSolution(ProcessSolution processSolution);
+
+  public List<User> getProcessSolutionCollaborators(String processSolutionId, String processSolutionCollaboratorRole);
 }
