@@ -27,6 +27,7 @@
   "processSolutionId": "${folder.processSolutionId!''}",
   "referencedNodeId": "${folder.referencedNodeId!''}",
   "referencedConnectorId": "${folder.connectorId!''}",
+  "nodeId": "${folder.processSolutionId!''}/${folder.id!''}",
   "connectorId": "ps-${folder.processSolutionId!''}"
 }
 </#escape>
