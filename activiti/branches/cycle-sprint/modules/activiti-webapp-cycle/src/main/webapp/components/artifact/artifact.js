@@ -74,7 +74,7 @@
       main = Dom.get('main');
       resize.on('resize', function(ev) {
           var w = ev.width;
-          Dom.setStyle(left, 'height', '');
+          // Dom.setStyle(left, 'height', '');
           Dom.setStyle(main, 'width', (size - w - 37) + 'px');
         });
       
@@ -105,7 +105,7 @@
       // get the header el of the content area
       var headerEl = Selector.query("h1", this.id, true);
       // determine whether the node is still the same
-      if("header-" + eventValue.nodeId === headerEl.id) {
+      if(eventValue.nodeId && headerEl.innerHTML.indexOf(eventValue.label) != -1) {
         // still the same node, if the tab view is instanciated, the tab selection should be updated
         if(this._tabView.set) {
           // Update active tab selection silently, without firing an event (last parameter 'true')
@@ -122,7 +122,13 @@
           optionsDiv.innerHTML = "";
           optionsDiv.removeAttribute("class");
         }
-        if(eventValue.nodeId) {
+        
+        var homeDiv = YAHOO.util.Selector.query('div', this.id, true);
+        if(homeDiv) {
+          homeDiv.innerHTML = "";
+        }
+        
+        if(eventValue.nodeId && !(eventValue.connectorId.indexOf("ps-") === 0 && eventValue.nodeId === "/")) {
           // instantiate the tagging component
           new Activiti.component.TaggingComponent(this.id, {connectorId: eventValue.connectorId, nodeId: eventValue.nodeId, repositoryNodeLabel: eventValue.name}, "tags-div");
         } else {
@@ -130,12 +136,24 @@
           tagsDiv.innerHTML = "";
         }
         // Check whether the selected node is a file node. If so, load its data
-        if(this._file ) {
+        if(this._file) {
           this.services.repositoryService.loadArtifact({connectorId: eventValue.connectorId, nodeId: eventValue.nodeId, vFolderId: eventValue.vFolderId});
         }
-        // Update the heading that displays the name of the selected node
-        headerEl.id = "header-" + eventValue.nodeId;
-        headerEl.innerHTML = eventValue.label||'';
+        
+        if(eventValue.nodeId && eventValue.nodeId === "/" && eventValue.connectorId && eventValue.connectorId.indexOf("ps-") != -1) {
+          // Update the heading that displays the name of the selected node
+          headerEl.innerHTML = "Process Solution: " + eventValue.label;
+          headerEl.setAttribute('class', 'home');
+          
+          // Load process solution
+          var processSolutionId = eventValue.connectorId.substring(eventValue.connectorId.indexOf("-") + 1, eventValue.connectorId.length);
+          this.services.repositoryService.loadProcessSolution({processSolutionId: processSolutionId});
+        } else {
+          // Update the heading that displays the name of the selected node
+          headerEl.removeAttribute('class');
+          headerEl.innerHTML = eventValue.label||'';
+        }
+        
         // Remove the comments
         var commentsDiv = YAHOO.util.Dom.get(this.id + '-comments');
         if(commentsDiv) {
@@ -253,6 +271,98 @@
       
       this.services.repositoryService.loadComments({connectorId: this._connectorId, nodeId: this._nodeId});
       
+    },
+
+    onLoadProcessSolutionSuccess: function Artifact_onLoadProcessSolutionSuccess(response, obj)
+    {
+      // TODO: Render information about process solution
+      
+      // Example result:
+      // ---------------
+      
+      // {
+      //           "label": "Daniel",
+      //           "id": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
+      //           "state": "IN_SPECIFICATION",
+      //           "folders": [
+      //               {
+      //                   "id": "156b57f8-cced-4b73-a37a-8b0d18470165",
+      //                   "label": "Management",
+      //                   "type": "Management",
+      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
+      //                   "referencedNodeId": "\/Daniel\/Management",
+      //                   "connectorId": "Workspace" 
+      //               } ,
+      //               {
+      //                   "id": "b4ed375c-3a66-466d-a4a7-ba6d09e36b9e",
+      //                   "label": "Processes",
+      //                   "type": "Processes",
+      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
+      //                   "referencedNodeId": "\/;Users;nilspreusker;svn-working-copies;cycle-sprint;distro;target;activiti-5.3-SNAPSHOT;apps;apache-tomcat-6.0.29;bin;..;..;..;workspace;activiti-modeler-examples;Daniel;Processes",
+      //                   "connectorId": "Activiti" 
+      //               } ,
+      //               {
+      //                   "id": "7f17a6ef-8f92-4ee2-b367-7f50562d03e1",
+      //                   "label": "Requirements",
+      //                   "type": "Requirements",
+      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
+      //                   "referencedNodeId": "\/Daniel\/Requirements",
+      //                   "connectorId": "Workspace" 
+      //               } ,
+      //               {
+      //                   "id": "ffff0b59-83d9-4310-ad1a-5e0979a9bf6f",
+      //                   "label": "Implementation",
+      //                   "type": "Implementation",
+      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
+      //                   "referencedNodeId": "\/Daniel\/Implementation",
+      //                   "connectorId": "Workspace" 
+      //               } 
+      //           ]
+      //       }
+      var headerEl = Selector.query("h1", this.id, true);
+      
+      var homeDiv = document.createElement('div');
+      homeDiv.setAttribute('class', 'home-div');
+
+      var specDoneButtonId = "spec-done-button";
+
+      homeDiv.innerHTML = "<fieldset><legend>Solution State:</legend><div class='state-div active'><div><div><div class='specification'></div><span>Specification</span></div></div></div>" +
+       "<div class='state-div " + ((response.json.state === "IN_IMPLEMENTATION" || response.json.state === "IN_TESTING" || response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='implementation'></div><span>Implementation</span></div></div></div>" +
+       "<div class='state-div " + ((response.json.state === "IN_TESTING" || response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='testing'></div><span>Testing</span></div></div></div>" +
+       "<div class='state-div " + ((response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='operations'></div><span>Operations</span></div></div></div>" +
+       '<span id="' + specDoneButtonId + '" class="yui-button"><span class="first-child"><button type="button">Specification done</button></span></span></fieldset>';
+
+      homeDiv.innerHTML += '<fieldset><legend>Solution Artifacts</legend><div class="solution-artifact management"><a href="#">Management</a><span>For your business documents related to the solution</span></div>' +
+       '<div class="solution-artifact processes"><a href="#">Processes</a><span>Your BPMN diagrams, created with the Activiti Modeler</span></div>' +
+       '<div class="solution-artifact requirements"><a href="#">Requirements</a><span>Requirements (e.g. Word or text documents) describing your solution</span></div>' +
+       '<div class="solution-artifact implementation"><a href="#">Implementation</a><span>All technical artifacts, e.g. Java files and Eclipse projects</span></div></fieldset>';
+
+      Dom.insertAfter(homeDiv, headerEl);
+
+      var specDoneButton = new YAHOO.widget.Button(specDoneButtonId, { label:"Specification done", id:"specDoneButton" });
+      specDoneButton.addListener("click", this.onClickSpecDoneButton, {processSolutionId: response.json.id, state: "IN_IMPLEMENTATION"}, this);
+      // alert(response.json.label);
+    },
+
+    onLoadProcessSolutionFailure: function Artifact_onLoadProcessSolutionFailure(response, obj)
+    {
+      // TODO: Create a proper error dialog that we can reuse in all failure handlers
+      alert("Oooops, something went wrong... Sorry! We're working on it, though.");
+    },
+
+    onClickSpecDoneButton: function Artifact_onClickSpecDoneButton(event, obj)
+    {
+      this.services.repositoryService.updateProcessSolution(obj);
+    },
+
+    onUpdateProcessSolutionSuccess: function RepositoryService_Artifact_onUpdateProcessSolutionSuccess(response, obj)
+    {
+      alert("Yeah baby!");
+    },
+
+    onUpdateProcessSolutionFailure: function RepositoryService_Artifact_onUpdateProcessSolutionFailure(response, obj)
+    {
+      alert("F#u!@ck!!!#$");
     },
 
     onLoadTabSuccess: function Artifact_onLoadTabSuccess(tab, response) {

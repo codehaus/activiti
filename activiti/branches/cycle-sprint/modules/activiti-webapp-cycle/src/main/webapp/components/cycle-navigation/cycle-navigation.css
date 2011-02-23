@@ -26,3 +26,7 @@
 #Activiti a.tree-refresh-link:hover {
   text-decoration: underline;
 }
+
+#left {
+  /*min-width: 330px;*/
+}

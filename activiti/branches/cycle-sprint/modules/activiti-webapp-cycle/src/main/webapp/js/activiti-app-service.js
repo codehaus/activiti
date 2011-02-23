@@ -314,6 +314,19 @@
     
     createProcessSolution: function RepositoryService_saveComment(obj) {
       this.jsonPost(Activiti.service.REST_PROXY_URI_RELATIVE + "process-solution", obj, null, "createProcessSolution");
+    },
+
+    loadProcessSolution: function RepositoryService_loadProcessSolution(processSolutionLiteral)
+    {
+      var url = Activiti.service.REST_PROXY_URI_RELATIVE + "process-solution",
+      params = Activiti.util.objectToArgumentString(processSolutionLiteral);
+      url = (params) ? url + "?" + params : url;
+      this.jsonGet(url, null, "loadProcessSolution");
+    },
+    
+    updateProcessSolution: function RepositoryService_updateProcessSolution(obj)
+    {
+      this.jsonPut(Activiti.service.REST_PROXY_URI_RELATIVE + "process-solution", obj, null, "updateProcessSolution");
     }
 
   });

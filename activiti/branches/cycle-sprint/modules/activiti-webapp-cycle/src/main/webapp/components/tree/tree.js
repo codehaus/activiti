@@ -94,6 +94,14 @@
     initTree: function Tree_initTree()
     {
       var me = this;
+      
+      // Add a 'home' icon to each root node of the process solutions tree
+      if(this._treeId === "ps") {
+        for(var index in this._nodesJson) {
+          this._nodesJson[index].labelStyle = "icon-home";
+        }
+      }
+      
       // Define a method to dynamically load tree nodes tp pass it to the tree instance later
       var loadTreeNodes = function (node, fnLoadComplete) {
         if(node.data.connectorId && node.data.nodeId && node.data.connectorId == me._connectorId && node.data.nodeId == me._nodeId) {
