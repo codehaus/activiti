@@ -20,6 +20,7 @@ import org.activiti.cycle.RepositoryAuthenticationException;
 import org.activiti.cycle.service.CycleCommentService;
 import org.activiti.cycle.service.CycleConfigurationService;
 import org.activiti.cycle.service.CycleContentService;
+import org.activiti.cycle.service.CycleEventService;
 import org.activiti.cycle.service.CyclePluginService;
 import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
@@ -45,6 +46,7 @@ public abstract class ActivitiCycleWebScript extends ActivitiWebScript {
   protected CycleContentService contentService;
   protected CyclePluginService pluginService;
   protected CycleProcessSolutionService processSolutionService;
+  protected CycleEventService eventService;
 
   public ActivitiCycleWebScript() {
     configurationService = CycleServiceFactory.getConfigurationService();
@@ -54,6 +56,7 @@ public abstract class ActivitiCycleWebScript extends ActivitiWebScript {
     contentService = CycleServiceFactory.getContentService();
     pluginService = CycleServiceFactory.getCyclePluginService();
     processSolutionService = CycleServiceFactory.getProcessSolutionService();
+    eventService = CycleServiceFactory.getCycleEventService();
   }
 
   @Override
