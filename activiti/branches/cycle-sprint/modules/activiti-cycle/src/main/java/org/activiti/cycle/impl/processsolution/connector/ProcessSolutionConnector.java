@@ -191,7 +191,7 @@ public class ProcessSolutionConnector implements RepositoryConnector {
       }
     } else {
       // add Home folder:
-      resultList.add(new ProcessSolutionArtifact(getId(), processSolutionId + PS_HOME_NAME, null, processSolutionFolder.processSolution, null));
+//      resultList.add(new ProcessSolutionArtifact(getId(), processSolutionId + PS_HOME_NAME, null, processSolutionFolder.processSolution, null));
 
       // get children of process solution:
       for (VirtualRepositoryFolder virtualChildfolder : processSolutionService.getFoldersForProcessSolution(processSolutionId)) {

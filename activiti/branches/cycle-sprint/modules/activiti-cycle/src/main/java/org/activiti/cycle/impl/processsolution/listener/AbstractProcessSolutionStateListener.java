@@ -12,13 +12,13 @@ public abstract class AbstractProcessSolutionStateListener<T extends ProcessSolu
   private CycleProcessSolutionService processService = CycleServiceFactory.getProcessSolutionService();
 
   public void compensateEvent(T event) {
-    ProcessSolutionEntity ps = (ProcessSolutionEntity) event.getProcessSolution();
-    ps.setState(getNextState());
+    ProcessSolutionEntity ps = (ProcessSolutionEntity) processService.getProcessSolutionById(event.getProcessSolution().getId());
+    ps.setState(getCurrentState());
     processService.updateProcessSolution(ps);
   }
   public void onEvent(T event) {
-    ProcessSolutionEntity ps = (ProcessSolutionEntity) event.getProcessSolution();
-    ps.setState(getCurrentState());
+    ProcessSolutionEntity ps = (ProcessSolutionEntity) processService.getProcessSolutionById(event.getProcessSolution().getId());
+    ps.setState(getNextState());
     processService.updateProcessSolution(ps);
   }
 

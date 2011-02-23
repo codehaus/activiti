@@ -52,9 +52,7 @@ public class CycleEventServiceImpl implements CycleEventService {
         // TODO: how to communicate Exceptions?
         throw new RuntimeException("Could not fire Event " + event + ".");
       }
-
     }
-
   }
 
 }

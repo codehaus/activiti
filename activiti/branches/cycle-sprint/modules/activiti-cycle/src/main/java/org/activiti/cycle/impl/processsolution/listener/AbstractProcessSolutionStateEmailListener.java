@@ -43,7 +43,7 @@ public abstract class AbstractProcessSolutionStateEmailListener<T extends Proces
         cycleEmailDispatcher.sendEmail(email);
       }
     } catch (Exception e) {
-      logger.log(Level.WARNING, "Error while building email.", e);
+      logger.log(Level.SEVERE, "Error while building email.", e);
       throw new RuntimeException("Error while building email.", e);
     }
   }

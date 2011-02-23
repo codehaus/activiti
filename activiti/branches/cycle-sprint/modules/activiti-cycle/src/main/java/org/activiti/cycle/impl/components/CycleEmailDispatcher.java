@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleContextType;
 import org.apache.commons.mail.Email;
-import org.apache.commons.mail.EmailException;
 
 /**
  * {@link CycleComponent} for asynchronous email-dispatching (extremely basic
@@ -28,35 +27,41 @@ public class CycleEmailDispatcher {
   public void sendEmail(Email email) {
     // if the queue is full, the email is simply not added.
     emailQueue.offer(email);
-    if (!emailDispatcherThread.isAlive()) {
-      emailDispatcherThread.start();
-    }
+    startDispatchment();
   }
 
   public void startDispatchment() {
-    emailDispatcherThread.start();
+    if (!emailDispatcherThread.isAlive()) {
+      try {
+        emailDispatcherThread.start();
+      } catch (Exception e) {
+        emailDispatcherThread = new EmailDispatcherThread();
+        emailDispatcherThread.start();
+      }
+    }
   }
 
   public void stopDispatchment() {
     emailDispatcherThread.interrupt();
   }
 
-  private final Thread emailDispatcherThread = new Thread("Cycle email dispatcher thread") {
+  private Thread emailDispatcherThread = new EmailDispatcherThread();
+
+  private class EmailDispatcherThread extends Thread {
 
     public void run() {
-      while (true && !isInterrupted()) {
+      while (!isInterrupted()) {
         try {
           Email mail = emailQueue.take();
           mail.sendMimeMessage();
-        } catch (EmailException e) {
-          logger.log(Level.SEVERE, "Could not send email", e);
-          // TODO: retry?
         } catch (InterruptedException e) {
           // just terminate
           return;
+        } catch (Exception e) {
+          logger.log(Level.SEVERE, "Could not send email", e);
+          // TODO: retry?
         }
       }
     }
-  };
-
+  }
 }

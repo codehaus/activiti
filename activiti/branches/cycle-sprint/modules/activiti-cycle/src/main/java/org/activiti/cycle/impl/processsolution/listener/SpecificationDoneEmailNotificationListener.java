@@ -4,6 +4,7 @@ import java.io.StringWriter;
 
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleContextType;
+import org.activiti.cycle.event.CycleEventListener;
 import org.activiti.cycle.impl.processsolution.event.SpecificationDoneEvent;
 
 /**
@@ -13,7 +14,8 @@ import org.activiti.cycle.impl.processsolution.event.SpecificationDoneEvent;
  * @author daniel.meyer@camunda.com
  */
 @CycleComponent(context = CycleContextType.APPLICATION)
-public class SpecificationDoneEmailNotificationListener extends AbstractProcessSolutionStateEmailListener<SpecificationDoneEvent> {
+public class SpecificationDoneEmailNotificationListener extends AbstractProcessSolutionStateEmailListener<SpecificationDoneEvent> implements
+        CycleEventListener<SpecificationDoneEvent> {
 
   protected String getSubject(SpecificationDoneEvent event) {
     return "Specification done in " + event.getProcessSolution().getLabel();
