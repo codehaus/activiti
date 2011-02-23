@@ -14,6 +14,7 @@ package org.activiti.rest.api.cycle;
 
 import java.util.Map;
 
+import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.rest.util.ActivitiRequest;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -29,6 +30,12 @@ public class ActionExecutionPut extends ActivitiCycleWebScript {
     String connectorId = req.getMandatoryString("connectorId");
     String nodeId = req.getMandatoryString("nodeId");
     String actionId = req.getMandatoryString("actionName");
+    String vFolderId = req.getString("vFolderId");
+
+    if (vFolderId != null && vFolderId.length() > 0 && !vFolderId.equals("undefined")) {
+      connectorId = "ps-" + processSolutionService.getVirtualRepositoryFolderById(vFolderId).getProcessSolutionId();
+      CycleRequestContext.set("vFolderId", vFolderId);
+    }
 
     Map<String, Object> parameters = req.getFormVariables();
     try {

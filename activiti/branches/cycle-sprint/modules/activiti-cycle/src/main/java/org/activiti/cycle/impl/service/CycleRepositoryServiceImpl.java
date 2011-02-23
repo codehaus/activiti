@@ -177,8 +177,10 @@ public class CycleRepositoryServiceImpl implements CycleRepositoryService {
     // TODO: (Nils Preusker, 20.10.2010), find a better way to solve this!
     for (String key : parameters.keySet()) {
       if (key.equals("targetConnectorId")) {
-        RepositoryConnector targetConnector = getRepositoryConnector((String) parameters.get(key));
-        parameters.put(key, targetConnector);
+        if (parameters.get(key) != null && parameters.get(key) instanceof String) {
+          RepositoryConnector targetConnector = getRepositoryConnector((String) parameters.get(key));
+          parameters.put(key, targetConnector);
+        }
       }
     }
 

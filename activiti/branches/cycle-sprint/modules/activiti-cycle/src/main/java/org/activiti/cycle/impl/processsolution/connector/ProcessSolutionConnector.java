@@ -14,12 +14,15 @@ import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.RepositoryNode;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.RepositoryNodeNotFoundException;
+import org.activiti.cycle.action.ParameterizedAction;
 import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.RepositoryNodeCollectionImpl;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
+import org.activiti.cycle.impl.processsolution.ProcessSolutionAction;
 import org.activiti.cycle.impl.processsolution.representation.ProcessSolutionHomeContentRepresentation;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
+import org.activiti.cycle.service.CyclePluginService;
 import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
@@ -283,7 +286,16 @@ public class ProcessSolutionConnector implements RepositoryConnector {
 
   public void executeParameterizedAction(String artifactId, String actionId, Map<String, Object> parameters) throws Exception {
     ProcessSolutionArtifact artifact = (ProcessSolutionArtifact) getRepositoryNode(artifactId);
-    repositoryService.executeParameterizedAction(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId(), actionId, parameters);
+    CyclePluginService pluginService = CycleServiceFactory.getCyclePluginService();
+    ParameterizedAction action = pluginService.getParameterizedActionById(actionId);
+    if (action instanceof ProcessSolutionAction) {
+      // execute ProcessSolutionActions using the ProcessSolutionArtifact and
+      // the ProcessSolutionConnector
+      action.execute(this, artifact, parameters);
+    } else {
+      // execute non-ProcessSolutionActions using the underlying connector
+      repositoryService.executeParameterizedAction(artifact.wrappedNode.getConnectorId(), artifact.wrappedNode.getNodeId(), actionId, parameters);
+    }
   }
 
   public boolean isLoggedIn() {

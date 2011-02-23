@@ -26,7 +26,8 @@ import org.activiti.cycle.service.CycleServiceFactory;
  * @author daniel.meyer@camunda.com
  */
 @CycleComponent(context = CycleContextType.APPLICATION)
-public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFormTemplateAction implements ArtifactAwareParameterizedAction {
+public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFormTemplateAction implements ArtifactAwareParameterizedAction,
+        ProcessSolutionAction {
 
   public LinkRequirementWithProcessDiagramAction() {
     super("Link Requirement with Process Model");
@@ -37,9 +38,9 @@ public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFo
 
     String comment = (String) parameters.get("comment");
     String targetArtifactId = (String) parameters.get("targetArtifactId");
-    String targetConnectorId = (String) parameters.get("targetConnectorId");
+    RepositoryConnector targetConnector = (RepositoryConnector) parameters.get("targetConnectorId");
     RepositoryArtifact requirementsArtifact = artifact;
-    RepositoryArtifact processModelArtifact = repositoryService.getRepositoryArtifact(targetConnectorId, targetArtifactId);
+    RepositoryArtifact processModelArtifact = repositoryService.getRepositoryArtifact(targetConnector.getId(), targetArtifactId);
 
     RepositoryArtifactLink link = new RepositoryArtifactLinkEntity();
     link.setComment(comment);
@@ -54,7 +55,7 @@ public class LinkRequirementWithProcessDiagramAction extends ParameterizedHtmlFo
     return null;
   }
 
-  public boolean isApplicable(RepositoryArtifact toArtifact) {    
+  public boolean isApplicable(RepositoryArtifact toArtifact) {
     if (toArtifact instanceof ProcessSolutionArtifact) {
       ProcessSolutionArtifact processSolutionArtifact = (ProcessSolutionArtifact) toArtifact;
       if (processSolutionArtifact.getVirtualRepositoryFolder() == null) {
