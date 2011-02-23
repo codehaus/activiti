@@ -9,11 +9,6 @@ import org.activiti.cycle.CycleComponentFactory;
 import org.activiti.cycle.event.CycleEventListener;
 import org.activiti.cycle.impl.components.CycleEmailDispatcher;
 import org.activiti.cycle.impl.processsolution.event.ProcessSolutionStateEvent;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.impl.ProcessEngineImpl;
-import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.HtmlEmail;
 
 /**
  * Abstract base class for {@link ProcessSolutionStateEvent}-listeners which
@@ -33,14 +28,7 @@ public abstract class AbstractProcessSolutionStateEmailListener<T extends Proces
   public void onEvent(T event) {
     try {
       for (String address : getEmailAddresses()) {
-
-        HtmlEmail email = new HtmlEmail();
-        email.addTo(address);
-        email.setHtmlMsg(getMessage(event));
-        email.setSubject(getSubject(event));
-        email.setFrom(getFrom());
-        setMailServerProperties(email);
-        cycleEmailDispatcher.sendEmail(email);
+        cycleEmailDispatcher.sendEmail(getFrom(), address, getSubject(event), getMessage(event));
       }
     } catch (Exception e) {
       logger.log(Level.SEVERE, "Error while building email.", e);
@@ -55,24 +43,6 @@ public abstract class AbstractProcessSolutionStateEmailListener<T extends Proces
   protected String getFrom() {
     return fromEmailAddress;
   }
-
-  /* copied from MailActivityBehaviour in engine */
-  protected void setMailServerProperties(Email email) {
-    // for the moment, simply reuse activiti-engine mailconfiguration
-    ProcessEngineConfigurationImpl processEngineConfiguration = ((ProcessEngineImpl) ProcessEngines.getDefaultProcessEngine()).getProcessEngineConfiguration();
-
-    String host = processEngineConfiguration.getMailServerHost();
-    email.setHostName(host);
-
-    int port = processEngineConfiguration.getMailServerPort();
-    email.setSmtpPort(port);
-
-    String user = processEngineConfiguration.getMailServerUsername();
-    String password = processEngineConfiguration.getMailServerPassword();
-    if (user != null && password != null) {
-      email.setAuthentication(user, password);
-    }
-  }/* end copied from MailActivityBehaviour in engine */
 
   protected List<String> getEmailAddresses() {
     List<String> adresses = new ArrayList<String>();
