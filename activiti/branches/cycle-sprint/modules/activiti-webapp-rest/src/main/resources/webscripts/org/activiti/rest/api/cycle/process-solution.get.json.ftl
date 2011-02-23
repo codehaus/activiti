@@ -26,7 +26,8 @@
   "type": "${folder.type!''}",
   "processSolutionId": "${folder.processSolutionId!''}",
   "referencedNodeId": "${folder.referencedNodeId!''}",
-  "connectorId": "${folder.connectorId!''}"  
+  "referencedConnectorId": "${folder.connectorId!''}",
+  "connectorId": "ps-${folder.processSolutionId!''}"
 }
 </#escape>
 </#macro>
