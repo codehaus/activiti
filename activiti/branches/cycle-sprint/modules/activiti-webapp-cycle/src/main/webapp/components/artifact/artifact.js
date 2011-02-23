@@ -275,50 +275,6 @@
 
     onLoadProcessSolutionSuccess: function Artifact_onLoadProcessSolutionSuccess(response, obj)
     {
-      // TODO: Render information about process solution
-      
-      // Example result:
-      // ---------------
-      
-      // {
-      //           "label": "Daniel",
-      //           "id": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
-      //           "state": "IN_SPECIFICATION",
-      //           "folders": [
-      //               {
-      //                   "id": "156b57f8-cced-4b73-a37a-8b0d18470165",
-      //                   "label": "Management",
-      //                   "type": "Management",
-      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
-      //                   "referencedNodeId": "\/Daniel\/Management",
-      //                   "connectorId": "Workspace" 
-      //               } ,
-      //               {
-      //                   "id": "b4ed375c-3a66-466d-a4a7-ba6d09e36b9e",
-      //                   "label": "Processes",
-      //                   "type": "Processes",
-      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
-      //                   "referencedNodeId": "\/;Users;nilspreusker;svn-working-copies;cycle-sprint;distro;target;activiti-5.3-SNAPSHOT;apps;apache-tomcat-6.0.29;bin;..;..;..;workspace;activiti-modeler-examples;Daniel;Processes",
-      //                   "connectorId": "Activiti" 
-      //               } ,
-      //               {
-      //                   "id": "7f17a6ef-8f92-4ee2-b367-7f50562d03e1",
-      //                   "label": "Requirements",
-      //                   "type": "Requirements",
-      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
-      //                   "referencedNodeId": "\/Daniel\/Requirements",
-      //                   "connectorId": "Workspace" 
-      //               } ,
-      //               {
-      //                   "id": "ffff0b59-83d9-4310-ad1a-5e0979a9bf6f",
-      //                   "label": "Implementation",
-      //                   "type": "Implementation",
-      //                   "processSolutionId": "57d1c589-c785-4bc3-965b-fee1fc5d1c4b",
-      //                   "referencedNodeId": "\/Daniel\/Implementation",
-      //                   "connectorId": "Workspace" 
-      //               } 
-      //           ]
-      //       }
       var headerEl = Selector.query("h1", this.id, true);
       
       var homeDiv = document.createElement('div');
@@ -332,22 +288,41 @@
        "<div class='state-div " + ((response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='operations'></div><span>Operations</span></div></div></div>" +
        '<span id="' + specDoneButtonId + '" class="yui-button"><span class="first-child"><button type="button">Specification done</button></span></span></fieldset>';
 
-      homeDiv.innerHTML += '<fieldset><legend>Solution Artifacts</legend><div class="solution-artifact management"><a href="#">Management</a><span>For your business documents related to the solution</span></div>' +
-       '<div class="solution-artifact processes"><a href="#">Processes</a><span>Your BPMN diagrams, created with the Activiti Modeler</span></div>' +
-       '<div class="solution-artifact requirements"><a href="#">Requirements</a><span>Requirements (e.g. Word or text documents) describing your solution</span></div>' +
-       '<div class="solution-artifact implementation"><a href="#">Implementation</a><span>All technical artifacts, e.g. Java files and Eclipse projects</span></div></fieldset>';
+      // temporary workaround until the backend returns descriptions...
+      var descriptions = {Management: "For your business documents related to the solution", Processes: "Your BPMN diagrams, created with the Activiti Modeler", Requirements: "Requirements (e.g. Word or text documents) describing your solution", Implementation: 'All technical artifacts, e.g. Java files and Eclipse projects'};
 
+      var solutionArtifacts = "<fieldset id='solution-artifacts-fieldset'><legend>Solution Artifacts</legend></fieldset>";
+      homeDiv.innerHTML += solutionArtifacts;
       Dom.insertAfter(homeDiv, headerEl);
+      
+      var solutionArtifactsfieldsetEl = document.getElementById("solution-artifacts-fieldset");
+      
+      for(var index in response.json.folders) {
+        var folder = response.json.folders[index];
+        var solutionArtifactEl = document.createElement('div');
+        solutionArtifactEl.setAttribute('class', 'solution-artifact ' + folder.type.toLowerCase())
+        
+        var folderLink = document.createElement('a');
+        folderLink.innerHTML = folder.label;
+        solutionArtifactEl.appendChild(folderLink);
+
+        var descriptionSpan = document.createElement('span');
+        descriptionSpan.innerHTML = (folder.description||descriptions[folder.type]);
+        solutionArtifactEl.appendChild(descriptionSpan);
+
+        solutionArtifactsfieldsetEl.appendChild(solutionArtifactEl);
+        
+        Event.addListener(folderLink, "click", this.onFolderLinkClick, {connectorId: folder.connectorId, nodeId: folder.id, label: folder.label}, this);
+      }
 
       var specDoneButton = new YAHOO.widget.Button(specDoneButtonId, { label:"Specification done", id:"specDoneButton" });
       specDoneButton.addListener("click", this.onClickSpecDoneButton, {processSolutionId: response.json.id, state: "IN_IMPLEMENTATION"}, this);
-      // alert(response.json.label);
     },
 
     onLoadProcessSolutionFailure: function Artifact_onLoadProcessSolutionFailure(response, obj)
     {
       // TODO: Create a proper error dialog that we can reuse in all failure handlers
-      alert("Oooops, something went wrong... Sorry! We're working on it, though.");
+      alert("Oooops, something went wrong... But don't worry, we're working on it!");
     },
 
     onClickSpecDoneButton: function Artifact_onClickSpecDoneButton(event, obj)
@@ -357,12 +332,18 @@
 
     onUpdateProcessSolutionSuccess: function RepositoryService_Artifact_onUpdateProcessSolutionSuccess(response, obj)
     {
-      alert("Yeah baby!");
+      location.reload();
     },
 
     onUpdateProcessSolutionFailure: function RepositoryService_Artifact_onUpdateProcessSolutionFailure(response, obj)
     {
-      alert("F#u!@ck!!!#$");
+      // TODO: Create a proper error dialog that we can reuse in all failure handlers
+      alert("Oooops, something went wrong... But don't worry, we're working on it!");
+    },
+
+    onFolderLinkClick: function Artifact_onFolderLinkClick(event, obj)
+    {
+      this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._activeNavigationTabIndex, activeArtifactViewTabIndex: this._activeArtifactViewTabIndex, connectorId: obj.connectorId, nodeId: obj.nodeId, vFolderId: "", label: obj.label, file: false}, null, true);
     },
 
     onLoadTabSuccess: function Artifact_onLoadTabSuccess(tab, response) {

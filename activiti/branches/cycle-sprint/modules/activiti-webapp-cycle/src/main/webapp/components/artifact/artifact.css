@@ -251,9 +251,10 @@
 }
 
 #Activiti .activiti-component div.home-div fieldset .solution-artifact a {
-  font-style: bold;
+  font-weight: bold;
   color: #007DC3;
   line-height: 1.8em;
+  cursor: pointer;
 }
 
 #Activiti .activiti-component div.home-div fieldset .solution-artifact span {
@@ -274,4 +275,11 @@
 
 #Activiti .activiti-component div.home-div fieldset .implementation {
   background: url("/activiti-cycle/res/images/computer-black.png") no-repeat left top transparent;  
+}
+
+/* State Buttons */
+#Activiti .activiti-component div.home-div fieldset span.yui-button {
+  position: relative;
+  top: -12px;
+  left: 10px;
 }
