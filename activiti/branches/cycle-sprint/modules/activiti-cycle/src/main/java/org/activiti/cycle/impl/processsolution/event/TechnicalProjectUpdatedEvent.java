@@ -23,16 +23,8 @@ public class TechnicalProjectUpdatedEvent {
     return processSolution;
   }
 
-  public void setProcessSolution(ProcessSolution processSolution) {
-    this.processSolution = processSolution;
-  }
-
   public RepositoryFolder getRepositoryFolder() {
     return repositoryFolder;
-  }
-
-  public void setRepositoryFolder(RepositoryFolder repositoryFolder) {
-    this.repositoryFolder = repositoryFolder;
   }
 
 }

@@ -19,7 +19,4 @@ public class ProcessSolutionStateEvent {
     return processSolution;
   }
 
-  public void setProcessSolution(ProcessSolution processSolution) {
-    this.processSolution = processSolution;
-  }
 }
