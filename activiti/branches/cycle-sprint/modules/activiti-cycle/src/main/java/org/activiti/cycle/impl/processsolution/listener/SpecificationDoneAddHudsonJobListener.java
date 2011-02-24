@@ -9,7 +9,7 @@ import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleContextType;
 import org.activiti.cycle.event.CycleCompensatingEventListener;
 import org.activiti.cycle.impl.connector.ci.hudson.action.CreateHudsonJob;
-import org.activiti.cycle.impl.processsolution.event.SpecificationDoneEvent;
+import org.activiti.cycle.impl.processsolution.event.TechnicalProjectCreatedEvent;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
 import org.activiti.cycle.service.CycleServiceFactory;
@@ -28,7 +28,7 @@ import org.activiti.engine.identity.User;
  * @author bernd.ruecker@camunda.com
  */
 @CycleComponent(context = CycleContextType.APPLICATION)
-public class SpecificationDoneAddHudsonJobListener extends SpecificationDoneGenerateProjectListener implements CycleCompensatingEventListener<SpecificationDoneEvent> {
+public class SpecificationDoneAddHudsonJobListener implements CycleCompensatingEventListener<TechnicalProjectCreatedEvent> {
 
   public final String METADATA_SVN_URL = "svnUrl";
 
@@ -36,7 +36,7 @@ public class SpecificationDoneAddHudsonJobListener extends SpecificationDoneGene
   
   public final String HUDSON_URL = "http://localhost/hudson/";
   
-  public void onEvent(SpecificationDoneEvent event) {
+  public void onEvent(TechnicalProjectCreatedEvent event) {
     ProcessSolution processSolution = event.getProcessSolution();
     VirtualRepositoryFolder implementationFolder = getImplementationFolder(processSolution);
     if (implementationFolder == null) {
@@ -53,6 +53,17 @@ public class SpecificationDoneAddHudsonJobListener extends SpecificationDoneGene
       log.warning("Using not supported repository for Hudson in implementation folder: " + underlyingFolder + ". Currently supported are: SVN");
     }
   }
+    
+  protected VirtualRepositoryFolder getImplementationFolder(ProcessSolution processSolution) {
+    // TODO: add dedicate query for this and remove copy and pasted code from SpecificationDoneGenerateProjectListener
+    List<VirtualRepositoryFolder> virtualFolders = CycleServiceFactory.getProcessSolutionService().getFoldersForProcessSolution(processSolution.getId());
+    for (VirtualRepositoryFolder virtualRepositoryFolder : virtualFolders) {
+      if ("Implementation".equals(virtualRepositoryFolder.getType())) {
+        return virtualRepositoryFolder;
+      }
+    }
+    return null;
+  }  
 
   private List<String> getDeveloperEmails(ProcessSolution processSolution) {
     ArrayList<String> list = new ArrayList<String>();
@@ -71,5 +82,8 @@ public class SpecificationDoneAddHudsonJobListener extends SpecificationDoneGene
 
   private String getSvnUrl(RepositoryFolder underlyingFolder) {
     return underlyingFolder.getMetadata().getMetadata(METADATA_SVN_URL);
+  }
+
+  public void compensateEvent(TechnicalProjectCreatedEvent event) {
   }
 }
