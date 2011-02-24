@@ -39,7 +39,8 @@
     {
       "name": "${link.id}",
       "label": "${link.id}",
-      "url": "${link.url}"
+      "url": "${link.url}",
+      "warning": "${link.warning!''}"
     }
     <#if link_has_next>,</#if>
   </#list>

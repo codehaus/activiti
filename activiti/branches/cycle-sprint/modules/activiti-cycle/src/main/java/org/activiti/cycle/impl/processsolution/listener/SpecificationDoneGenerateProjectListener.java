@@ -54,6 +54,7 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
 
     if (repositoryservice.getChildren(underlyingFolder.getConnectorId(), underlyingFolder.getNodeId()).asList().size() > 0) {
       updateProject(processSolution, underlyingFolder);
+      
       eventService.fireEvent(new TechnicalProjectUpdatedEvent(processSolution, underlyingFolder));
     } else {
       Map<RepositoryArtifact, RepositoryArtifact> processesMappedToBpmnXml = createProject(processSolution, underlyingFolder);
