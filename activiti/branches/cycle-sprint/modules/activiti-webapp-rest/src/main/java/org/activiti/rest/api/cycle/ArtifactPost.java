@@ -21,6 +21,7 @@ import org.activiti.cycle.Content;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.action.RepositoryArtifactOpenLinkAction;
+import org.activiti.cycle.impl.db.entity.RepositoryArtifactLinkEntity;
 import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.rest.api.cycle.dto.UrlActionDto;
 import org.activiti.rest.util.ActivitiRequest;
@@ -51,6 +52,10 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     String connectorId = req.getMandatoryString(obj, "connectorId");
     String parentFolderId = req.getMandatoryString(obj, "parentFolderId");
     String artifactName = req.getMandatoryString(obj, "artifactName");
+    String linkToNodeId = obj.getString("linkToNodeId");
+    String linkToConnectorId = obj.getString("linkToConnectorId");
+    String linkType = obj.getString("linkType");
+
     // TODO: set a meaningful value for artifactType
     String artifactType = "";
 
@@ -79,11 +84,21 @@ public class ArtifactPost extends ActivitiCycleWebScript {
         link.add(new UrlActionDto(openLinkAction.getId(), openLinkAction.getUrl().toString()));
       }
       model.put("links", link);
+
+      if (linkToNodeId != null && linkToNodeId.length() > 0 && !linkToNodeId.equals("undefined") && linkToConnectorId != null && linkToConnectorId.length() > 0
+              && !linkToConnectorId.equals("undefined")) {
+        RepositoryArtifact sourceArtifact = repositoryService.getRepositoryArtifact(linkToConnectorId, linkToNodeId);
+        RepositoryArtifactLinkEntity newLink = new RepositoryArtifactLinkEntity();
+        newLink.setLinkType(linkType);
+        newLink.setSourceArtifact(sourceArtifact);
+        newLink.setTargetArtifact(createdArtifact);
+        repositoryService.addArtifactLink(newLink);
+      }
+
     } catch (Exception e) {
       model.put("result", false);
     }
   }
-
   protected String getNonExistingArtifactName(String artifactName, String connectorId, String parentFolderId) {
     String name = "";
     for (char c : artifactName.toCharArray()) {

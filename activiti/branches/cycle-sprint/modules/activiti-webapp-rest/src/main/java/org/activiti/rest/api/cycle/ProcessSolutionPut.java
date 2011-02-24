@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.activiti.cycle.impl.processsolution.event.ImplementationDoneEvent;
 import org.activiti.cycle.impl.processsolution.event.SpecificationDoneEvent;
+import org.activiti.cycle.impl.processsolution.event.TestingDoneEvent;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.ProcessSolutionState;
 import org.activiti.rest.util.ActivitiRequest;
@@ -41,6 +42,9 @@ public class ProcessSolutionPut extends ActivitiCycleWebScript {
             break;
           case IN_TESTING:
             eventService.fireEvent(new ImplementationDoneEvent(processSolution));
+            break;
+          case IN_SPECIFICATION:
+            eventService.fireEvent(new TestingDoneEvent(processSolution));
             break;
           }
         }
