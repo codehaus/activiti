@@ -19,6 +19,7 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryArtifactLink;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryException;
+import org.activiti.cycle.RepositoryFolder;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleContextType;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
@@ -68,7 +69,8 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
 
     List<RepositoryArtifact> processes = new ArrayList<RepositoryArtifact>();
     processes.add(artifact);
-    createMavenProject(targetFolderId, targetName, comment, targetConnector, createLink, processes);
+    RepositoryFolder targetFolder = targetConnector.createFolder(targetFolderId, targetName);
+    createMavenProject(targetFolder.getNodeId(), targetName, comment, targetConnector, createLink, processes);
 
   }
   public Map<RepositoryArtifact, RepositoryArtifact> createMavenProject(String targetFolderId, String targetName, String comment,
@@ -115,8 +117,6 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
       ZipInputStream projectTemplateInputStream = new ZipInputStream(getProjectTemplate());
       ZipEntry zipEntry = null;
 
-      String rootSubstitution = null;
-
       while ((zipEntry = projectTemplateInputStream.getNextEntry()) != null) {
         String zipName = zipEntry.getName();
         if (zipName.endsWith("/")) {
@@ -128,23 +128,12 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
           path = zipName.substring(0, zipName.lastIndexOf("/"));
           name = zipName.substring(zipName.lastIndexOf("/") + 1);
         }
-        if ("".equals(path)) {
-          // root folder is named after the project, not like the
-          // template
-          // folder name
-          rootSubstitution = name;
-          name = projectName;
-        } else {
-          // rename the root folder in all other paths as well
-          path = path.replace(rootSubstitution, projectName);
-        }
         String absolutePath = rootFolderId + "/" + path;
-        boolean isBpmnModel = false;
         if (zipEntry.isDirectory()) {
           connector.createFolder(absolutePath, name);
         } else {
           if ("template.bpmn20.xml".equals(name)) {
-            resultList = generateProcesses(processes, absolutePath, connector.getId());
+            resultList = generateProcesses(processes, absolutePath, connector);
           } else {
             Content content = new Content();
             byte[] bytes = IoUtil.readInputStream(projectTemplateInputStream, "ZIP entry '" + zipName + "'");
@@ -166,7 +155,7 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
   /**
    * generates bpmn20.xml artifacts for the provided process models
    */
-  protected Map<RepositoryArtifact, RepositoryArtifact> generateProcesses(List<RepositoryArtifact> processes, String path, String targetConnectorId) {
+  protected Map<RepositoryArtifact, RepositoryArtifact> generateProcesses(List<RepositoryArtifact> processes, String path, RepositoryConnector targetConnector) {
     Map<RepositoryArtifact, RepositoryArtifact> resultList = new HashMap<RepositoryArtifact, RepositoryArtifact>();
     RuntimeConnectorList runtimeConnectorList = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class);
     for (RepositoryArtifact process : processes) {
@@ -175,7 +164,6 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
       Content content = new Content();
       RepositoryConnector connector = runtimeConnectorList.getConnectorById(process.getConnectorId());
       content.setValue(ActivitiCompliantBpmn20Provider.createBpmnXml(connector, process));
-      RepositoryConnector targetConnector = runtimeConnectorList.getConnectorById(targetConnectorId);
       resultList.put(process, targetConnector.createArtifact(path, name, null, content));
     }
     return resultList;

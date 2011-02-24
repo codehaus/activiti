@@ -27,8 +27,10 @@ public class CycleEvents {
   public <T> Set<CycleEventListener<T>> getEventListeners(Class<T> forEvent) {
     Set<CycleEventListener<T>> resultSet = new HashSet<CycleEventListener<T>>();
     init();
-    for (CycleEventListener< ? > cycleEventListener : eventListenerMap.get(forEvent)) {
-      resultSet.add((CycleEventListener<T>) cycleEventListener);
+    if (eventListenerMap.get(forEvent) != null) {
+      for (CycleEventListener< ? > cycleEventListener : eventListenerMap.get(forEvent)) {
+        resultSet.add((CycleEventListener<T>) cycleEventListener);
+      }
     }
     return resultSet;
   }
@@ -37,7 +39,7 @@ public class CycleEvents {
     if (eventListenerMap == null) {
       synchronized (this) {
         if (eventListenerMap == null) {
-          eventListenerMap = new HashMap<Class<?>, Set<CycleEventListener<?>>>();
+          eventListenerMap = new HashMap<Class< ? >, Set<CycleEventListener< ? >>>();
           Set<Class<CycleEventListener>> allImplementations = CycleComponentFactory.getAllImplementations(CycleEventListener.class);
           for (Class<CycleEventListener> class1 : allImplementations) {
             Type[] parameterizedTypes = class1.getGenericInterfaces();

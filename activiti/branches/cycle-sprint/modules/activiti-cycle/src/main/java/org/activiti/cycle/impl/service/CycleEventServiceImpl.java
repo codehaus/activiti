@@ -23,7 +23,7 @@ public class CycleEventServiceImpl implements CycleEventService {
   public <T> void fireEvent(T event) {
     List<Exception> exceptions = new ArrayList<Exception>();
     List<CycleEventListener<T>> successfulEventListeners = new ArrayList<CycleEventListener<T>>();
-    CycleEvents cycleEvents = CycleComponentFactory.getCycleComponentInstance(CycleEvents.class, CycleEvents.class);
+    CycleEvents cycleEvents = CycleComponentFactory.getCycleComponentInstance(CycleEvents.class, CycleEvents.class);    
     for (CycleEventListener<T> eventListener : cycleEvents.getEventListeners((Class<T>) event.getClass())) {
       try {
         eventListener.onEvent(event);

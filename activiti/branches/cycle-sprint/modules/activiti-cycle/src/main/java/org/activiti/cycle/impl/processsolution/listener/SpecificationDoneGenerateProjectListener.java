@@ -19,8 +19,11 @@ import org.activiti.cycle.impl.components.RuntimeConnectorList;
 import org.activiti.cycle.impl.connector.signavio.action.CreateMavenProjectAction;
 import org.activiti.cycle.impl.connector.signavio.repositoryartifacttype.SignavioBpmn20ArtifactType;
 import org.activiti.cycle.impl.processsolution.event.SpecificationDoneEvent;
+import org.activiti.cycle.impl.processsolution.event.TechnicalProjectCreatedEvent;
+import org.activiti.cycle.impl.processsolution.event.TechnicalProjectUpdatedEvent;
 import org.activiti.cycle.processsolution.ProcessSolution;
 import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
+import org.activiti.cycle.service.CycleEventService;
 import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
@@ -38,6 +41,7 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
 
   private CycleProcessSolutionService processSolutionService = CycleServiceFactory.getProcessSolutionService();
   private CycleRepositoryService repositoryservice = CycleServiceFactory.getRepositoryService();
+  private CycleEventService eventService = CycleServiceFactory.getEventService();
 
   public void onEvent(SpecificationDoneEvent event) {
     ProcessSolution processSolution = event.getProcessSolution();
@@ -50,9 +54,13 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
 
     if (repositoryservice.getChildren(underlyingFolder.getConnectorId(), underlyingFolder.getNodeId()).asList().size() > 0) {
       updateProject(processSolution, underlyingFolder);
+      eventService.fireEvent(new TechnicalProjectUpdatedEvent(processSolution, underlyingFolder));
     } else {
       Map<RepositoryArtifact, RepositoryArtifact> processesMappedToBpmnXml = createProject(processSolution, underlyingFolder);
       sendEmailCreated(processSolution, processesMappedToBpmnXml);
+      // fire an event signifying that a new technical project has been
+      // generated:
+      eventService.fireEvent(new TechnicalProjectCreatedEvent(processSolution, underlyingFolder));
     }
 
   }
@@ -68,7 +76,7 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
     // configure parameters for CreateMavenProjectAction
     CreateMavenProjectAction createMavenProjectAction = new CreateMavenProjectAction();
     RepositoryConnector targetConnector = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class)
-            .getConnectorById(processes.getConnectorId());
+            .getConnectorById(underlyingTechnicalFolder.getConnectorId());
     String targetFolderId = underlyingTechnicalFolder.getNodeId();
     String targetName = processSolution.getLabel();
     String comment = "";
