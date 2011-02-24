@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.cycle.CycleComponentFactory;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleApplicationContext;
@@ -95,5 +96,9 @@ public class RuntimeConnectorList implements Serializable {
   public void registerConnector(RepositoryConnector connector) {
     connectors.put(connector.getId(), connector);
     connectorList.add(connector);
+  }
+
+  public static RepositoryConnector getMyConnectorById(String id) {
+    return CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class).getConnectorById(id);
   }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
  * @author bernd.ruecker@camunda.com
  */
 public interface RepositoryConnector {
-
+  
   /**
    * log in given user and return true, if login was successful and false, if
    * the user couldn't be logged in

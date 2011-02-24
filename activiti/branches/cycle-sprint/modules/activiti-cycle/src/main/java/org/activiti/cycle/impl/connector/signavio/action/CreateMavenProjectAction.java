@@ -119,6 +119,7 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
 
       while ((zipEntry = projectTemplateInputStream.getNextEntry()) != null) {
         String zipName = zipEntry.getName();
+        zipName = zipName.replaceAll("activiti-cycle-maven-template/", "");
         if (zipName.endsWith("/")) {
           zipName = zipName.substring(0, zipName.length() - 1);
         }
@@ -130,7 +131,9 @@ public class CreateMavenProjectAction extends CreateTechnicalBpmnXmlAction {
         }
         String absolutePath = rootFolderId + "/" + path;
         if (zipEntry.isDirectory()) {
-          connector.createFolder(absolutePath, name);
+          if (!zipEntry.getName().equals("activiti-cycle-maven-template/")) {
+            connector.createFolder(absolutePath, name);
+          }
         } else {
           if ("template.bpmn20.xml".equals(name)) {
             resultList = generateProcesses(processes, absolutePath, connector);
