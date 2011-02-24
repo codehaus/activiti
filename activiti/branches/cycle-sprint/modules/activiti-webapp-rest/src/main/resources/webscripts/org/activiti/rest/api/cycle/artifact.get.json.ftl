@@ -9,6 +9,7 @@
   "nodeId": "${nodeId}",
   "vFolderId": "${vFolderId!''}",
   "type": "${type!''}",
+  "processSolutionId": "${processSolutionId!''}",
   "contentRepresentations": [
   <#list contentRepresentations as contentRepresentation>
       "${contentRepresentation}"

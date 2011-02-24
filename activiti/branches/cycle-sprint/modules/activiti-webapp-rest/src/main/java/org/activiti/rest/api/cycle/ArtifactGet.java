@@ -63,6 +63,7 @@ public class ArtifactGet extends ActivitiCycleWebScript {
       ProcessSolutionArtifact psArtifact = (ProcessSolutionArtifact) artifact;
       if (psArtifact.getVirtualRepositoryFolder() != null) {
         model.put("type", psArtifact.getVirtualRepositoryFolder().getType());
+        model.put("processSolutionId", psArtifact.getProcessSolution().getId());
       }
     }
 
