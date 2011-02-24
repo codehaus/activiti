@@ -8,6 +8,7 @@
   "connectorId": "${connectorId}",
   "nodeId": "${nodeId}",
   "vFolderId": "${vFolderId!''}",
+  "type": "${type!''}",
   "contentRepresentations": [
   <#list contentRepresentations as contentRepresentation>
       "${contentRepresentation}"

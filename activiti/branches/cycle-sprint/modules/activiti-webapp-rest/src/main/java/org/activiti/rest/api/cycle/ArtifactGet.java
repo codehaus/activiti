@@ -22,6 +22,7 @@ import org.activiti.cycle.ContentRepresentation;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.action.DownloadContentAction;
 import org.activiti.cycle.context.CycleRequestContext;
+import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionRepositoryNode;
 import org.activiti.rest.api.cycle.dto.DownloadActionView;
 import org.activiti.rest.util.ActivitiRequest;
@@ -56,6 +57,13 @@ public class ArtifactGet extends ActivitiCycleWebScript {
     List<String> contentRepresentations = new ArrayList<String>();
     for (ContentRepresentation representation : contentService.getContentRepresentations(artifact)) {
       contentRepresentations.add(representation.getId());
+    }
+
+    if (artifact instanceof ProcessSolutionArtifact) {
+      ProcessSolutionArtifact psArtifact = (ProcessSolutionArtifact) artifact;
+      if (psArtifact.getVirtualRepositoryFolder() != null) {
+        model.put("type", psArtifact.getVirtualRepositoryFolder().getType());
+      }
     }
 
     model.put("contentRepresentations", contentRepresentations);
