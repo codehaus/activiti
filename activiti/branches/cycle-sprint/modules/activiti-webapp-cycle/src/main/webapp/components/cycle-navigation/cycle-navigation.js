@@ -63,7 +63,8 @@
       var reloadLink = document.createElement('a');
       reloadLink.setAttribute('class', 'tree-refresh-link')
       reloadLink.setAttribute('href', "javascript:location.reload();");
-      reloadLink.innerHTML = "refresh tree";
+      reloadLink.setAttribute('title', "Refresh Tree");
+      reloadLink.innerHTML = '<img src="' + Activiti.constants.URL_CONTEXT + '/res/images/arrow_refresh.png" alt="Refresh Tree">';
       document.getElementById(this.id).appendChild(reloadLink);
     },
 
