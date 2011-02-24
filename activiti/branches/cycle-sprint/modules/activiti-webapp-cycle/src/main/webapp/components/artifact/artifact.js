@@ -240,12 +240,25 @@
       // Get the options panel
       var optionsDiv = document.getElementById("options-div");
 
-      // Add a dropdowns for actions, links and downloads
+      // Add a dropdown for actions, links and downloads
       if(artifactJson.actions.length > 0 || artifactJson.links.length > 0 || artifactJson.downloads.length > 0) {
         var actionsMenuItems = [];
         var actions = [];
         for(i = 0; i<artifactJson.actions.length; i++) {
           actions.push({ text: artifactJson.actions[i].label, value: {connectorId: artifactJson.connectorId, nodeId: artifactJson.nodeId, vFolderId: artifactJson.vFolderId, actionName: artifactJson.actions[i].name}, onclick: { fn: this.onExecuteActionClick } });
+        }
+        // Add a custom action to upload a requirements document and link the selected process to it
+        if(artifactJson.addRequirementAction) {
+          actions.push({ text: "Add New Requirement", onclick: {
+            fn: this.onAddNewRequirementActionClick,
+            obj: {
+              connectorId: artifactJson.addRequirementAction.connectorId,
+              parentFolderId: artifactJson.addRequirementAction.parentFolderId,
+              linkToConnectorId: artifactJson.connectorId,
+              linkToNodeId: artifactJson.nodeId
+            },
+            scope: this
+          }});
         }
         if(actions.length > 0) {
           actionsMenuItems.push(actions);
@@ -558,6 +571,16 @@
       });
 		  dialog.render(document.body);
 		  dialog.show();
+    },
+    
+    onAddNewRequirementActionClick: function Artifact_onAddNewRequirementActionClick(eventName, event, obj)
+    {
+      var me = this;
+      var fnOnUpload = function(response) {
+        var json = YAHOO.lang.JSON.parse(response.responseText);
+        me.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: me._activeNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: json.connectorId, nodeId: json.nodeId, vFolderId: json.vFolderId, label: json.label, file: "true"}, null, true);
+      };
+      return new Activiti.component.CreateArtifactDialog(this.id, obj.connectorId, obj.parentFolderId, "Add New Requirement", fnOnUpload, obj.linkToConnectorId, obj.linkToNodeId);
     },
     
     onTabDataLoaded: function Artifact_onTabDataLoaded()

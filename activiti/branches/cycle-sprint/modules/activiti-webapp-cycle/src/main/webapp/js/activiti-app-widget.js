@@ -617,10 +617,12 @@
 	 * @param parentFolderId The id of the folder the artifact should be created in
 	 * @param title {String} The title that will be displayed in the dialog
 	 * @param fnOnUpload {function} Callback handler for the upload, will be called when the upload succeeded
+	 * @param linkToConnectorId {String} Optional parameter to refer to another artifact the new one should be linked to
+	 * @param linkToNodeId {String} Optional parameter to refer to another artifact the new one should be linked to
 	 * @return {Activiti.component.CreateArtifactDialog} The new component.CreateArtifactDialog instance
 	 * @constructor
 	 */
-	Activiti.component.CreateArtifactDialog = function CreateArtifactDialog_constructor(htmlId, connectorId, parentFolderId, title, fnOnUpload)
+	Activiti.component.CreateArtifactDialog = function CreateArtifactDialog_constructor(htmlId, connectorId, parentFolderId, title, fnOnUpload, linkToConnectorId, linkToNodeId)
   {
     Activiti.component.CreateArtifactDialog.superclass.constructor.call(this, "Activiti.component.CreateArtifactDialog", htmlId);
 
@@ -629,6 +631,9 @@
 		this._parentFolderId = parentFolderId;
 		this._title = title;
 		this._onUpload = fnOnUpload;
+
+    this._linkToConnectorId = linkToConnectorId;
+    this._linkToNodeId = linkToNodeId;
 
     return this;
   };
@@ -648,7 +653,14 @@
 
 	    // TODO: i18n
 
-      content.innerHTML = '<div class="bd"><form id="' + this.id + '-artifact-upload-form" action="' + Activiti.service.REST_PROXY_URI_RELATIVE + 'artifact" method="POST" enctype="multipart/form-data" accept-charset="utf-8"><h1>' + this._title + '</h1><table><tr><td><label>Name:<br/><input type="text" name="artifactName" value="" /></label><br/></td></tr><tr><td><label>Upload a file:<br/><input type="file" name="file" value="" /></label><br/></td></tr></table><input type="hidden" name="connectorId" value="' + this._connectorId + '" /><input type="hidden" name="parentFolderId" value="' + this._parentFolderId + '" /></form></div>';
+      content.innerHTML = '<div class="bd"><form id="' + this.id + '-artifact-upload-form" action="' + Activiti.service.REST_PROXY_URI_RELATIVE + 'artifact" method="POST" enctype="multipart/form-data" accept-charset="utf-8">' +
+        '<h1>' + this._title + '</h1><table><tr><td>' +
+        '<label>Name:<br/><input type="text" name="artifactName" value="" /></label><br/></td></tr><tr><td>' +
+        '<label>Upload a file:<br/><input type="file" name="file" value="" /></label><br/></td></tr></table>' +
+        '<input type="hidden" name="connectorId" value="' + this._connectorId + '" />' +
+        '<input type="hidden" name="parentFolderId" value="' + this._parentFolderId + '" />' +
+        ((this._linkToConnectorId && this._linkToNodeId) ? '<input type="hidden" name="linkToConnectorId" value="' + this._linkToConnectorId + '" /><input type="hidden" name="linkToNodeId" value="' + this._linkToNodeId + '" />' : '') +
+        '</form></div>';
 
       this._dialog = new YAHOO.widget.Dialog(content, {
         fixedcenter: true,
