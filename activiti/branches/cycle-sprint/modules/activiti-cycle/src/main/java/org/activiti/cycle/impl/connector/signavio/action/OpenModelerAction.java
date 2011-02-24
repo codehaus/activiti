@@ -67,8 +67,8 @@ public class OpenModelerAction extends CreateUrlActionImpl implements ProcessSol
       if (psArtifact.getWrappedNode() != null && psArtifact.getVirtualRepositoryFolder() != null) {
         if ("Processes".equals(psArtifact.getVirtualRepositoryFolder().getType())) {
           if (psArtifact.getProcessSolution().getState().equals(ProcessSolutionState.IN_IMPLEMENTATION)) {
-            return "This project is currently in implementation. Changes to the process models "
-                    + "could potentially be overwritten in the next iteration. <br /><br /> Are you shure that you want to continue?";
+            return "This project is currently in implementation. Changes to the process <br /> models "
+                    + "could potentially be overwritten in the next iteration. <br /><br /> Are you shure you want to continue?";
           }
         }
       }

@@ -2,6 +2,7 @@ package org.activiti.cycle.impl.processsolution.listener;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,13 +101,17 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
         if (!implementationArtifact.getNodeId().startsWith(underlyingTechnicalFolder.getNodeId())) {
           continue;
         }
-        // TODO: how to determine whether the processModelChanged? compare
-        // timestamps??
-        RepositoryConnector processModelConnector = RuntimeConnectorList.getMyConnectorById(processModel.getConnectorId());
-        Content newContent = new Content();
-        newContent.setValue(ActivitiCompliantBpmn20Provider.createBpmnXml(processModelConnector, processModel));
-        repositoryservice.updateContent(implementationArtifact.getConnectorId(), implementationArtifact.getNodeId(), newContent);
-        resultMap.put(processModel, implementationArtifact);
+        // only update technical model if the ProcessModel is last changed after
+        // the implementation
+        Date processModelUpdated = processModel.getMetadata().getLastChanged();
+        Date implementationUpdated = implementationArtifact.getMetadata().getLastChanged();
+        if (processModelUpdated == null || implementationUpdated == null || processModelUpdated.after(implementationUpdated)) {
+          RepositoryConnector processModelConnector = RuntimeConnectorList.getMyConnectorById(processModel.getConnectorId());
+          Content newContent = new Content();
+          newContent.setValue(ActivitiCompliantBpmn20Provider.createBpmnXml(processModelConnector, processModel));
+          repositoryservice.updateContent(implementationArtifact.getConnectorId(), implementationArtifact.getNodeId(), newContent);
+          resultMap.put(processModel, implementationArtifact);
+        }
       }
     }
     // add new models:

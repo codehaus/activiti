@@ -43,9 +43,8 @@ public class ProcessSolutionPut extends ActivitiCycleWebScript {
           case IN_TESTING:
             eventService.fireEvent(new ImplementationDoneEvent(processSolution));
             break;
-          case IN_SPECIFICATION:
+          default:
             eventService.fireEvent(new TestingDoneEvent(processSolution));
-            break;
           }
         }
         model.put("result", "success");

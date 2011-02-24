@@ -62,7 +62,6 @@ import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
-import org.springframework.util.FileSystemUtils;
 
 import de.hpi.bpmn2_0.transformation.Json2XmlConverter;
 
