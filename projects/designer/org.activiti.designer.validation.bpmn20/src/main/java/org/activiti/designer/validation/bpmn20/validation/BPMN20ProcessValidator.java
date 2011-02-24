@@ -14,7 +14,6 @@ import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
@@ -66,16 +65,12 @@ public class BPMN20ProcessValidator extends AbstractProcessValidator {
     // Clear problems for this diagram first
     clearMarkers(getResource(diagram.eResource().getURI()));
 
-    URI diagramURI = getURIForDiagram(diagram);
-    // TODO: marshall parent instead
-    if (!diagramURI.toPlatformString(true).contains("subprocess")) {
-      validateDiagram(getResourceForDiagram(diagram).getContents());
+    validateDiagram(getResourceForDiagram(diagram).getContents());
 
-      if (getMarkers(getResource(diagram.eResource().getURI())) != null && 
-              getMarkers(getResource(diagram.eResource().getURI())).length > 0) {
-        
-        validBpmn = false;
-      }
+    if (getMarkers(getResource(diagram.eResource().getURI())) != null && 
+            getMarkers(getResource(diagram.eResource().getURI())).length > 0) {
+      
+      validBpmn = false;
     }
     return validBpmn;
   }

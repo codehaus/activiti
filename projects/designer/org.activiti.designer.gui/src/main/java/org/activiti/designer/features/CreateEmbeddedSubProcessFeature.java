@@ -17,7 +17,6 @@ public class CreateEmbeddedSubProcessFeature extends AbstractCreateBPMNFeature {
 
 	@Override
 	public boolean canCreate(ICreateContext context) {
-		// TODO: revisit once lanes and pools have been added
 		return context.getTargetContainer() instanceof Diagram;
 	}
 

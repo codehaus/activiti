@@ -46,7 +46,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.styles.Point;
@@ -54,6 +53,7 @@ import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
+import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.ILinkService;
@@ -92,6 +92,8 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
 
   private IProgressMonitor monitor;
   private Diagram diagram;
+  private IndentingXMLStreamWriter xtw;
+  private Map<String, GraphicsAlgorithm> diFlowNodeMap = new HashMap<String, GraphicsAlgorithm>();
 
   /**
 	 * 
@@ -119,37 +121,28 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     // Clear problems for this diagram first
     clearMarkers(getResource(diagram.eResource().getURI()));
 
-    URI diagramURI = getURIForDiagram(diagram);
-
     boolean performMarshalling = true;
 
-    if (!diagramURI.toPlatformString(true).contains("subprocess")) {
+    // Validate if the BPMN validator is checked in the preferences
+    if (PreferencesUtil.getBooleanPreference(Preferences.VALIDATE_ACTIVITI_BPMN_FORMAT)) {
 
-      // Validate if the BPMN validator is checked in the preferences
-      if (PreferencesUtil.getBooleanPreference(Preferences.VALIDATE_ACTIVITI_BPMN_FORMAT)) {
+      boolean validBpmn = invokeValidator(ActivitiBPMNDiagramConstants.BPMN_VALIDATOR_ID, diagram, new SubProgressMonitor(monitor, WORK_VALIDATION));
 
-        boolean validBpmn = invokeValidator(ActivitiBPMNDiagramConstants.BPMN_VALIDATOR_ID, diagram, new SubProgressMonitor(monitor, WORK_VALIDATION));
+      if (!validBpmn) {
 
-        if (!validBpmn) {
+        // Get the behavior required
+        final String behavior = PreferencesUtil.getStringPreference(Preferences.SKIP_BPMN_MARSHALLER_ON_VALIDATION_FAILURE);
 
-          // Get the behavior required
-          final String behavior = PreferencesUtil.getStringPreference(Preferences.SKIP_BPMN_MARSHALLER_ON_VALIDATION_FAILURE);
-
-          // Flag marshalling to be skipped if the behavior is to skip or not
-          // defined (mirrors default behavior)
-          if (behavior == null || ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_VALIDATION_SKIP.equals(behavior)) {
-            performMarshalling = false;
-            // add additional marker for user
-            addProblemToDiagram(diagram, "Marshalling to " + getFormatName() + " format was skipped because validation of the diagram failed.", null);
-          }
+        // Flag marshalling to be skipped if the behavior is to skip or not
+        // defined (mirrors default behavior)
+        if (behavior == null || ActivitiBPMNDiagramConstants.BPMN_MARSHALLER_VALIDATION_SKIP.equals(behavior)) {
+          performMarshalling = false;
+          // add additional marker for user
+          addProblemToDiagram(diagram, "Marshalling to " + getFormatName() + " format was skipped because validation of the diagram failed.", null);
         }
-      } else {
-        monitor.worked(WORK_VALIDATION);
       }
-
     } else {
-      // TODO: marshall parent instead
-      performMarshalling = false;
+      monitor.worked(WORK_VALIDATION);
     }
 
     if (performMarshalling) {
@@ -167,7 +160,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       OutputStreamWriter out = new OutputStreamWriter(baos, "UTF-8");
 
       XMLStreamWriter writer = xof.createXMLStreamWriter(out);
-      IndentingXMLStreamWriter xtw = new IndentingXMLStreamWriter(writer);
+      xtw = new IndentingXMLStreamWriter(writer);
 
       final EList<EObject> contents = diagram.eResource().getContents();
 
@@ -203,7 +196,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       xtw.writeStartElement("process");
       xtw.writeAttribute("id", process.getId());
       xtw.writeAttribute("name", process.getName());
-      createExecutionListenerXML(xtw, process.getExecutionListeners(), true, EXECUTION_LISTENER);
+      createExecutionListenerXML(process.getExecutionListeners(), true, EXECUTION_LISTENER);
       if (process.getDocumentation() != null && process.getDocumentation().size() > 0 && process.getDocumentation().get(0) != null
               && process.getDocumentation().get(0).getText() != null && process.getDocumentation().get(0).getText().length() > 0) {
 
@@ -213,13 +206,13 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       }
 
       for (EObject object : contents) {
-        createXML(object, xtw, "");
+        createXML(object, "");
       }
 
       // end process element
       xtw.writeEndElement();
 
-      createDIXML(diagram, xtw, process);
+      createDIXML(process);
 
       // end definitions root element
       xtw.writeEndElement();
@@ -238,7 +231,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     }
   }
 
-  private void createXML(EObject object, XMLStreamWriter xtw, String subProcessId) throws Exception {
+  private void createXML(EObject object, String subProcessId) throws Exception {
     if (object instanceof StartEvent) {
       StartEvent startEvent = (StartEvent) object;
       // start StartEvent element
@@ -276,7 +269,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       xtw.writeAttribute("sourceRef", subProcessId + sequenceFlow.getSourceRef().getId());
       xtw.writeAttribute("targetRef", subProcessId + sequenceFlow.getTargetRef().getId());
 
-      createExecutionListenerXML(xtw, sequenceFlow.getExecutionListeners(), true, EXECUTION_LISTENER);
+      createExecutionListenerXML(sequenceFlow.getExecutionListeners(), true, EXECUTION_LISTENER);
 
       if (sequenceFlow.getConditionExpression() != null && sequenceFlow.getConditionExpression().getBody() != null
               && sequenceFlow.getConditionExpression().getBody().length() > 0) {
@@ -331,7 +324,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
           xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "formKey", userTask.getFormKey());
         }
 
-        createExecutionListenerXML(xtw, userTask.getActivitiListeners(), true, TASK_LISTENER);
+        createExecutionListenerXML(userTask.getActivitiListeners(), true, TASK_LISTENER);
 
         if (userTask.getDocumentation() != null && userTask.getDocumentation().size() > 0) {
 
@@ -369,7 +362,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       }
       xtw.writeAttribute("scriptFormat", scriptTask.getScriptFormat());
 
-      createExecutionListenerXML(xtw, scriptTask.getActivitiListeners(), true, EXECUTION_LISTENER);
+      createExecutionListenerXML(scriptTask.getActivitiListeners(), true, EXECUTION_LISTENER);
 
       xtw.writeStartElement("script");
       xtw.writeCData(scriptTask.getScript());
@@ -393,7 +386,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName", serviceTask.getResultVariableName());
       }
 
-      createExecutionListenerXML(xtw, serviceTask.getActivitiListeners(), true, EXECUTION_LISTENER);
+      createExecutionListenerXML(serviceTask.getActivitiListeners(), true, EXECUTION_LISTENER);
       writeFieldExtensions(xtw, serviceTask.getFieldExtensions(), true);
 
       if (serviceTask.getCustomProperties() != null && serviceTask.getCustomProperties().size() > 0) {
@@ -431,7 +424,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
       xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "type", "mail");
 
       xtw.writeStartElement("extensionElements");
-      createExecutionListenerXML(xtw, mailTask.getActivitiListeners(), false, EXECUTION_LISTENER);
+      createExecutionListenerXML(mailTask.getActivitiListeners(), false, EXECUTION_LISTENER);
 
       if (mailTask.getTo() != null && mailTask.getTo().length() > 0) {
         xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
@@ -493,7 +486,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         xtw.writeAttribute("name", manualTask.getName());
       }
 
-      createExecutionListenerXML(xtw, manualTask.getActivitiListeners(), true, EXECUTION_LISTENER);
+      createExecutionListenerXML(manualTask.getActivitiListeners(), true, EXECUTION_LISTENER);
 
       // end ManualTask element
       xtw.writeEndElement();
@@ -507,7 +500,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         xtw.writeAttribute("name", receiveTask.getName());
       }
 
-      createExecutionListenerXML(xtw, receiveTask.getActivitiListeners(), true, EXECUTION_LISTENER);
+      createExecutionListenerXML(receiveTask.getActivitiListeners(), true, EXECUTION_LISTENER);
 
       // end ReceiveTask element
       xtw.writeEndElement();
@@ -548,7 +541,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
         }
         
         for (FlowElement flowElement : flowElementList) {
-          createXML(flowElement, xtw, subProcess.getId());
+          createXML(flowElement, subProcess.getId());
         }
 
         // end SubProcess element
@@ -557,7 +550,7 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     }
   }
 
-  private void createExecutionListenerXML(XMLStreamWriter xtw, List<ActivitiListener> listenerList, boolean writeExtensionsElement, String listenerType)
+  private void createExecutionListenerXML(List<ActivitiListener> listenerList, boolean writeExtensionsElement, String listenerType)
           throws Exception {
 
     if (listenerList == null || listenerList.size() == 0)
@@ -637,10 +630,9 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     }
   }*/
 
-  private void createDIXML(Diagram diagram, XMLStreamWriter xtw, Process process) throws Exception {
+  private void createDIXML(Process process) throws Exception {
     ILinkService linkService = Graphiti.getLinkService();
     EList<EObject> contents = diagram.eResource().getContents();
-    EList<Shape> shapes = diagram.getChildren();
     xtw.writeStartElement(BPMNDI_PREFIX, "BPMNDiagram", BPMNDI_NAMESPACE);
     xtw.writeAttribute("id", "BPMNDiagram_" + process.getId());
 
@@ -648,111 +640,132 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller {
     xtw.writeAttribute("bpmnElement", process.getId());
     xtw.writeAttribute("id", "BPMNPlane_" + process.getId());
 
-    Map<String, GraphicsAlgorithm> flowNodeMap = new HashMap<String, GraphicsAlgorithm>();
+    diFlowNodeMap = new HashMap<String, GraphicsAlgorithm>();
 
     for (EObject bpmnObject : contents) {
 
       if (bpmnObject instanceof FlowNode) {
-        FlowNode flowNode = (FlowNode) bpmnObject;
-        xtw.writeStartElement(BPMNDI_PREFIX, "BPMNShape", BPMNDI_NAMESPACE);
-        xtw.writeAttribute("bpmnElement", flowNode.getId());
-        xtw.writeAttribute("id", "BPMNShape_" + flowNode.getId());
-
-        xtw.writeStartElement(OMGDC_PREFIX, "Bounds", OMGDC_NAMESPACE);
-        for (Shape shape : shapes) {
-          ContainerShape containerShape = (ContainerShape) shape;
-          EObject shapeBO = linkService.getBusinessObjectForLinkedPictogramElement(containerShape.getGraphicsAlgorithm().getPictogramElement());
-          if (shapeBO instanceof FlowNode) {
-            FlowNode shapeFlowNode = (FlowNode) shapeBO;
-            if (shapeFlowNode.getId().equals(flowNode.getId())) {
-              flowNodeMap.put(flowNode.getId(), containerShape.getGraphicsAlgorithm());
-              xtw.writeAttribute("height", "" + containerShape.getGraphicsAlgorithm().getHeight());
-              xtw.writeAttribute("width", "" + containerShape.getGraphicsAlgorithm().getWidth());
-              xtw.writeAttribute("x", "" + containerShape.getGraphicsAlgorithm().getX());
-              xtw.writeAttribute("y", "" + containerShape.getGraphicsAlgorithm().getY());
+        writeBpmnElement((FlowNode) bpmnObject, diagram);
+        if(bpmnObject instanceof SubProcess) {
+          for (FlowElement subFlowElement : ((SubProcess) bpmnObject).getFlowElements()) {
+            if (subFlowElement instanceof FlowNode) {
+              List<PictogramElement> pictoList = linkService.getPictogramElements(diagram, bpmnObject);
+              if(pictoList != null && pictoList.size() > 0) {
+                ContainerShape parent = (ContainerShape) pictoList.get(0);
+                writeBpmnElement((FlowNode) subFlowElement, parent);
+              }
+            }
+          }
+          for (FlowElement subFlowElement : ((SubProcess) bpmnObject).getFlowElements()) {
+            if (subFlowElement instanceof SequenceFlow) {
+              writeBpmnEdge((SequenceFlow) subFlowElement);
             }
           }
         }
-
-        xtw.writeEndElement();
-        xtw.writeEndElement();
-
       }
     }
 
     for (EObject bpmnObject : contents) {
       if (bpmnObject instanceof SequenceFlow) {
-        SequenceFlow sequenceFlow = (SequenceFlow) bpmnObject;
-        
-        if (flowNodeMap.containsKey(sequenceFlow.getSourceRef().getId()) && flowNodeMap.containsKey(sequenceFlow.getTargetRef().getId())) {
-          
-          FreeFormConnection freeFormConnection = null;
-          EList<Point> bendPointList = null;
-          
-          for(Connection connection : diagram.getConnections()) {
-            EObject linkedSequenceFlowObj = linkService.getBusinessObjectForLinkedPictogramElement(
-                    connection.getGraphicsAlgorithm().getPictogramElement());
-            if(linkedSequenceFlowObj instanceof SequenceFlow == false) continue;
-            
-            SequenceFlow linkedSequenceFlow = (SequenceFlow) linkedSequenceFlowObj;
-            if(linkedSequenceFlow.getId().equals(sequenceFlow.getId()) == false) continue;
-            
-            freeFormConnection = (FreeFormConnection) connection;
-            bendPointList = freeFormConnection.getBendpoints();
-          }
-          
-          if(freeFormConnection == null) continue;
-          
-          xtw.writeStartElement(BPMNDI_PREFIX, "BPMNEdge", BPMNDI_NAMESPACE);
-          xtw.writeAttribute("bpmnElement", sequenceFlow.getId());
-          xtw.writeAttribute("id", "BPMNEdge_" + sequenceFlow.getId());
-          
-          GraphicsAlgorithm sourceConnection = flowNodeMap.get(sequenceFlow.getSourceRef().getId());
-          GraphicsAlgorithm targetConnection = flowNodeMap.get(sequenceFlow.getTargetRef().getId());
-          
-          if(sequenceFlow.getSourceRef() instanceof Gateway && getAmountOfOutgoingConnections(
-                  sequenceFlow.getSourceRef().getId()) > 1) {
-            
-            int y = 0;
-            if(sourceConnection.getY() > targetConnection.getY()) {
-              y = sourceConnection.getY();
-            } else {
-              y = sourceConnection.getY() + sourceConnection.getHeight();
-            }
-            createWayPoint(sourceConnection.getX() + (sourceConnection.getWidth() / 2), y, xtw);
-            
-          } else {
-            createWayPoint(sourceConnection.getX() + sourceConnection.getWidth(),
-                    sourceConnection.getY() + (sourceConnection.getHeight() / 2), xtw);
-          }
-          
-          if(bendPointList != null && bendPointList.size() > 0) {
-            for (Point point : bendPointList) {
-              createWayPoint(point.getX(), point.getY(), xtw);
-            }
-          }
-          
-          if(sequenceFlow.getTargetRef() instanceof Gateway && getAmountOfIncomingConnections(
-                  sequenceFlow.getTargetRef().getId()) > 1) {
-            
-            int y = 0;
-            if(targetConnection.getY() > sourceConnection.getY()) {
-              y = targetConnection.getY();
-            } else {
-              y = targetConnection.getY() + targetConnection.getHeight();
-            }
-            createWayPoint(targetConnection.getX() + (targetConnection.getWidth() / 2), y, xtw);
-            
-          } else {
-            createWayPoint(targetConnection.getX(),
-                    targetConnection.getY() + (targetConnection.getHeight() / 2), xtw);
-          }
-          xtw.writeEndElement();
-        }
-      }
+        writeBpmnEdge((SequenceFlow) bpmnObject);
+      } 
     }
     xtw.writeEndElement();
     xtw.writeEndElement();
+  }
+  
+  private void writeBpmnElement(FlowNode flowNode, ContainerShape parent) throws Exception {
+    ILinkService linkService = Graphiti.getLinkService();
+    xtw.writeStartElement(BPMNDI_PREFIX, "BPMNShape", BPMNDI_NAMESPACE);
+    xtw.writeAttribute("bpmnElement", flowNode.getId());
+    xtw.writeAttribute("id", "BPMNShape_" + flowNode.getId());
+
+    xtw.writeStartElement(OMGDC_PREFIX, "Bounds", OMGDC_NAMESPACE);
+    for (Shape shape : parent.getChildren()) {
+      EObject shapeBO = linkService.getBusinessObjectForLinkedPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
+      if (shapeBO instanceof FlowNode) {
+        FlowNode shapeFlowNode = (FlowNode) shapeBO;
+        if (shapeFlowNode.getId().equals(flowNode.getId())) {
+          diFlowNodeMap.put(flowNode.getId(), shape.getGraphicsAlgorithm());
+          xtw.writeAttribute("height", "" + shape.getGraphicsAlgorithm().getHeight());
+          xtw.writeAttribute("width", "" + shape.getGraphicsAlgorithm().getWidth());
+          xtw.writeAttribute("x", "" + shape.getGraphicsAlgorithm().getX());
+          xtw.writeAttribute("y", "" + shape.getGraphicsAlgorithm().getY());
+        }
+      }
+    }
+
+    xtw.writeEndElement();
+    xtw.writeEndElement();
+  }
+  
+  private void writeBpmnEdge(SequenceFlow sequenceFlow) throws Exception {
+    if (diFlowNodeMap.containsKey(sequenceFlow.getSourceRef().getId()) && diFlowNodeMap.containsKey(sequenceFlow.getTargetRef().getId())) {
+      
+      ILinkService linkService = Graphiti.getLinkService();
+      FreeFormConnection freeFormConnection = null;
+      EList<Point> bendPointList = null;
+      
+      for(Connection connection : diagram.getConnections()) {
+        EObject linkedSequenceFlowObj = linkService.getBusinessObjectForLinkedPictogramElement(
+                connection.getGraphicsAlgorithm().getPictogramElement());
+        if(linkedSequenceFlowObj instanceof SequenceFlow == false) continue;
+        
+        SequenceFlow linkedSequenceFlow = (SequenceFlow) linkedSequenceFlowObj;
+        if(linkedSequenceFlow.getId().equals(sequenceFlow.getId()) == false) continue;
+        
+        freeFormConnection = (FreeFormConnection) connection;
+        bendPointList = freeFormConnection.getBendpoints();
+      }
+      
+      if(freeFormConnection == null) return;
+      
+      xtw.writeStartElement(BPMNDI_PREFIX, "BPMNEdge", BPMNDI_NAMESPACE);
+      xtw.writeAttribute("bpmnElement", sequenceFlow.getId());
+      xtw.writeAttribute("id", "BPMNEdge_" + sequenceFlow.getId());
+      
+      GraphicsAlgorithm sourceConnection = diFlowNodeMap.get(sequenceFlow.getSourceRef().getId());
+      GraphicsAlgorithm targetConnection = diFlowNodeMap.get(sequenceFlow.getTargetRef().getId());
+      
+      if(sequenceFlow.getSourceRef() instanceof Gateway && getAmountOfOutgoingConnections(
+              sequenceFlow.getSourceRef().getId()) > 1) {
+        
+        int y = 0;
+        if(sourceConnection.getY() > targetConnection.getY()) {
+          y = sourceConnection.getY();
+        } else {
+          y = sourceConnection.getY() + sourceConnection.getHeight();
+        }
+        createWayPoint(sourceConnection.getX() + (sourceConnection.getWidth() / 2), y, xtw);
+        
+      } else {
+        createWayPoint(sourceConnection.getX() + sourceConnection.getWidth(),
+                sourceConnection.getY() + (sourceConnection.getHeight() / 2), xtw);
+      }
+      
+      if(bendPointList != null && bendPointList.size() > 0) {
+        for (Point point : bendPointList) {
+          createWayPoint(point.getX(), point.getY(), xtw);
+        }
+      }
+      
+      if(sequenceFlow.getTargetRef() instanceof Gateway && getAmountOfIncomingConnections(
+              sequenceFlow.getTargetRef().getId()) > 1) {
+        
+        int y = 0;
+        if(targetConnection.getY() > sourceConnection.getY()) {
+          y = targetConnection.getY();
+        } else {
+          y = targetConnection.getY() + targetConnection.getHeight();
+        }
+        createWayPoint(targetConnection.getX() + (targetConnection.getWidth() / 2), y, xtw);
+        
+      } else {
+        createWayPoint(targetConnection.getX(),
+                targetConnection.getY() + (targetConnection.getHeight() / 2), xtw);
+      }
+      xtw.writeEndElement();
+    }
   }
   
   private int getAmountOfIncomingConnections(String id) {

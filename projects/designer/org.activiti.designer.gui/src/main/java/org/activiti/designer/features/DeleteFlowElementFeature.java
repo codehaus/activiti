@@ -6,6 +6,7 @@ import java.util.List;
 import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.eclipse.bpmn2.CustomProperty;
 import org.eclipse.bpmn2.Event;
+import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.Gateway;
 import org.eclipse.bpmn2.SequenceFlow;
@@ -69,12 +70,20 @@ public class DeleteFlowElementFeature extends DefaultDeleteFeature {
 
 	private EObject deleteSequenceFlow(SequenceFlow sequenceFlow) {
 		for (EObject diagramObject : getDiagram().eResource().getContents()) {
-			if (diagramObject instanceof SequenceFlow) {
-			}
 			if (diagramObject instanceof SequenceFlow
 					&& ((SequenceFlow) diagramObject).getId().equals(sequenceFlow.getId())) {
 
 				return diagramObject;
+			}
+			
+			if (diagramObject instanceof SubProcess) {
+			  for (FlowElement flowElement : ((SubProcess) diagramObject).getFlowElements()) {
+			    if (flowElement instanceof SequenceFlow
+	            && ((SequenceFlow) flowElement).getId().equals(sequenceFlow.getId())) {
+
+	          return flowElement;
+	        }
+        }
 			}
 		}
 		return null;

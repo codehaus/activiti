@@ -1,7 +1,10 @@
 package org.activiti.designer.features;
 
-import org.eclipse.bpmn2.FlowNode;
+import java.util.List;
+
+import org.eclipse.bpmn2.FlowElement;
 import org.eclipse.bpmn2.SequenceFlow;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
@@ -11,6 +14,8 @@ import org.eclipse.graphiti.mm.pictograms.ChopboxAnchor;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.Shape;
+import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.graphiti.services.ILinkService;
 
 public class DeleteSequenceFlowFeature extends AbstractCustomFeature {
 
@@ -43,28 +48,28 @@ public class DeleteSequenceFlowFeature extends AbstractCustomFeature {
 
   public void execute(ICustomContext context) {
     if(context.getPictogramElements() == null) return;
+    ILinkService linkService = Graphiti.getLinkService();
     for (final PictogramElement pictogramElement : context.getPictogramElements()) {
       if(pictogramElement.getLink() == null) continue;
       final Object boObject = getBusinessObjectForPictogramElement(pictogramElement);
       if(boObject instanceof SequenceFlow == true) {
         final SequenceFlow sequenceFlow = (SequenceFlow) boObject;
         for(Shape shape : getDiagram().getChildren()) {
-          FlowNode flowNode = (FlowNode) getBusinessObjectForPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
-          if(flowNode.getId().equals(sequenceFlow.getSourceRef().getId())) {
-            EList<Anchor> anchorList = ((ContainerShape) shape).getAnchors();
-            for (Anchor anchor : anchorList) {
-              if(anchor instanceof ChopboxAnchor) {
-                anchor.getOutgoingConnections().remove(0);
+          FlowElement flowElement = (FlowElement) getBusinessObjectForPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
+          
+          if(flowElement instanceof SubProcess) {
+            List<PictogramElement> pictoList = linkService.getPictogramElements(getDiagram(), flowElement);
+            if(pictoList != null && pictoList.size() > 0) {
+              ContainerShape parent = (ContainerShape) pictoList.get(0);
+              for(Shape subShape : parent.getChildren()) {
+                for(FlowElement subFlowElement : ((SubProcess) flowElement).getFlowElements()) {
+                  removeAnchors(sequenceFlow, subFlowElement, subShape);
+                }
               }
+              ((SubProcess) flowElement).getFlowElements().remove(sequenceFlow);
             }
-          }
-          if(flowNode.getId().equals(sequenceFlow.getTargetRef().getId())) {
-            EList<Anchor> anchorList = ((ContainerShape) shape).getAnchors();
-            for (Anchor anchor : anchorList) {
-              if(anchor instanceof ChopboxAnchor) {
-                anchor.getIncomingConnections().remove(0);
-              }
-            }
+          } else {
+            removeAnchors(sequenceFlow, flowElement, shape);
           }
         }
         
@@ -77,6 +82,25 @@ public class DeleteSequenceFlowFeature extends AbstractCustomFeature {
           sequenceFlow.getTargetRef().getIncoming().remove(sequenceFlow);
         }
         getDiagram().eResource().getContents().remove(sequenceFlow);
+      }
+    }
+  }
+  
+  private void removeAnchors(SequenceFlow sequenceFlow, FlowElement flowElement, Shape shape) {
+    if(flowElement.getId().equals(sequenceFlow.getSourceRef().getId())) {
+      EList<Anchor> anchorList = shape.getAnchors();
+      for (Anchor anchor : anchorList) {
+        if(anchor instanceof ChopboxAnchor) {
+          anchor.getOutgoingConnections().remove(0);
+        }
+      }
+    }
+    if(flowElement.getId().equals(sequenceFlow.getTargetRef().getId())) {
+      EList<Anchor> anchorList = shape.getAnchors();
+      for (Anchor anchor : anchorList) {
+        if(anchor instanceof ChopboxAnchor) {
+          anchor.getIncomingConnections().remove(0);
+        }
       }
     }
   }

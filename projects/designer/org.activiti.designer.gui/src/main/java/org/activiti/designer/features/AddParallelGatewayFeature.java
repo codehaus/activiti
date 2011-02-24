@@ -3,6 +3,7 @@ package org.activiti.designer.features;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.Gateway;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
@@ -18,20 +19,20 @@ import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
-public class AddGatewayFeature extends AbstractAddShapeFeature {
+public class AddParallelGatewayFeature extends AbstractAddShapeFeature {
 
-	public AddGatewayFeature(IFeatureProvider fp) {
+	public AddParallelGatewayFeature(IFeatureProvider fp) {
 		super(fp);
 	}
 
 	@Override
 	public PictogramElement add(IAddContext context) {
 		final Gateway addedGateway = (Gateway) context.getNewObject();
-		final Diagram targetDiagram = (Diagram) context.getTargetContainer();
+		final ContainerShape parent = context.getTargetContainer();
 
 		// CONTAINER SHAPE WITH CIRCLE
 		final IPeCreateService peCreateService = Graphiti.getPeCreateService();
-		final ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
+		final ContainerShape containerShape = peCreateService.createContainerShape(parent, true);
 
 		// check whether the context has a size (e.g. from a create feature)
 		// otherwise define a default size for the shape
@@ -58,7 +59,12 @@ public class AddGatewayFeature extends AbstractAddShapeFeature {
 			// diagram. In a real scenario the business model would have its own
 			// resource
 			if (addedGateway.eResource() == null) {
-				getDiagram().eResource().getContents().add(addedGateway);
+			  Object parentObject = getBusinessObjectForPictogramElement(parent);
+        if (parentObject instanceof SubProcess) {
+          ((SubProcess) parentObject).getFlowElements().add(addedGateway);
+        } else {
+          getDiagram().eResource().getContents().add(addedGateway);
+        }
 			}
 
 			// create link and wire it
@@ -112,10 +118,12 @@ public class AddGatewayFeature extends AbstractAddShapeFeature {
 	@Override
 	public boolean canAdd(IAddContext context) {
 		if (context.getNewObject() instanceof Gateway) {
-			// check if user wants to add to a diagram
-			if (context.getTargetContainer() instanceof Diagram) {
-				return true;
-			}
+			
+		  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+      
+      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess) {
+        return true;
+      }
 		}
 		return false;
 	}

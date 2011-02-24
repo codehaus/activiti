@@ -3,6 +3,7 @@ package org.activiti.designer.features;
 import org.activiti.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.ParallelGateway;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
@@ -17,7 +18,8 @@ public class CreateParallelGatewayFeature extends AbstractCreateBPMNFeature {
 	}
 
 	public boolean canCreate(ICreateContext context) {
-		return context.getTargetContainer() instanceof Diagram;
+	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
 	}
 
 	public Object[] create(ICreateContext context) {
@@ -25,7 +27,12 @@ public class CreateParallelGatewayFeature extends AbstractCreateBPMNFeature {
 		parallelGateway.setId(getNextId());
 		parallelGateway.setName("Parallel Gateway");
 		
-		getDiagram().eResource().getContents().add(parallelGateway);
+		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(parallelGateway);
+    } else {
+      getDiagram().eResource().getContents().add(parallelGateway);
+    }
 		
 		addGraphicalRepresentation(context, parallelGateway);
 		return new Object[] { parallelGateway };

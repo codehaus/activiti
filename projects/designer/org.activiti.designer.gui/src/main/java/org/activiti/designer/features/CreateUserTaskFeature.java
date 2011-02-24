@@ -2,6 +2,7 @@ package org.activiti.designer.features;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.UserTask;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
@@ -17,7 +18,8 @@ public class CreateUserTaskFeature extends AbstractCreateBPMNFeature {
 
 	@Override
 	public boolean canCreate(ICreateContext context) {
-		return context.getTargetContainer() instanceof Diagram;
+	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
 	}
 
 	@Override
@@ -27,7 +29,12 @@ public class CreateUserTaskFeature extends AbstractCreateBPMNFeature {
 		newUserTask.setId(getNextId());
 		newUserTask.setName("User Task");
 
-		getDiagram().eResource().getContents().add(newUserTask);
+		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(newUserTask);
+    } else {
+      getDiagram().eResource().getContents().add(newUserTask);
+    }
 
 		addGraphicalRepresentation(context, newUserTask);
 
