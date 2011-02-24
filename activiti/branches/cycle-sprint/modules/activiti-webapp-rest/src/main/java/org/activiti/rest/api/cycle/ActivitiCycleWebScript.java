@@ -56,7 +56,7 @@ public abstract class ActivitiCycleWebScript extends ActivitiWebScript {
     contentService = CycleServiceFactory.getContentService();
     pluginService = CycleServiceFactory.getCyclePluginService();
     processSolutionService = CycleServiceFactory.getProcessSolutionService();
-    eventService = CycleServiceFactory.getCycleEventService();
+    eventService = CycleServiceFactory.getEventService();
   }
 
   @Override
