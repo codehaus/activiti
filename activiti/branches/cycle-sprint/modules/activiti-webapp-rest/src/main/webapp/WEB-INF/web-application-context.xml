@@ -439,6 +439,11 @@
   		class="org.activiti.rest.api.cycle.ProcessSolutionGet"
   		parent="activitiWebScript">
   </bean>
+  
+  <bean id="webscript.org.activiti.rest.api.cycle.process-solution.put"
+  		class="org.activiti.rest.api.cycle.ProcessSolutionPut"
+  		parent="activitiWebScript">
+  </bean>  
 
 <bean parent="webscripts.formatmap">
   <property name="formats">
