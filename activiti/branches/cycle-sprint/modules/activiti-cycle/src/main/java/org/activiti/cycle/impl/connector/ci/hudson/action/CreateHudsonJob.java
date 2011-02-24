@@ -31,7 +31,7 @@ public class CreateHudsonJob {
 
   public static final String DEFAULT_JOB_NAME = "CreatedByActivitiCycle";
 
-  public Boolean createCIJobForProject(String hudsonUrl, String projectSVNUrl, String jobName, List<String> emailAddresses) {
+  public boolean createCIJobForProject(String hudsonUrl, String projectSVNUrl, String jobName, List<String> emailAddresses) {
     // TODO: check supplied values or not ;)
     if (hudsonUrl == null || hudsonUrl.length() == 0 || projectSVNUrl == null || projectSVNUrl.length() == 0) {
       throw new RepositoryException("HudsonUrl and ProjectSVNUrl must not be null or empty");
@@ -58,11 +58,11 @@ public class CreateHudsonJob {
     StringRepresentation configFileRep = new StringRepresentation(configXml, MediaType.APPLICATION_XML);
     try {
       Representation postResult = clientResource.post(configFileRep);
+      clientResource.release();
       return Boolean.TRUE;
     } catch (Exception e) {
       throw new RepositoryException("Encountered an error while creating Hudson CI Job for Project '" + jobName + "'", e);
     } finally {
-      clientResource.release();
       Engine.clearThreadLocalVariables();
     }
   }
