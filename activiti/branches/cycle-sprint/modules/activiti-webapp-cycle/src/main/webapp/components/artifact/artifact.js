@@ -528,12 +528,12 @@
       return new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", this.value.connectorId, this.value.nodeId, this.value.vFolderId, this.value.actionName);
     },
     
-    onExecuteLinkActionWithWarningClick: function Artifact_onExecuteLinkActionWithWarningClick(event, obj)
+    onExecuteLinkActionWithWarningClick: function Artifact_onExecuteLinkActionWithWarningClick(eventName, event, obj)
     {
       var url = obj.url;
       
       var content = document.createElement("div");
-      content.innerHTML = '<div class="bd"><form id="' + this.id + '-confirm-edit" accept-charset="utf-8"><h1>Confirm Edit</h1><p>The process is being worked on, are you sure you want to edit it?</p></form></div>';
+      content.innerHTML = '<div class="bd"><form id="' + this.id + '-confirm-edit" accept-charset="utf-8"><h1>Warning</h1><p>' + obj.warning + '</p></form></div>';
       
       var dialog = new YAHOO.widget.Dialog(content, 
       {
@@ -543,7 +543,7 @@
         modal: true,
         hideaftersubmit: false,
         buttons: [
-          { text: Activiti.i18n.getMessage("button.yes") , handler: { fn: function(event, dialog) {
+          { text: this.msg("button.yes") , handler: { fn: function(event, dialog) {
               window.open(url);
               if (dialog) {
                 dialog.destroy();
