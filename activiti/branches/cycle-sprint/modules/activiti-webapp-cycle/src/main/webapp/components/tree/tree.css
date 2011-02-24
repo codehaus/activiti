@@ -6,7 +6,7 @@
 	overflow: auto;
 }
 
-#content #left .activiti-component #treeDiv1 .loading {
+#content #left .activiti-component .loading {
 	background:url("/activiti-cycle/res/images/loading.gif") no-repeat scroll center center transparent;
 	height:8em;
 }
@@ -46,12 +46,11 @@
 .htmlnodelabel { margin-left: 20px; }
 
 /* Folder style for tree */
-
-#treeDiv1 a:hover {
+#Activiti #content div#left div.activiti-component a.ygtvspacer:hover {
   text-decoration: none;
 }
 
-#treeDiv1 .ygtvcontent {
+#Activiti #content div#left div.activiti-component .ygtvcontent {
   line-height:1.3em;
 }
 
