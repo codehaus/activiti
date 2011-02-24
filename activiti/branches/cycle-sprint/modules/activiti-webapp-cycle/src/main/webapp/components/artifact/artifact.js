@@ -68,17 +68,26 @@
       var size = parseInt(Dom.getStyle('content', 'width'), 10); 
       var left, main;
       var resize = new YAHOO.util.Resize('left', {
-          handles: ['r']
+          handles: ['r'],
+          minWidth: 320,
+          maxWidth: 485
         });
       left = Dom.get('left');
       main = Dom.get('main');
-      resize.on('resize', function(ev) {
-          var w = ev.width;
-          // Dom.setStyle(left, 'height', '');
-          Dom.setStyle(main, 'width', (size - w - 37) + 'px');
+      resize.on('resize', function(event) {
+          var newLeftWidth = event.width;
+          var viewport = [
+             Dom.getViewportWidth(),
+             Dom.getViewportHeight()
+          ];
+          var leftWidthPercentage = 100 / (viewport[0] / newLeftWidth);
+          var mainWidthPercentage = 100 - leftWidthPercentage - 2;
+          var mainWidthPx = viewport[0] / (100 / mainWidthPercentage);
+          
+          if(mainWidthPx < (viewport[0] - 355)) {
+            Dom.setStyle(main, 'width', mainWidthPercentage + '%');
+          }
         });
-      
-      
     },
     
     /**

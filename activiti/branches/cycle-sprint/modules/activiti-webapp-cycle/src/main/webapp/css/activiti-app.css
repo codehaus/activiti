@@ -122,3 +122,17 @@ h1 {
 }
 
 /* STRUCTURE */
+
+html #Activiti #content {
+  min-width: 1200px;
+}
+
+html #Activiti #content div#left {
+  min-width: 320px;
+  width: 26%;
+}
+
+html #Activiti #content.yui-gf div#main.yui-u {
+  min-width: 870px;
+  width: 72%;
+}

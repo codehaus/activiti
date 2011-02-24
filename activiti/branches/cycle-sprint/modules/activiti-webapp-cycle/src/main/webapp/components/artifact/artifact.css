@@ -282,7 +282,5 @@
 
 /* State Buttons */
 #Activiti .activiti-component div.home-div fieldset span.yui-button {
-  position: relative;
-  top: -12px;
-  left: 10px;
+  margin: 0 0 0 6px;
 }
