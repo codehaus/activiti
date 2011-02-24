@@ -158,6 +158,9 @@
 #Activiti .activiti-component div.home-div fieldset div.state-div div div {
   height: 67px;
   margin: 0 35px 0 7px;
+  /* Make all state arrows the same size */
+  text-align: center;
+  width: 170px;
 }
 
 #Activiti .activiti-component div.home-div fieldset div.state-div div div div {

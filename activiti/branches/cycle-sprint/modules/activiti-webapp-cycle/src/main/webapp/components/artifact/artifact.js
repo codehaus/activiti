@@ -280,16 +280,21 @@
       var homeDiv = document.createElement('div');
       homeDiv.setAttribute('class', 'home-div');
 
-      var specDoneButtonId = "spec-done-button";
+      var stateDoneButtonId = "state-done-button";
 
       homeDiv.innerHTML = "<fieldset><legend>Solution State:</legend><div class='state-div active'><div><div><div class='specification'></div><span>Specification</span></div></div></div>" +
        "<div class='state-div " + ((response.json.state === "IN_IMPLEMENTATION" || response.json.state === "IN_TESTING" || response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='implementation'></div><span>Implementation</span></div></div></div>" +
        "<div class='state-div " + ((response.json.state === "IN_TESTING" || response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='testing'></div><span>Testing</span></div></div></div>" +
        "<div class='state-div " + ((response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='operations'></div><span>Operations</span></div></div></div>" +
-       '<span id="' + specDoneButtonId + '" class="yui-button"><span class="first-child"><button type="button">Specification done</button></span></span></fieldset>';
+       '<span id="' + stateDoneButtonId + '" class="yui-button"><span class="first-child"><button type="button">Specification done</button></span></span></fieldset>';
 
       // temporary workaround until the backend returns descriptions...
-      var descriptions = {Management: "For your business documents related to the solution", Processes: "Your BPMN diagrams, created with the Activiti Modeler", Requirements: "Requirements (e.g. Word or text documents) describing your solution", Implementation: 'All technical artifacts, e.g. Java files and Eclipse projects'};
+      var descriptions = {
+        Management: "For your business documents related to the solution",
+        Processes: "Your BPMN diagrams, created with the Activiti Modeler",
+        Requirements: "Requirements (e.g. Word or text documents) describing your solution",
+        Implementation: 'All technical artifacts, e.g. Java files and Eclipse projects'
+      };
 
       var solutionArtifacts = "<fieldset id='solution-artifacts-fieldset'><legend>Solution Artifacts</legend></fieldset>";
       homeDiv.innerHTML += solutionArtifacts;
@@ -312,11 +317,34 @@
 
         solutionArtifactsfieldsetEl.appendChild(solutionArtifactEl);
         
-        Event.addListener(folderLink, "click", this.onFolderLinkClick, {connectorId: folder.connectorId, nodeId: folder.id, label: folder.label}, this);
+        Event.addListener(folderLink, "click", this.onFolderLinkClick, {connectorId: folder.connectorId, nodeId: folder.nodeId, label: folder.label}, this);
       }
 
-      var specDoneButton = new YAHOO.widget.Button(specDoneButtonId, { label:"Specification done", id:"specDoneButton" });
-      specDoneButton.addListener("click", this.onClickSpecDoneButton, {processSolutionId: response.json.id, state: "IN_IMPLEMENTATION"}, this);
+      // Create a button to move on to the next state, unless the current state is the last one "Operations"
+      if(response.json.state != "IN_SPECIFICATION") {
+        // A map of the states and their names. It is debatable whether this is the right place for this...
+        var states = {
+          IN_SPECIFICATION: "Specification",
+          IN_IMPLEMENTATION: "Implementation",
+          IN_TESTING: "Testing",
+          IN_OPERATIONS: "Operations"
+        };
+
+        // Some ugly code to determine the next state for the state button
+        var nextState = false; 
+        for(var key in states) {
+          if(nextState) {
+            nextState = key;
+            break;
+          }
+          if(key === response.json.state) {
+            nextState = true;
+          }
+        }
+
+        var stateDoneButton = new YAHOO.widget.Button(stateDoneButtonId, { label: states[response.json.state] + " done", id: "stateDoneButton" });
+        stateDoneButton.addListener("click", this.onClickStateDoneButton, {processSolutionId: response.json.id, state: states[nextState]}, this);
+      }
     },
 
     onLoadProcessSolutionFailure: function Artifact_onLoadProcessSolutionFailure(response, obj)
@@ -325,7 +353,7 @@
       alert("Oooops, something went wrong... But don't worry, we're working on it!");
     },
 
-    onClickSpecDoneButton: function Artifact_onClickSpecDoneButton(event, obj)
+    onClickStateDoneButton: function Artifact_onClickStateDoneButton(event, obj)
     {
       this.services.repositoryService.updateProcessSolution(obj);
     },
