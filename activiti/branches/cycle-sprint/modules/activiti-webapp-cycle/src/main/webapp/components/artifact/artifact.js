@@ -252,7 +252,11 @@
         }
         var links = [];
         for(i=0; i<artifactJson.links.length; i++) {
-          links.push({ text: artifactJson.links[i].label, url: artifactJson.links[i].url, target: "_blank"});
+          if(artifactJson.links[i].warning) {
+            links.push({ text: artifactJson.links[i].label, onclick: { fn: this.onExecuteLinkActionWithWarningClick, obj: {url: artifactJson.links[i].url, warning: artifactJson.links[i].warning}, scope: this } });            
+          } else {
+            links.push({ text: artifactJson.links[i].label, url: artifactJson.links[i].url, target: "_blank"});            
+          }
         }
         if(links.length > 0) {
           actionsMenuItems.push(links);
@@ -286,7 +290,8 @@
        "<div class='state-div " + ((response.json.state === "IN_IMPLEMENTATION" || response.json.state === "IN_TESTING" || response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='implementation'></div><span>Implementation</span></div></div></div>" +
        "<div class='state-div " + ((response.json.state === "IN_TESTING" || response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='testing'></div><span>Testing</span></div></div></div>" +
        "<div class='state-div " + ((response.json.state === "IN_OPERATIONS") ? "active" : "inactive") + "'><div><div><div class='operations'></div><span>Operations</span></div></div></div>" +
-       '<span id="' + stateDoneButtonId + '" class="yui-button"><span class="first-child"><button type="button">Specification done</button></span></span></fieldset>';
+       (response.json.state != "IN_OPERATIONS" ? '<span id="' + stateDoneButtonId + '" class="yui-button"><span class="first-child"><button type="button"></button></span></span>' : '') + 
+       '</fieldset>';
 
       // temporary workaround until the backend returns descriptions...
       var descriptions = {
@@ -321,7 +326,7 @@
       }
 
       // Create a button to move on to the next state, unless the current state is the last one "Operations"
-      if(response.json.state != "IN_SPECIFICATION") {
+      if(response.json.state != "IN_OPERATIONS") {
         // A map of the states and their names. It is debatable whether this is the right place for this...
         var states = {
           IN_SPECIFICATION: "Specification",
@@ -343,7 +348,7 @@
         }
 
         var stateDoneButton = new YAHOO.widget.Button(stateDoneButtonId, { label: states[response.json.state] + " done", id: "stateDoneButton" });
-        stateDoneButton.addListener("click", this.onClickStateDoneButton, {processSolutionId: response.json.id, state: states[nextState]}, this);
+        stateDoneButton.addListener("click", this.onClickStateDoneButton, {processSolutionId: response.json.id, state: nextState}, this);
       }
     },
 
@@ -521,6 +526,38 @@
     onExecuteActionClick: function Artifact_onExecuteActionClick(e)
     {
       return new Activiti.widget.ExecuteArtifactActionForm(this.id + "-executeArtifactActionForm", this.value.connectorId, this.value.nodeId, this.value.vFolderId, this.value.actionName);
+    },
+    
+    onExecuteLinkActionWithWarningClick: function Artifact_onExecuteLinkActionWithWarningClick(event, obj)
+    {
+      var url = obj.url;
+      
+      var content = document.createElement("div");
+      content.innerHTML = '<div class="bd"><form id="' + this.id + '-confirm-edit" accept-charset="utf-8"><h1>Confirm Edit</h1><p>The process is being worked on, are you sure you want to edit it?</p></form></div>';
+      
+      var dialog = new YAHOO.widget.Dialog(content, 
+      {
+        fixedcenter: "contained",
+        visible: false,
+        constraintoviewport: true,
+        modal: true,
+        hideaftersubmit: false,
+        buttons: [
+          { text: Activiti.i18n.getMessage("button.yes") , handler: { fn: function(event, dialog) {
+              window.open(url);
+              if (dialog) {
+                dialog.destroy();
+              }
+            }, isDefault:true }
+          },
+          { text: Activiti.i18n.getMessage("button.cancel"), handler: { fn: function CreateFolderDialog_onCancel(event, dialog) {
+              dialog.cancel();
+            }}
+          }
+        ]
+      });
+		  dialog.render(document.body);
+		  dialog.show();
     },
     
     onTabDataLoaded: function Artifact_onTabDataLoaded()
