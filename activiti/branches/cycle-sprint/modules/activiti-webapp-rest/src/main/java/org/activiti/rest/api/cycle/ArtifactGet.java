@@ -24,6 +24,8 @@ import org.activiti.cycle.action.DownloadContentAction;
 import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionRepositoryNode;
+import org.activiti.cycle.processsolution.VirtualRepositoryFolder;
+import org.activiti.rest.api.cycle.dto.AddRequirementActionDto;
 import org.activiti.rest.api.cycle.dto.DownloadActionView;
 import org.activiti.rest.util.ActivitiRequest;
 import org.springframework.extensions.webscripts.Cache;
@@ -61,9 +63,21 @@ public class ArtifactGet extends ActivitiCycleWebScript {
 
     if (artifact instanceof ProcessSolutionArtifact) {
       ProcessSolutionArtifact psArtifact = (ProcessSolutionArtifact) artifact;
-      if (psArtifact.getVirtualRepositoryFolder() != null) {
-        model.put("type", psArtifact.getVirtualRepositoryFolder().getType());
-        model.put("processSolutionId", psArtifact.getProcessSolution().getId());
+      if (psArtifact.getVirtualRepositoryFolder() != null && "Processes".equals(psArtifact.getVirtualRepositoryFolder().getType())) {
+        List<VirtualRepositoryFolder> foldersForThisProcessSolution = processSolutionService.getFoldersForProcessSolution(psArtifact.getProcessSolution()
+                .getId());
+        VirtualRepositoryFolder requirementsFolder = null;
+        for (VirtualRepositoryFolder virtualRepositoryFolder : foldersForThisProcessSolution) {
+          if ("Requirements".equals(virtualRepositoryFolder.getType())) {
+            requirementsFolder = virtualRepositoryFolder;
+          }
+        }
+        if (requirementsFolder != null) {
+          AddRequirementActionDto dto = new AddRequirementActionDto();
+          dto.setRequirementsFolderConnectorId(requirementsFolder.getConnectorId());
+          dto.setRequirementsFolderId(requirementsFolder.getReferencedNodeId());
+          model.put("addRequirementAction", dto);
+        }
       }
     }
 

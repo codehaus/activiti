@@ -52,9 +52,9 @@ public class ArtifactPost extends ActivitiCycleWebScript {
     String connectorId = req.getMandatoryString(obj, "connectorId");
     String parentFolderId = req.getMandatoryString(obj, "parentFolderId");
     String artifactName = req.getMandatoryString(obj, "artifactName");
-    String linkToNodeId = obj.getString("linkToNodeId");
-    String linkToConnectorId = obj.getString("linkToConnectorId");
-    String linkType = obj.getString("linkType");
+    String linkToNodeId = req.getOptionalString(obj, "linkToNodeId");
+    String linkToConnectorId = req.getOptionalString(obj, "linkToConnectorId");
+    String linkType = req.getOptionalString(obj, "linkType");
 
     // TODO: set a meaningful value for artifactType
     String artifactType = "";
@@ -87,11 +87,11 @@ public class ArtifactPost extends ActivitiCycleWebScript {
 
       if (linkToNodeId != null && linkToNodeId.length() > 0 && !linkToNodeId.equals("undefined") && linkToConnectorId != null && linkToConnectorId.length() > 0
               && !linkToConnectorId.equals("undefined")) {
-        RepositoryArtifact sourceArtifact = repositoryService.getRepositoryArtifact(linkToConnectorId, linkToNodeId);
+        RepositoryArtifact targetArtifact = repositoryService.getRepositoryArtifact(linkToConnectorId, linkToNodeId);
         RepositoryArtifactLinkEntity newLink = new RepositoryArtifactLinkEntity();
         newLink.setLinkType(linkType);
-        newLink.setSourceArtifact(sourceArtifact);
-        newLink.setTargetArtifact(createdArtifact);
+        newLink.setSourceArtifact(createdArtifact);
+        newLink.setTargetArtifact(targetArtifact);
         repositoryService.addArtifactLink(newLink);
       }
 

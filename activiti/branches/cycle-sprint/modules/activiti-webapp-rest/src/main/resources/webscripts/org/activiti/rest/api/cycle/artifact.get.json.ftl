@@ -8,8 +8,12 @@
   "connectorId": "${connectorId}",
   "nodeId": "${nodeId}",
   "vFolderId": "${vFolderId!''}",
-  "type": "${type!''}",
-  "processSolutionId": "${processSolutionId!''}",
+  <#if addRequirementAction??>
+  	"addRequirementAction": {	
+  		"connectorId": "${addRequirementAction.requirementsFolderConnectorId}",
+  		"parentFolderId": "${addRequirementAction.requirementsFolderId}"
+  	},
+  </#if> 
   "contentRepresentations": [
   <#list contentRepresentations as contentRepresentation>
       "${contentRepresentation}"
