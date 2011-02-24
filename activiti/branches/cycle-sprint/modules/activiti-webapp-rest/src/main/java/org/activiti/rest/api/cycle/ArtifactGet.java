@@ -74,8 +74,8 @@ public class ArtifactGet extends ActivitiCycleWebScript {
         }
         if (requirementsFolder != null) {
           AddRequirementActionDto dto = new AddRequirementActionDto();
-          dto.setRequirementsFolderConnectorId(requirementsFolder.getConnectorId());
-          dto.setRequirementsFolderId(requirementsFolder.getReferencedNodeId());
+          dto.setRequirementsFolderConnectorId("ps-" + psArtifact.getProcessSolution().getId());
+          dto.setRequirementsFolderId(psArtifact.getProcessSolution().getId() + "/" + requirementsFolder.getId());
           model.put("addRequirementAction", dto);
         }
       }
