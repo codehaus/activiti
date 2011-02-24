@@ -21,9 +21,9 @@ public class CycleEventServiceImpl implements CycleEventService {
   Logger log = Logger.getLogger(CycleEventService.class.getName());
 
   public <T> void fireEvent(T event) {
-    List<Exception> exceptions = new ArrayList<Exception>();
+    Exception exception = null;
     List<CycleEventListener<T>> successfulEventListeners = new ArrayList<CycleEventListener<T>>();
-    CycleEvents cycleEvents = CycleComponentFactory.getCycleComponentInstance(CycleEvents.class, CycleEvents.class);    
+    CycleEvents cycleEvents = CycleComponentFactory.getCycleComponentInstance(CycleEvents.class, CycleEvents.class);
     for (CycleEventListener<T> eventListener : cycleEvents.getEventListeners((Class<T>) event.getClass())) {
       try {
         eventListener.onEvent(event);
@@ -31,11 +31,12 @@ public class CycleEventServiceImpl implements CycleEventService {
       } catch (Exception e) {
         log.log(Level.SEVERE, "Error while invoking EventListener '" + eventListener.getClass().getName() + "' with event '" + event + "': " + e.getMessage(),
                 e);
-        exceptions.add(e);
+        exception = e;
+        break;
       }
     }
-    // try to compensate exceptions
-    if (exceptions.size() > 0) {
+    // try to compensate
+    if (exception != null) {
       for (CycleEventListener<T> cycleEventListener : successfulEventListeners) {
         if (cycleEventListener instanceof CycleCompensatingEventListener) {
           CycleCompensatingEventListener<T> compensatingListener = (CycleCompensatingEventListener<T>) cycleEventListener;
@@ -45,12 +46,11 @@ public class CycleEventServiceImpl implements CycleEventService {
             log.log(Level.SEVERE,
                     "Error while compensating EventListener '" + compensatingListener.getClass().getName() + "' with event '" + event + "': " + e.getMessage(),
                     e);
+            // let this one pass, error during compensation
 
-            exceptions.add(e);
           }
         }
-        // TODO: how to communicate Exceptions?
-        throw new RuntimeException("Could not fire Event " + event + ".");
+        throw new RuntimeException("Could not fire Event " + event + ".", exception);
       }
     }
   }
