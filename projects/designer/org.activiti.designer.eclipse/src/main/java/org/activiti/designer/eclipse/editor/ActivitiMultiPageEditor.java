@@ -199,6 +199,7 @@ public class ActivitiMultiPageEditor extends MultiPageEditorPart implements IRes
     super.pageChange(newPageIndex);
     if (newPageIndex == 1) {
       bpmnEditor.setInput(getBPMN2EditorInput());
+      bpmnEditor.doRevertToSaved();
     }
   }
 

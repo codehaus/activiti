@@ -73,6 +73,10 @@ public class SequenceFlowSynchronizer {
 
 		private void setup() {
 		  
+		  if(this.graphicalRepresentation == null) return;
+		  
+      if(this.graphicalRepresentation.getStart() == null) return;
+		  
 		  if(this.graphicalRepresentation.getStart().getParent() == null) return;
 		  
 			final EObject startPE = this.graphicalRepresentation.getStart().getParent().getLink().getBusinessObjects()
@@ -97,6 +101,9 @@ public class SequenceFlowSynchronizer {
 		}
 
 		public boolean isOutOfSync() {
+		  
+		  if(graphicalStartId == null || graphicalEndId == null) return false;
+		  
 			if (!graphicalStartId.equals(businessStartId) || !graphicalEndId.equals(businessEndId)) {
 				return true;
 			}

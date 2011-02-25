@@ -1,17 +1,13 @@
 package org.activiti.designer.eclipse.ui;
 
 import java.io.InputStream;
-import java.util.Collection;
 
-import org.activiti.designer.eclipse.Logger;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.eclipse.common.FileService;
-import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
 import org.activiti.designer.eclipse.navigator.nodes.base.AbstractInstancesOfTypeContainerNode;
 import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.designer.eclipse.preferences.PreferencesUtil;
-import org.activiti.designer.eclipse.util.ExtensionPointUtil;
 import org.activiti.designer.eclipse.util.Util;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.Documentation;
@@ -35,7 +31,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 /**
@@ -174,25 +169,6 @@ public class CreateDiagramWizard extends BasicNewResourceWizard {
 
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
 		DiagramEditorInput editorInput = new DiagramEditorInput(EcoreUtil.getURI(diagram), domain, providerId);
-		
-		// Determine list of ExportMarshallers to invoke after regular save
-    final Collection<ExportMarshaller> marshallers = ExtensionPointUtil.getActiveExportMarshallers();
-
-    if (marshallers.size() > 0) {
-      // Get the resource belonging to the editor part
-      final Diagram diagram = editorInput.getDiagram();
-
-      // Get the progress service so we can have a progress monitor
-      final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
-
-      try {
-        final ExportMarshallerRunnable runnable = new ExportMarshallerRunnable(
-            diagram, marshallers);
-        progressService.busyCursorWhile(runnable);
-      } catch (Exception e) {
-        Logger.logError("Exception while performing save", e);
-      }
-    }
 
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()

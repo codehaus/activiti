@@ -14,15 +14,9 @@
 package org.activiti.designer.eclipse.bpmnimport;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
-import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
-import org.activiti.designer.eclipse.ui.ExportMarshallerRunnable;
-import org.activiti.designer.eclipse.util.ExtensionPointUtil;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -31,8 +25,6 @@ import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.progress.IProgressService;
 
 
 /**
@@ -65,18 +57,6 @@ public class ImportBpmnUtil {
 
     // Dispose the editing domain to eliminate memory leak
     editingDomain.dispose();
-    
-    // Determine list of ExportMarshallers to invoke after regular save
-    final Collection<ExportMarshaller> marshallers = ExtensionPointUtil.getActiveExportMarshallers();
-    
-    IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
-
-    ExportMarshallerRunnable runnable = new ExportMarshallerRunnable(operation.getDiagram(), marshallers);
-    try {
-      progressService.busyCursorWhile(runnable);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     return operation;
   }
 

@@ -15,6 +15,7 @@ import org.activiti.designer.eclipse.extension.AbstractDiagramWorker;
 import org.activiti.designer.eclipse.extension.validation.ProcessValidator;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.activiti.designer.features.CreateBoundaryTimerFeature;
+import org.activiti.designer.features.CreateCallActivityFeature;
 import org.activiti.designer.features.CreateCustomServiceTaskFeature;
 import org.activiti.designer.features.CreateEmbeddedSubProcessFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
@@ -97,7 +98,7 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
     toolMapping.put(CreateParallelGatewayFeature.class, PaletteEntry.PARALLEL_GATEWAY);
     toolMapping.put(CreateScriptTaskFeature.class, PaletteEntry.SCRIPT_TASK);
     toolMapping.put(CreateServiceTaskFeature.class, PaletteEntry.SERVICE_TASK);
-    //toolMapping.put(CreateCallActivityFeature.class, PaletteEntry.CALL_ACTIVITY);
+    toolMapping.put(CreateCallActivityFeature.class, PaletteEntry.CALL_ACTIVITY);
     toolMapping.put(CreateEmbeddedSubProcessFeature.class, PaletteEntry.SUBPROCESS);
     toolMapping.put(CreateUserTaskFeature.class, PaletteEntry.USER_TASK);
     toolMapping.put(CreateBoundaryTimerFeature.class, PaletteEntry.BOUNDARY_TIMER);
@@ -210,6 +211,7 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
     IPaletteCompartmentEntry eventCompartmentEntry = new PaletteCompartmentEntry("Event", null);
     IPaletteCompartmentEntry taskCompartmentEntry = new PaletteCompartmentEntry("Task", null);
     IPaletteCompartmentEntry gatewayCompartmentEntry = new PaletteCompartmentEntry("Gateway", null);
+    IPaletteCompartmentEntry boundaryEventCompartmentEntry = new PaletteCompartmentEntry("Boundary event", null);
 
     for (int i = 0; i < superCompartments.length; i++) {
 
@@ -241,8 +243,8 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("receivetask".equalsIgnoreCase(toolEntry.getLabel())) {
           taskCompartmentEntry.getToolEntries().add(toolEntry);
-        } else if ("boundarytimer".equalsIgnoreCase(toolEntry.getLabel())) {
-          taskCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("timerboundaryevent".equalsIgnoreCase(toolEntry.getLabel())) {
+          boundaryEventCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("parallelgateway".equalsIgnoreCase(toolEntry.getLabel())) {
           gatewayCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("exclusivegateway".equalsIgnoreCase(toolEntry.getLabel())) {
@@ -265,6 +267,9 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
     }
     if (gatewayCompartmentEntry.getToolEntries().size() > 0) {
       ret.add(gatewayCompartmentEntry);
+    }
+    if (boundaryEventCompartmentEntry.getToolEntries().size() > 0) {
+      ret.add(boundaryEventCompartmentEntry);
     }
 
     final Map<String, List<CustomServiceTaskContext>> tasksInDrawers = new HashMap<String, List<CustomServiceTaskContext>>();

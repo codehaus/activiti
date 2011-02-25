@@ -69,6 +69,7 @@ public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
     
     try {
       PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(input, ActivitiBPMNDiagramConstants.DIAGRAM_EDITOR_ID);
+      
     } catch (PartInitException e) {
       String error = "Error while opening diagram editor";
       IStatus status = new Status(IStatus.ERROR, ActivitiPlugin.getID(), error, e);

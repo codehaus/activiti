@@ -1,6 +1,7 @@
 package org.activiti.designer.diagram;
 
 import org.activiti.designer.features.AddBoundaryTimerFeature;
+import org.activiti.designer.features.AddCallActivityFeature;
 import org.activiti.designer.features.AddEmbeddedSubProcessFeature;
 import org.activiti.designer.features.AddEndEventFeature;
 import org.activiti.designer.features.AddExclusiveGatewayFeature;
@@ -15,6 +16,7 @@ import org.activiti.designer.features.AddStartEventFeature;
 import org.activiti.designer.features.AddUserTaskFeature;
 import org.activiti.designer.features.CopyFlowElementFeature;
 import org.activiti.designer.features.CreateBoundaryTimerFeature;
+import org.activiti.designer.features.CreateCallActivityFeature;
 import org.activiti.designer.features.CreateEmbeddedSubProcessFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
@@ -35,6 +37,7 @@ import org.activiti.designer.features.SaveBpmnModelFeature;
 import org.activiti.designer.features.SubProcessResizeFeature;
 import org.activiti.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.BoundaryEvent;
+import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
 import org.eclipse.bpmn2.FlowElement;
@@ -109,8 +112,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
       return new AddBoundaryTimerFeature(this);
 		} else if (context.getNewObject() instanceof SubProcess) {
       return new AddEmbeddedSubProcessFeature(this);
-    /*} else if (context.getNewObject() instanceof CallActivity) {
-			return new AddCallActivityFeature(this);*/
+		} else if (context.getNewObject() instanceof CallActivity) {
+			return new AddCallActivityFeature(this);
 		}
 		return super.getAddFeature(context);
 	}
@@ -121,7 +124,7 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
 				new CreateMailTaskFeature(this), new CreateManualTaskFeature(this), new CreateReceiveTaskFeature(this),
 				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this), new CreateBoundaryTimerFeature(this),
-				new CreateEmbeddedSubProcessFeature(this), /*new CreateCallActivityFeature(this)*/ };
+				new CreateEmbeddedSubProcessFeature(this), new CreateCallActivityFeature(this) };
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.BoundaryEvent;
 import org.eclipse.bpmn2.SubProcess;
+import org.eclipse.bpmn2.Task;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
@@ -18,7 +19,7 @@ import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddBoundaryTimerFeature extends AbstractAddShapeFeature {
   
-  private static final int IMAGE_SIZE = 30;
+  private static final int IMAGE_SIZE = 20;
 	
 	public AddBoundaryTimerFeature(IFeatureProvider fp) {
 		super(fp);
@@ -27,16 +28,16 @@ public class AddBoundaryTimerFeature extends AbstractAddShapeFeature {
 	@Override
   public PictogramElement add(IAddContext context) {
     final BoundaryEvent addedEvent = (BoundaryEvent) context.getNewObject();
-    final ContainerShape parentContainer = context.getTargetContainer();
+    final ContainerShape parent = context.getTargetContainer();
 
     // CONTAINER SHAPE WITH CIRCLE
     final IPeCreateService peCreateService = Graphiti.getPeCreateService();
-    final ContainerShape containerShape = peCreateService.createContainerShape(parentContainer, true);
+    final ContainerShape containerShape = peCreateService.createContainerShape(parent, true);
 
     // check whether the context has a size (e.g. from a create feature)
     // otherwise define a default size for the shape
-    final int width = context.getWidth() <= 0 ? 40 : context.getWidth();
-    final int height = context.getHeight() <= 0 ? 40 : context.getHeight();
+    final int width = context.getWidth() <= 0 ? IMAGE_SIZE : context.getWidth();
+    final int height = context.getHeight() <= 0 ? IMAGE_SIZE : context.getHeight();
 
     final IGaService gaService = Graphiti.getGaService();
 
@@ -52,12 +53,14 @@ public class AddBoundaryTimerFeature extends AbstractAddShapeFeature {
       circle.setParentGraphicsAlgorithm(invisibleCircle);
       circle.setStyle(StyleUtil.getStyleForBoundaryEvent(getDiagram()));
       gaService.setLocationAndSize(circle, 0, 0, width, height);
-
-      // if addedClass has no resource we add it to the resource of the
-      // diagram
-      // in a real scenario the business model would have its own resource
+      
       if (addedEvent.eResource() == null) {
-        getDiagram().eResource().getContents().add(addedEvent);
+        Object parentObject = getBusinessObjectForPictogramElement(parent);
+        if (parentObject instanceof SubProcess) {
+          ((SubProcess) parentObject).getFlowElements().add(addedEvent);
+        } else {
+          getDiagram().eResource().getContents().add(addedEvent);
+        }
       }
 
       // create link and wire it
@@ -85,7 +88,7 @@ public class AddBoundaryTimerFeature extends AbstractAddShapeFeature {
   @Override
   public boolean canAdd(IAddContext context) {
     Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-    if (parentObject instanceof SubProcess == false) {
+    if (parentObject instanceof SubProcess == false && parentObject instanceof Task == false) {
       return false;
     }
     if (context.getNewObject() instanceof BoundaryEvent == false) {

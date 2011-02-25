@@ -33,7 +33,7 @@ public class StyleUtil {
 	// Midnight Blue
 	private static final IColorConstant BPMN_CLASS_FOREGROUND = new ColorConstant(25, 25, 112);
 	
-	private static final IColorConstant BOUNDARY_EVENT_FOREGROUND = new ColorConstant(255, 255, 0);
+	private static final IColorConstant BOUNDARY_EVENT_FOREGROUND = new ColorConstant(0, 0, 0);
 	
 	private static final IColorConstant EMBEDDED_PROCESS_FOREGROUND = new ColorConstant(0, 0, 0);
 
@@ -51,6 +51,20 @@ public class StyleUtil {
 		return style;
 	}
 	
+	public static Style getStyleForCallActivity(Diagram diagram) {
+    final String styleId = "CALL-ACTIVITY"; //$NON-NLS-1$
+
+    Style style = findStyle(diagram, styleId);
+    if (style == null) { // style not found - create new style
+      IGaService gaService = Graphiti.getGaService();
+      style = gaService.createStyle(diagram, styleId);
+      style.setForeground(gaService.manageColor(diagram, BPMN_CLASS_FOREGROUND));
+      gaService.setRenderingStyle(style, PredefinedColoredAreas.getBlueWhiteGlossAdaptions());
+      style.setLineWidth(20);
+    }
+    return style;
+  }
+	
 	public static Style getStyleForBoundaryEvent(Diagram diagram) {
     final String styleId = "BOUNDARY-EVENT"; //$NON-NLS-1$
 
@@ -59,7 +73,7 @@ public class StyleUtil {
       IGaService gaService = Graphiti.getGaService();
       style = gaService.createStyle(diagram, styleId);
       style.setForeground(gaService.manageColor(diagram, BOUNDARY_EVENT_FOREGROUND));
-      gaService.setRenderingStyle(style, PredefinedColoredAreas.getLightYellowAdaptions());
+      gaService.setRenderingStyle(style, PredefinedColoredAreas.getSilverWhiteGlossAdaptions());
       style.setLineWidth(2);
     }
     return style;

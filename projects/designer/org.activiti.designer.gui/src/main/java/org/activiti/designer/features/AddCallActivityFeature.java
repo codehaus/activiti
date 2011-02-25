@@ -2,8 +2,11 @@ package org.activiti.designer.features;
 
 import org.activiti.designer.ActivitiImageProvider;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
+import org.activiti.designer.util.OSEnum;
+import org.activiti.designer.util.OSUtil;
 import org.activiti.designer.util.StyleUtil;
 import org.eclipse.bpmn2.CallActivity;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
@@ -33,11 +36,11 @@ public class AddCallActivityFeature extends AbstractAddShapeFeature {
 	public PictogramElement add(IAddContext context) {
 
 		final CallActivity addedCallActivity = (CallActivity) context.getNewObject();
-		final Diagram targetDiagram = (Diagram) context.getTargetContainer();
+		final ContainerShape parent = context.getTargetContainer();
 
 		// CONTAINER SHAPE WITH ROUNDED RECTANGLE
 		final IPeCreateService peCreateService = Graphiti.getPeCreateService();
-		final ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
+		final ContainerShape containerShape = peCreateService.createContainerShape(parent, true);
 
 		// EList<Property> props = containerShape.getProperties();
 
@@ -57,14 +60,20 @@ public class AddCallActivityFeature extends AbstractAddShapeFeature {
 			// create and set visible rectangle inside invisible rectangle
 			roundedRectangle = gaService.createRoundedRectangle(invisibleRectangle, 5, 5);
 			roundedRectangle.setParentGraphicsAlgorithm(invisibleRectangle);
-			roundedRectangle.setStyle(StyleUtil.getStyleForEClass(getDiagram()));
+			roundedRectangle.setStyle(StyleUtil.getStyleForCallActivity(getDiagram()));
+			roundedRectangle.setLineWidth(3);
 			gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
 
 			// if addedClass has no resource we add it to the resource of the
 			// diagram
 			// in a real scenario the business model would have its own resource
 			if (addedCallActivity.eResource() == null) {
-				getDiagram().eResource().getContents().add(addedCallActivity);
+			  Object parentObject = getBusinessObjectForPictogramElement(parent);
+        if (parentObject instanceof SubProcess) {
+          ((SubProcess) parentObject).getFlowElements().add(addedCallActivity);
+        } else {
+          getDiagram().eResource().getContents().add(addedCallActivity);
+        }
 			}
 
 			// create link and wire it
@@ -82,6 +91,9 @@ public class AddCallActivityFeature extends AbstractAddShapeFeature {
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
 			text.getFont().setBold(true);
+      if (OSUtil.getOperatingSystem() == OSEnum.Mac) {
+        text.getFont().setSize(11);
+      }
 			gaService.setLocationAndSize(text, 0, 20, width, 20);
 
 			// create link and wire it
@@ -97,7 +109,7 @@ public class AddCallActivityFeature extends AbstractAddShapeFeature {
 			directEditingInfo.setPictogramElement(shape);
 			directEditingInfo.setGraphicsAlgorithm(text);
 		}
-
+		
 		{
 			final Shape shape = peCreateService.createShape(containerShape, false);
 			final Image image = gaService.createImage(shape, getIcon());
@@ -128,11 +140,12 @@ public class AddCallActivityFeature extends AbstractAddShapeFeature {
 	@Override
 	public boolean canAdd(IAddContext context) {
 		if (context.getNewObject() instanceof CallActivity) {
-			// check if user wants to add to a diagram
-			// TODO: lanes & pools
-			if (context.getTargetContainer() instanceof Diagram) {
-				return true;
-			}
+			
+		  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+      
+      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess) {
+        return true;
+      }
 		}
 		return false;
 	}

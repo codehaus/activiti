@@ -1,9 +1,11 @@
 package org.activiti.designer.features;
 
 import org.activiti.designer.ActivitiImageProvider;
+import org.eclipse.bpmn2.Activity;
 import org.eclipse.bpmn2.BoundaryEvent;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.SubProcess;
+import org.eclipse.bpmn2.Task;
 import org.eclipse.bpmn2.TimerEventDefinition;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
@@ -14,15 +16,17 @@ public class CreateBoundaryTimerFeature extends AbstractCreateBPMNFeature {
 
 	public CreateBoundaryTimerFeature(IFeatureProvider fp) {
 		// set name and description of the creation feature
-		super(fp, "BoundaryTimer", "Add boundary timer");
+		super(fp, "TimerBoundaryEvent", "Add timer boundary event");
 	}
 
 	public boolean canCreate(ICreateContext context) {
 	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-    if (parentObject instanceof SubProcess == false) {
-      return false;
+    if (parentObject instanceof SubProcess == true ||
+            parentObject instanceof Task == true) {
+      
+      return true;
     }
-    return true;
+    return false;
 	}
 
 	public Object[] create(ICreateContext context) {
@@ -32,7 +36,15 @@ public class CreateBoundaryTimerFeature extends AbstractCreateBPMNFeature {
 		
 		boundaryEvent.setId(getNextId());
 		
-		getDiagram().eResource().getContents().add(boundaryEvent);
+		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(boundaryEvent);
+    } else {
+      getDiagram().eResource().getContents().add(boundaryEvent);
+    }
+    
+    ((Activity) parentObject).getBoundaryEventRefs().add(boundaryEvent);
+    boundaryEvent.setAttachedToRef((Activity) parentObject);
 
 		// do the add
 		addGraphicalRepresentation(context, boundaryEvent);
@@ -43,7 +55,7 @@ public class CreateBoundaryTimerFeature extends AbstractCreateBPMNFeature {
 	
 	@Override
 	public String getCreateImageId() {
-		return ActivitiImageProvider.IMG_ENDEVENT_NONE;
+		return ActivitiImageProvider.IMG_BOUNDARY_TIMER;
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package org.activiti.designer.features;
 import org.activiti.designer.ActivitiImageProvider;
 import org.eclipse.bpmn2.Bpmn2Factory;
 import org.eclipse.bpmn2.CallActivity;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
@@ -17,8 +18,8 @@ public class CreateCallActivityFeature extends AbstractCreateBPMNFeature {
 
 	@Override
 	public boolean canCreate(ICreateContext context) {
-		// TODO: revisit once lanes and pools have been added
-		return context.getTargetContainer() instanceof Diagram;
+	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
 	}
 
 	@Override
@@ -27,7 +28,12 @@ public class CreateCallActivityFeature extends AbstractCreateBPMNFeature {
 		callActivity.setId(getNextId());
 		callActivity.setName("Call activity");
 
-		getDiagram().eResource().getContents().add(callActivity);
+		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof SubProcess) {
+      ((SubProcess) parentObject).getFlowElements().add(callActivity);
+    } else {
+      getDiagram().eResource().getContents().add(callActivity);
+    }
 
 		// do the add
 		addGraphicalRepresentation(context, callActivity);
@@ -39,7 +45,7 @@ public class CreateCallActivityFeature extends AbstractCreateBPMNFeature {
 
 	@Override
 	public String getCreateImageId() {
-		return ActivitiImageProvider.IMG_SUBPROCESS_COLLAPSED;
+		return ActivitiImageProvider.IMG_CALLACTIVITY;
 	}
 
 	@Override
