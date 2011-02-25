@@ -22,21 +22,20 @@ public class ImplementationValueExport implements ActivitiNamespaceConstants {
 
   public static void writeImplementationValue(XMLStreamWriter xtw, String implementationType, String implementation, boolean namespace) throws Exception {
     if (implementationType == null || implementationType.length() == 0 || CLASS_TYPE.equals(implementationType)) {
-
-      if (implementation != null && implementation.length() > 0) {
-        if (namespace)
-          xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "class", implementation);
-        else
-          xtw.writeAttribute("class", implementation);
-      }
+      writeImplementationValueAndType(xtw, "class", implementation, namespace);
+    } else if (implementationType.equals("delegateExpressionType")){
+      writeImplementationValueAndType(xtw, "delegateExpression", implementation, namespace);
     } else {
-      if (implementation != null && implementation.length() > 0) {
-        if (namespace)
-          xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "expression", implementation);
-        else
-          xtw.writeAttribute("expression", implementation);
-      }
+      writeImplementationValueAndType(xtw, "expression", implementation, namespace);
     }
   }
-
+  
+  private static void writeImplementationValueAndType(XMLStreamWriter xtw, String implementationType, String implementation, boolean namespace) throws Exception {
+    if (implementation != null && implementation.length() > 0) {
+      if(namespace)
+        xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, implementationType, implementation);
+      else
+        xtw.writeAttribute(implementationType, implementation);
+    }
+  }
 }

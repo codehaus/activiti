@@ -39,13 +39,18 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 
 	private final static String CLASS_TYPE = "classType";
 	private final static String EXPRESSION_TYPE = "expressionType";
+	private final static String DELEGATE_EXPRESSION_TYPE = "delegateExpressionType";
+	
 	private Button expressionTypeButton;
+	private Button delegateExpressionTypeButton;
 	private Button classTypeButton;
 	private Text classNameText;
 	private Button classSelectButton;
 	private CLabel classSelectLabel;
 	private Text expressionText;
 	private CLabel expressionLabel;
+	private Text delegateExpressionText;
+	private CLabel delegateExpressionLabel;
 	private Text resultVariableText;
 	private FieldExtensionEditor fieldEditor;
 
@@ -74,6 +79,7 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 			public void widgetSelected(SelectionEvent event) {
 				setVisibleClassType(true);
 				setVisibleExpressionType(false);
+				setVisibleDelegateExpressionType(false);
 				saveImplementationType(CLASS_TYPE);
 			}
 
@@ -91,6 +97,7 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 			public void widgetSelected(SelectionEvent event) {
 				setVisibleClassType(false);
 				setVisibleExpressionType(true);
+				setVisibleDelegateExpressionType(false);
 				saveImplementationType(EXPRESSION_TYPE);
 			}
 
@@ -100,6 +107,25 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 			}
 			
 		});
+		
+		delegateExpressionTypeButton = new Button(radioTypeComposite, SWT.RADIO);
+		delegateExpressionTypeButton.setText("Delegate expression");
+		delegateExpressionTypeButton.addSelectionListener(new SelectionListener() {
+		  
+		  @Override
+		  public void widgetSelected(SelectionEvent event) {
+		    setVisibleClassType(false);
+		    setVisibleExpressionType(false);
+		    setVisibleDelegateExpressionType(true);
+		    saveImplementationType(DELEGATE_EXPRESSION_TYPE);
+		  }
+		
+		  @Override
+      public void widgetDefaultSelected(SelectionEvent event) {
+        //
+      }
+      
+    });
 		
 		CLabel typeLabel = factory.createCLabel(composite, "Type:"); //$NON-NLS-1$
 		data = new FormData();
@@ -192,6 +218,23 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 		expressionLabel.setVisible(false);
 		expressionLabel.setLayoutData(data);
 		
+		delegateExpressionText = factory.createText(composite, ""); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 120);
+		data.right = new FormAttachment(100, 0);
+		data.top = new FormAttachment(radioTypeComposite, VSPACE);
+		delegateExpressionText.setVisible(false);
+		delegateExpressionText.setLayoutData(data);
+		delegateExpressionText.addFocusListener(listener);
+		    
+		delegateExpressionLabel = factory.createCLabel(composite, "Delegate expression:"); //$NON-NLS-1$
+		data = new FormData();
+		data.left = new FormAttachment(0, 0);
+		data.right = new FormAttachment(delegateExpressionText, -HSPACE);
+		data.top = new FormAttachment(delegateExpressionText, 0, SWT.TOP);
+		delegateExpressionLabel.setVisible(false);
+		delegateExpressionLabel.setLayoutData(data);
+		
 		resultVariableText = factory.createText(composite, ""); //$NON-NLS-1$
     data = new FormData();
     data.left = new FormAttachment(0, 120);
@@ -234,6 +277,7 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
 			expressionText.removeFocusListener(listener);
+			delegateExpressionText.removeFocusListener(listener);
 			resultVariableText.removeFocusListener(listener);
 			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
 			if (bo == null)
@@ -245,10 +289,17 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 					CLASS_TYPE.equals(serviceTask.getImplementationType())) {
 				setVisibleClassType(true);
 				setVisibleExpressionType(false);
+				setVisibleDelegateExpressionType(false);
 				classNameText.setText(implementationName == null ? "" : implementationName);
+			} else if (serviceTask.getImplementationType().equals(DELEGATE_EXPRESSION_TYPE)) {
+			  setVisibleClassType(false);
+			  setVisibleExpressionType(false);
+			  setVisibleDelegateExpressionType(true);
+			  delegateExpressionText.setText(implementationName == null ? "" : implementationName);
 			} else {
 				setVisibleClassType(false);
 				setVisibleExpressionType(true);
+				setVisibleDelegateExpressionType(false);
 				expressionText.setText(implementationName == null ? "" : implementationName);
 			}
 			
@@ -261,6 +312,7 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 			fieldEditor.diagram = getDiagram();
 			fieldEditor.initialize(serviceTask.getFieldExtensions());
 			expressionText.addFocusListener(listener);
+			delegateExpressionText.addFocusListener(listener);
 			resultVariableText.addFocusListener(listener);
 		}
 	}
@@ -301,6 +353,12 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 		expressionLabel.setVisible(visible);
 	}
 	
+	private void setVisibleDelegateExpressionType(boolean visible) {
+	  delegateExpressionTypeButton.setSelection(visible);
+	  delegateExpressionText.setVisible(visible);
+	  delegateExpressionLabel.setVisible(visible);
+	}
+	
 	private FocusListener listener = new FocusListener() {
 
 		public void focusGained(final FocusEvent e) {
@@ -322,6 +380,9 @@ public class PropertyServiceTaskSection extends ActivitiPropertySection implemen
 							ServiceTask serviceTask = (ServiceTask)  bo;
 							if (expressionText.isVisible() && expressionText.getText() != null) {
 								serviceTask.setImplementation(expressionText.getText());
+							}
+							if (delegateExpressionText.isVisible() && delegateExpressionText.getText() != null) {
+							  serviceTask.setImplementation(delegateExpressionText.getText());
 							}
 							if (resultVariableText.getText() != null) {
 							  serviceTask.setResultVariableName(resultVariableText.getText());

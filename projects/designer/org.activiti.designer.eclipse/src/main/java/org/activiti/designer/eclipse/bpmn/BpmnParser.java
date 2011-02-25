@@ -53,6 +53,7 @@ public class BpmnParser {
   private static final String ACTIVITI_EXTENSIONS_NAMESPACE = "http://activiti.org/bpmn";
   private static final String CLASS_TYPE = "classType";
   private static final String EXPRESSION_TYPE = "expressionType";
+  private static final String DELEGATE_EXPRESSION_TYPE = "delegateExpressionType";
   
   public boolean bpmdiInfoFound;
   public List<FlowElement> bpmnList = new ArrayList<FlowElement>();
@@ -409,6 +410,9 @@ public class BpmnParser {
     } else if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "expression") != null) {
       serviceTask.setImplementationType(EXPRESSION_TYPE);
       serviceTask.setImplementation(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "expression"));
+    } else if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "delegateExpression") != null) {
+      serviceTask.setImplementationType(DELEGATE_EXPRESSION_TYPE);
+      serviceTask.setImplementation(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "delegateExpression"));
     }
     
     if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName") != null) {
