@@ -56,6 +56,8 @@ public class ImportBpmnMenu implements org.eclipse.ui.IObjectActionDelegate{
     fd.setFilterExtensions(filterExt);
     String bpmnFile = fd.open();
     
+    if(bpmnFile == null || bpmnFile.length() == 0) return;
+    
     String processName = bpmnFile.substring(bpmnFile.lastIndexOf(File.separator) + 1);
     processName = processName.replace(".xml", "");
     processName = processName.replace(".bpmn20", "");

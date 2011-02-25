@@ -11,6 +11,7 @@ import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
 import org.eclipse.graphiti.mm.pictograms.Anchor;
 import org.eclipse.graphiti.mm.pictograms.ChopboxAnchor;
+import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.Shape;
@@ -91,7 +92,16 @@ public class DeleteSequenceFlowFeature extends AbstractCustomFeature {
       EList<Anchor> anchorList = shape.getAnchors();
       for (Anchor anchor : anchorList) {
         if(anchor instanceof ChopboxAnchor) {
-          anchor.getOutgoingConnections().remove(0);
+          Connection toDeletedConnection = null;
+          for (Connection connection : anchor.getOutgoingConnections()) {
+            SequenceFlow outFlow = (SequenceFlow) getBusinessObjectForPictogramElement(connection);
+            if(outFlow.getId().equals(sequenceFlow.getId())) {
+              toDeletedConnection = connection;
+            }
+          }
+          if(toDeletedConnection != null) {
+            anchor.getOutgoingConnections().remove(toDeletedConnection);
+          }
         }
       }
     }
@@ -99,7 +109,16 @@ public class DeleteSequenceFlowFeature extends AbstractCustomFeature {
       EList<Anchor> anchorList = shape.getAnchors();
       for (Anchor anchor : anchorList) {
         if(anchor instanceof ChopboxAnchor) {
-          anchor.getIncomingConnections().remove(0);
+          Connection toDeletedConnection = null;
+          for (Connection connection : anchor.getIncomingConnections()) {
+            SequenceFlow outFlow = (SequenceFlow) getBusinessObjectForPictogramElement(connection);
+            if(outFlow.getId().equals(sequenceFlow.getId())) {
+              toDeletedConnection = connection;
+            }
+          }
+          if(toDeletedConnection != null) {
+            anchor.getIncomingConnections().remove(toDeletedConnection);
+          }
         }
       }
     }

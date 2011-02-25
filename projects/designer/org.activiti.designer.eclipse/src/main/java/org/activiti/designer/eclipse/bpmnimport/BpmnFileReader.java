@@ -131,25 +131,16 @@ public class BpmnFileReader {
                 bpmnParser.locationMap);
       } else {*/
        
-        SubProcess activeSubProcess = null;
-        for (FlowElement flowElement : bpmnParser.bpmnList) {
-          
-          FlowElement sourceElement = sourceRef(flowElement.getId());
-          GraphicInfo graphicInfo = getNextGraphicInfo(sourceElement, flowElement, yMap);
-        
-          yMap.put(flowElement.getId(), graphicInfo);
-          
-          if(flowElement instanceof SubProcess) {
-            activeSubProcess = (SubProcess) flowElement;
-            subProcessList.add(activeSubProcess);
-            continue;
+        List<FlowElement> wrongOrderList = createDiagramElements(bpmnParser.bpmnList);
+        if(wrongOrderList.size() > 0) {
+          boolean elementCreated = true;
+          while(elementCreated == true) {
+            int sizeBefore = wrongOrderList.size();
+            wrongOrderList = createDiagramElements(wrongOrderList);
+            if(sizeBefore <= wrongOrderList.size()) {
+              elementCreated = false;
+            }
           }
-          
-          if(activeSubProcess != null && containsFlowElementId(activeSubProcess.getFlowElements(), flowElement.getId()) == true) {
-            continue;
-          }
-          
-          addBpmnElementToDiagram(flowElement, graphicInfo, diagram); 
         }
         drawSequenceFlows();
       //}
@@ -161,6 +152,37 @@ public class BpmnFileReader {
     } catch(Exception e) {
       e.printStackTrace();
     }
+  }
+  
+  private List<FlowElement> createDiagramElements(List<FlowElement> flowList) {
+    SubProcess activeSubProcess = null;
+    List<FlowElement> wrongOrderList = new ArrayList<FlowElement>();
+    for (FlowElement flowElement : flowList) {
+      
+      FlowElement sourceElement = sourceRef(flowElement.getId());
+      if(flowElement instanceof StartEvent == false) {
+        if(sourceElement == null) {
+          wrongOrderList.add(flowElement);
+          continue;
+        }
+      }
+      GraphicInfo graphicInfo = getNextGraphicInfo(sourceElement, flowElement, yMap);
+    
+      yMap.put(flowElement.getId(), graphicInfo);
+      
+      if(flowElement instanceof SubProcess) {
+        activeSubProcess = (SubProcess) flowElement;
+        subProcessList.add(activeSubProcess);
+        continue;
+      }
+      
+      if(activeSubProcess != null && containsFlowElementId(activeSubProcess.getFlowElements(), flowElement.getId()) == true) {
+        continue;
+      }
+      
+      addBpmnElementToDiagram(flowElement, graphicInfo, diagram); 
+    }
+    return wrongOrderList;
   }
   
   private boolean containsFlowElementId(List<FlowElement> flowElementList, String id) {
@@ -277,7 +299,7 @@ public class BpmnFileReader {
     FlowElement sourceRef = null;
     String sourceRefString = null;
     for (SequenceFlowModel sequenceFlowModel : bpmnParser.sequenceFlowList) {
-      if(sequenceFlowModel.targetRef.equals(id)) {
+      if(sequenceFlowModel.targetRef.equals(id) && yMap.containsKey(sequenceFlowModel.sourceRef)) {
         sourceRefString = sequenceFlowModel.sourceRef;
       }
     }
