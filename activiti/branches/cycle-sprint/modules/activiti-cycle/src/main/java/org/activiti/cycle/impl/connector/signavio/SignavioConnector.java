@@ -789,8 +789,10 @@ public class SignavioConnector extends AbstractRepositoryConnector implements Si
       response = EntityUtils.toString(client.execute(get).getEntity(), "UTF-8");
 
       client.getConnectionManager().shutdown();
-      return response;
-
+      
+      JSONObject jsonObj = new JSONObject(response);      
+      return jsonObj.getString("model");
+      
     } catch (Exception ex) {
       throw new RepositoryException("Error while transforming BPMN2_0_XML to BPMN2_0_JSON", ex);
     } finally {

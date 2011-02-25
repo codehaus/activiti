@@ -50,7 +50,7 @@ public class CycleEventServiceImpl implements CycleEventService {
 
           }
         }
-        throw new RuntimeException("Could not fire Event " + event + ".", exception);
+        throw new RuntimeException("Error on" + event + ": " + exception.getMessage(), exception);
       }
     }
   }

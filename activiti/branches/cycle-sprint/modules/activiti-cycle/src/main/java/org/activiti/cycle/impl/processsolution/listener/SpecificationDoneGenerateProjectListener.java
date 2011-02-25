@@ -14,7 +14,6 @@ import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryArtifactLink;
 import org.activiti.cycle.RepositoryConnector;
 import org.activiti.cycle.RepositoryFolder;
-import org.activiti.cycle.RepositoryNodeCollection;
 import org.activiti.cycle.annotations.CycleComponent;
 import org.activiti.cycle.context.CycleContextType;
 import org.activiti.cycle.event.CycleCompensatingEventListener;
@@ -22,8 +21,8 @@ import org.activiti.cycle.impl.components.CycleEmailDispatcher;
 import org.activiti.cycle.impl.components.RuntimeConnectorList;
 import org.activiti.cycle.impl.connector.signavio.action.CreateMavenProjectAction;
 import org.activiti.cycle.impl.connector.signavio.provider.ActivitiCompliantBpmn20Provider;
-import org.activiti.cycle.impl.connector.signavio.repositoryartifacttype.SignavioBpmn20ArtifactType;
 import org.activiti.cycle.impl.db.entity.RepositoryArtifactLinkEntity;
+import org.activiti.cycle.impl.processsolution.ProcessSolutionUtils;
 import org.activiti.cycle.impl.processsolution.event.SpecificationDoneEvent;
 import org.activiti.cycle.impl.processsolution.event.TechnicalProjectCreatedEvent;
 import org.activiti.cycle.impl.processsolution.event.TechnicalProjectUpdatedEvent;
@@ -48,10 +47,11 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
   private CycleProcessSolutionService processSolutionService = CycleServiceFactory.getProcessSolutionService();
   private CycleRepositoryService repositoryservice = CycleServiceFactory.getRepositoryService();
   private CycleEventService eventService = CycleServiceFactory.getEventService();
+  private ProcessSolutionUtils processSolutionUtils = CycleComponentFactory.getCycleComponentInstance(ProcessSolutionUtils.class);
 
   public void onEvent(SpecificationDoneEvent event) {
     ProcessSolution processSolution = event.getProcessSolution();
-    VirtualRepositoryFolder implementationFolder = getImplementationFolder(processSolution);
+    VirtualRepositoryFolder implementationFolder = processSolutionUtils.getImplementationFolder(processSolution);
     if (implementationFolder == null) {
       return;
     }
@@ -75,9 +75,9 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
   }
 
   protected Map<RepositoryArtifact, RepositoryArtifact> updateProject(ProcessSolution processSolution, RepositoryFolder underlyingTechnicalFolder) {
-    VirtualRepositoryFolder processes = getProcessesFolder(processSolution);
+    VirtualRepositoryFolder processes = processSolutionUtils.getProcessesFolder(processSolution);
     // get all processmodels in the processes folder
-    List<RepositoryArtifact> processModels = getProcessModels(processes);
+    List<RepositoryArtifact> processModels = processSolutionUtils.getProcessModels(processes);
     return updateProcessModels(underlyingTechnicalFolder, processModels);
   }
 
@@ -120,10 +120,15 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
     // TODO: hard-coding this ATM:
     RepositoryFolder processesFolder = targetConnector.getRepositoryFolder(underlyingTechnicalFolder.getNodeId() + "/src/main/resources");
     for (RepositoryArtifact processModel : newModels) {
-      Content newContent = new Content();
       RepositoryConnector processModelConnector = RuntimeConnectorList.getMyConnectorById(processModel.getConnectorId());
+      // do not create artifact if this model is contained in a "backup" folder:
+      RepositoryFolder parentFolder = processModelConnector.getRepositoryFolder(processModel.getMetadata().getParentFolderId());
+      if ("backup".equals(parentFolder.getMetadata().getName())) {
+        continue;
+      }
+      Content newContent = new Content();
       newContent.setValue(ActivitiCompliantBpmn20Provider.createBpmnXml(processModelConnector, processModel));
-      String artifactName = processModel.getMetadata().getName() + "bpmn20.xml";
+      String artifactName = processModel.getMetadata().getName() + ".bpmn20.xml";
       RepositoryArtifact implementationArtifact = repositoryservice.createArtifact(processesFolder.getConnectorId(), processesFolder.getNodeId(), artifactName,
               null, newContent);
       // create link:
@@ -137,9 +142,9 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
     return resultMap;
   }
   protected Map<RepositoryArtifact, RepositoryArtifact> createProject(ProcessSolution processSolution, RepositoryFolder underlyingTechnicalFolder) {
-    VirtualRepositoryFolder processes = getProcessesFolder(processSolution);
+    VirtualRepositoryFolder processes = processSolutionUtils.getProcessesFolder(processSolution);
     // get all processmodels in the processes folder
-    List<RepositoryArtifact> processModels = getProcessModels(processes);
+    List<RepositoryArtifact> processModels = processSolutionUtils.getProcessModels(processes);
     // configure parameters for CreateMavenProjectAction
     CreateMavenProjectAction createMavenProjectAction = new CreateMavenProjectAction();
     RepositoryConnector targetConnector = RuntimeConnectorList.getMyConnectorById(underlyingTechnicalFolder.getConnectorId());
@@ -149,49 +154,6 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
     boolean createLink = true;
     // create the technical project
     return createMavenProjectAction.createMavenProject(targetFolderId, targetName, comment, targetConnector, createLink, processModels);
-  }
-
-  protected List<RepositoryArtifact> getProcessModels(VirtualRepositoryFolder processes) {
-    RepositoryConnector connector = CycleComponentFactory.getCycleComponentInstance(RuntimeConnectorList.class, RuntimeConnectorList.class).getConnectorById(
-            processes.getConnectorId());
-    List<RepositoryArtifact> resultList = new ArrayList<RepositoryArtifact>();
-    String currentFolder = processes.getReferencedNodeId();
-    getProcessModelsRec(connector, currentFolder, resultList);
-    return resultList;
-  }
-
-  private void getProcessModelsRec(RepositoryConnector connector, String currentFolder, List<RepositoryArtifact> resultList) {
-    RepositoryNodeCollection childNodes = connector.getChildren(currentFolder);
-    for (RepositoryArtifact repositoryArtifact : childNodes.getArtifactList()) {
-      if (repositoryArtifact.getArtifactType().equals(CycleComponentFactory.getCycleComponentInstance(SignavioBpmn20ArtifactType.class))) {
-        resultList.add(repositoryArtifact);
-      }
-    }
-    for (RepositoryFolder folder : childNodes.getFolderList()) {
-      getProcessModelsRec(connector, folder.getNodeId(), resultList);
-    }
-  }
-
-  protected VirtualRepositoryFolder getImplementationFolder(ProcessSolution processSolution) {
-    // TODO: add dedicate query for this
-    List<VirtualRepositoryFolder> virtualFolders = processSolutionService.getFoldersForProcessSolution(processSolution.getId());
-    for (VirtualRepositoryFolder virtualRepositoryFolder : virtualFolders) {
-      if ("Implementation".equals(virtualRepositoryFolder.getType())) {
-        return virtualRepositoryFolder;
-      }
-    }
-    return null;
-  }
-
-  protected VirtualRepositoryFolder getProcessesFolder(ProcessSolution processSolution) {
-    // TODO: add dedicate query for this
-    List<VirtualRepositoryFolder> virtualFolders = processSolutionService.getFoldersForProcessSolution(processSolution.getId());
-    for (VirtualRepositoryFolder virtualRepositoryFolder : virtualFolders) {
-      if ("Processes".equals(virtualRepositoryFolder.getType())) {
-        return virtualRepositoryFolder;
-      }
-    }
-    return null;
   }
 
   protected void sendEmailCreated(ProcessSolution processSolution, Map<RepositoryArtifact, RepositoryArtifact> processesMappedToBpmnXml) {
@@ -235,7 +197,7 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
   }
 
   public void compensateEvent(SpecificationDoneEvent event) {
-
+    // TODO: delete technical implementation project in first iteration
   }
 
 }
