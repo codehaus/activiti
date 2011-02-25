@@ -12,8 +12,15 @@
  */
 package org.activiti.cycle.impl.connector.signavio;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,6 +53,18 @@ import org.activiti.cycle.impl.connector.signavio.repositoryartifacttype.Signavi
 import org.activiti.cycle.impl.connector.signavio.repositoryartifacttype.SignavioDefaultArtifactType;
 import org.activiti.cycle.impl.connector.signavio.util.SignavioJsonHelper;
 import org.activiti.cycle.impl.connector.util.RestClientLogHelper;
+import org.activiti.cycle.impl.util.IoUtils;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -724,26 +743,62 @@ public class SignavioConnector extends AbstractRepositoryConnector implements Si
   }
 
   /**
-   * FIXME: unfinished but maybe it works... method accepts a xml String and
-   * returns the json representation
+   * FIXME: This implementation uses the bpmn2_0-import servlet which returns a
+   * temporary(?) nodeid for which we then retrieve JSon Content.
+   * 
+   * NOTE: I could not make this work using Restlet. Maybe I just dont get it...
+   * (daniel)
    */
-  public String transformBpmn20XmltoJson(String xmlData) {
+  public String transformBpmn20XmltoJson(String xml) {
+    File tmpfile = null;
     try {
-      Form dataForm = new Form();
-      dataForm.add("data", xmlData);
-      Representation xmlDataRep = dataForm.getWebRepresentation();
+      HttpClient client = new DefaultHttpClient();
+      client.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+      String postUrl = getConfiguration().getBpmn20XmlImportServletUrl();
+      HttpPost post = new HttpPost(postUrl);
+      post.addHeader("token", getSecurityToken());
+      MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
-      Request request = new Request(Method.POST, new Reference(getConfiguration().getBpmn20XmlImportServletUrl()), xmlDataRep);
-      request.getClientInfo().getAcceptedMediaTypes().add(new Preference<MediaType>(MediaType.APPLICATION_JSON));
-      Response jsonResponse = sendRequest(request);
+      // creating a temporary file
+      tmpfile = File.createTempFile(UUID.randomUUID().toString(), ".xml");
+      OutputStream os = new BufferedOutputStream(new FileOutputStream(tmpfile));
+      InputStream is = new ByteArrayInputStream(xml.getBytes(Charset.forName("utf-8")));
+      IoUtils.copyBytes(is, os);
+      os.flush();
+      os.close();
+      entity.addPart("bpmn2_0file", new FileBody(tmpfile));
+      // apparently this works:
+      entity.addPart("directory", new StringBody("/directory", Charset.forName("UTF-8")));
+      post.setEntity(entity);
 
-      return new JSONObject(jsonResponse.getEntity().getText()).toString();
+      // get the response (id of the temporary model)
+      String response = EntityUtils.toString(client.execute(post).getEntity(), "UTF-8");
+
+      // the returned response is of the form ["..."], I suggest this is the
+      // case because an xml-file can contain multiple process definitions. For
+      // the moment we just cut the json-list brackets.
+      String artifactId = response.substring(2);
+      artifactId = artifactId.substring(0, artifactId.length() - 2);
+
+      HttpGet get = new HttpGet(getConfiguration().getEditorUrl(artifactId) + "&data");
+      get.addHeader("token", getSecurityToken());
+      // let's pretend we're Firefox on Windows
+      get.addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13");
+
+      // get the json Representation for the temporary model
+      response = EntityUtils.toString(client.execute(get).getEntity(), "UTF-8");
+
+      client.getConnectionManager().shutdown();
+      return response;
 
     } catch (Exception ex) {
       throw new RepositoryException("Error while transforming BPMN2_0_XML to BPMN2_0_JSON", ex);
+    } finally {
+      if (tmpfile != null) {
+        tmpfile.delete();
+      }
     }
   }
-
   public void updateContent(String artifactId, Content content) throws RepositoryNodeNotFoundException {
     throw new RepositoryException("Moving artifacts is not (yet) supported by the Signavio Connector");
   }
