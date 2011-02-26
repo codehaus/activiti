@@ -42,6 +42,20 @@
     
     this._contextMenu = {};
     
+    this.waitDialog = 
+    		new YAHOO.widget.Panel(this.id + "-wait",
+    			{ width:"200px", 
+    			  fixedcenter:true, 
+    			  close:false, 
+    			  draggable:false, 
+    			  zindex:4,
+    			  modal:true,
+    			  visible:false
+    			} 
+    		);
+    this.waitDialog.setBody('<div id="cycle-navigation-waiting-dialog"/>');
+    this.waitDialog.render(document.body);
+    
     return this;
   };
 
@@ -302,6 +316,7 @@
         hideaftersubmit: false,
         buttons: [
           { text: Activiti.i18n.getMessage("button.ok") , handler: { fn: function CreateFolderDialog_onSubmit(event, dialog) {
+              me.waitDialog.show();
               me.services.repositoryService.createProcessSolution(dialog.getData());
               if (dialog) {
                 dialog.destroy();
@@ -318,10 +333,17 @@
 		  dialog.show();
     },
     
-    onCreateProcessSolutionSuccess: function CycleNavigation_onCreateProcessSolutionSuccess(response, obj) {
+    onCreateProcessSolutionSuccess: function CycleNavigation_onCreateProcessSolutionSuccess(response, obj)
+    {
+      this.waitDialog.hide();
       if(response.json) {
         this.fireEvent(Activiti.event.updateArtifactView, {activeNavigationTabIndex: this._activeNavigationTabIndex, activeArtifactViewTabIndex: 0, connectorId: response.json.connectorId, nodeId: response.json.nodeId, vFolderId: response.json.vFolderId||'', label: response.json.label, folder: response.json.folder}, null, true);
       }
+    },
+    
+    onCreateProcessSolutionFailure: function CycleNavigation_onCreateProcessSolutionFailure(response, obj)
+    {
+      this.waitDialog.hide();
     },
 
     /**
