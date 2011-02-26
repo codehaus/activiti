@@ -42,10 +42,17 @@ public class ConnectorLoginInterceptor implements Interceptor {
     }
     // for all other methods, check whether the connector is logged in.
     if (!connector.isLoggedIn()) {
-      // the connector is not logged in, block invocation
-      throw new RepositoryAuthenticationException("Connector '" + connector.getName() + "' is not logged in ", connector.getId());
+      // the connector is not logged in, try to login:
+      try {
+        PasswordEnabledRepositoryConnector pwEnabledRepositoryConnector = (PasswordEnabledRepositoryConnector) connector;
+        String username = pwEnabledRepositoryConnector.getUsername();
+        String password = pwEnabledRepositoryConnector.getPassword();
+        pwEnabledRepositoryConnector.login(username, password);
+      } catch (Exception e) {
+        // we cannot login with the provided credentials, throw exception
+        throw new RepositoryAuthenticationException("Connector '" + connector.getName() + "' is not logged in ", connector.getId());
+      }
     }
-
   }
 
   public void afterInvoke(Method m, Object object, Object invocationResult, Object... args) {
