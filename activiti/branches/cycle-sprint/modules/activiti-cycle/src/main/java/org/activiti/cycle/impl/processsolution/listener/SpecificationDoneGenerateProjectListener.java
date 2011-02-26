@@ -118,7 +118,7 @@ public class SpecificationDoneGenerateProjectListener implements CycleCompensati
     RepositoryConnector targetConnector = RuntimeConnectorList.getMyConnectorById(underlyingTechnicalFolder.getConnectorId());
     // get folder for processModels:
     // TODO: hard-coding this ATM:
-    RepositoryFolder processesFolder = targetConnector.getRepositoryFolder(underlyingTechnicalFolder.getNodeId() + "/src/main/resources");
+    RepositoryFolder processesFolder = targetConnector.getRepositoryFolder(underlyingTechnicalFolder.getNodeId() + "/src/main/resources/diagrams");
     for (RepositoryArtifact processModel : newModels) {
       RepositoryConnector processModelConnector = RuntimeConnectorList.getMyConnectorById(processModel.getConnectorId());
       // do not create artifact if this model is contained in a "backup" folder:
