@@ -378,11 +378,12 @@
     onLoadProcessSolutionFailure: function Artifact_onLoadProcessSolutionFailure(response, obj)
     {
       // TODO: Create a proper error dialog that we can reuse in all failure handlers
-      alert("Oooops, something went wrong... But don't worry, we're working on it!");
+      // alert("Oooops, something went wrong... But don't worry, we're working on it!");
     },
 
     onClickStateDoneButton: function Artifact_onClickStateDoneButton(event, obj)
     {
+      this.waitDialog.show();
       this.services.repositoryService.updateProcessSolution(obj);
     },
 
@@ -394,7 +395,8 @@
     onUpdateProcessSolutionFailure: function RepositoryService_Artifact_onUpdateProcessSolutionFailure(response, obj)
     {
       // TODO: Create a proper error dialog that we can reuse in all failure handlers
-      alert("Oooops, something went wrong... But don't worry, we're working on it!");
+      this.waitDialog.hide();
+      // alert("Oooops, something went wrong... But don't worry, we're working on it!");
     },
 
     onFolderLinkClick: function Artifact_onFolderLinkClick(event, obj)
