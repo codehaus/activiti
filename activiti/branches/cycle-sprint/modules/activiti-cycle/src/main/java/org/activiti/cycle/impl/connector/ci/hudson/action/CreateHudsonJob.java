@@ -26,12 +26,13 @@ public class CreateHudsonJob {
   public static final String CONFIG_XML_TEMPLATE = "template.config.xml";
 
   public static final String PARAM_HUDSON_CREATE_JOB = "createItem";
+  public static final String PATTERN_JOB_DESCRIPTION = "@JOB_DESCRIPTION@";
   public static final String PATTERN_SVN_LOCATION = "@SVN_LOCATION@";
   public static final String PATTERN_EMAIL_ADDRESSES = "@EMAIL_ADDRESSES@";
 
   public static final String DEFAULT_JOB_NAME = "CreatedByActivitiCycle";
 
-  public boolean createCIJobForProject(String hudsonUrl, String projectSVNUrl, String jobName, List<String> emailAddresses) {
+  public boolean createCIJobForProject(String hudsonUrl, String projectSVNUrl, String jobName, String jobDescription, List<String> emailAddresses) {
     // TODO: check supplied values or not ;)
     if (hudsonUrl == null || hudsonUrl.length() == 0 || projectSVNUrl == null || projectSVNUrl.length() == 0) {
       throw new RepositoryException("HudsonUrl and ProjectSVNUrl must not be null or empty");
@@ -43,7 +44,7 @@ public class CreateHudsonJob {
     // convert emails to single string with whitespace between them
     String emailString = transformEmailAddress(emailAddresses);
 
-    configXml = replaceVarsInTemplate(configXml, projectSVNUrl, emailString);
+    configXml = replaceVarsInTemplate(configXml, jobDescription, projectSVNUrl, emailString);
 
     hudsonUrl = transformUrl(hudsonUrl);
     Reference reference = new Reference(hudsonUrl + PARAM_HUDSON_CREATE_JOB);
@@ -108,7 +109,8 @@ public class CreateHudsonJob {
     return url;
   }
 
-  private String replaceVarsInTemplate(String template, String projectSVNUrl, String emailAddresses) {
+  private String replaceVarsInTemplate(String template, String jobDescription, String projectSVNUrl, String emailAddresses) {
+    template = template.replaceFirst(PATTERN_JOB_DESCRIPTION, "<![CDATA[" + jobDescription + "]]>");
     template = template.replaceFirst(PATTERN_SVN_LOCATION, projectSVNUrl);
     template = template.replaceFirst(PATTERN_EMAIL_ADDRESSES, emailAddresses);
 
@@ -116,7 +118,7 @@ public class CreateHudsonJob {
   }
 
   public static void main(String[] args) {
-    String hudsonUrl = "http://localhost:8080";
+    String hudsonUrl = "http://localhost:8080/hudson/";
     String projectSVNUrl = "projectLocationinSVN";
     String jobName = "JavaGenerated-" + System.currentTimeMillis();
     List<String> emailAddresses = new ArrayList<String>();
@@ -125,7 +127,8 @@ public class CreateHudsonJob {
     emailAddresses.add("bernd.ruecker@camunda.com");
 
     CreateHudsonJob createHudsonJob = new CreateHudsonJob();
-    Boolean successful = createHudsonJob.createCIJobForProject(hudsonUrl, projectSVNUrl, jobName, emailAddresses);
+    String jobDescription = "see <a href='http://www.camunda.com'>test</a>";
+    Boolean successful = createHudsonJob.createCIJobForProject(hudsonUrl, projectSVNUrl, jobName, jobDescription , emailAddresses);
     if (successful) {
       System.out.println("Successfully created Hudson CI Job for Project '" + jobName + "'");
     } else {

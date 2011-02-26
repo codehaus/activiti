@@ -810,7 +810,11 @@ public class SignavioConnector extends AbstractRepositoryConnector implements Si
   }
 
   public boolean isLoggedIn() {
-    return loggedIn || !getConfigValue(CONFIG_KEY_LOGIN_REQUIRED, Boolean.class);
+    Boolean loginRequired = getConfigValue(CONFIG_KEY_LOGIN_REQUIRED, Boolean.class);
+    if (loginRequired==null) {
+      throw new RepositoryException("Configuration of Signavio Connector must contain the configuration attribute '"+CONFIG_KEY_LOGIN_REQUIRED+"'");
+    }
+    return loggedIn || !loginRequired;
   }
 
   public Content getContent(String artifactId) throws RepositoryNodeNotFoundException {
