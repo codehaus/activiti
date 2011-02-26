@@ -114,7 +114,7 @@
       // get the header el of the content area
       var headerEl = Selector.query("h1", this.id, true);
       // determine whether the node is still the same
-      if(eventValue.nodeId && eventValue.nodeId === headerEl.id) {
+      if(eventValue.connectorId && eventValue.nodeId && (eventValue.connectorId + "-" + eventValue.nodeId === headerEl.id)) {
         // still the same node, if the tab view is instanciated, the tab selection should be updated
         if(this._tabView.set) {
           // Update active tab selection silently, without firing an event (last parameter 'true')
@@ -149,7 +149,7 @@
           this.services.repositoryService.loadArtifact({connectorId: eventValue.connectorId, nodeId: eventValue.nodeId, vFolderId: eventValue.vFolderId});
         }
         
-        headerEl.setAttribute('id', eventValue.nodeId);
+        headerEl.setAttribute('id', eventValue.connectorId + "-" + eventValue.nodeId);
         if(eventValue.nodeId && eventValue.nodeId === "/" && eventValue.connectorId && eventValue.connectorId.indexOf("ps-") != -1) {
           // Update the heading that displays the name of the selected node
           headerEl.innerHTML = "Process Solution: " + eventValue.label;
