@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Activiti Designer - Eclipse
 Bundle-SymbolicName: org.activiti.designer.eclipse;singleton:=true
-Bundle-Version: 0.7.0
+Bundle-Version: 0.8.0
 Require-Bundle: org.eclipse.graphiti;bundle-version="0.7.1",
  org.eclipse.graphiti.pattern;bundle-version="0.7.1",
  org.eclipse.graphiti.ui;bundle-version="0.7.1",

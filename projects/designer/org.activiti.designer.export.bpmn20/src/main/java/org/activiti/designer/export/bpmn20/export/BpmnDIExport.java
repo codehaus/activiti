@@ -106,7 +106,7 @@ public class BpmnDIExport implements ActivitiNamespaceConstants {
     for (Shape shape : parent.getChildren()) {
       EObject shapeBO = linkService.getBusinessObjectForLinkedPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
       if(flowNode instanceof BoundaryEvent) {
-        if (shapeBO instanceof Task || shapeBO instanceof SubProcess) {
+        if (shapeBO instanceof Task || shapeBO instanceof SubProcess && shape instanceof ContainerShape) {
           for (Shape childShape : ((ContainerShape) shape).getChildren()) {
             EObject childShapeBO = linkService.getBusinessObjectForLinkedPictogramElement(childShape.getGraphicsAlgorithm().getPictogramElement());
             if(childShapeBO instanceof BoundaryEvent) {
@@ -118,6 +118,14 @@ public class BpmnDIExport implements ActivitiNamespaceConstants {
                 xtw.writeAttribute("y", "" + (childShape.getGraphicsAlgorithm().getY() + shape.getGraphicsAlgorithm().getY()));
               }
             }
+          }
+        } else if(shapeBO instanceof BoundaryEvent) {
+          if (((BoundaryEvent) shapeBO).getId().equals(flowNode.getId())) {
+            diFlowNodeMap.put(flowNode.getId(), shape.getGraphicsAlgorithm());
+            xtw.writeAttribute("height", "" + shape.getGraphicsAlgorithm().getHeight());
+            xtw.writeAttribute("width", "" + shape.getGraphicsAlgorithm().getWidth());
+            xtw.writeAttribute("x", "" + (shape.getGraphicsAlgorithm().getX() + parent.getGraphicsAlgorithm().getX()));
+            xtw.writeAttribute("y", "" + (shape.getGraphicsAlgorithm().getY() + parent.getGraphicsAlgorithm().getY()));
           }
         }
         

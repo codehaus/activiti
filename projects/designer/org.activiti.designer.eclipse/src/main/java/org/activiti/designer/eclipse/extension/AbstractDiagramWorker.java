@@ -175,24 +175,6 @@ public abstract class AbstractDiagramWorker {
   }
 
   /**
-   * This method delegates to {@link #saveResource(URI, InputStream, int)} with
-   * the {@link IResource#FORCE} flag. For documentation, please refer to that
-   * method instead.
-   * 
-   * @see #saveResource(URI, InputStream, int)
-   * 
-   * @param uri
-   *          the URI the resource should be saved to
-   * @param content
-   *          a stream to the content for the resource
-   * @param monitor
-   *          the progress monitor to use
-   */
-  protected void saveResource(final URI uri, final InputStream content, final IProgressMonitor monitor) {
-    saveResource(uri, content, IResource.FORCE, monitor);
-  }
-
-  /**
    * Saves a resource at the provided URI. Use this method to create or update
    * resources created by {@link ExportMarshaller}s. This method adheres to the
    * overwrite flag provided.
@@ -218,7 +200,7 @@ public abstract class AbstractDiagramWorker {
    * @param monitor
    *          the progress monitor to use
    */
-  protected void saveResource(final URI uri, final InputStream content, final int overwriteFlag, final IProgressMonitor monitor) {
+  protected void saveResource(final URI uri, final InputStream content, final IProgressMonitor monitor) {
 
     final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
@@ -226,14 +208,14 @@ public abstract class AbstractDiagramWorker {
 
     // TODO
     try {
-      if (file.exists() && IResource.FORCE == overwriteFlag) {
+      if (file.exists()) {
         // delete first
-        monitor.beginTask("delete", 10);
-        file.delete(overwriteFlag, monitor);
-        monitor.worked(10);
+        monitor.beginTask("update content", 10);
+        file.setContents(content, true, true, monitor);
+      } else {
+        monitor.beginTask("create", 10);
+        file.create(content, true, monitor);
       }
-      monitor.beginTask("create", 10);
-      file.create(content, overwriteFlag, monitor);
       file.refreshLocal(IResource.DEPTH_INFINITE, null);
       monitor.worked(10);
     } catch (CoreException e) {
