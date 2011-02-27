@@ -23,15 +23,22 @@ public class SpecificationDoneEmailNotificationListener extends AbstractProcessS
 
   protected String getMessage(SpecificationDoneEvent event) {
     StringWriter writer = new StringWriter();
-    writer.append("Dear collaborator in the " + event.getProcessSolution().getLabel() + "-Project,");
+    writer.append("Dear collaborator in project " + event.getProcessSolution().getLabel() + ".");
     writer.append("<br />");
     writer.append("<br />");
-    writer.append("the named project has completed the <em>specification</em> phase and is now in <em>implementation</em>.<br />");
-    writer.append("The corresponding technical project can be found in the <em>Implementation</em>-Folder of the referenced process-solution. ");
+    writer.append("The project has completed the <em>specification</em> phase and is now in <em>implementation</em>.");
     writer.append("<br />");
     writer.append("<br />");
-    writer.append("Regards,");
-    writer.append("Your Activiti Cycle");
+
+    String psConnectorId = "ps-" + event.getProcessSolution().getId();
+    writer.append("Goto <a href='http://localhost:8080/activiti-cycle/service/#event=updateArtifactView/activeNavigationTabIndex/0/activeArtifactViewTabIndex/0/connectorId/" + psConnectorId + "/nodeId/%252F'>Cycle Process Solution Homepage</a>");    
+
+    writer.append("<br />");
+    writer.append("<br />");    
+    writer.append("A technical project was created in the folder <em>Implementation</em>.");    
+    writer.append("<br />");
+    writer.append("<br />");
+    writer.append("With best regards from your Activiti Cycle.");
     return writer.toString();
   }
 }

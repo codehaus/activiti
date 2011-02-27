@@ -20,9 +20,12 @@ import org.activiti.engine.identity.User;
  */
 public abstract class AbstractProcessSolutionStateEmailListener<T extends ProcessSolutionStateEvent> implements CycleEventListener<T> {
 
-  Logger logger = Logger.getLogger(getClass().getName());
+  protected Logger logger = Logger.getLogger(getClass().getName());
 
-  String fromEmailAddress = "activiti-cycle@localhost";
+  /**
+   * TODO: Make configurable (it is important to have a valid address here, otherwise the sending fails with a 550 error)
+   */
+  private String fromEmailAddress = "activiti@camunda.com";
 
   protected CycleEmailDispatcher cycleEmailDispatcher = CycleComponentFactory.getCycleComponentInstance(CycleEmailDispatcher.class, CycleEmailDispatcher.class);
 
