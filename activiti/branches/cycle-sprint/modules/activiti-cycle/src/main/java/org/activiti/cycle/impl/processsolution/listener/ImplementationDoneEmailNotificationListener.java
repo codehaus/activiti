@@ -23,14 +23,19 @@ public class ImplementationDoneEmailNotificationListener extends AbstractProcess
 
   protected String getMessage(ImplementationDoneEvent event) {
     StringWriter writer = new StringWriter();
-    writer.append("Dear collaborator in the " + event.getProcessSolution().getLabel() + "-Project,");
+    writer.append("Dear collaborator in project " + event.getProcessSolution().getLabel() + ".");
     writer.append("<br />");
     writer.append("<br />");
-    writer.append("the named project has completed the <em>implementation</em> phase and is now in <em>testing</em>.<br />");
+    writer.append("The project has completed the <em>implementation</em> phase and is now in <em>testing</em>.");
     writer.append("<br />");
     writer.append("<br />");
-    writer.append("Regards,");
-    writer.append("Your Activiti Cycle");
+
+    String psConnectorId = "ps-" + event.getProcessSolution().getId();
+    writer.append("Go to <a href='http://localhost:8080/activiti-cycle/service/#event=updateArtifactView/activeNavigationTabIndex/0/activeArtifactViewTabIndex/0/connectorId/" + psConnectorId + "/nodeId/%252F'>Cycle Process Solution Homepage</a>");    
+
+    writer.append("<br />");
+    writer.append("<br />");
+    writer.append("With best regards from your Activiti Cycle.");
     return writer.toString();
   }
 }

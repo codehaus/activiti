@@ -23,15 +23,20 @@ public class TestingDoneEmailNotificationListener extends AbstractProcessSolutio
 
   protected String getMessage(TestingDoneEvent event) {
     StringWriter writer = new StringWriter();
-    writer.append("Dear collaborator in the " + event.getProcessSolution().getLabel() + "-Project,");
+    writer.append("Dear collaborator in project " + event.getProcessSolution().getLabel() + ".");
     writer.append("<br />");
     writer.append("<br />");
-    writer.append("the named project has completed the <em>testing</em> phase and the generated product/prototype is ready for rollout/demonstration.<br />");
-    writer.append("Further requirements can now be specified (the project is back \"in specificcation\")");
+    writer.append("The project has completed the <em>testing</em> phase and the generated product/prototype is ready for rollout/demonstration.");
+    writer.append("Further requirements can now be specified (the project is back <em>in specificcation<em>)");
     writer.append("<br />");
     writer.append("<br />");
-    writer.append("Regards,");
-    writer.append("Your Activiti Cycle");
+
+    String psConnectorId = "ps-" + event.getProcessSolution().getId();
+    writer.append("Go to <a href='http://localhost:8080/activiti-cycle/service/#event=updateArtifactView/activeNavigationTabIndex/0/activeArtifactViewTabIndex/0/connectorId/" + psConnectorId + "/nodeId/%252F'>Cycle Process Solution Homepage</a>");    
+
+    writer.append("<br />");
+    writer.append("<br />");
+    writer.append("With best regards from your Activiti Cycle.");
     return writer.toString();
   }
 }
