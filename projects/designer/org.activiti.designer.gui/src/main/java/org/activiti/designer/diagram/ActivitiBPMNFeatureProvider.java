@@ -1,6 +1,7 @@
 package org.activiti.designer.diagram;
 
 import org.activiti.designer.features.AddBoundaryTimerFeature;
+import org.activiti.designer.features.AddBusinessRuleTaskFeature;
 import org.activiti.designer.features.AddCallActivityFeature;
 import org.activiti.designer.features.AddEmbeddedSubProcessFeature;
 import org.activiti.designer.features.AddEndEventFeature;
@@ -16,6 +17,7 @@ import org.activiti.designer.features.AddStartEventFeature;
 import org.activiti.designer.features.AddUserTaskFeature;
 import org.activiti.designer.features.CopyFlowElementFeature;
 import org.activiti.designer.features.CreateBoundaryTimerFeature;
+import org.activiti.designer.features.CreateBusinessRuleTaskFeature;
 import org.activiti.designer.features.CreateCallActivityFeature;
 import org.activiti.designer.features.CreateEmbeddedSubProcessFeature;
 import org.activiti.designer.features.CreateEndEventFeature;
@@ -37,6 +39,7 @@ import org.activiti.designer.features.SaveBpmnModelFeature;
 import org.activiti.designer.features.SubProcessResizeFeature;
 import org.activiti.designer.features.UpdateFlowElementFeature;
 import org.eclipse.bpmn2.BoundaryEvent;
+import org.eclipse.bpmn2.BusinessRuleTask;
 import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
@@ -104,6 +107,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 			return new AddManualTaskFeature(this);
 		} else if (context.getNewObject() instanceof ReceiveTask) {
 			return new AddReceiveTaskFeature(this);
+		} else if (context.getNewObject() instanceof BusinessRuleTask) {
+      return new AddBusinessRuleTaskFeature(this);
 		} else if (context.getNewObject() instanceof ExclusiveGateway) {
 			return new AddExclusiveGatewayFeature(this);
 		} else if (context.getNewObject() instanceof ParallelGateway) {
@@ -120,11 +125,20 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 
 	@Override
 	public ICreateFeature[] getCreateFeatures() {
-		return new ICreateFeature[] { new CreateStartEventFeature(this), new CreateEndEventFeature(this),
-				new CreateUserTaskFeature(this), new CreateScriptTaskFeature(this), new CreateServiceTaskFeature(this),
-				new CreateMailTaskFeature(this), new CreateManualTaskFeature(this), new CreateReceiveTaskFeature(this),
-				new CreateParallelGatewayFeature(this), new CreateExclusiveGatewayFeature(this), new CreateBoundaryTimerFeature(this),
-				new CreateEmbeddedSubProcessFeature(this), new CreateCallActivityFeature(this) };
+		return new ICreateFeature[] { new CreateStartEventFeature(this), 
+		        new CreateEndEventFeature(this),
+		        new CreateUserTaskFeature(this), 
+		        new CreateScriptTaskFeature(this), 
+		        new CreateServiceTaskFeature(this),
+		        new CreateMailTaskFeature(this), 
+		        new CreateManualTaskFeature(this), 
+		        new CreateReceiveTaskFeature(this),
+		        new CreateBusinessRuleTaskFeature(this),
+		        new CreateParallelGatewayFeature(this), 
+		        new CreateExclusiveGatewayFeature(this), 
+		        new CreateBoundaryTimerFeature(this),
+		        new CreateEmbeddedSubProcessFeature(this), 
+		        new CreateCallActivityFeature(this) };
 	}
 
 	@Override

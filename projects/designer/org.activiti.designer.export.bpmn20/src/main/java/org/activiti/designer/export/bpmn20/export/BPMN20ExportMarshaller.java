@@ -17,6 +17,7 @@ import org.activiti.designer.eclipse.extension.export.ExportMarshaller;
 import org.activiti.designer.eclipse.preferences.Preferences;
 import org.activiti.designer.eclipse.preferences.PreferencesUtil;
 import org.eclipse.bpmn2.BoundaryEvent;
+import org.eclipse.bpmn2.BusinessRuleTask;
 import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.EndEvent;
 import org.eclipse.bpmn2.ExclusiveGateway;
@@ -238,6 +239,9 @@ public class BPMN20ExportMarshaller extends AbstractExportMarshaller implements 
 
     } else if (object instanceof ReceiveTask) {
       ReceiveTaskExport.createReceiveTask(object, subProcessId, xtw);
+    
+    } else if (object instanceof BusinessRuleTask) {
+      BusinessRuleTaskExport.createBusinessRuleTask(object, subProcessId, xtw);
       
     } else if (object instanceof CallActivity) {
       CallActivityExport.createCallActivity(object, subProcessId, xtw);

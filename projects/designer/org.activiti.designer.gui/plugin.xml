@@ -144,6 +144,12 @@
                id="org.activiti.designer.mainConfigTab.callactivity"
                tab="org.activiti.designer.mainConfigTab">
          </propertySection>
+         <propertySection
+               class="org.activiti.designer.property.PropertyBusinessRuleTaskSection"
+               filter="org.activiti.designer.property.PropertyBusinessRuleTaskFilter"
+               id="org.activiti.designer.mainConfigTab.businessruletask"
+               tab="org.activiti.designer.mainConfigTab">
+         </propertySection>
       </propertySections>
    </extension>
    <extension

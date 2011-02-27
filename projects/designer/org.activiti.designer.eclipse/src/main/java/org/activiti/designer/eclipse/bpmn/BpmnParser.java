@@ -24,6 +24,7 @@ import org.eclipse.bpmn2.ActivitiListener;
 import org.eclipse.bpmn2.Activity;
 import org.eclipse.bpmn2.BoundaryEvent;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.BusinessRuleTask;
 import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
@@ -142,6 +143,13 @@ public class BpmnParser {
             receiveTask.setId(elementid);
             if(activeSubProcess != null) activeSubProcess.getFlowElements().add(receiveTask);
             bpmnList.add(receiveTask);
+            
+          } else if(xtr.isStartElement() && "businessRuleTask".equalsIgnoreCase(xtr.getLocalName())) {
+            String elementid = xtr.getAttributeValue(null, "id");
+            BusinessRuleTask businessRuleTask = parseBusinessRuleTask(xtr);
+            businessRuleTask.setId(elementid);
+            if(activeSubProcess != null) activeSubProcess.getFlowElements().add(businessRuleTask);
+            bpmnList.add(businessRuleTask);
             
           } else if(xtr.isStartElement() && "callActivity".equalsIgnoreCase(xtr.getLocalName())) {
             String elementid = xtr.getAttributeValue(null, "id");
@@ -629,6 +637,48 @@ public class BpmnParser {
       e.printStackTrace();
     }
     return receiveTask;
+  }
+  
+  private BusinessRuleTask parseBusinessRuleTask(XMLStreamReader xtr) {
+    BusinessRuleTask businessRuleTask = Bpmn2Factory.eINSTANCE.createBusinessRuleTask();
+    businessRuleTask.setName(xtr.getAttributeValue(null, "name"));
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "rules") != null) {
+      String ruleNames = xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "rules");
+      if (ruleNames != null && ruleNames.length() > 0) {
+        businessRuleTask.getRuleNames().clear();
+        if(ruleNames.contains(",") == false) {
+          businessRuleTask.getRuleNames().add(ruleNames);
+        } else {
+          String[] ruleNameList = ruleNames.split(",");
+          for (String rule : ruleNameList) {
+            businessRuleTask.getRuleNames().add(rule);
+          }
+        }
+      }
+    }
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "inputVariableNames") != null) {
+      String inputNames = xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "inputVariableNames");
+      if (inputNames != null && inputNames.length() > 0) {
+        businessRuleTask.getInputVariables().clear();
+        if(inputNames.contains(",") == false) {
+          businessRuleTask.getInputVariables().add(inputNames);
+        } else {
+          String[] inputNamesList = inputNames.split(",");
+          for (String input : inputNamesList) {
+            businessRuleTask.getInputVariables().add(input);
+          }
+        }
+      }
+    }
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "exclude") != null) {
+      businessRuleTask.setExclude(Boolean.valueOf(xtr.getAttributeValue(
+              ACTIVITI_EXTENSIONS_NAMESPACE, "exclude")));
+    }
+    if(xtr.getAttributeValue(ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName") != null) {
+      businessRuleTask.setResultVariableName(xtr.getAttributeValue(
+              ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName"));
+    }
+    return businessRuleTask;
   }
   
   private BoundaryEventModel parseBoundaryEvent(XMLStreamReader xtr) {

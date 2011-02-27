@@ -30,6 +30,7 @@ import org.activiti.designer.eclipse.bpmn.SequenceFlowModel;
 import org.activiti.designer.eclipse.util.ActivitiUiUtil;
 import org.eclipse.bpmn2.BoundaryEvent;
 import org.eclipse.bpmn2.Bpmn2Factory;
+import org.eclipse.bpmn2.BusinessRuleTask;
 import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.bpmn2.CandidateGroup;
 import org.eclipse.bpmn2.CandidateUser;
@@ -421,6 +422,8 @@ public class BpmnFileReader {
         flowElement.setId(ActivitiUiUtil.getNextId(ManualTask.class, "manualtask", diagram));
       } else if(flowElement instanceof ReceiveTask) {
         flowElement.setId(ActivitiUiUtil.getNextId(ReceiveTask.class, "receivetask", diagram));
+      } else if(flowElement instanceof BusinessRuleTask) {
+        flowElement.setId(ActivitiUiUtil.getNextId(ReceiveTask.class, "businessruletask", diagram));
       } else if(flowElement instanceof MailTask) {
         flowElement.setId(ActivitiUiUtil.getNextId(MailTask.class, "mailtask", diagram));
       } else if(flowElement instanceof BoundaryEvent) {
