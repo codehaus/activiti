@@ -29,8 +29,10 @@ public class CycleEmailDispatcher {
   private final BlockingQueue<EmailDto> emailQueue = new ArrayBlockingQueue<EmailDto>(QUEUE_SIZE);
 
   private class EmailDto {
-
     private String from, address, subject, message;
+    public String toString() {
+      return "Email from '"+from+"' to '" + address + "' with subject '" + subject + "'";
+    }
   }
 
   public void sendEmail(String from, String address, String subject, String message) {
@@ -70,8 +72,9 @@ public class CycleEmailDispatcher {
 
     public void run() {
       while (!isInterrupted()) {
+        EmailDto mailDto = null;
         try {
-          EmailDto mailDto = emailQueue.take();
+          mailDto = emailQueue.take();
           Email email = new HtmlEmail();
           email.setFrom(mailDto.from);
           email.setMsg(mailDto.message);
@@ -83,7 +86,7 @@ public class CycleEmailDispatcher {
           // just terminate
           return;
         } catch (Exception e) {
-          logger.log(Level.SEVERE, "Could not send email", e);
+          logger.log(Level.SEVERE, "Could not send " + mailDto, e);
           // TODO: retry?
         }
       }
