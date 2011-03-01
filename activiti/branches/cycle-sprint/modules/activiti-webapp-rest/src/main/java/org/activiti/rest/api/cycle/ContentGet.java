@@ -20,8 +20,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import javassist.expr.Instanceof;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.cycle.ContentRepresentation;
@@ -29,6 +27,7 @@ import org.activiti.cycle.MimeType;
 import org.activiti.cycle.RepositoryArtifact;
 import org.activiti.cycle.RepositoryAuthenticationException;
 import org.activiti.cycle.context.CycleApplicationContext;
+import org.activiti.cycle.context.CycleRequestContext;
 import org.activiti.cycle.impl.connector.signavio.transform.TransformationException;
 import org.activiti.cycle.impl.mimetype.HtmlMimeType;
 import org.activiti.cycle.impl.mimetype.JsonMimeType;
@@ -38,10 +37,10 @@ import org.activiti.cycle.impl.mimetype.MsWordMimeType;
 import org.activiti.cycle.impl.mimetype.PdfMimeType;
 import org.activiti.cycle.impl.mimetype.TextMimeType;
 import org.activiti.cycle.impl.mimetype.XmlMimeType;
-import org.activiti.cycle.impl.processsolution.connector.ProcessSolutionArtifact;
 import org.activiti.cycle.service.CycleConfigurationService;
 import org.activiti.cycle.service.CycleContentService;
 import org.activiti.cycle.service.CyclePluginService;
+import org.activiti.cycle.service.CycleProcessSolutionService;
 import org.activiti.cycle.service.CycleRepositoryService;
 import org.activiti.cycle.service.CycleServiceFactory;
 import org.activiti.cycle.service.CycleTagService;
@@ -63,6 +62,7 @@ public class ContentGet extends ActivitiStreamingWebScript {
   protected CycleConfigurationService configurationService;
   protected CycleContentService contentService;
   protected CyclePluginService pluginService;
+  protected CycleProcessSolutionService processSolutionService;
 
   public ContentGet() {
     configurationService = CycleServiceFactory.getConfigurationService();
@@ -70,6 +70,7 @@ public class ContentGet extends ActivitiStreamingWebScript {
     tagService = CycleServiceFactory.getTagService();
     contentService = CycleServiceFactory.getContentService();
     pluginService = CycleServiceFactory.getCyclePluginService();
+    processSolutionService = CycleServiceFactory.getProcessSolutionService();
   }
 
   @Override
@@ -98,6 +99,13 @@ public class ContentGet extends ActivitiStreamingWebScript {
     String nodeId = req.getMandatoryString("nodeId");
     String contentRepresentationId = req.getMandatoryString("contentRepresentationId");
 
+    String vFolderId = req.getString("vFolderId");
+
+    if (vFolderId != null && vFolderId.length() > 0 && !vFolderId.equals("undefined")) {
+      connectorId = "ps-" + processSolutionService.getVirtualRepositoryFolderById(vFolderId).getProcessSolutionId();
+      CycleRequestContext.set("vFolderId", vFolderId);
+    }
+    
     // Retrieve the artifact from the repository
     RepositoryArtifact artifact = repositoryService.getRepositoryArtifact(connectorId, nodeId);
 

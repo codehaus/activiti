@@ -286,7 +286,7 @@
         }
         var downloads = [];
         for(i=0; i<artifactJson.downloads.length; i++) {
-          downloads.push({ text: artifactJson.downloads[i].label, url: artifactJson.downloads[i].url, target: "_blank"});
+          downloads.push({ text: artifactJson.downloads[i].label, url: Activiti.service.REST_PROXY_URI_RELATIVE + artifactJson.downloads[i].url, target: "_blank"});
         }
         if(downloads.length > 0) {
           actionsMenuItems.push(downloads);

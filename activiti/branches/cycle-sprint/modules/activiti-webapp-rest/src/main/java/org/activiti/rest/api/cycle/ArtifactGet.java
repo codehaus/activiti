@@ -44,7 +44,6 @@ public class ArtifactGet extends ActivitiCycleWebScript {
     // Retrieve the nodeId from the request
     String connectorId = req.getMandatoryString("connectorId");
     String nodeId = req.getString("nodeId");
-    String restProxyUri = req.getString("restProxyUri");
 
     String vFolderId = req.getString("vFolderId");
 
@@ -89,8 +88,8 @@ public class ArtifactGet extends ActivitiCycleWebScript {
     List<DownloadActionView> downloads = new ArrayList<DownloadActionView>();
     for (DownloadContentAction action : pluginService.getDownloadContentActions(artifact)) {
       try {
-        String url = restProxyUri + "content?connectorId=" + URLEncoder.encode(connectorId, "UTF-8") + "&nodeId=" + URLEncoder.encode(nodeId, "UTF-8")
-                + "&contentRepresentationId=" + URLEncoder.encode(action.getContentRepresentation().getId(), "UTF-8");
+        String url = "/content?connectorId=" + URLEncoder.encode(connectorId, "UTF-8") + "&nodeId=" + URLEncoder.encode(nodeId, "UTF-8")
+                + (vFolderId != null ? "&vFolderId=" + URLEncoder.encode(vFolderId, "UTF-8") : "") + "&contentRepresentationId=" + URLEncoder.encode(action.getContentRepresentation().getId(), "UTF-8");
         downloads.add(new DownloadActionView(action.getId(), url, action.getContentRepresentation().getRepresentationMimeType().getContentType(), action
                 .getContentRepresentation().getId()));
       } catch (UnsupportedEncodingException e) {
