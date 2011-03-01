@@ -31,7 +31,8 @@ public class SpecificationDoneEmailNotificationListener extends AbstractProcessS
     writer.append("<br />");
 
     String psConnectorId = "ps-" + event.getProcessSolution().getId();
-    writer.append("Go to <a href='http://localhost:8080/activiti-cycle/service/#event=updateArtifactView/activeNavigationTabIndex/0/activeArtifactViewTabIndex/0/connectorId/" + psConnectorId + "/nodeId/%252F'>Cycle Process Solution Homepage</a>");    
+    String psLabel = event.getProcessSolution().getLabel();
+    writer.append("Go to <a href='http://localhost:8080/activiti-cycle/service/#event=updateArtifactView/activeNavigationTabIndex/0/activeArtifactViewTabIndex/0/connectorId/" + psConnectorId + "/nodeId/%252F/label/" + psLabel + "'>Cycle Process Solution Homepage</a>");    
 
     writer.append("<br />");
     writer.append("<br />");    
