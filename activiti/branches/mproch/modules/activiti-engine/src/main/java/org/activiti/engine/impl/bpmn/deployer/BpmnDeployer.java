@@ -14,6 +14,7 @@ package org.activiti.engine.impl.bpmn.deployer;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -23,6 +24,8 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramGenerator;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
+import org.activiti.engine.impl.calendar.BusinessCalendar;
+import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.cfg.IdGenerator;
 import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.context.Context;
@@ -30,10 +33,12 @@ import org.activiti.engine.impl.db.DbRepositorySession;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.jobexecutor.TimerDeclarationImpl;
 import org.activiti.engine.impl.repository.Deployer;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
+import org.activiti.engine.impl.runtime.TimerEntity;
 import org.activiti.engine.impl.util.IoUtil;
 
 /**
@@ -122,6 +127,8 @@ public class BpmnDeployer implements Deployer {
         }
         processDefinition.setId(processDefinitionId);
 
+        addTimerDeclarations(processDefinition);
+        
         dbSqlSession.insert(processDefinition);
         dbRepositorySession.addToProcessDefinitionCache(processDefinition);
 
@@ -135,7 +142,21 @@ public class BpmnDeployer implements Deployer {
       }
     }
   }
-  
+
+  private void addTimerDeclarations(ProcessDefinitionEntity processDefinition) {
+    List<TimerDeclarationImpl> timerDeclarations = (List<TimerDeclarationImpl>) processDefinition.getProperty(BpmnParse.PROPERTYNAME_START_TIMER);
+    if (timerDeclarations!=null) {
+      for (TimerDeclarationImpl timerDeclaration : timerDeclarations) {
+        TimerEntity timer = timerDeclaration.prepareTimerEntity(null);
+        Context
+          .getCommandContext()
+          .getTimerSession()
+          .schedule(timer);
+      }
+    }
+  }
+
+
   /**
    * Returns the default name of the image resource for a certain process.
    * 
