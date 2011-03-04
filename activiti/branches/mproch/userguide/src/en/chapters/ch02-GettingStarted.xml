@@ -8,7 +8,9 @@
     <title>One minute version</title>
     <para>
       After downloading the Activiti distribution zip file from the Activiti website,
-      follow these steps to get the demo setup running with default settings:
+      follow these steps to get the demo setup running with default settings. 
+      You'll need a working <ulink url="http://java.sun.com/javase/downloads/index.jsp">Java runtime</ulink> and
+      <ulink url="http://ant.apache.org/bindownload.cgi">Ant</ulink> installation.
       <itemizedlist>
         <listitem>
           <para>Unzip the Activiti distribution zip file.</para>
@@ -25,7 +27,11 @@
           browser. Login with kermit/kermit.</para>
         </listitem>
       </itemizedlist>
-      That's it! If you want to know more, than read the <link linkend="demo.setup">longer version</link>.
+      That's it! If you want to know more about what actually happened in the steps above, read <link linkend="demo.setup">the longer version</link>.
+    </para>
+    <para>
+      You can also start learning all about Activiti and BPMN 2.0 in the 
+      <link linkend="10minutetutorial">ten minute tutorial</link>.
     </para>
   </section>
   
@@ -156,6 +162,13 @@
             <entry>Allows to specify processes quickly and efficiently in an adhoc way.
             Simple processes, quick prototypes and adhoc workflow are created in no time using KickStart.</entry>
           </row>
+           <row>
+            <entry>Activiti Administrator</entry>
+            <entry><ulink url="http://localhost:8080/activiti-administrator">http://localhost:8080/activiti-administrator</ulink></entry>
+            <entry>A webapp to administer the users and groups.  Currently this is realized as a seperate app, but we plan to 
+            unify some of the webapps into a single webapp with authorization.
+            </entry>
+          </row>
         </tbody>
       </tgroup>
     </table>
@@ -194,6 +207,9 @@
       </para></listitem>
       <listitem><para><emphasis role="bold">activiti-jpa-examples</emphasis>: These examples
       show library dependencies and how you can work with JPA in Activiti.    
+      </para></listitem>
+      <listitem><para><emphasis role="bold">activiti-cxf-examples</emphasis>: These examples
+      show library dependencies and how you can work with web services in Activiti.    
       </para></listitem>
       <listitem><para><emphasis role="bold">activiti-cycle-examples</emphasis>: This is a 
       project containing an demo example project for Activiti Cycle 

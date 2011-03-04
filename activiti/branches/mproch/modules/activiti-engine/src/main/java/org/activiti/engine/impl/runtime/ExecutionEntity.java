@@ -359,7 +359,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     List<ActivityExecution> inactiveConcurrentExecutionsInActivity = new ArrayList<ActivityExecution>();
     List<ActivityExecution> otherConcurrentExecutions = new ArrayList<ActivityExecution>();
     if (isConcurrent()) {
-      List< ? extends ActivityExecution> concurrentExecutions = getParent().getExecutions();
+      List< ? extends ActivityExecution> concurrentExecutions = getParent().getAllChildExecutions();
       for (ActivityExecution concurrentExecution: concurrentExecutions) {
         if (concurrentExecution.getActivity()==activity) {
           if (!concurrentExecution.isActive()) {
@@ -381,6 +381,15 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       log.fine("other concurrent executions: "+otherConcurrentExecutions);
     }
     return inactiveConcurrentExecutionsInActivity;
+  }
+  
+  protected List<ExecutionEntity> getAllChildExecutions() {
+    List<ExecutionEntity> childExecutions = new ArrayList<ExecutionEntity>();
+    for (ExecutionEntity childExecution : getExecutions()) {
+      childExecutions.add(childExecution);
+      childExecutions.addAll(childExecution.getAllChildExecutions());
+    }
+    return childExecutions;
   }
   
   @SuppressWarnings("unchecked")
@@ -475,12 +484,17 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     }
   }
   
-  private boolean allExecutionsInSameActivity(List<ExecutionEntity> executions) {
+  protected boolean allExecutionsInSameActivity(List<ExecutionEntity> executions) {
     if (executions.size() > 1) {
       String activityId = executions.get(0).getActivityId();
       for (ExecutionEntity execution : executions) {
-        if (!execution.isEnded && !execution.getActivityId().equals(activityId)) {
-          return false;
+        String otherActivityId = execution.getActivityId();
+        if (!execution.isEnded) {
+          if ( (activityId == null && otherActivityId != null) 
+                  || (activityId != null && otherActivityId == null)
+                  || (activityId != null && otherActivityId!= null && !otherActivityId.equals(activityId))) {
+            return false;
+          }
         }
       }
     }
@@ -803,9 +817,50 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   public void setReplacedBy(InterpretableExecution replacedBy) {
     this.replacedBy = (ExecutionEntity) replacedBy;
     
-    // update the cached historic activity instances that are open
     CommandContext commandContext = Context.getCommandContext();
     DbSqlSession dbSqlSession = commandContext.getDbSqlSession();
+
+    // update the related tasks
+    List<TaskEntity> tasks = (List) new TaskQueryImpl(commandContext)
+      .executionId(id)
+      .list();
+    for (TaskEntity task: tasks) {
+      task.setExecutionId(replacedBy.getId());
+    }
+    tasks = dbSqlSession.findInCache(TaskEntity.class);
+    for (TaskEntity task: tasks) {
+      if (id.equals(task.getExecutionId())) {
+        task.setExecutionId(replacedBy.getId());
+      }
+    }
+    
+    // update the related jobs
+    List<JobEntity> jobs = (List) new JobQueryImpl(commandContext)
+      .executionId(id)
+      .list();
+    for (JobEntity job: jobs) {
+      job.setExecutionId(replacedBy.getId());
+    }
+    jobs = dbSqlSession.findInCache(JobEntity.class);
+    for (JobEntity job: jobs) {
+      if (id.equals(job.getExecutionId())) {
+        job.setExecutionId(replacedBy.getId());
+      }
+    }
+    
+    // update the related jobs
+    List<VariableInstanceEntity> variables = (List) commandContext.getRuntimeSession().findVariableInstancesByExecutionId(id);
+    for (VariableInstanceEntity variable: variables) {
+      variable.setExecutionId(replacedBy.getId());
+    }
+    variables = dbSqlSession.findInCache(VariableInstanceEntity.class);
+    for (VariableInstanceEntity variable: variables) {
+      if (id.equals(variable.getExecutionId())) {
+        variable.setExecutionId(replacedBy.getId());
+      }
+    }
+    
+    // update the cached historic activity instances that are open
     List<HistoricActivityInstanceEntity> cachedHistoricActivityInstances = dbSqlSession.findInCache(HistoricActivityInstanceEntity.class);
     for (HistoricActivityInstanceEntity cachedHistoricActivityInstance: cachedHistoricActivityInstances) {
       if ( (cachedHistoricActivityInstance.getEndTime()==null)
@@ -889,7 +944,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     if (isProcessInstance()) {
       return "ProcessInstance["+getToStringIdentity()+"]";
     } else {
-      return (isConcurrent? "Concurrent" : "")+(isScope() ? "Scope" : "")+"Execution["+getToStringIdentity()+"]";
+      return (isConcurrent? "Concurrent" : "")+(isScope ? "Scope" : "")+"Execution["+getToStringIdentity()+"]";
     }
   }
 

@@ -9,8 +9,8 @@
   <property file="build.${db}.properties" />
 
   <property name="activiti.home" value=".." /> 
-  <property name="activiti.version" value="5.3-SNAPSHOT" />   
-  <property name="apache.mirror.url" value="http://mirrors.enquira.co.uk/apache/" />
+  <property name="activiti.version" value="5.4-SNAPSHOT" />   
+  <property name="tomcat.url" value="http://activiti.org/downloads/" />
   
   <property name="cycle.workspace" location="${activiti.home}/workspace/activiti-cycle-examples"/>
   <property name="activiti.modeler.base.url" value="http://localhost:8080/activiti-modeler/" />
@@ -72,6 +72,7 @@
   <target name="inflate.examples"
           description="Inflates the ${activiti.home}/workspace example projects with the required dependency libs"
           depends="cfg.create">
+  	
     <mkdir dir="${activiti.home}/workspace/activiti-engine-examples/libs-runtime" />
     <copy todir="${activiti.home}/workspace/activiti-engine-examples/libs-runtime">
       <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.runtime.txt" />
@@ -80,7 +81,7 @@
     <copy todir="${activiti.home}/workspace/activiti-engine-examples/libs-test">
       <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.test.txt" />
     </copy>
-    
+
     <mkdir dir="${activiti.home}/workspace/activiti-groovy-examples/libs-runtime" />
     <copy todir="${activiti.home}/workspace/activiti-groovy-examples/libs-runtime">
       <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.runtime.txt" />
@@ -123,7 +124,7 @@
       </fileset>
     </move>
 
-    <!-- mkdir dir="${activiti.home}/workspace/activiti-cxf-examples/libs-runtime" />
+    <mkdir dir="${activiti.home}/workspace/activiti-cxf-examples/libs-runtime" />
     <copy todir="${activiti.home}/workspace/activiti-cxf-examples/libs-runtime">
       <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.runtime.txt" />
       <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.runtime.feature.cxf.txt" />
@@ -131,7 +132,7 @@
     <mkdir dir="${activiti.home}/workspace/activiti-cxf-examples/libs-test" />
     <copy todir="${activiti.home}/workspace/activiti-cxf-examples/libs-test">
       <fileset dir="files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.engine.test.txt" />
-    </copy -->
+    </copy>
   </target>
   
   <!-- ### DEMO #################################################################### -->
@@ -309,7 +310,7 @@
 
   <property name="tomcat.home" value="${activiti.home}/apps/apache-tomcat-${tomcat.version}" /> 
   <property name="tomcat.filename" value="apache-tomcat-${tomcat.version}.zip" /> 
-  <property name="tomcat.download.url" value="${apache.mirror.url}tomcat/tomcat-6/v${tomcat.version}/bin/${tomcat.filename}" />    
+  <property name="tomcat.download.url" value="${tomcat.url}${tomcat.filename}" />    
   <property name="tomcat.java.opts" value="-server -Xms128m -Xmx512m -XX:NewSize=64m -XX:MaxNewSize=64m -XX:PermSize=256m -XX:MaxPermSize=512m -Dfile.encoding=UTF-8" /> 
   <property name="tomcat.distro" value="${downloads.dir}/${tomcat.filename}" />
   <available property="is.tomcat.installed" file="${tomcat.home}/bin" />
@@ -434,6 +435,7 @@ set JAVA_OPTS=%JAVA_OPTS% @tomcat.java.opts@
                    internal.deploy.activiti.probe.into.tomcat,
                    internal.deploy.activiti.cycle.into.tomcat,
                    internal.deploy.activiti.kickstart.into.tomcat,
+  	               internal.deploy.activiti.administrator.into.tomcat,
                    internal.deploy.activiti.modeler.into.tomcat" />
 
   <target name="build.webapps"
@@ -459,6 +461,9 @@ set JAVA_OPTS=%JAVA_OPTS% @tomcat.java.opts@
   	  <fileset dir="${activiti.home}/setup/files/dependencies/libs" 
   	           includesfile="${activiti.home}/setup/files/dependencies/libs.webapp.kickstart.txt" />
   	</copy>
+  	<copy todir="${activiti.home}/setup/build/webapps/activiti-administrator.war/WEB-INF/lib">
+  	  <fileset dir="${activiti.home}/setup/files/dependencies/libs" includesfile="${activiti.home}/setup/files/dependencies/libs.webapp.administrator.txt" />
+    </copy>
     <copy todir="${activiti.home}/setup/build/webapps/activiti-rest.war/WEB-INF/lib">
       <fileset dir="${activiti.home}/setup/files/dependencies/libs" 
                includesfile="${activiti.home}/setup/files/dependencies/libs.webapp.rest.txt" />
@@ -522,6 +527,14 @@ set JAVA_OPTS=%JAVA_OPTS% @tomcat.java.opts@
 		  <fileset dir="${activiti.home}/setup/build/webapps/activiti-kickstart.war" />
 		 </copy>
 	</target>
+	
+	<target name="internal.deploy.activiti.administrator.into.tomcat">
+	  <mkdir dir="${tomcat.home}/webapps/activiti-administrator" />
+	  <copy todir="${tomcat.home}/webapps/activiti-administrator">
+	    <fileset dir="${activiti.home}/setup/build/webapps/activiti-administrator.war" />
+	  </copy>
+	</target>
+
 
   
   <!-- ### LAUNCH TASKDEF AND CLASSPATH #################################################################### -->

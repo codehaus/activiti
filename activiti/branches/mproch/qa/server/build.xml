@@ -2,13 +2,15 @@
 <project name="activiti.qa.server">
 	
 	<property file="${user.home}/.activiti/build.properties" />
-	<property name="activiti.version" value="5.3-SNAPSHOT" />
+	<property name="activiti.version" value="5.4-SNAPSHOT" />
 	<property name="activiti.home" value="../../distro/target/activiti-${activiti.version}" />
   <property name="database" value="h2" />
   <property name="server" value="tomcat6x" />
+  <property name="cfg" value="activiti" /> <!-- {activiti|spring} -->
+  <property name="tx" value="standalone" /> <!-- {standalone|jta} -->
 	<property name="downloads.dir" value="${user.home}/.activiti/downloads" />
 
-	<property name="tomcat.version" value="6.0.29" />
+	<property name="tomcat.version" value="6.0.32" />
 	<property name="tomcat.home" value="${activiti.home}/apps/apache-tomcat-${tomcat.version}" />
 	
   <property name="jboss.version" value="5.1.0.GA" />
@@ -24,7 +26,7 @@
     <os family="windows" />
   </condition>
 	
-  <condition property="server.home" value="${activiti.home}/apps/apache-tomcat-6.0.29">
+  <condition property="server.home" value="${activiti.home}/apps/apache-tomcat-6.0.32">
     <equals arg1="${server}" arg2="tomcat6x" />
   </condition>
 
@@ -44,7 +46,8 @@
   </target>
 
   <target name="test" depends="build.distribution, build.testing.war">
-    <available property="is.jboss.installed" file="${jboss.home}/bin" />
+  	<delete dir="${activiti.home}/apps" />
+    <delete dir="${activiti.home}/setup/build" />
     <available property="is.jboss.available" file="${jboss.distro}" />
   	<antcall target="${server}.install" />
     <antcall target="${server}.deploy.testing.war" />
@@ -52,13 +55,14 @@
     <antcall target="${server}.start" />
 
     <echo message="Running server tests..." />
-  	
+
   	<mkdir dir="target/junit-reports" />
     <junit fork="yes" failureproperty="tests.failed">
       <jvmarg value="-Xms1024m"/>
       <jvmarg value="-Xmx1024m"/>
       <classpath>
         <pathelement location="../../modules/activiti-cactus/target/classes" />
+        <pathelement location="cactus.conf" />
         <fileset dir="target/cactus/lib" />
       </classpath>
       <formatter type="xml"/>
@@ -69,7 +73,7 @@
   	<antcall target="h2.stop" />
   </target>
 	
-	<target name="build.distribution">
+	<target name="build.distribution" unless="skipdistro">
     <echo message="Building distribution..." />
     <ant antfile="../../distro/build.xml" inheritall="false">
       <target name="clean" />
@@ -85,13 +89,20 @@
     </exec>
     <echo message="Building the activiti-cactus module..." />
     <exec executable="${mvn.executable}" dir="../../modules/activiti-cactus/">
-      <arg line="-Ddatabase=${database} clean install" />
+      <arg line="-Ddatabase=${database} -Dcfg=${cfg} -Dtx=${tx} -Dserver=${server} clean install" />
     </exec>
     <delete>
       <fileset dir="target/cactus/lib">
         <include name="ant-*" />
       </fileset>
     </delete>
+    <!-- taskdef resource="cactus.tasks">
+      <classpath>
+        <fileset dir="target/cactus/lib">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>
+    </taskdef -->
     <copy file="../../modules/activiti-cactus/target/activiti-cactus-${activiti.version}.war" 
           tofile="target/activiti-server-testing.war" 
           overwrite="true" />
@@ -160,6 +171,19 @@
         <include name="*.bat"/>
       </fileset>
     </chmod>
+  	<condition property="is.datasource.required">
+  		<equals arg1="${tx}" arg2="jta"/>
+  	</condition>
+  	<antcall target="jboss.deploy.datasource" />
+    <copy todir="${jboss.home}/server/default/conf" overwrite="true">
+      <fileset dir="jboss.conf" />
+    </copy>
+  </target>
+
+  <target name="jboss.deploy.datasource" if="is.datasource.required">
+    <copy todir="${jboss.home}/server/default/deploy" file="jboss.datasources/activiti-${database}-ds.xml" overwrite="true">
+      <filterset filtersfile="${user.home}/.activiti/server/build.${database}.properties" />
+    </copy>
   </target>
 
   <target name="jboss.download" unless="is.jboss.available">
@@ -167,7 +191,7 @@
     <get src="${jboss.download.url}" dest="${tomcat.distro}" />
   </target>
 
-  <target name="jboss.unzip" unless="is.jboss.installed">
+  <target name="jboss.unzip">
     <mkdir dir="${activiti.home}/apps" />
     <unzip src="${jboss.distro}" dest="${activiti.home}/apps"/>
   </target>
@@ -189,7 +213,7 @@
   </target>
 
   <target name="jboss.deploy.testing.war">
-    <copy file="target/activiti-server-testing.war" todir="${jboss.home}/deploy" />
+    <copy file="target/activiti-server-testing.war" todir="${jboss.home}/server/default/deploy" />
   </target>
 
   <!-- ### INTERNAL TARGETS ##################################################### -->

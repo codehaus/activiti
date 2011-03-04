@@ -15,6 +15,7 @@ package org.activiti.engine.impl.bpmn.behavior;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +25,10 @@ import org.activiti.engine.impl.el.Expression;
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.pvm.delegate.CompositeActivityBehavior;
+import org.activiti.engine.impl.pvm.delegate.ExecutionListener;
+import org.activiti.engine.impl.pvm.delegate.ExecutionListenerExecution;
 import org.activiti.engine.impl.pvm.delegate.SubProcessActivityBehavior;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
 
 
 /**
@@ -53,28 +57,39 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
   protected final String LOOP_COUNTER = "loopCounter";
   
   // Instance members
-  protected AbstractBpmnActivityBehavior originalActivityBehavior;
+  protected ActivityImpl activity;
+  protected AbstractBpmnActivityBehavior innerActivityBehavior;
   protected Expression loopCardinalityExpression;
   protected Expression completionConditionExpression;
-  protected Expression loopDataInputRefExpression;
-  protected String loopDataInputRefVariable;
-  protected String inputDataItemVariable;
+  protected Expression collectionExpression;
+  protected String collectionVariable;
+  protected String collectionElementVariable;
   
   /**
-   * @param originalActivityBehavior The original {@link ActivityBehavior} of the activity 
+   * @param innerActivityBehavior The original {@link ActivityBehavior} of the activity 
    *                         that will be wrapped inside this behavior.
    * @param isSequential Indicates whether the multi instance behavior
    *                     must be sequential or parallel
    */
-  public MultiInstanceActivityBehavior(AbstractBpmnActivityBehavior originalActivityBehavior) {
-    this.originalActivityBehavior = originalActivityBehavior;
-    this.originalActivityBehavior.setMultiInstanceActivityBehavior(this);
+  public MultiInstanceActivityBehavior(ActivityImpl activity, AbstractBpmnActivityBehavior innerActivityBehavior) {
+    this.activity = activity;
+    this.innerActivityBehavior = innerActivityBehavior;
+    this.innerActivityBehavior.setMultiInstanceActivityBehavior(this);
   }
   
+  public void execute(ActivityExecution execution) throws Exception {
+    if (getLoopVariable(execution, LOOP_COUNTER) == null) {
+      createInstances(execution);
+    } else {
+      innerActivityBehavior.execute(execution);
+    }
+  }
+  
+  protected abstract void createInstances(ActivityExecution execution) throws Exception;
   
   // Intercepts signals, and delegates it to the wrapped {@link ActivityBehavior}.
   public void signal(ActivityExecution execution, String signalName, Object signalData) throws Exception {
-    originalActivityBehavior.signal(execution, signalName, signalData);
+    innerActivityBehavior.signal(execution, signalName, signalData);
   }
   
   // required for supporting embedded subprocesses
@@ -98,33 +113,32 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
     int nrOfInstances = -1;
     if (loopCardinalityExpression != null) {
       nrOfInstances = resolveLoopCardinality(execution);
-    } else if (loopDataInputRefExpression != null) {
-      Object obj = loopDataInputRefExpression.getValue(execution);
-      if (! (obj instanceof Collection)) {
-        throw new ActivitiException("loopDataInputRef '"
-                +loopDataInputRefExpression.getExpressionText()+"' didn't resolve to a Collection");
+    } else if (collectionExpression != null) {
+      Object obj = collectionExpression.getValue(execution);
+      if (!(obj instanceof Collection)) {
+        throw new ActivitiException(collectionExpression.getExpressionText()+"' didn't resolve to a Collection");
       }
       nrOfInstances = ((Collection) obj).size();
-    } else if (loopDataInputRefVariable != null) {
-      Object obj = execution.getVariable(loopDataInputRefVariable);
-      if (! (obj instanceof Collection)) {
-        throw new ActivitiException("loopDataInputRef '"+loopDataInputRefVariable+"' is not a Collection");
+    } else if (collectionVariable != null) {
+      Object obj = execution.getVariable(collectionVariable);
+      if (!(obj instanceof Collection)) {
+        throw new ActivitiException("Variable " + collectionVariable+"' is not a Collection");
       }
       nrOfInstances = ((Collection) obj).size();
     } else {
-      throw new ActivitiException("Couldn't resolve loopCardinality nor loopDataInputRef");
+      throw new ActivitiException("Couldn't resolve collection expression nor variable reference");
     }
     return nrOfInstances;
   }
   
   @SuppressWarnings("rawtypes")
   protected void executeOriginalBehavior(ActivityExecution execution, int loopCounter) throws Exception {
-    if (usesCollection() && inputDataItemVariable != null) {
+    if (usesCollection() && collectionElementVariable != null) {
       Collection collection = null;
-       if (loopDataInputRefExpression != null) {
-        collection = (Collection) loopDataInputRefExpression.getValue(execution);
-      } else if (loopDataInputRefVariable != null) {
-        collection = (Collection) execution.getVariable(loopDataInputRefVariable);
+      if (collectionExpression != null) {
+        collection = (Collection) collectionExpression.getValue(execution);
+      } else if (collectionVariable != null) {
+        collection = (Collection) execution.getVariable(collectionVariable);
       }
        
       Object value = null;
@@ -134,23 +148,30 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
         value = it.next();
         index++;
       }
-      setLoopVariable(execution, inputDataItemVariable, value);
+      setLoopVariable(execution, collectionElementVariable, value);
     }
-    originalActivityBehavior.execute(execution);
+
+    // If loopcounter == 1, then historic activity instance already created, no need to
+    // pass through executeActivity again since it will create a new historic activity
+    if (loopCounter == 0) {
+      innerActivityBehavior.execute(execution);
+    } else {
+      execution.executeActivity(activity);
+    }
   }
   
   protected boolean usesCollection() {
-    return loopDataInputRefExpression != null 
-              || loopDataInputRefVariable != null;
+    return collectionExpression != null 
+              || collectionVariable != null;
   }
   
   protected boolean isExtraScopeNeeded() {
     // special care is needed when the behavior is an embedded subprocess (not very clean, but it works)
-    return originalActivityBehavior instanceof org.activiti.engine.impl.bpmn.behavior.SubProcessActivityBehavior;  
+    return innerActivityBehavior instanceof org.activiti.engine.impl.bpmn.behavior.SubProcessActivityBehavior;  
   }
   
   protected int resolveLoopCardinality(ActivityExecution execution) {
-    // Using Number since expr can evaluate to eg. Long (default for Juel)
+    // Using Number since expr can evaluate to eg. Long (which is also the default for Juel)
     Object value = loopCardinalityExpression.getValue(execution);
     if (value instanceof Number) {
       return ((Number) value).intValue();
@@ -167,8 +188,8 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
       Object value = completionConditionExpression.getValue(execution);
       if (! (value instanceof Boolean)) {
         throw new ActivitiException("completionCondition '"
-                +completionConditionExpression.getExpressionText()
-                +"' does not evaluate to a boolean value");
+                + completionConditionExpression.getExpressionText()
+                + "' does not evaluate to a boolean value");
       }
       Boolean booleanValue = (Boolean) value;
       if (LOGGER.isLoggable(Level.FINE)) {
@@ -183,7 +204,7 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
     execution.setVariableLocal(variableName, value);
   }
   
-  protected int getLoopVariable(ActivityExecution execution, String variableName) {
+  protected Integer getLoopVariable(ActivityExecution execution, String variableName) {
     Object value = execution.getVariableLocal(variableName);
     ActivityExecution parent = execution.getParent();
     while (value == null && parent != null) {
@@ -191,6 +212,21 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
       parent = parent.getParent();
     }
     return (Integer) value;
+  }
+  
+  /**
+   * Since no transitions are followed when leaving the inner activity,
+   * it is needed to call the end listeners yourself.
+   */
+  protected void callActivityEndListeners(ActivityExecution execution) {
+    List<ExecutionListener> listeners = activity.getExecutionListeners(ExecutionListener.EVENTNAME_END);
+    for (ExecutionListener executionListener : listeners) {
+      try {
+        executionListener.notify((ExecutionListenerExecution) execution);
+      } catch (Exception e) {
+        throw new ActivitiException("Couldn't execute end listener", e);
+      }
+    }
   }
   
   protected void logLoopDetails(ActivityExecution execution, String custom, int loopCounter, 
@@ -205,9 +241,10 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
       LOGGER.fine(strb.toString());
     }
   }
+
   
   // Getters and Setters ///////////////////////////////////////////////////////////
-
+  
   public Expression getLoopCardinalityExpression() {
     return loopCardinalityExpression;
   }
@@ -220,29 +257,23 @@ public abstract class MultiInstanceActivityBehavior extends FlowNodeActivityBeha
   public void setCompletionConditionExpression(Expression completionConditionExpression) {
     this.completionConditionExpression = completionConditionExpression;
   }
-  public AbstractBpmnActivityBehavior getOriginalActivityBehavior() {
-    return originalActivityBehavior;
+  public Expression getCollectionExpression() {
+    return collectionExpression;
   }
-  public void setOriginalActivityBehavior(AbstractBpmnActivityBehavior originalActivityBehavior) {
-    this.originalActivityBehavior = originalActivityBehavior;
+  public void setCollectionExpression(Expression collectionExpression) {
+    this.collectionExpression = collectionExpression;
   }
-  public Expression getLoopDataInputRefExpression() {
-    return loopDataInputRefExpression;
+  public String getCollectionVariable() {
+    return collectionVariable;
   }
-  public void setLoopDataInputRefExpression(Expression loopDataInputRefExpression) {
-    this.loopDataInputRefExpression = loopDataInputRefExpression;
+  public void setCollectionVariable(String collectionVariable) {
+    this.collectionVariable = collectionVariable;
   }
-  public String getLoopDataInputRefVariable() {
-    return loopDataInputRefVariable;
+  public String getCollectionElementVariable() {
+    return collectionElementVariable;
   }
-  public void setLoopDataInputRefVariable(String loopDataInputRefVariable) {
-    this.loopDataInputRefVariable = loopDataInputRefVariable;
-  }
-  public String getInputDataItemVariable() {
-    return inputDataItemVariable;
-  }
-  public void setInputDataItemVariable(String inputDataItemVariable) {
-    this.inputDataItemVariable = inputDataItemVariable;
+  public void setCollectionElementVariable(String collectionElementVariable) {
+    this.collectionElementVariable = collectionElementVariable;
   }
   
 }

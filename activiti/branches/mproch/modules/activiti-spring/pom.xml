@@ -10,7 +10,7 @@
 		<groupId>org.activiti</groupId>
 		<artifactId>activiti-root</artifactId>
 		<relativePath>../..</relativePath>
-		<version>5.3-SNAPSHOT</version>
+		<version>5.4-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -143,9 +143,6 @@
                     <copy todir="src/test/resources" overwrite="true">
                       <fileset dir="../activiti-engine/src/test/resources" />
                     </copy>
-		                <copy todir="target/test-classes" overwrite="true">
-		                  <fileset dir="src/test/resources-engine-testrun" />
-		                </copy>
 		              </tasks>
 		            </configuration>
 		          </execution>
@@ -214,8 +211,9 @@
   <repositories>
     <!-- This repo declaration is here for as this will be part of the distro -->
     <repository>
-      <id>alfresco</id>
-      <url>http://maven.alfresco.com/nexus/content/groups/public</url>
+      <id>activiti</id>
+      <name>Activiti</name>
+      <url>http://maven.alfresco.com/nexus/content/repositories/activiti/</url>
     </repository>
   </repositories>
 

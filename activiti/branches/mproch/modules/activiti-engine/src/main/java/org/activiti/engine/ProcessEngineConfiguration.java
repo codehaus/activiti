@@ -17,7 +17,7 @@ import java.io.InputStream;
 
 import javax.sql.DataSource;
 
-import org.activiti.engine.impl.cfg.SpringConfigurationHelper;
+import org.activiti.engine.impl.cfg.BeansConfigurationHelper;
 import org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
@@ -119,6 +119,7 @@ public abstract class ProcessEngineConfiguration {
   protected String jdbcUrl = "jdbc:h2:tcp://localhost/activiti";
   protected String jdbcUsername = "sa";
   protected String jdbcPassword = "";
+  protected String dataSourceJndiName = null;
   protected int jdbcMaxActiveConnections;
   protected int jdbcMaxIdleConnections;
   protected int jdbcMaxCheckoutTime;
@@ -148,7 +149,7 @@ public abstract class ProcessEngineConfiguration {
   }
 
   public static ProcessEngineConfiguration createProcessEngineConfigurationFromResource(String resource, String beanName) {
-    return SpringConfigurationHelper.parseProcessEngineConfigurationFromResource(resource, beanName);
+    return BeansConfigurationHelper.parseProcessEngineConfigurationFromResource(resource, beanName);
   }
   
   public static ProcessEngineConfiguration createProcessEngineConfigurationFromInputStream(InputStream inputStream) {
@@ -156,7 +157,7 @@ public abstract class ProcessEngineConfiguration {
   }
 
   public static ProcessEngineConfiguration createProcessEngineConfigurationFromInputStream(InputStream inputStream, String beanName) {
-    return SpringConfigurationHelper.parseProcessEngineConfigurationFromInputStream(inputStream, beanName);
+    return BeansConfigurationHelper.parseProcessEngineConfigurationFromInputStream(inputStream, beanName);
   }
 
   public static ProcessEngineConfiguration createStandaloneProcessEngineConfiguration() {
@@ -453,4 +454,11 @@ public abstract class ProcessEngineConfiguration {
     this.jpaPersistenceUnitName = jpaPersistenceUnitName;
   }
 
+  public String getDataSourceJndiName() {
+    return dataSourceJndiName;
+  }
+
+  public void setDataSourceJndiName(String dataSourceJndiName) {
+    this.dataSourceJndiName = dataSourceJndiName;
+  }
 }

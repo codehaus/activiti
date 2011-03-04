@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.impl.util.CollectionUtil;
 import org.activiti.engine.runtime.Execution;
@@ -54,6 +58,37 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
     
     assertNull(taskService.createTaskQuery().singleResult());
     assertProcessEnded(procId);
+  }
+  
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.sequentialUserTasks.bpmn20.xml"})
+  public void testSequentialUserTasksHistory() {
+    runtimeService.startProcessInstanceByKey("miSequentialUserTasks", 
+            CollectionUtil.singletonMap("nrOfLoops", 4)).getId();
+    for (int i=0; i<4; i++) {
+      taskService.complete(taskService.createTaskQuery().singleResult().getId());
+    }
+    
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+    
+      List<HistoricTaskInstance> historicTaskInstances = historyService.createHistoricTaskInstanceQuery().list();
+      assertEquals(4, historicTaskInstances.size());
+      for (HistoricTaskInstance ht : historicTaskInstances) {
+        assertNotNull(ht.getAssignee());
+        assertNotNull(ht.getStartTime());
+        assertNotNull(ht.getEndTime());
+      }
+      
+      List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery().activityType("userTask").list();
+      assertEquals(4, historicActivityInstances.size());
+      for (HistoricActivityInstance hai : historicActivityInstances) {
+        assertNotNull(hai.getActivityId());
+        assertNotNull(hai.getActivityName());
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+        assertNotNull(hai.getAssignee());
+      }
+      
+    }
   }
   
   @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.sequentialUserTasks.bpmn20.xml"})
@@ -117,6 +152,34 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
     assertProcessEnded(procId); 
   }
   
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testParallelUserTasks.bpmn20.xml"})
+  public void testParallelUserTasksHistory() {
+    runtimeService.startProcessInstanceByKey("miParallelUserTasks");
+    for (Task task : taskService.createTaskQuery().list()) {
+      taskService.complete(task.getId());
+    }
+    
+    // Validate history
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricTaskInstance> historicTaskInstances = historyService.createHistoricTaskInstanceQuery().orderByTaskAssignee().asc().list();
+      for (int i=0; i<historicTaskInstances.size(); i++) {
+        HistoricTaskInstance hi = historicTaskInstances.get(i);
+        assertNotNull(hi.getStartTime());
+        assertNotNull(hi.getEndTime());
+        assertEquals("kermit_"+i, hi.getAssignee());
+      }
+      
+      List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery().activityType("userTask").list();
+      assertEquals(3, historicActivityInstances.size());
+      for (HistoricActivityInstance hai : historicActivityInstances) {
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+        assertNotNull(hai.getAssignee());
+        assertEquals("userTask", hai.getActivityType());
+      }
+    }
+  }
+  
   @Deployment
   public void testParallelUserTasksWithTimer() {
     String procId = runtimeService.startProcessInstanceByKey("miParallelUserTasksWithTimer").getId();
@@ -171,6 +234,33 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
   }
   
   @Deployment
+  public void testParallelUserTasksCustomExtensions() {
+    Map<String, Object> vars = new HashMap<String, Object>();
+    List<String> assigneeList = Arrays.asList("kermit", "gonzo", "fozzie");
+    vars.put("assigneeList", assigneeList);
+    runtimeService.startProcessInstanceByKey("miSequentialUserTasks", vars);
+    
+    for (String assignee : assigneeList) {
+      Task task = taskService.createTaskQuery().singleResult();
+      assertEquals(assignee, task.getAssignee());
+      taskService.complete(task.getId());
+    }
+  }
+  
+  @Deployment
+  public void testParallelUserTasksExecutionAndTaskListeners() {
+    runtimeService.startProcessInstanceByKey("miParallelUserTasks");
+    List<Task> tasks = taskService.createTaskQuery().list();
+    for (Task task : tasks) {
+      taskService.complete(task.getId());
+    }
+    
+    Execution waitState = runtimeService.createExecutionQuery().singleResult();
+    assertEquals(3, runtimeService.getVariable(waitState.getId(), "taskListenerCounter"));
+    assertEquals(3, runtimeService.getVariable(waitState.getId(), "executionListenerCounter"));
+  }
+  
+  @Deployment
   public void testNestedParallelUserTasks() {
     String procId = runtimeService.startProcessInstanceByKey("miNestedParallelUserTasks").getId();
     
@@ -194,6 +284,26 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
     assertEquals(10, sum);
   }
   
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testSequentialScriptTasks.bpmn20.xml"})
+  public void testSequentialScriptTasksHistory() {
+    Map<String, Object> vars = new HashMap<String, Object>();
+    vars.put("sum", 0);
+    vars.put("nrOfLoops", 7);
+    runtimeService.startProcessInstanceByKey("miSequentialScriptTask", vars);
+    
+    // Validate history
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricActivityInstance> historicInstances = historyService.createHistoricActivityInstanceQuery().activityType("scriptTask").orderByActivityId().asc().list();
+      assertEquals(7, historicInstances.size());
+      for (int i=0; i<7; i++) {
+        HistoricActivityInstance hai = historicInstances.get(i);
+        assertEquals("scriptTask", hai.getActivityType());
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+      }
+    }
+  }
+  
   @Deployment
   public void testSequentialScriptTasksCompletionCondition() {
     runtimeService.startProcessInstanceByKey("miSequentialScriptTaskCompletionCondition").getId();
@@ -213,12 +323,38 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
     assertEquals(45, sum);
   }
   
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testParallelScriptTasks.bpmn20.xml"})
+  public void testParallelScriptTasksHistory() {
+    Map<String, Object> vars = new HashMap<String, Object>();
+    vars.put("sum", 0);
+    vars.put("nrOfLoops", 4);
+    runtimeService.startProcessInstanceByKey("miParallelScriptTask", vars);
+    
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery().activityType("scriptTask").list();
+      assertEquals(4, historicActivityInstances.size());
+      for (HistoricActivityInstance hai : historicActivityInstances) {
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getStartTime());
+      }
+    }
+  }
+  
   @Deployment
   public void testParallelScriptTasksCompletionCondition() {
     runtimeService.startProcessInstanceByKey("miParallelScriptTaskCompletionCondition");
     Execution waitStateExecution = runtimeService.createExecutionQuery().singleResult();
     int sum = (Integer) runtimeService.getVariable(waitStateExecution.getId(), "sum");
     assertEquals(2, sum);
+  }
+  
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testParallelScriptTasksCompletionCondition.bpmn20.xml"})
+  public void testParallelScriptTasksCompletionConditionHistory() {
+    runtimeService.startProcessInstanceByKey("miParallelScriptTaskCompletionCondition");
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery().activityType("scriptTask").list();
+      assertEquals(2, historicActivityInstances.size());
+    }
   }
   
   @Deployment
@@ -238,6 +374,36 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
     }
     
     assertProcessEnded(procId);
+  }
+
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testSequentialSubProcess.bpmn20.xml"})
+  public void testSequentialSubProcessHistory() {
+    runtimeService.startProcessInstanceByKey("miSequentialSubprocess");
+    for (int i=0; i<4; i++) {
+      List<Task> tasks = taskService.createTaskQuery().list();
+      taskService.complete(tasks.get(0).getId());
+      taskService.complete(tasks.get(1).getId());
+    }
+    
+    // Validate history
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricActivityInstance> onlySubProcessInstances = historyService.createHistoricActivityInstanceQuery().activityType("subProcess").list();
+      assertEquals(4, onlySubProcessInstances.size());
+      
+      List<HistoricActivityInstance> historicInstances = historyService.createHistoricActivityInstanceQuery().activityType("subProcess").list();
+      assertEquals(4, historicInstances.size()); 
+      for (HistoricActivityInstance hai : historicInstances) {
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+      }
+      
+      historicInstances = historyService.createHistoricActivityInstanceQuery().activityType("userTask").list();
+      assertEquals(8, historicInstances.size()); 
+      for (HistoricActivityInstance hai : historicInstances) {
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+      }
+    }
   }
   
   @Deployment
@@ -330,6 +496,24 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
       taskService.complete(task.getId());
     }
     assertProcessEnded(procId);
+  }
+  
+  @Deployment(resources = {"org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testParallelSubProcess.bpmn20.xml"})
+  public void testParallelSubProcessHistory() {
+    runtimeService.startProcessInstanceByKey("miParallelSubprocess");
+    for (Task task : taskService.createTaskQuery().list()) {
+      taskService.complete(task.getId());
+    }
+    
+    // Validate history
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery().activityId("miSubProcess").list();
+      assertEquals(2, historicActivityInstances.size());
+      for (HistoricActivityInstance hai : historicActivityInstances) {
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+      }
+    }
   }
   
   @Deployment
@@ -474,6 +658,46 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
 
     assertProcessEnded(procId);
   }
+  
+  @Deployment(resources = { "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testParallelCallActivity.bpmn20.xml",
+  "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.externalSubProcess.bpmn20.xml" })
+  public void testParallelCallActivityHistory() {
+    runtimeService.startProcessInstanceByKey("miParallelCallActivity");
+    List<Task> tasks = taskService.createTaskQuery().list();
+    assertEquals(12, tasks.size());
+    for (int i = 0; i < tasks.size(); i++) {
+      taskService.complete(tasks.get(i).getId());
+    }
+    
+    if (processEngineConfiguration.getHistoryLevel() > ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
+      // Validate historic processes
+      List<HistoricProcessInstance> historicProcessInstances = historyService.createHistoricProcessInstanceQuery().list();
+      assertEquals(7, historicProcessInstances.size()); // 6 subprocesses + main process
+      for (HistoricProcessInstance hpi : historicProcessInstances) {
+        assertNotNull(hpi.getStartTime());
+        assertNotNull(hpi.getEndTime());
+      }
+      
+      // Validate historic tasks
+      List<HistoricTaskInstance> historicTaskInstances = historyService.createHistoricTaskInstanceQuery().list();
+      assertEquals(12, historicTaskInstances.size());
+      for (HistoricTaskInstance hti : historicTaskInstances) {
+        assertNotNull(hti.getStartTime());
+        assertNotNull(hti.getEndTime());
+        assertNotNull(hti.getAssignee());
+        assertEquals("completed", hti.getDeleteReason());
+      }
+      
+      // Validate historic activities
+      List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery().activityType("callActivity").list();
+      assertEquals(6, historicActivityInstances.size());
+      for (HistoricActivityInstance hai : historicActivityInstances) {
+        assertNotNull(hai.getStartTime());
+        assertNotNull(hai.getEndTime());
+      }
+    }
+  }
+  
   
   @Deployment(resources = { "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testParallelCallActivityWithTimer.bpmn20.xml",
       "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.externalSubProcess.bpmn20.xml" })

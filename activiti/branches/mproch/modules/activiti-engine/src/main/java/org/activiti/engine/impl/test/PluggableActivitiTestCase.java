@@ -16,7 +16,9 @@ package org.activiti.engine.impl.test;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.util.IoUtil;
 import org.activiti.engine.impl.util.ReflectUtil;
 
@@ -34,42 +36,15 @@ import org.activiti.engine.impl.util.ReflectUtil;
  */
 public class PluggableActivitiTestCase extends AbstractActivitiTestCase {
   
-  private static final ProcessEngineInitializer processEngineInitializer = getProcessEngineInitializer();
-
   protected static ProcessEngine cachedProcessEngine;
-
-  private static ProcessEngineInitializer getProcessEngineInitializer() {
-    String processEngineInitializerClassName = null;
-    InputStream initializersInputStream = ReflectUtil.getResourceAsStream("activiti.initializer.properties");
-    if (initializersInputStream!=null) {
-      Properties properties = new Properties();
-      try {
-        properties.load(initializersInputStream);
-        processEngineInitializerClassName = properties.getProperty("process.engine.initializer");
-        if (processEngineInitializerClassName!=null) {
-          return (ProcessEngineInitializer) ReflectUtil.instantiate(processEngineInitializerClassName);
-        }
-    
-      } catch (Exception e) {
-        throw new RuntimeException("couldn't instantiate process engine initializer "+properties+": "+e, e);
-      } finally {
-        IoUtil.closeSilently(initializersInputStream);
-      }
-    }
-    return new DefaultProcessEngineInitializer();
-  }
 
   protected void initializeProcessEngine() {
     if (cachedProcessEngine==null) {
-      cachedProcessEngine = processEngineInitializer.getProcessEngine();
+      cachedProcessEngine = ProcessEngines.getDefaultProcessEngine();
+      if (cachedProcessEngine==null) {
+        throw new ActivitiException("no default process engine available");
+      }
     }
     processEngine = cachedProcessEngine;
-  }
-  
-  public static void closeCachedProcessEngines() {
-    if (cachedProcessEngine!=null) {
-      cachedProcessEngine.close();
-      cachedProcessEngine = null;
-    }
   }
 }
