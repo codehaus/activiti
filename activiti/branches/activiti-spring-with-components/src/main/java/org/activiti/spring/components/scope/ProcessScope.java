@@ -136,30 +136,9 @@ public class ProcessScope implements Scope, InitializingBean, BeanFactoryPostPro
 
 		if ("processInstanceId".equalsIgnoreCase(key))
 			return Context.getExecutionContext().getProcessInstance().getId();
-//
-//		if("processVariables".equalsIgnoreCase(key ))
-//			return processVariablesMap;
-//
 
 		return null;
 	}
-
-	/*public static EntityManager createSharedEntityManager(
-			EntityManagerFactory emf, Map properties, Class... entityManagerInterfaces) {
-
-		ClassLoader cl = null;
-		if (emf instanceof EntityManagerFactoryInfo) {
-			cl = ((EntityManagerFactoryInfo) emf).getBeanClassLoader();
-		}
-		Class[] ifcs = new Class[entityManagerInterfaces.length + 1];
-		System.arraycopy(entityManagerInterfaces, 0, ifcs, 0, entityManagerInterfaces.length);
-		ifcs[entityManagerInterfaces.length] = EntityManagerProxy.class;
-		return (EntityManager) Proxy.newProxyInstance(
-				(cl != null ? cl : SharedEntityManagerCreator.class.getClassLoader()),
-				ifcs, new SharedEntityManagerInvocationHandler(emf, properties));
-	}
-
-	*/
 
 	/**
 	 * creates a proxy that dispatches invocations to the currently bound {@link ProcessInstance}
