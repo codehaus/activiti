@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.impl.calendar.BusinessCalendar;
+import org.activiti.engine.impl.calendar.CycleBusinessCalendar;
 import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.CommandContext;
@@ -84,7 +85,7 @@ public class TimerEntity extends JobEntity {
     BusinessCalendar businessCalendar = Context
         .getProcessEngineConfiguration()
         .getBusinessCalendarManager()
-        .getBusinessCalendar(DurationBusinessCalendar.NAME);
+        .getBusinessCalendar(CycleBusinessCalendar.NAME);
     return businessCalendar.resolveDuedate(repeat);
   }
 

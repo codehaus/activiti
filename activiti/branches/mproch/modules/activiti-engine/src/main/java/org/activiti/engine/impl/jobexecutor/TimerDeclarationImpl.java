@@ -17,6 +17,7 @@ import java.util.Date;
 
 import org.activiti.engine.delegate.VariableScope;
 import org.activiti.engine.impl.calendar.BusinessCalendar;
+import org.activiti.engine.impl.calendar.CycleBusinessCalendar;
 import org.activiti.engine.impl.calendar.DueDateBusinessCalendar;
 import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.context.Context;
@@ -101,7 +102,7 @@ public class TimerDeclarationImpl implements Serializable {
   }
 
   public TimerEntity prepareTimerEntity(ExecutionEntity executionEntity) {
-    String calendarName = dueDateDescription == null ? DurationBusinessCalendar.NAME : DueDateBusinessCalendar.NAME ;
+    String calendarName = dueDateDescription == null ? (durationDescription == null ? CycleBusinessCalendar.NAME : DurationBusinessCalendar.NAME) : DueDateBusinessCalendar.NAME ;
     Expression expression = dueDateDescription == null ? (durationDescription == null ? cycleDescription : durationDescription) : dueDateDescription;
 
     BusinessCalendar businessCalendar = Context

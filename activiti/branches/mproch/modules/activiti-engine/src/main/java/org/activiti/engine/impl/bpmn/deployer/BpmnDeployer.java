@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.impl.JobQueryImpl;
 import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramGenerator;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
@@ -28,6 +29,7 @@ import org.activiti.engine.impl.calendar.BusinessCalendar;
 import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
 import org.activiti.engine.impl.cfg.IdGenerator;
 import org.activiti.engine.impl.cfg.RepositorySession;
+import org.activiti.engine.impl.cmd.DeleteJobsCmd;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbRepositorySession;
 import org.activiti.engine.impl.db.DbSqlSession;
@@ -38,8 +40,10 @@ import org.activiti.engine.impl.repository.Deployer;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
+import org.activiti.engine.impl.runtime.JobEntity;
 import org.activiti.engine.impl.runtime.TimerEntity;
 import org.activiti.engine.impl.util.IoUtil;
+import org.activiti.engine.runtime.Job;
 
 /**
  * @author Tom Baeyens
@@ -127,8 +131,9 @@ public class BpmnDeployer implements Deployer {
         }
         processDefinition.setId(processDefinitionId);
 
+        removeObsoleteTimers(processDefinition);
         addTimerDeclarations(processDefinition);
-        
+
         dbSqlSession.insert(processDefinition);
         dbRepositorySession.addToProcessDefinitionCache(processDefinition);
 
@@ -152,6 +157,15 @@ public class BpmnDeployer implements Deployer {
           .getCommandContext()
           .getTimerSession()
           .schedule(timer);
+      }
+    }
+  }
+
+  private void removeObsoleteTimers(ProcessDefinitionEntity processDefinition) {
+    //TODO: some decent task query...
+    for (Job job : new JobQueryImpl(Context.getCommandContext()).timers().orderByExecutionId().asc().list()) {
+      if (((JobEntity) job).getJobHandlerConfiguration().equals(processDefinition.getKey())) {
+        new DeleteJobsCmd(job.getId()).execute(Context.getCommandContext());
       }
     }
   }

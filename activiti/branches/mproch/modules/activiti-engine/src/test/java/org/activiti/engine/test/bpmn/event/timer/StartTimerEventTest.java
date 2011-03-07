@@ -15,9 +15,11 @@ package org.activiti.engine.test.bpmn.event.timer;
 import org.activiti.engine.impl.cmd.DeleteJobsCmd;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.jobexecutor.JobExecutor;
+import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.runtime.JobEntity;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.impl.util.ClockUtil;
+import org.activiti.engine.impl.util.IoUtil;
 import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.JobQuery;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -25,6 +27,7 @@ import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.test.Deployment;
 
 import javax.xml.datatype.DatatypeFactory;
+import java.io.ByteArrayInputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +53,6 @@ public class StartTimerEventTest extends PluggableActivitiTestCase {
     assertEquals(1, pi.size());
 
     assertEquals(0, jobQuery.count());
-
 
 
   }
@@ -92,19 +94,51 @@ public class StartTimerEventTest extends PluggableActivitiTestCase {
     moveByMinutes(5);
     assertEquals(2, piq.count());
     assertEquals(1, jobQuery.count());
-    String jobId = managementService.createJobQuery().singleResult().getId();
-    CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutorTxRequired();
-    commandExecutor.execute(new DeleteJobsCmd(jobId));    
-
+    //have to manually delete pending timer
+    cleanDB();
 
   }
 
+  //we cannot use waitForExecutor... method since there will always be one job left
   private void moveByMinutes(int minutes) throws Exception {
     ClockUtil.setCurrentTime(new Date(ClockUtil.getCurrentTime().getTime() + ((minutes * 60 * 1000) + 5000)));
     JobExecutor jobExecutor = processEngineConfiguration.getJobExecutor();
     jobExecutor.start();
     Thread.sleep(1000);
+
     jobExecutor.shutdown();
+  }
+
+  private void cleanDB() {
+    String jobId = managementService.createJobQuery().singleResult().getId();
+    CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutorTxRequired();
+    commandExecutor.execute(new DeleteJobsCmd(jobId));
+  }
+
+  @Deployment
+  public void testVersionUpgradeShouldCancelJobs() throws Exception {
+    ClockUtil.setCurrentTime(new Date());
+
+    // After process start, there should be timer created
+    JobQuery jobQuery = managementService.createJobQuery();
+    assertEquals(1, jobQuery.count());
+
+    //we deploy new process version, with some small change
+    String process = new String(IoUtil.readInputStream(getClass().getResourceAsStream("StartTimerEventTest.testVersionUpgradeShouldCancelJobs.bpmn20.xml"), "")).replaceAll("beforeChange","changed");
+    String id = repositoryService.createDeployment().addInputStream("StartTimerEventTest.testVersionUpgradeShouldCancelJobs.bpmn20.xml",
+        new ByteArrayInputStream(process.getBytes())).deploy().getId();
+
+    assertEquals(1, jobQuery.count());
+
+    moveByMinutes(5);
+
+    //we check that correct version was started
+    String pi = runtimeService.createProcessInstanceQuery().processDefinitionKey("startTimerEventExample").singleResult().getProcessInstanceId();
+    assertEquals("changed", runtimeService.getActiveActivityIds(pi).get(0));
+    assertEquals(1, jobQuery.count());
+
+    cleanDB();
+    repositoryService.deleteDeployment(id, true);
   }
 
 }

@@ -54,10 +54,7 @@ import org.activiti.engine.impl.bpmn.deployer.BpmnDeployer;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
 import org.activiti.engine.impl.bpmn.webservice.MessageInstance;
-import org.activiti.engine.impl.calendar.BusinessCalendarManager;
-import org.activiti.engine.impl.calendar.DueDateBusinessCalendar;
-import org.activiti.engine.impl.calendar.DurationBusinessCalendar;
-import org.activiti.engine.impl.calendar.MapBusinessCalendarManager;
+import org.activiti.engine.impl.calendar.*;
 import org.activiti.engine.impl.cfg.standalone.StandaloneMybatisTransactionContextFactory;
 import org.activiti.engine.impl.db.DbHistorySessionFactory;
 import org.activiti.engine.impl.db.DbIdGenerator;
@@ -689,6 +686,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       MapBusinessCalendarManager mapBusinessCalendarManager = new MapBusinessCalendarManager();
       mapBusinessCalendarManager.addBusinessCalendar(DurationBusinessCalendar.NAME, new DurationBusinessCalendar());
       mapBusinessCalendarManager.addBusinessCalendar(DueDateBusinessCalendar.NAME, new DueDateBusinessCalendar());
+      mapBusinessCalendarManager.addBusinessCalendar(CycleBusinessCalendar.NAME, new CycleBusinessCalendar());
 
       businessCalendarManager = mapBusinessCalendarManager;
     }

@@ -98,6 +98,7 @@ public class BpmnParse extends Parse {
   public static final String PROPERTYNAME_VARIABLE_DECLARATIONS = "variableDeclarations";
   public static final String PROPERTYNAME_TIMER_DECLARATION = "timerDeclarations";
   public static final String PROPERTYNAME_ISEXPANDED = "isExpanded";
+  public static final String PROPERTYNAME_START_TIMER = "timerStart";
 
   /** The deployment to which the parsed process definitions will be added. */
   protected DeploymentEntity deployment;
@@ -133,7 +134,6 @@ public class BpmnParse extends Parse {
   protected Map<String, XMLImporter> importers = new HashMap<String, XMLImporter>();
   protected Map<String, String> prefixs = new HashMap<String, String>();
   protected String targetNamespace;
-  public static final String PROPERTYNAME_START_TIMER = "timerStart";
 
   /**
    * Constructor to be called by the {@link BpmnParser}.
