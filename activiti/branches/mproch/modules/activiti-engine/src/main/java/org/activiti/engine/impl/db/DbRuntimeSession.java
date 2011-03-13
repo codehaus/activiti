@@ -13,6 +13,7 @@
 package org.activiti.engine.impl.db;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -147,6 +148,14 @@ public class DbRuntimeSession implements Session, RuntimeSession {
   public List<Job> findJobsByQueryCriteria(JobQueryImpl jobQuery, Page page) {
     final String query = "org.activiti.persistence.selectJobByQueryCriteria";
     return dbSqlSession.selectList(query, jobQuery, page);
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<Job> findJobsByJobHandlerTypeAndConfiguration(String jobHandlerType, String jobHandlerConfiguration) {
+    Map<String, String> params = new HashMap<String, String>();
+    params.put("handlerType", jobHandlerType);
+    params.put("handlerConfiguration", jobHandlerConfiguration);
+    return dbSqlSession.selectList("org.activiti.persistence.selectJobsByJobHandlerTypeAndConfiguration", params);
   }
 
   public long findJobCountByQueryCriteria(JobQueryImpl jobQuery) {

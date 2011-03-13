@@ -25,6 +25,10 @@ public class CycleBusinessCalendar implements BusinessCalendar {
 
   public Date resolveDuedate(String duedateDescription) {
     try {
+      Date period = tryToParsePeriod(duedateDescription);
+      if (period != null) {
+        return period;
+      }
       CronExpression ce = new CronExpression(duedateDescription);
       return ce.getTimeAfter(ClockUtil.getCurrentTime());
 
@@ -33,5 +37,13 @@ public class CycleBusinessCalendar implements BusinessCalendar {
     }
 
 
+  }
+
+  private Date tryToParsePeriod(String duedateExpression) {
+    try {
+      return new DurationBusinessCalendar().resolveDuedate(duedateExpression);
+    } catch (ActivitiException e) {
+      return null;
+    }
   }
 }

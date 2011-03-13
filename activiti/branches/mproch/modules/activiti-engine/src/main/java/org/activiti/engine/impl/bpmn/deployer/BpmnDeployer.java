@@ -36,6 +36,7 @@ import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.jobexecutor.TimerDeclarationImpl;
+import org.activiti.engine.impl.jobexecutor.TimerStartEventJobHandler;
 import org.activiti.engine.impl.repository.Deployer;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
@@ -162,11 +163,10 @@ public class BpmnDeployer implements Deployer {
   }
 
   private void removeObsoleteTimers(ProcessDefinitionEntity processDefinition) {
-    //TODO: some decent task query...
-    for (Job job : new JobQueryImpl(Context.getCommandContext()).timers().orderByExecutionId().asc().list()) {
-      if (((JobEntity) job).getJobHandlerConfiguration().equals(processDefinition.getKey())) {
+    List<Job> jobsToDelete = Context.getCommandContext().getRuntimeSession().
+        findJobsByJobHandlerTypeAndConfiguration(TimerStartEventJobHandler.TYPE, processDefinition.getKey());
+    for (Job job :jobsToDelete) {
         new DeleteJobsCmd(job.getId()).execute(Context.getCommandContext());
-      }
     }
   }
 

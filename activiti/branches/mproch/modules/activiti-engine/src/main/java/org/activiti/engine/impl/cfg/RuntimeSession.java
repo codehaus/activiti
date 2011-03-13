@@ -52,5 +52,6 @@ public interface RuntimeSession {
   List<TimerEntity> findUnlockedTimersByDuedate(Date duedate, Page page);
   List<TimerEntity> findTimersByExecutionId(String executionId);
   List<Job> findJobsByQueryCriteria(JobQueryImpl jobQuery, Page page);
+  List<Job> findJobsByJobHandlerTypeAndConfiguration(String jobHandlerType, String jobHandlerConfiguration);
   long findJobCountByQueryCriteria(JobQueryImpl jobQuery);
 }
