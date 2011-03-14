@@ -49,6 +49,8 @@ public class FullHistoryTest extends ResourceActivitiTestCase {
 
   @Deployment
   public void testVariableUpdates() {
+	  
+	  System.out.println("DB: -----------" + processEngineConfiguration.getDatabaseType());
     Map<String, Object> variables = new HashMap<String, Object>();
     variables.put("number", "one");
     variables.put("character", "a");
@@ -172,6 +174,8 @@ public class FullHistoryTest extends ResourceActivitiTestCase {
       .variableUpdates()
       .processInstanceId(processInstance.getId())
       .orderByVariableName().asc()
+      .orderByVariableRevision().asc()
+      .orderByTime().asc()
       .list();
     
     // 8 variable updates should be present, one performed when starting process
