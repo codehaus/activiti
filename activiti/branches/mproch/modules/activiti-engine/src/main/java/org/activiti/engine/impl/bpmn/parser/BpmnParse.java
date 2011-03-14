@@ -1616,7 +1616,7 @@ public class BpmnParse extends Parse {
   }
 
   private void parseTimerStartEventDefinition(Element timerEventDefinition, ActivityImpl timerActivity, ProcessDefinitionEntity processDefinition) {
-    timerActivity.setProperty("type", "startTimer");
+    timerActivity.setProperty("type", "startTimerEvent");
     TimerDeclarationImpl timerDeclaration = parseTimer(timerEventDefinition, timerActivity, TimerStartEventJobHandler.TYPE);
     timerDeclaration.setJobHandlerConfiguration(processDefinition.getKey());
 
