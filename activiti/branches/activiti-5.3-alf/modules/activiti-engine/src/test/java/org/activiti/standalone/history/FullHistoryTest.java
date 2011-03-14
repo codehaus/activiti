@@ -49,8 +49,6 @@ public class FullHistoryTest extends ResourceActivitiTestCase {
 
   @Deployment
   public void testVariableUpdates() {
-	  
-	  System.out.println("DB: -----------" + processEngineConfiguration.getDatabaseType());
     Map<String, Object> variables = new HashMap<String, Object>();
     variables.put("number", "one");
     variables.put("character", "a");
