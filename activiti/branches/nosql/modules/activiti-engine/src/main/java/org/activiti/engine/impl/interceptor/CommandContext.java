@@ -31,6 +31,7 @@ import org.activiti.engine.impl.cfg.TimerSession;
 import org.activiti.engine.impl.cfg.TransactionContext;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbSqlSession;
+import org.activiti.engine.impl.persistence.DeploymentManager;
 import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
@@ -167,6 +168,15 @@ public class CommandContext {
 
     return (T) session;
   }
+  
+  public DbSqlSession getDbSqlSession() {
+    return getSession(DbSqlSession.class);
+  }
+  
+  public DeploymentManager getDeploymentManager() {
+    return getSession(DeploymentManager.class);
+  }
+  
 
   public RepositorySession getRepositorySession() {
     return getSession(RepositorySession.class);
@@ -191,9 +201,6 @@ public class CommandContext {
   }
   public ManagementSession getManagementSession() {
     return getSession(ManagementSession.class);
-  }
-  public DbSqlSession getDbSqlSession() {
-    return getSession(DbSqlSession.class);
   }
 
   // getters and setters //////////////////////////////////////////////////////

@@ -80,7 +80,9 @@ import org.activiti.engine.impl.interceptor.CommandInterceptor;
 import org.activiti.engine.impl.interceptor.SessionFactory;
 import org.activiti.engine.impl.jobexecutor.*;
 import org.activiti.engine.impl.mail.MailScanner;
+import org.activiti.engine.impl.persistence.db.DbDeploymentManagerFactory;
 import org.activiti.engine.impl.repository.Deployer;
+import org.activiti.engine.impl.repository.DeploymentCache;
 import org.activiti.engine.impl.scripting.BeansResolverFactory;
 import org.activiti.engine.impl.scripting.ResolverFactory;
 import org.activiti.engine.impl.scripting.ScriptBindingsFactory;
@@ -176,6 +178,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   protected List<Deployer> customPreDeployers;
   protected List<Deployer> customPostDeployers;
   protected List<Deployer> deployers;
+  protected DeploymentCache deploymentCache;
 
   // JOB EXECUTOR /////////////////////////////////////////////////////////////
   
@@ -511,6 +514,8 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       dbSqlSessionFactory.setDbHistoryUsed(isDbHistoryUsed);
       dbSqlSessionFactory.setDbCycleUsed(isDbCycleUsed);
       addSessionFactory(dbSqlSessionFactory);
+      
+      addSessionFactory(new DbDeploymentManagerFactory());
     }
     if (customSessionFactories!=null) {
       for (SessionFactory sessionFactory: customSessionFactories) {
@@ -526,8 +531,18 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   // deployers ////////////////////////////////////////////////////////////////
   
   protected void initDeployers() {
-    if (deployers==null) {
-      deployers = new ArrayList<Deployer>();
+    if (this.deployers==null) {
+      this.deployers = new ArrayList<Deployer>();
+      if (customPreDeployers!=null) {
+        this.deployers.addAll(customPreDeployers);
+      }
+      this.deployers.addAll(getDefaultDeployers());
+      if (customPostDeployers!=null) {
+        this.deployers.addAll(customPostDeployers);
+      }
+    }
+    if (deploymentCache==null) {
+      List<Deployer> deployers = new ArrayList<Deployer>();
       if (customPreDeployers!=null) {
         deployers.addAll(customPreDeployers);
       }
@@ -535,6 +550,9 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       if (customPostDeployers!=null) {
         deployers.addAll(customPostDeployers);
       }
+
+      deploymentCache = new DeploymentCache();
+      deploymentCache.setDeployers(deployers);
     }
   }
 
@@ -1384,5 +1402,13 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
 
   public void setMailScanner(MailScanner mailScanner) {
     this.mailScanner = mailScanner;
+  }
+  
+  public DeploymentCache getDeploymentCache() {
+    return deploymentCache;
+  }
+  
+  public void setDeploymentCache(DeploymentCache deploymentCache) {
+    this.deploymentCache = deploymentCache;
   }
 }
