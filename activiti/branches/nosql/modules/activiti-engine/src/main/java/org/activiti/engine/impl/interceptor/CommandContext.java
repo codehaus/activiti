@@ -31,8 +31,15 @@ import org.activiti.engine.impl.cfg.TimerSession;
 import org.activiti.engine.impl.cfg.TransactionContext;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbSqlSession;
-import org.activiti.engine.impl.persistence.DeploymentManager;
-import org.activiti.engine.impl.persistence.ProcessDefinitionManager;
+import org.activiti.engine.impl.persistence.mgr.DeploymentManager;
+import org.activiti.engine.impl.persistence.mgr.ExecutionManager;
+import org.activiti.engine.impl.persistence.mgr.HistoricActivityInstanceManager;
+import org.activiti.engine.impl.persistence.mgr.HistoricDetailManager;
+import org.activiti.engine.impl.persistence.mgr.HistoricProcessInstanceManager;
+import org.activiti.engine.impl.persistence.mgr.IdentityLinkManager;
+import org.activiti.engine.impl.persistence.mgr.ProcessDefinitionManager;
+import org.activiti.engine.impl.persistence.mgr.TaskManager;
+import org.activiti.engine.impl.persistence.mgr.VariableInstanceManager;
 import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
@@ -182,8 +189,35 @@ public class CommandContext {
     return getSession(ProcessDefinitionManager.class);
   }
 
-  
+  public HistoricProcessInstanceManager getHistoricProcessInstanceManager() {
+    return getSession(HistoricProcessInstanceManager.class);
+  }
 
+  public HistoricDetailManager getHistoricDetailManager() {
+    return getSession(HistoricDetailManager.class);
+  }
+
+  public HistoricActivityInstanceManager getHistoricActivityInstanceManager() {
+    return getSession(HistoricActivityInstanceManager.class);
+  }
+
+  public ExecutionManager getProcessInstanceManager() {
+    return getSession(ExecutionManager.class);
+  }
+
+  public TaskManager getTaskManager() {
+    return getSession(TaskManager.class);
+  }
+
+  public IdentityLinkManager getIdentityLinkManager() {
+    return getSession(IdentityLinkManager.class);
+  }
+
+  public VariableInstanceManager getVariableInstanceManager() {
+    return getSession(VariableInstanceManager.class);
+  }
+
+  
   public RepositorySession getRepositorySession() {
     return getSession(RepositorySession.class);
   }

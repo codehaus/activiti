@@ -11,16 +11,18 @@
  * limitations under the License.
  */
 
-package org.activiti.engine.impl.persistence;
+package org.activiti.engine.impl.persistence.mgr;
 
-import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface ProcessDefinitionManager extends Session {
+public class ProcessDefinitionManager extends AbstractManager {
 
-  ProcessDefinitionEntity findLatestProcessDefinitionByKey(String processDefinitionKey);
+  public ProcessDefinitionEntity findLatestProcessDefinitionByKey(String processDefinitionKey) {
+    return (ProcessDefinitionEntity) persistenceSession.selectOne("selectLatestProcessDefinitionByKey", processDefinitionKey);
+  }
+
 }

@@ -11,23 +11,24 @@
  * limitations under the License.
  */
 
-package org.activiti.engine.impl.persistence.db;
+package org.activiti.engine.impl.persistence.mgr;
 
-import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.db.DbSqlSession;
-import org.activiti.engine.impl.interceptor.Session;
+import java.util.List;
+
+import org.activiti.engine.impl.task.IdentityLinkEntity;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class AbstractDbManager implements Session {
+public class IdentityLinkManager extends AbstractManager {
 
-  protected DbSqlSession dbSqlSession = Context.getCommandContext().getDbSqlSession();
-  
-  public void close() {
+  @SuppressWarnings("unchecked")
+  public List<IdentityLinkEntity> findIdentityLinksByTaskId(String taskId) {
+    return persistenceSession.selectList("selectIdentityLinksByTask", taskId);
   }
 
-  public void flush() {
+  public void deleteIdentityLink(IdentityLinkEntity identityLink) {
+    persistenceSession.delete(IdentityLinkManager.class, identityLink.getId());
   }
 }

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbRepositorySessionFactory;
-import org.activiti.engine.impl.repository.Deployer;
+import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
 import org.drools.KnowledgeBase;

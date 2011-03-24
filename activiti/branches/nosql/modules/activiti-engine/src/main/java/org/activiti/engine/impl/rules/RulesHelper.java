@@ -40,12 +40,17 @@ public class RulesHelper {
     Map<String, Object> knowledgeBaseCache = repositorySessionFactory.getKnowledgeBaseCache();
     KnowledgeBase knowledgeBase = (KnowledgeBase) knowledgeBaseCache.get(deploymentId);
     if (knowledgeBase==null) {
-      RepositorySession repositorySession = Context.getCommandContext().getRepositorySession();
-      DeploymentEntity deployment = repositorySession.findDeploymentById(deploymentId);
+      DeploymentEntity deployment = Context
+        .getCommandContext()
+        .getDeploymentManager()
+        .findDeploymentById(deploymentId);
       if (deployment==null) {
         throw new ActivitiException("no deployment with id "+deploymentId);
       }
-      repositorySession.deploy(deployment);
+      Context
+        .getProcessEngineConfiguration()
+        .getDeploymentCache()
+        .deploy(deployment);
       knowledgeBase = (KnowledgeBase) knowledgeBaseCache.get(deploymentId);
       if (knowledgeBase==null) {
         throw new ActivitiException("deployment "+deploymentId+" doesn't contain any rules");

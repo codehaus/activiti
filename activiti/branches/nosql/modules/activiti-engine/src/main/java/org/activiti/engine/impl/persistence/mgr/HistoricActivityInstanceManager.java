@@ -11,18 +11,19 @@
  * limitations under the License.
  */
 
-package org.activiti.engine.impl.persistence.db;
+package org.activiti.engine.impl.persistence.mgr;
 
-import org.activiti.engine.impl.persistence.ProcessDefinitionManager;
-import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 
 
 /**
  * @author Tom Baeyens
  */
-public class DbProcessDefinitionManager extends AbstractDbManager implements ProcessDefinitionManager {
+public class HistoricActivityInstanceManager extends AbstractHistoricManager {
 
-  public ProcessDefinitionEntity findLatestProcessDefinitionByKey(String processDefinitionKey) {
-    return (ProcessDefinitionEntity) dbSqlSession.selectOne("selectLatestProcessDefinitionByKey", processDefinitionKey);
+  public void deleteHistoricActivityInstancesByProcessInstanceId(String historicProcessInstanceId) {
+    if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
+      persistenceSession.delete("deleteHistoricActivityInstancesByProcessInstanceId", historicProcessInstanceId);
+    }
   }
 }

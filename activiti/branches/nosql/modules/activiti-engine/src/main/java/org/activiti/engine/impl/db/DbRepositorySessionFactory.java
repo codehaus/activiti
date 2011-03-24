@@ -20,7 +20,7 @@ import java.util.Map;
 import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.interceptor.SessionFactory;
-import org.activiti.engine.impl.repository.Deployer;
+import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 
 

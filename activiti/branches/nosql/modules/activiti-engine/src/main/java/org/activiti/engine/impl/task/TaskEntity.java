@@ -651,4 +651,10 @@ public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask,
   public void setDelegationStateString(String delegationStateString) {
     this.delegationState = (delegationStateString!=null ? DelegationState.valueOf(DelegationState.class, delegationStateString) : null);
   }
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+  public void setDeleted(boolean isDeleted) {
+    this.isDeleted = isDeleted;
+  }
 }
