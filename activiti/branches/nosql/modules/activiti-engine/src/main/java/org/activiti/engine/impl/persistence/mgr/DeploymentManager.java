@@ -16,9 +16,7 @@ package org.activiti.engine.impl.persistence.mgr;
 import java.util.List;
 
 import org.activiti.engine.impl.Page;
-import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -54,13 +52,12 @@ public class DeploymentManager extends AbstractManager {
 
       for (ProcessDefinition processDefinition: processDefinitions) {
         historicProcessInstanceManager.deleteHistoricProcessInstancesByProcessDefinition(processDefinition);
-        
         processInstanceManager.deleteProcessInstancesByProcessDefinition(processDefinition, "deleted deployment");
       }
     }
-    dbSqlSession.delete("deleteProcessDefinitionsByDeploymentId", deploymentId);
-    dbSqlSession.delete("deleteResourcesByDeploymentId", deploymentId);
-    dbSqlSession.delete("deleteDeployment", deploymentId);
+    persistenceSession.delete("deleteProcessDefinitionsByDeploymentId", deploymentId);
+    persistenceSession.delete("deleteResourcesByDeploymentId", deploymentId);
+    persistenceSession.delete("deleteDeployment", deploymentId);
   }
 
 

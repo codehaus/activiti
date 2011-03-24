@@ -16,11 +16,8 @@ package org.activiti.engine.impl.persistence.mgr;
 import java.util.List;
 
 import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.impl.HistoricDetailQueryImpl;
-import org.activiti.engine.impl.HistoricProcessInstanceQueryImpl;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.history.HistoricDetailEntity;
 import org.activiti.engine.impl.history.HistoricProcessInstanceEntity;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -43,31 +40,22 @@ public class HistoricProcessInstanceManager extends AbstractHistoricManager {
   }
   
   public void deleteHistoricProcessInstance(String historicProcessInstanceId) {
-    if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT) {
-      List<HistoricDetailEntity> historicDetails = (List) persistenceSession
-        .createHistoricDetailQuery()
-        .processInstanceId(historicProcessInstanceId)
-        .list();
-      
-      HistoricDetailManager historicDetailManager = Context
-        .getCommandContext()
-        .getHistoricDetailManager();
-      
-      for (HistoricDetailEntity historicDetail: historicDetails) {
-        historicDetailManager.deleteHistoricDetail(historicDetail);
-      }
-    }
+    CommandContext commandContext = Context.getCommandContext();
     
-    Context
-      .getCommandContext()
+    commandContext
+      .getHistoricDetailManager()
+      .deleteHistoricDetailsByProcessInstanceId(historicProcessInstanceId);
+    
+    commandContext
       .getHistoricActivityInstanceManager()
       .deleteHistoricActivityInstancesByProcessInstanceId(historicProcessInstanceId);
 
-    if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT) {
-      dbSqlSession.delete("deleteHistoricTaskInstancesByProcessInstanceId", historicProcessInstanceId);
-    }
+    commandContext
+      .getHistoricTaskInstanceManager()
+      .deleteHistoricTaskInstancesByProcessInstanceId(historicProcessInstanceId);
+
     if (historyLevel>ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
-      dbSqlSession.delete(HistoricProcessInstanceEntity.class, historicProcessInstanceId);
+      persistenceSession.delete(HistoricProcessInstanceEntity.class, historicProcessInstanceId);
     }
   }
 }

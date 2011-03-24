@@ -21,7 +21,6 @@ import org.activiti.engine.impl.runtime.ExecutionEntity;
 import org.activiti.engine.impl.task.TaskEntity;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
 
 
 /**
@@ -40,6 +39,7 @@ public class ExecutionManager extends AbstractManager {
     }
   }
   
+  @SuppressWarnings("unchecked")
   public void deleteProcessInstance(String processInstanceId, String deleteReason) {
     ExecutionEntity execution = findExecutionById(processInstanceId);
     
@@ -47,7 +47,7 @@ public class ExecutionManager extends AbstractManager {
       throw new ActivitiException("No process instance found for id '" + processInstanceId + "'");
     }
     
-    List<Task> tasks = persistenceSession
+    List<TaskEntity> tasks = (List) persistenceSession
       .createTaskQuery()
       .processInstanceId(processInstanceId)
       .list();
@@ -56,9 +56,8 @@ public class ExecutionManager extends AbstractManager {
       .getCommandContext()
       .getTaskManager();
     
-    for (Task task: tasks) {
-      
-      taskManager.deleteTask(task.getId(),TaskEntity.DELETE_REASON_DELETED);
+    for (TaskEntity task: tasks) {
+      taskManager.deleteTask(task, TaskEntity.DELETE_REASON_DELETED);
     }
     
     execution.deleteCascade(deleteReason);

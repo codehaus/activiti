@@ -15,8 +15,6 @@ package org.activiti.engine.impl.persistence.mgr;
 
 import java.util.List;
 
-import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.runtime.ByteArrayEntity;
 import org.activiti.engine.impl.runtime.VariableInstanceEntity;
 
@@ -32,19 +30,15 @@ public class VariableInstanceManager extends AbstractManager {
   }
 
   public void deleteVariableInstance(VariableInstanceEntity variableInstance) {
-    // delete variable
-    DbSqlSession dbSqlSession = Context
-      .getCommandContext()
-      .getDbSqlSession();
-    
-    dbSqlSession.delete(VariableInstanceEntity.class, variableInstance.getId());
+    persistenceSession.delete(VariableInstanceEntity.class, variableInstance.getId());
 
+    String byteArrayValueId = variableInstance.getByteArrayValueId();
     if (byteArrayValueId != null) {
       // the next apparently useless line is probably to ensure consistency in the DbSqlSession 
       // cache, but should be checked and docced here (or removed if it turns out to be unnecessary)
       // @see also HistoricVariableUpdateEntity
-      getByteArrayValue();
-      dbSqlSession.delete(ByteArrayEntity.class, byteArrayValueId);
+      variableInstance.getByteArrayValue();
+      persistenceSession.delete(ByteArrayEntity.class, byteArrayValueId);
     }
   }
 
