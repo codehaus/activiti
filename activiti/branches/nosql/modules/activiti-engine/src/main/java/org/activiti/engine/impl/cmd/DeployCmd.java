@@ -64,11 +64,6 @@ public class DeployCmd<T> implements Command<Deployment> {
       .getDeploymentCache()
       .deploy(deployment);
     
-    Context
-      .getCommandContext()
-      .getRepositorySession()
-      .deploy(deployment);
-    
     return deployment;
   }
 

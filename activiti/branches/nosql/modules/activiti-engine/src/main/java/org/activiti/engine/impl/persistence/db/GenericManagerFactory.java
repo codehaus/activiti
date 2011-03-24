@@ -13,22 +13,35 @@
 
 package org.activiti.engine.impl.persistence.db;
 
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.interceptor.SessionFactory;
-import org.activiti.engine.impl.persistence.DeploymentManager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class DbDeploymentManagerFactory implements SessionFactory {
+public class GenericManagerFactory implements SessionFactory {
 
+  protected Class<? extends Session> managerInterface;
+  protected Class<? extends Session> managerImplementation;
+  
+  public GenericManagerFactory(Class< ? extends Session> managerInterface, Class< ? extends Session> managerImplementation) {
+    this.managerInterface = managerInterface;
+    this.managerImplementation = managerImplementation;
+  }
+
+  @Override
   public Class< ? > getSessionType() {
-    return DeploymentManager.class;
+    return managerInterface;
   }
 
+  @Override
   public Session openSession() {
-    return new DbDeploymentManager();
+    try {
+      return managerImplementation.newInstance();
+    } catch (Exception e) {
+      throw new ActivitiException("couldn't instantiate "+managerImplementation.getName()+": "+e.getMessage(), e);
+    }
   }
-
 }

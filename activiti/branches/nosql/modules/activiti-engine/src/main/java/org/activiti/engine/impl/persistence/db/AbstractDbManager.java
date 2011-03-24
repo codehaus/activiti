@@ -11,21 +11,23 @@
  * limitations under the License.
  */
 
-package org.activiti.engine.impl.persistence;
+package org.activiti.engine.impl.persistence.db;
 
+import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.interceptor.Session;
-import org.activiti.engine.impl.repository.DeploymentEntity;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface DeploymentManager extends Session {
+public abstract class AbstractDbManager implements Session {
 
-  void insertDeployment(DeploymentEntity deployment);
-
-  DeploymentEntity findLatestDeploymentByName(String deploymentName);
+  protected DbSqlSession dbSqlSession = Context.getCommandContext().getDbSqlSession();
   
-  DeploymentEntity findDeploymentById(String deploymentId);
+  public void close() {
+  }
 
+  public void flush() {
+  }
 }

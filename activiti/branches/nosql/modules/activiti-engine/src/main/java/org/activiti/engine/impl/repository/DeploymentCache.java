@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.ActivitiException;
+import org.activiti.engine.impl.context.Context;
+
 
 /**
  * @author Tom Baeyens
@@ -32,6 +35,44 @@ public class DeploymentCache {
       deployer.deploy(deployment);
     }
   }
+
+  public ProcessDefinitionEntity findDeployedLatestProcessDefinitionByKey(String processDefinitionKey) {
+    ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) Context
+      .getCommandContext()
+      .getProcessDefinitionManager()
+      .findLatestProcessDefinitionByKey(processDefinitionKey);
+    if (processDefinition==null) {
+      throw new ActivitiException("no processes deployed with key '"+processDefinitionKey+"'");
+    }
+    processDefinition = resolveProcessDefinition(processDefinition);
+    return processDefinition;
+  }
+
+  protected ProcessDefinitionEntity resolveProcessDefinition(ProcessDefinitionEntity processDefinition) {
+    String processDefinitionId = processDefinition.getId();
+    String deploymentId = processDefinition.getDeploymentId();
+    processDefinition = processDefinitionCache.get(processDefinitionId);
+    if (processDefinition==null) {
+      DeploymentEntity deployment = Context
+        .getCommandContext()
+        .getDeploymentManager()
+        .findDeploymentById(deploymentId);
+      deployment.setNew(false);
+      deploy(deployment);
+      processDefinition = processDefinitionCache.get(processDefinitionId);
+      
+      if (processDefinition==null) {
+        throw new ActivitiException("deploying "+deploymentId+" didn't put process definition "+processDefinitionId+" in the cache");
+      }
+    }
+    return processDefinition;
+  }
+
+  public void addDeployedProcessDefinition(ProcessDefinitionEntity processDefinition) {
+    processDefinitionCache.put(processDefinition.getId(), processDefinition);
+  }
+
+  // getters and setters //////////////////////////////////////////////////////
 
   public Map<String, ProcessDefinitionEntity> getProcessDefinitionCache() {
     return processDefinitionCache;

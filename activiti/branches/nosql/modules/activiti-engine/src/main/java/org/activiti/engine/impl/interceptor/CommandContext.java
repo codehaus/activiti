@@ -32,6 +32,7 @@ import org.activiti.engine.impl.cfg.TransactionContext;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.persistence.DeploymentManager;
+import org.activiti.engine.impl.persistence.ProcessDefinitionManager;
 import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
@@ -176,6 +177,11 @@ public class CommandContext {
   public DeploymentManager getDeploymentManager() {
     return getSession(DeploymentManager.class);
   }
+  
+  public ProcessDefinitionManager getProcessDefinitionManager() {
+    return getSession(ProcessDefinitionManager.class);
+  }
+
   
 
   public RepositorySession getRepositorySession() {

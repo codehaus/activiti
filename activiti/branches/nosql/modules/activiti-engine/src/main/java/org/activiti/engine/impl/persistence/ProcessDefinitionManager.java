@@ -14,18 +14,13 @@
 package org.activiti.engine.impl.persistence;
 
 import org.activiti.engine.impl.interceptor.Session;
-import org.activiti.engine.impl.repository.DeploymentEntity;
+import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface DeploymentManager extends Session {
+public interface ProcessDefinitionManager extends Session {
 
-  void insertDeployment(DeploymentEntity deployment);
-
-  DeploymentEntity findLatestDeploymentByName(String deploymentName);
-  
-  DeploymentEntity findDeploymentById(String deploymentId);
-
+  ProcessDefinitionEntity findLatestProcessDefinitionByKey(String processDefinitionKey);
 }

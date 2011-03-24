@@ -132,7 +132,7 @@ public class BpmnDeployer implements Deployer {
 
         dbSqlSession.insert(processDefinition);
         dbRepositorySession.addToProcessDefinitionCache(processDefinition);
-
+        
       } else {
         String deploymentId = deployment.getId();
         processDefinition.setDeploymentId(deploymentId);
@@ -141,6 +141,11 @@ public class BpmnDeployer implements Deployer {
         processDefinition.setVersion(persistedProcessDefinition.getVersion());
         dbRepositorySession.addToProcessDefinitionCache(processDefinition);
       }
+
+      Context
+        .getProcessEngineConfiguration()
+        .getDeploymentCache()
+        .addDeployedProcessDefinition(processDefinition);
     }
   }
 

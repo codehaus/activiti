@@ -11,21 +11,18 @@
  * limitations under the License.
  */
 
-package org.activiti.engine.impl.persistence;
+package org.activiti.engine.impl.persistence.db;
 
-import org.activiti.engine.impl.interceptor.Session;
-import org.activiti.engine.impl.repository.DeploymentEntity;
+import org.activiti.engine.impl.persistence.ProcessDefinitionManager;
+import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface DeploymentManager extends Session {
+public class DbProcessDefinitionManager extends AbstractDbManager implements ProcessDefinitionManager {
 
-  void insertDeployment(DeploymentEntity deployment);
-
-  DeploymentEntity findLatestDeploymentByName(String deploymentName);
-  
-  DeploymentEntity findDeploymentById(String deploymentId);
-
+  public ProcessDefinitionEntity findLatestProcessDefinitionByKey(String processDefinitionKey) {
+    return (ProcessDefinitionEntity) dbSqlSession.selectOne("selectLatestProcessDefinitionByKey", processDefinitionKey);
+  }
 }

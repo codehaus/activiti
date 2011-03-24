@@ -16,9 +16,6 @@ package org.activiti.engine.impl.persistence.db;
 import java.util.List;
 
 import org.activiti.engine.impl.Page;
-import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.db.DbSqlSession;
-import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.persistence.DeploymentManager;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
@@ -27,9 +24,7 @@ import org.activiti.engine.impl.repository.ResourceEntity;
 /**
  * @author Tom Baeyens
  */
-public class DbDeploymentManager implements DeploymentManager, Session {
-  
-  protected DbSqlSession dbSqlSession = Context.getCommandContext().getDbSqlSession();
+public class DbDeploymentManager extends AbstractDbManager implements DeploymentManager {
   
   public void insertDeployment(DeploymentEntity deployment) {
     dbSqlSession.insert(deployment);
@@ -45,6 +40,10 @@ public class DbDeploymentManager implements DeploymentManager, Session {
       return (DeploymentEntity) list.get(0);
     }
     return null;
+  }
+  
+  public DeploymentEntity findDeploymentById(String deploymentId) {
+    return (DeploymentEntity) dbSqlSession.selectOne("selectDeploymentById", deploymentId);
   }
 
   public void close() {
