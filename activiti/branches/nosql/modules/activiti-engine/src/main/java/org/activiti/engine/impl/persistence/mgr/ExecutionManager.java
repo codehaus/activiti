@@ -29,7 +29,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 public class ExecutionManager extends AbstractManager {
 
   public void deleteProcessInstancesByProcessDefinition(ProcessDefinition processDefinition, String deleteReason) {
-    List<ProcessInstance> processInstances = persistenceSession
+    List<ProcessInstance> processInstances = getPersistenceSession()
       .createProcessInstanceQuery()
       .processDefinitionId(processDefinition.getId())
       .list();
@@ -47,7 +47,7 @@ public class ExecutionManager extends AbstractManager {
       throw new ActivitiException("No process instance found for id '" + processInstanceId + "'");
     }
     
-    List<TaskEntity> tasks = (List) persistenceSession
+    List<TaskEntity> tasks = (List) getPersistenceSession()
       .createTaskQuery()
       .processInstanceId(processInstanceId)
       .list();
@@ -64,6 +64,6 @@ public class ExecutionManager extends AbstractManager {
   }
 
   public ExecutionEntity findExecutionById(String executionId) {
-    return (ExecutionEntity) persistenceSession.selectOne("selectExecutionById", executionId);
+    return (ExecutionEntity) getPersistenceSession().selectOne("selectExecutionById", executionId);
   }
 }

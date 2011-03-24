@@ -29,7 +29,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 public class HistoricProcessInstanceManager extends AbstractHistoricManager {
 
   public void deleteHistoricProcessInstancesByProcessDefinition(ProcessDefinition processDefinition) {
-    List<HistoricProcessInstance> historicProcessInstances = persistenceSession
+    List<HistoricProcessInstance> historicProcessInstances = getPersistenceSession()
       .createHistoricProcessInstanceQuery()
       .processDefinitionId(processDefinition.getId())
       .list();
@@ -55,7 +55,7 @@ public class HistoricProcessInstanceManager extends AbstractHistoricManager {
       .deleteHistoricTaskInstancesByProcessInstanceId(historicProcessInstanceId);
 
     if (historyLevel>ProcessEngineConfigurationImpl.HISTORYLEVEL_NONE) {
-      persistenceSession.delete(HistoricProcessInstanceEntity.class, historicProcessInstanceId);
+      getPersistenceSession().delete(HistoricProcessInstanceEntity.class, historicProcessInstanceId);
     }
   }
 }

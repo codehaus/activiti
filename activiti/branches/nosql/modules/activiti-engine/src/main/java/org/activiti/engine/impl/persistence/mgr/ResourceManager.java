@@ -13,22 +13,19 @@
 
 package org.activiti.engine.impl.persistence.mgr;
 
-import java.util.List;
-
-import org.activiti.engine.impl.task.IdentityLinkEntity;
+import org.activiti.engine.impl.repository.ResourceEntity;
 
 
 /**
  * @author Tom Baeyens
  */
-public class IdentityLinkManager extends AbstractManager {
+public class ResourceManager extends AbstractManager {
 
-  @SuppressWarnings("unchecked")
-  public List<IdentityLinkEntity> findIdentityLinksByTaskId(String taskId) {
-    return getPersistenceSession().selectList("selectIdentityLinksByTask", taskId);
+  public void insertResource(ResourceEntity resource) {
+    getPersistenceSession().insert(resource);
   }
 
-  public void deleteIdentityLink(IdentityLinkEntity identityLink) {
-    getPersistenceSession().delete(IdentityLinkManager.class, identityLink.getId());
+  public void deleteResourcesByDeploymentId(String deploymentId) {
+    getPersistenceSession().delete("deleteResourcesByDeploymentId", deploymentId);
   }
 }

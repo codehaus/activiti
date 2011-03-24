@@ -26,13 +26,13 @@ import org.activiti.engine.impl.history.HistoricDetailEntity;
 public class HistoricDetailManager extends AbstractHistoricManager {
 
   public void deleteHistoricDetail(HistoricDetailEntity historicDetail) {
-    persistenceSession.delete(HistoricDetailEntity.class, historicDetail.getId());
+    getPersistenceSession().delete(HistoricDetailEntity.class, historicDetail.getId());
   }
 
   @SuppressWarnings("unchecked")
   public void deleteHistoricDetailsByProcessInstanceId(String historicProcessInstanceId) {
     if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT) {
-      List<HistoricDetailEntity> historicDetails = (List) persistenceSession
+      List<HistoricDetailEntity> historicDetails = (List) getPersistenceSession()
         .createHistoricDetailQuery()
         .processInstanceId(historicProcessInstanceId)
         .list();

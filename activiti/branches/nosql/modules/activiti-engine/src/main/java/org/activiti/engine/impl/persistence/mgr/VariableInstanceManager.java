@@ -26,11 +26,11 @@ public class VariableInstanceManager extends AbstractManager {
 
   @SuppressWarnings("unchecked")
   public List<VariableInstanceEntity> findVariableInstancesByTaskId(String taskId) {
-    return persistenceSession.selectList("selectVariablesByTaskId", taskId);
+    return getPersistenceSession().selectList("selectVariablesByTaskId", taskId);
   }
 
   public void deleteVariableInstance(VariableInstanceEntity variableInstance) {
-    persistenceSession.delete(VariableInstanceEntity.class, variableInstance.getId());
+    getPersistenceSession().delete(VariableInstanceEntity.class, variableInstance.getId());
 
     String byteArrayValueId = variableInstance.getByteArrayValueId();
     if (byteArrayValueId != null) {
@@ -38,7 +38,7 @@ public class VariableInstanceManager extends AbstractManager {
       // cache, but should be checked and docced here (or removed if it turns out to be unnecessary)
       // @see also HistoricVariableUpdateEntity
       variableInstance.getByteArrayValue();
-      persistenceSession.delete(ByteArrayEntity.class, byteArrayValueId);
+      getPersistenceSession().delete(ByteArrayEntity.class, byteArrayValueId);
     }
   }
 

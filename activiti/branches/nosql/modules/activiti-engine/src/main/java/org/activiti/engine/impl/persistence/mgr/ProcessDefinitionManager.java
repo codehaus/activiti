@@ -22,7 +22,10 @@ import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 public class ProcessDefinitionManager extends AbstractManager {
 
   public ProcessDefinitionEntity findLatestProcessDefinitionByKey(String processDefinitionKey) {
-    return (ProcessDefinitionEntity) persistenceSession.selectOne("selectLatestProcessDefinitionByKey", processDefinitionKey);
+    return (ProcessDefinitionEntity) getPersistenceSession().selectOne("selectLatestProcessDefinitionByKey", processDefinitionKey);
   }
 
+  public void deleteProcessDefinitionsByDeploymentId(String deploymentId) {
+    getPersistenceSession().delete("deleteProcessDefinitionsByDeploymentId", deploymentId);
+  }
 }

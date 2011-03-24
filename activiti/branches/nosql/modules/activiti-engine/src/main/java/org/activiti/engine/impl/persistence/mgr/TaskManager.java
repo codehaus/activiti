@@ -66,7 +66,7 @@ public class TaskManager extends AbstractManager {
         }
       }
 
-      persistenceSession.delete(TaskEntity.class, task.getId());
+      getPersistenceSession().delete(TaskEntity.class, task.getId());
     }
   }
 

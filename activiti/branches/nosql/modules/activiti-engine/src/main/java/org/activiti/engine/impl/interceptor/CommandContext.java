@@ -39,6 +39,7 @@ import org.activiti.engine.impl.persistence.mgr.HistoricProcessInstanceManager;
 import org.activiti.engine.impl.persistence.mgr.HistoricTaskInstanceManager;
 import org.activiti.engine.impl.persistence.mgr.IdentityLinkManager;
 import org.activiti.engine.impl.persistence.mgr.ProcessDefinitionManager;
+import org.activiti.engine.impl.persistence.mgr.ResourceManager;
 import org.activiti.engine.impl.persistence.mgr.TaskManager;
 import org.activiti.engine.impl.persistence.mgr.VariableInstanceManager;
 import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
@@ -185,9 +186,29 @@ public class CommandContext {
   public DeploymentManager getDeploymentManager() {
     return getSession(DeploymentManager.class);
   }
+
+  public ResourceManager getResourceManager() {
+    return getSession(ResourceManager.class);
+  }
   
   public ProcessDefinitionManager getProcessDefinitionManager() {
     return getSession(ProcessDefinitionManager.class);
+  }
+
+  public ExecutionManager getProcessInstanceManager() {
+    return getSession(ExecutionManager.class);
+  }
+
+  public TaskManager getTaskManager() {
+    return getSession(TaskManager.class);
+  }
+
+  public IdentityLinkManager getIdentityLinkManager() {
+    return getSession(IdentityLinkManager.class);
+  }
+
+  public VariableInstanceManager getVariableInstanceManager() {
+    return getSession(VariableInstanceManager.class);
   }
 
   public HistoricProcessInstanceManager getHistoricProcessInstanceManager() {
@@ -206,21 +227,6 @@ public class CommandContext {
     return getSession(HistoricTaskInstanceManager.class);
   }
 
-  public ExecutionManager getProcessInstanceManager() {
-    return getSession(ExecutionManager.class);
-  }
-
-  public TaskManager getTaskManager() {
-    return getSession(TaskManager.class);
-  }
-
-  public IdentityLinkManager getIdentityLinkManager() {
-    return getSession(IdentityLinkManager.class);
-  }
-
-  public VariableInstanceManager getVariableInstanceManager() {
-    return getSession(VariableInstanceManager.class);
-  }
 
   
   public RepositorySession getRepositorySession() {

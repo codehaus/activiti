@@ -23,7 +23,57 @@ import org.activiti.engine.impl.interceptor.Session;
  */
 public abstract class AbstractManager implements Session {
 
-  protected DbSqlSession persistenceSession = Context.getCommandContext().getDbSqlSession();
+  protected DbSqlSession getPersistenceSession() {
+    return getSession(DbSqlSession.class);
+  }
+
+  protected <T> T getSession(Class<T> sessionClass) {
+    return Context.getCommandContext().getSession(sessionClass);
+  }
+
+  protected DeploymentManager getDeploymentManager() {
+    return getSession(DeploymentManager.class);
+  }
+
+  protected ResourceManager getResourceManager() {
+    return getSession(ResourceManager.class);
+  }
+  
+  protected ProcessDefinitionManager getProcessDefinitionManager() {
+    return getSession(ProcessDefinitionManager.class);
+  }
+
+  protected ExecutionManager getProcessInstanceManager() {
+    return getSession(ExecutionManager.class);
+  }
+
+  protected TaskManager getTaskManager() {
+    return getSession(TaskManager.class);
+  }
+
+  protected IdentityLinkManager getIdentityLinkManager() {
+    return getSession(IdentityLinkManager.class);
+  }
+
+  protected VariableInstanceManager getVariableInstanceManager() {
+    return getSession(VariableInstanceManager.class);
+  }
+
+  protected HistoricProcessInstanceManager getHistoricProcessInstanceManager() {
+    return getSession(HistoricProcessInstanceManager.class);
+  }
+
+  protected HistoricDetailManager getHistoricDetailManager() {
+    return getSession(HistoricDetailManager.class);
+  }
+
+  protected HistoricActivityInstanceManager getHistoricActivityInstanceManager() {
+    return getSession(HistoricActivityInstanceManager.class);
+  }
+  
+  protected HistoricTaskInstanceManager getHistoricTaskInstanceManager() {
+    return getSession(HistoricTaskInstanceManager.class);
+  }
   
   public void close() {
   }

@@ -96,9 +96,12 @@ import org.activiti.engine.impl.persistence.mgr.DeploymentManager;
 import org.activiti.engine.impl.persistence.mgr.ExecutionManager;
 import org.activiti.engine.impl.persistence.mgr.GenericManagerFactory;
 import org.activiti.engine.impl.persistence.mgr.HistoricActivityInstanceManager;
+import org.activiti.engine.impl.persistence.mgr.HistoricDetailManager;
 import org.activiti.engine.impl.persistence.mgr.HistoricProcessInstanceManager;
+import org.activiti.engine.impl.persistence.mgr.HistoricTaskInstanceManager;
 import org.activiti.engine.impl.persistence.mgr.IdentityLinkManager;
 import org.activiti.engine.impl.persistence.mgr.ProcessDefinitionManager;
+import org.activiti.engine.impl.persistence.mgr.ResourceManager;
 import org.activiti.engine.impl.persistence.mgr.TaskManager;
 import org.activiti.engine.impl.persistence.mgr.VariableInstanceManager;
 import org.activiti.engine.impl.scripting.BeansResolverFactory;
@@ -534,6 +537,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       addSessionFactory(dbSqlSessionFactory);
       
       addSessionFactory(new GenericManagerFactory(DeploymentManager.class));
+      addSessionFactory(new GenericManagerFactory(ResourceManager.class));
       addSessionFactory(new GenericManagerFactory(ProcessDefinitionManager.class));
       addSessionFactory(new GenericManagerFactory(ExecutionManager.class));
       addSessionFactory(new GenericManagerFactory(TaskManager.class));
@@ -541,6 +545,8 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       addSessionFactory(new GenericManagerFactory(VariableInstanceManager.class));
       addSessionFactory(new GenericManagerFactory(HistoricProcessInstanceManager.class));
       addSessionFactory(new GenericManagerFactory(HistoricActivityInstanceManager.class));
+      addSessionFactory(new GenericManagerFactory(HistoricTaskInstanceManager.class));
+      addSessionFactory(new GenericManagerFactory(HistoricDetailManager.class));
     }
     if (customSessionFactories!=null) {
       for (SessionFactory sessionFactory: customSessionFactories) {

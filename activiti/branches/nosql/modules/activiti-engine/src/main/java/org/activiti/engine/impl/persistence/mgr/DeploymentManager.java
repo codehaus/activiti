@@ -16,7 +16,6 @@ package org.activiti.engine.impl.persistence.mgr;
 import java.util.List;
 
 import org.activiti.engine.impl.Page;
-import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -28,41 +27,42 @@ import org.activiti.engine.repository.ProcessDefinition;
 public class DeploymentManager extends AbstractManager {
   
   public void insertDeployment(DeploymentEntity deployment) {
-    persistenceSession.insert(deployment);
+    getPersistenceSession().insert(deployment);
+    
     for (ResourceEntity resource : deployment.getResources().values()) {
       resource.setDeploymentId(deployment.getId());
-      persistenceSession.insert(resource);
+      getResourceManager().insertResource(resource);
     }
   }
   
   public void deleteDeployment(String deploymentId, boolean cascade) {
     if (cascade) {
-      List<ProcessDefinition> processDefinitions = persistenceSession
+      List<ProcessDefinition> processDefinitions = getPersistenceSession()
         .createProcessDefinitionQuery()
         .deploymentId(deploymentId)
         .list();
 
-      HistoricProcessInstanceManager historicProcessInstanceManager = Context
-        .getCommandContext()
-        .getHistoricProcessInstanceManager();
-      
-      ExecutionManager processInstanceManager = Context
-        .getCommandContext()
-        .getProcessInstanceManager();
-
       for (ProcessDefinition processDefinition: processDefinitions) {
-        historicProcessInstanceManager.deleteHistoricProcessInstancesByProcessDefinition(processDefinition);
-        processInstanceManager.deleteProcessInstancesByProcessDefinition(processDefinition, "deleted deployment");
+        getHistoricProcessInstanceManager()
+          .deleteHistoricProcessInstancesByProcessDefinition(processDefinition);
+        
+        getProcessInstanceManager()
+          .deleteProcessInstancesByProcessDefinition(processDefinition, "deleted deployment");
       }
     }
-    persistenceSession.delete("deleteProcessDefinitionsByDeploymentId", deploymentId);
-    persistenceSession.delete("deleteResourcesByDeploymentId", deploymentId);
-    persistenceSession.delete("deleteDeployment", deploymentId);
+    
+    getProcessDefinitionManager()
+      .deleteProcessDefinitionsByDeploymentId(deploymentId);
+    
+    getResourceManager()
+      .deleteResourcesByDeploymentId(deploymentId);
+    
+    getPersistenceSession().delete("deleteDeployment", deploymentId);
   }
 
 
   public DeploymentEntity findLatestDeploymentByName(String deploymentName) {
-    List<?> list = persistenceSession.selectList("selectDeploymentsByName", deploymentName, new Page(0, 1));
+    List<?> list = getPersistenceSession().selectList("selectDeploymentsByName", deploymentName, new Page(0, 1));
     if (list!=null && !list.isEmpty()) {
       return (DeploymentEntity) list.get(0);
     }
@@ -70,7 +70,7 @@ public class DeploymentManager extends AbstractManager {
   }
   
   public DeploymentEntity findDeploymentById(String deploymentId) {
-    return (DeploymentEntity) persistenceSession.selectOne("selectDeploymentById", deploymentId);
+    return (DeploymentEntity) getPersistenceSession().selectOne("selectDeploymentById", deploymentId);
   }
 
   public void close() {

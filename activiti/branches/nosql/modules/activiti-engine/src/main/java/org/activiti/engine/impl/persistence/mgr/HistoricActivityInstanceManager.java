@@ -23,7 +23,7 @@ public class HistoricActivityInstanceManager extends AbstractHistoricManager {
 
   public void deleteHistoricActivityInstancesByProcessInstanceId(String historicProcessInstanceId) {
     if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
-      persistenceSession.delete("deleteHistoricActivityInstancesByProcessInstanceId", historicProcessInstanceId);
+      getPersistenceSession().delete("deleteHistoricActivityInstancesByProcessInstanceId", historicProcessInstanceId);
     }
   }
 }
