@@ -13,7 +13,6 @@
 package org.activiti.cdi.annotation;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -37,7 +36,6 @@ import javax.enterprise.inject.spi.PassivationCapable;
  */
 @Target({ ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(value = RetentionPolicy.RUNTIME)
-@Inherited
 public @interface BusinessProcessScoped {
 
 }

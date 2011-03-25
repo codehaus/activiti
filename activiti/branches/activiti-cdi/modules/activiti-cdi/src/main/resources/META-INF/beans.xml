@@ -4,5 +4,5 @@
 	<interceptors>
 		<class>org.activiti.cdi.impl.annotation.CompleteTaskInterceptor</class>
 		<class>org.activiti.cdi.impl.annotation.StartProcessInterceptor</class>
-	</interceptors>
+	</interceptors>	
 </beans>

@@ -60,7 +60,7 @@ public class StartProcessInterceptor {
     } catch (InvocationTargetException e) {
       throw e.getCause();
     } catch (Exception e) {
-      throw new ActivitiException("Error while starting process. " + e.getMessage(), e);
+      throw new ActivitiException("Error while starting process using @StartProcess on method  '"+ctx.getMethod()+"': " + e.getMessage(), e);
     }
   }
 

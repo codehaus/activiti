@@ -13,7 +13,6 @@
 package org.activiti.cdi;
 
 import java.io.Serializable;
-import java.util.EmptyStackException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +23,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.activiti.cdi.impl.context.ConversationalBeanStore;
+import org.activiti.cdi.impl.AbstractProcessResuming;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.RuntimeService;
@@ -36,9 +35,9 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 
 /**
- * Represents the process instance associated with this conversation. Holds the
+ * Represents the contextual business process instance. Holds the
  * ids of the current process instance and task. ProcessInstances can be
- * associated with the current conversation using {@link #resumeProcessById(String)}
+ * associated using {@link #resumeProcessById(String)}
  * <p />
  * Alternatively, this implementation resumes a ProcessInstance bound to the
  * current thread. For example, if a process is started using
@@ -50,14 +49,10 @@ import org.activiti.engine.task.Task;
  * @author Daniel Meyer
  * 
  */
-@Named @ConversationScoped
-public class BusinessProcess implements Serializable {
+@Named 
+public class BusinessProcess extends AbstractProcessResuming implements Serializable {
 
   private static final long serialVersionUID = 1L;
-
-  protected String processInstanceId;
-
-  protected String taskId;
   
   protected Logger logger = Logger.getLogger(BusinessProcess.class.getName());
 
@@ -66,43 +61,41 @@ public class BusinessProcess implements Serializable {
   @Inject ProcessEngine processEngine;
 
   @Inject Actor actor;
-
-  @Inject ConversationalBeanStore conversationalBeanStore;
-
+  
   /*
    * TODO: Discuss/think about whether to provide the start* methods here: an
    * alternative would be to proxy the RuntimeService (?)
    */
 
   public ProcessInstance startProcessById(String processDefinitionId) {
-    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(processDefinitionId, conversationalBeanStore.getAll());
-    processInstanceId = instance.getId();
+    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(processDefinitionId, getBeanStore().getAll());
+    associateBusinessProcessInstance(instance.getProcessInstanceId());
     // flush beans that have been resolved in the first transaction.
     flushBeanStore();
     return instance;
   }
 
   public ProcessInstance startProcessById(String processDefinitionId, Map<String, Object> variables) {
-    conversationalBeanStore.putAll(variables);
-    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(processDefinitionId, conversationalBeanStore.getAll());
-    processInstanceId = instance.getId();
+    getBeanStore().putAll(variables);
+    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(processDefinitionId, getBeanStore().getAll());
+    associateBusinessProcessInstance(instance.getProcessInstanceId());
     // flush beans that have been resolved in the first transaction.
     flushBeanStore();
     return instance;
   }
 
   public ProcessInstance startProcessByKey(String key) {
-    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceByKey(key, conversationalBeanStore.getAll());
-    processInstanceId = instance.getId();
+    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceByKey(key, getBeanStore().getAll());
+    associateBusinessProcessInstance(instance.getProcessInstanceId());
     // flush beans that have been resolved in the first transaction.
     flushBeanStore();
     return instance;
   }
 
   public ProcessInstance startProcessByKey(String key, Map<String, Object> variables) {
-    conversationalBeanStore.putAll(variables);
-    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceByKey(key, conversationalBeanStore.getAll());
-    processInstanceId = instance.getId();
+    getBeanStore().putAll(variables);
+    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceByKey(key, getBeanStore().getAll());
+    associateBusinessProcessInstance(instance.getProcessInstanceId());
     // flush beans that have been resolved in the first transaction.
     flushBeanStore();
     return instance;
@@ -114,8 +107,8 @@ public class BusinessProcess implements Serializable {
       logger.log(Level.SEVERE, "No process definition found for name: " + string);
       throw new ActivitiException("No process definition found for name: " + string);
     }
-    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(definition.getId(), conversationalBeanStore.getAll());
-    processInstanceId = instance.getId();
+    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(definition.getId(), getBeanStore().getAll());
+    associateBusinessProcessInstance(instance.getProcessInstanceId());
     // flush beans that have been resolved in the first transaction.
     flushBeanStore();
     return instance;
@@ -127,9 +120,9 @@ public class BusinessProcess implements Serializable {
       logger.log(Level.SEVERE, "No process definition found for name: " + string);
       throw new ActivitiException("No process definition found for name: " + string);
     }
-    conversationalBeanStore.putAll(variables);
-    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(definition.getId(), conversationalBeanStore.getAll());
-    processInstanceId = instance.getId();
+    getBeanStore().putAll(variables);
+    ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById(definition.getId(), getBeanStore().getAll());
+    associateBusinessProcessInstance(instance.getProcessInstanceId());
     // flush beans that have been resolved in the first transaction.
     flushBeanStore();
     return instance;
@@ -143,29 +136,16 @@ public class BusinessProcess implements Serializable {
    *          the id of the process instance to be resumed.
    */
   public void resumeProcessById(String processInstanceId) {
-    this.processInstanceId = processInstanceId;
+    associateBusinessProcessInstance(processInstanceId);
     try {
       getProcessInstance();
     } catch (ActivitiException e) {
-      this.processInstanceId = null;
+      associationManager.disAssociateProcessInstance();
       throw new ActivitiException("Cannot resume process: no ProcessInstance with id '" + processInstanceId + "' found.");
     }
     if (logger.isLoggable(Level.FINE)) {
-      logger.fine("Resumig ProcessInstance[" + this.processInstanceId + "].");
+      logger.fine("Resumig ProcessInstance[" + processInstanceId + "].");
     }
-  }
-
-  /**
-   * returns true if the current conversation is associated with a process
-   * instance
-   */
-  public boolean hasProcess() {
-    resumeProcess();
-    return processInstanceId != null;
-  }
-  
-  protected boolean isActive() { 
-    return hasProcess();
   }
 
 
@@ -183,15 +163,15 @@ public class BusinessProcess implements Serializable {
    *           if no such task is found
    */
   public Task resumeTaskById(String taskId) {
-    this.taskId = taskId;
+    associateTaskInstance(taskId);
     Task task = getTask();
     if (task == null) {
-      this.taskId = null;
+      associationManager.disAssociateTask();
       throw new ActivitiException("No task with id '" + taskId + "' found.");
     }
     resumeProcessById(task.getProcessInstanceId());
     if (logger.isLoggable(Level.FINE)) {
-      logger.fine("Resumig Task[" + this.taskId + "].");
+      logger.fine("Resumig Task[" + taskId + "].");
     }
     return task;
   }
@@ -202,101 +182,14 @@ public class BusinessProcess implements Serializable {
   public void completeTask() {
     assertTaskIdSet();
     flushBeanStore();
-    processEngine.getTaskService().complete(taskId);
-    taskId = null;
+    processEngine.getTaskService().complete(associationManager.getTaskId());
+    flushBeanStore();
+    associationManager.disAssociateTask();
   }
 
   public boolean hasTask() {
     resumeTask();
-    return taskId != null;
-  }
-  
-  // -----------------------------------------------
-
-
-  /**
-   * Spend our best effort to automagically resume a process instance
-   */
-  protected void resumeProcess() {
-    if (processInstanceId != null) {
-      return;
-    }
-    try {
-      if (Context.getExecutionContext() != null) {
-        ProcessInstance instance = Context.getExecutionContext().getProcessInstance();
-        if (instance != null) {
-          processInstanceId = instance.getId();
-          if (logger.isLoggable(Level.FINE)) {
-            logger.fine("Resumed Processinstance[" + processInstanceId + "].");
-          }
-        }
-      }
-    } catch (EmptyStackException e) {
-      // means that no execution context is available
-      return;
-    }
-  }
-  
-  /**
-   * Spend our best effort to automagically resume a task
-   */
-  protected void resumeTask() {
-    if (taskId != null) {
-      return;
-    }
-    if (processInstanceId == null) {
-      resumeProcess();
-    }
-    if (processInstanceId != null) {
-      Task task = null;
-      try {
-        task = processEngine.getTaskService().createTaskQuery()
-                                             .processInstanceId(processInstanceId)
-                                             .singleResult();
-      }catch (ActivitiException e) {
-        // probably more than one task active, try to qualify with the current actor:
-        String actorId = actor.getActorId();
-        if(actorId == null || actorId.length() == 0) {
-          return;
-        }
-        try {
-          task = processEngine.getTaskService().createTaskQuery()
-                                               .processInstanceId(processInstanceId)
-                                               .taskAssignee(actorId)
-                                               .singleResult();
-        
-        }catch (ActivitiException ex) {
-          return;
-        }                                 
-      }
-      
-      if (task != null) {
-        taskId = task.getId();
-        if (logger.isLoggable(Level.FINE)) {
-          logger.fine("Resumed Task[" + taskId + "]");
-        }
-      }
-    }
-  }
-
-  protected void assertProcessIdSet() {
-    if (processInstanceId == null) {
-      resumeProcess();
-    }
-    if (processInstanceId == null) {
-      logger.log(Level.SEVERE, "No business process associated with this conversation.");
-      throw new ActivitiException("No business process associated with this conversation.");
-    }
-  }
-
-  protected void assertTaskIdSet() {
-    if (taskId == null) {
-      resumeTask();
-    }
-    if (taskId == null) {
-      logger.log(Level.SEVERE, "No task associated with this conversation.");
-      throw new ActivitiException("No task associated with this conversation.");
-    }
+    return associationManager.getTaskId() != null;
   }
 
   // -------------------------------------------------
@@ -327,18 +220,18 @@ public class BusinessProcess implements Serializable {
     
     if (!isActive() || 
               // TODO: think about concurrent processes
-              conversationalBeanStore.holdsValue(variableName) 
+              getBeanStore().holdsValue(variableName) 
        ) {
-      value = conversationalBeanStore.getContextualInstance(variableName);
+      value = getBeanStore().getContextualInstance(variableName);
     } else {
       try {
         // this allows us to retrieve process variables before the first
         // transaction is completed.
         value = Context.getExecutionContext().getExecution().getVariable(variableName);
       } catch (Exception e) {
-        value = processEngine.getRuntimeService().getVariable(processInstanceId, variableName);
+        value = processEngine.getRuntimeService().getVariable(associationManager.getProcessInstanceId(), variableName);
       }
-      conversationalBeanStore.put(variableName, value);
+      getBeanStore().put(variableName, value);
     }
     if (value == null) {
       return null;
@@ -364,7 +257,7 @@ public class BusinessProcess implements Serializable {
   public void setProcessVariable(String variableName, Object value) {
     resumeProcess();
     // this allows us to flush the bean store to update the values of changed beans when a task is completed:
-    conversationalBeanStore.put(variableName, value);
+    getBeanStore().put(variableName, value);
     if (isActive()) {
       setProcessVariableInExecution(variableName,value);
     }
@@ -376,15 +269,15 @@ public class BusinessProcess implements Serializable {
       // transaction is completed (RuntimeService.setVariable(...) does not work then
       Context.getExecutionContext().getExecution().setVariable(variableName, value);
     } catch (Exception e) {
-      processEngine.getRuntimeService().setVariable(processInstanceId, variableName, value);
+      processEngine.getRuntimeService().setVariable(associationManager.getProcessInstanceId(), variableName, value);
     }
   }
 
   protected void flushBeanStore() {
-    for (String variableName : conversationalBeanStore.getVariableNames()) {
-      setProcessVariableInExecution(variableName, conversationalBeanStore.getContextualInstance(variableName));
+    for (String variableName : getBeanStore().getVariableNames()) {
+      setProcessVariableInExecution(variableName, getBeanStore().getContextualInstance(variableName));
     }
-    conversationalBeanStore.clear();
+    getBeanStore().clear();
   }
   
   // ----------------------------------- Getters / Setters and Producers
@@ -403,7 +296,7 @@ public class BusinessProcess implements Serializable {
   /* Also makes the processId available for injection */
   @Produces @Named("processId") @ProcessId public String getProcessInstanceId() {
     resumeProcess();
-    return processInstanceId;
+    return associationManager.getProcessInstanceId();
   }
 
   /**
@@ -412,7 +305,7 @@ public class BusinessProcess implements Serializable {
   /* Also makes the taskId available for injection */
   @Produces @Named("taskId") @TaskId public String getTaskId() {
     resumeTask();
-    return taskId;
+    return associationManager.getTaskId();
   }
 
   /**
@@ -427,7 +320,11 @@ public class BusinessProcess implements Serializable {
   /* Also makes the current Task available for injection */
   @Produces @Named public Task getTask() {
     assertTaskIdSet();
-    return processEngine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+    return processEngine
+      .getTaskService()
+      .createTaskQuery()
+      .taskId(associationManager.getTaskId())
+      .singleResult();
   }
 
   /**
@@ -442,7 +339,11 @@ public class BusinessProcess implements Serializable {
   /* Also makes the current ProcessInstance available for injection */
   @Produces @Named public ProcessInstance getProcessInstance() {
     assertProcessIdSet();    
-    return processEngine.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+    return processEngine
+      .getRuntimeService()
+      .createProcessInstanceQuery()
+      .processInstanceId(associationManager.getProcessInstanceId())
+      .singleResult();
   }
 
 }

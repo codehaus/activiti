@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
+
 /**
  * Holds the id and groups of the current actor. Is used in contextual task
  * queries by the {@link BusinessProcess} bean.

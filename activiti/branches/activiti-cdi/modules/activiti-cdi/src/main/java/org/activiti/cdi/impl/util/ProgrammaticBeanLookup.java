@@ -12,7 +12,6 @@
  */
 package org.activiti.cdi.impl.util;
 
-import java.util.Set;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
@@ -26,37 +25,21 @@ import javax.enterprise.inject.spi.BeanManager;
 public class ProgrammaticBeanLookup {
 
   @SuppressWarnings("unchecked")
-  public static <T> T lookup(Class<T> clazz) {
-    BeanManager beanManager = BeanManagerLookup.getBeanManager();
-    Set<Bean< ? >> beans = beanManager.getBeans(clazz);
-    if (beans.isEmpty()) {
-      // throw exception instead ?
-      return null;
-    }
-    Bean<T> bean = (Bean<T>) beans.iterator().next();
-    T beanInstance = beanManager.getContext(bean.getScope()).get(bean);
-    if (beanInstance != null) {
-      return beanInstance;
-    }
-    CreationalContext<T> ct = beanManager.createCreationalContext(bean);
-    return beanManager.getContext(bean.getScope()).get(bean, ct);
+  public static <T> T lookup(Class<T> clazz) {    
+    BeanManager bm = BeanManagerLookup.getBeanManager();
+    Bean<T> bean = (Bean<T>) bm.getBeans(clazz).iterator().next();
+    CreationalContext<T> ctx = bm.createCreationalContext(bean);
+    T dao = (T) bm.getReference(bean, clazz, ctx); 
+    return dao;   
   }
   
   @SuppressWarnings("unchecked")
   public static <T> T lookup(String name) {
-    BeanManager beanManager = BeanManagerLookup.getBeanManager();
-    Set<Bean< ? >> beans = beanManager.getBeans(name);
-    if (beans.isEmpty()) {
-      // throw exception instead ?
-      return null;
-    }
-    Bean<T> bean = (Bean<T>) beans.iterator().next();
-    T beanInstance = beanManager.getContext(bean.getScope()).get(bean);
-    if (beanInstance != null) {
-      return beanInstance;
-    }
-    CreationalContext<T> ct = beanManager.createCreationalContext(bean);
-    return beanManager.getContext(bean.getScope()).get(bean, ct);
+    BeanManager bm = BeanManagerLookup.getBeanManager();
+    Bean<T> bean = (Bean<T>) bm.getBeans(name).iterator().next();
+    CreationalContext<T> ctx = bm.createCreationalContext(bean);
+    T dao = (T) bm.getReference(bean, bean.getBeanClass(), ctx); 
+    return dao;   
   }
 
  

@@ -15,6 +15,7 @@ package org.activiti.cdi.impl.annotation;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.enterprise.context.Conversation;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -38,7 +39,7 @@ public class CompleteTaskInterceptor {
 
   @Inject BusinessProcess businessProcess;
 
-  @Inject Conversation conversation;
+  @Inject Instance<Conversation> conversation;
 
   @Inject TaskService taskService;
   
@@ -81,8 +82,10 @@ public class CompleteTaskInterceptor {
       businessProcess.resumeTaskById(task.getId());
       businessProcess.completeTask();
 
-      if (endConversation) {        
-        conversation.end();
+      if (endConversation) {   
+        if(!conversation.isUnsatisfied()) {
+          conversation.get().end();
+        }
       }
 
       return result;

@@ -17,14 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.Dependent;
 
 /**
  * 
  * @author Daniel Meyer
  */
-@ConversationScoped
-public class ConversationalBeanStore implements Serializable {
+@Dependent
+public class CachingBeanStore implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	

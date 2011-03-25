@@ -63,7 +63,6 @@ public abstract class CdiActivitiTestCase extends PluggableActivitiTestCase {
 
     beanManager = weldContainer.getBeanManager();
     BeanManagerLookup.localInstance = beanManager;
-    beginConversation();
   }
 
   protected void activateSessionContext() {
@@ -86,7 +85,6 @@ public abstract class CdiActivitiTestCase extends PluggableActivitiTestCase {
 
   @Override
   protected void tearDown() throws Exception {
-    endConversation();
     weld.shutdown();
   }
 
@@ -134,11 +132,11 @@ public abstract class CdiActivitiTestCase extends PluggableActivitiTestCase {
     getBeanInstance(BusinessProcess.class).resumeProcessById(processInstanceId);
   }
 
-  private ConversationContext getConversationContext() {
+  protected ConversationContext getConversationContext() {
     return Container.instance().services().get(ContextLifecycle.class).getConversationContext();
   }
 
-  private RequestContext getRequestContext() {
+  protected RequestContext getRequestContext() {
     return Container.instance().services().get(ContextLifecycle.class).getRequestContext();
   }
 

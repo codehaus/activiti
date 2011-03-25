@@ -57,7 +57,7 @@ public class ProcessVariables {
 
   /**
    * intended to be used in El:
-   * <code>#{processVariables.get('variableName')}</code
+   * <code>#{processVariables.get('variableName')}</code>
    * 
    */
   public Object get(String processVariable) {

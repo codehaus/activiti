@@ -80,7 +80,7 @@ public class BusinessProcessBeanTest extends CdiActivitiTestCase {
     businessProcess.completeTask();
 
     // assert that the taskId is null after completing a task.
-    assertNull(businessProcess.taskId);
+    assertNull(businessProcess.getTaskId());
   }
   
   @Deployment(resources = "org/activiti/cdi/BusinessProcessBeanTest.test.bpmn20.xml")

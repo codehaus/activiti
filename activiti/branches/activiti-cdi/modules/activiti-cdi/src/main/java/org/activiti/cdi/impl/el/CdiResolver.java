@@ -14,16 +14,13 @@ package org.activiti.cdi.impl.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 
 import org.activiti.cdi.impl.util.BeanManagerLookup;
+import org.activiti.cdi.impl.util.ProgrammaticBeanLookup;
 import org.activiti.engine.impl.javax.el.ELContext;
 import org.activiti.engine.impl.javax.el.ELResolver;
 
@@ -98,18 +95,8 @@ public class CdiResolver extends ELResolver {
       // The following code might have issues with remote EJBs and EJBs
       // from other deployment archives then this BeanManager's deployment
 
-      Set<Bean< ? >> beans = getBeanManager().getBeans(property.toString());
-      if (beans.isEmpty()) {
-        throw e;
-      }
-
-      Bean< ? > bean = beans.iterator().next();
-      CreationalContext< ? > cc = getBeanManager().createCreationalContext(bean);
-      Object result = getBeanManager().getReference(bean, Any.class, cc);
-
+      Object result = ProgrammaticBeanLookup.lookup(property.toString());
       context.setPropertyResolved(result != null);
-      cc.release();
-
       return result;
     }
   }

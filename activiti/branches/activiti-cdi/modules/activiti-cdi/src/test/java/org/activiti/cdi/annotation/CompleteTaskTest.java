@@ -81,7 +81,7 @@ public class CompleteTaskTest extends CdiActivitiTestCase {
 
   @Deployment(resources = "org/activiti/cdi/annotation/CompleteTaskTest.bpmn20.xml")
   public void testCompleteTaskAndEndConversation() {
-  
+    beginConversation();
     getBeanInstance(Actor.class).setActorId("kermit");
     BusinessProcess businessProcess = getBeanInstance(BusinessProcess.class);
 
