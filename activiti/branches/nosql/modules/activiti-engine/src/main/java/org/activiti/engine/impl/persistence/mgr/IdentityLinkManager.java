@@ -29,6 +29,6 @@ public class IdentityLinkManager extends AbstractManager {
   }
 
   public void deleteIdentityLink(IdentityLinkEntity identityLink) {
-    getPersistenceSession().delete(IdentityLinkManager.class, identityLink.getId());
+    getPersistenceSession().delete(IdentityLinkEntity.class, identityLink.getId());
   }
 }

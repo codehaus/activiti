@@ -16,6 +16,7 @@ package org.activiti.engine.impl.persistence.mgr;
 import java.util.List;
 
 import org.activiti.engine.impl.Page;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -33,6 +34,11 @@ public class DeploymentManager extends AbstractManager {
       resource.setDeploymentId(deployment.getId());
       getResourceManager().insertResource(resource);
     }
+    
+    Context
+      .getProcessEngineConfiguration()
+      .getDeploymentCache()
+      .deploy(deployment);
   }
   
   public void deleteDeployment(String deploymentId, boolean cascade) {
@@ -48,6 +54,11 @@ public class DeploymentManager extends AbstractManager {
         
         getProcessInstanceManager()
           .deleteProcessInstancesByProcessDefinition(processDefinition, "deleted deployment");
+
+        Context
+          .getProcessEngineConfiguration()
+          .getDeploymentCache()
+          .removeProcessDefinition(processDefinition.getId());
       }
     }
     

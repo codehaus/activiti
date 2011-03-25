@@ -21,6 +21,7 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
+import org.activiti.engine.repository.ProcessDefinition;
 
 
 /**
@@ -70,8 +71,12 @@ public class DeploymentCache {
     return processDefinition;
   }
 
-  public void addDeployedProcessDefinition(ProcessDefinitionEntity processDefinition) {
+  public void addProcessDefinition(ProcessDefinitionEntity processDefinition) {
     processDefinitionCache.put(processDefinition.getId(), processDefinition);
+  }
+
+  public void removeProcessDefinition(String processDefinitionId) {
+    processDefinitionCache.remove(processDefinitionId);
   }
 
   // getters and setters //////////////////////////////////////////////////////

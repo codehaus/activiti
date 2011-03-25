@@ -145,7 +145,7 @@ public class BpmnDeployer implements Deployer {
       Context
         .getProcessEngineConfiguration()
         .getDeploymentCache()
-        .addDeployedProcessDefinition(processDefinition);
+        .addProcessDefinition(processDefinition);
     }
   }
 

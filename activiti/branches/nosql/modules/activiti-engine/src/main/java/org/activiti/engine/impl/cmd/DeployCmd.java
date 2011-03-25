@@ -59,11 +59,6 @@ public class DeployCmd<T> implements Command<Deployment> {
       .getDeploymentManager()
       .insertDeployment(deployment);
     
-    Context
-      .getProcessEngineConfiguration()
-      .getDeploymentCache()
-      .deploy(deployment);
-    
     return deployment;
   }
 

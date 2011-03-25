@@ -18,7 +18,6 @@ import java.util.List;
 import org.activiti.engine.impl.DeploymentQueryImpl;
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
-import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
@@ -31,10 +30,6 @@ import org.activiti.engine.repository.ProcessDefinition;
  * @author Tom Baeyens
  */
 public interface RepositorySession {
-
-  /** deletes the deployment and cascades deletion to the contained resources
-   * and process definitions */
-  void deleteDeployment(String deploymentId, boolean cascade);
 
   DeploymentEntity findDeploymentById(String deploymentId);
 
