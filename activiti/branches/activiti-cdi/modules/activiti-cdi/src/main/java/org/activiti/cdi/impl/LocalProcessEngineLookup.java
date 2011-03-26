@@ -36,6 +36,7 @@ public class LocalProcessEngineLookup implements ProcessEngineLookup {
 
   protected String processEngineName = ProcessEngines.NAME_DEFAULT;
 
+  @Override
   public ProcessEngine getProcessEngine() {
     return ProcessEngines.getProcessEngine(processEngineName);
   }

@@ -23,8 +23,7 @@ import javax.inject.Qualifier;
 
 /**
  * Annotation for qualifying injection points such that process variables are
- * injected. Requires a process instance to be associated with the current
- * conversation:
+ * injected. Requires a process instance to be managed
  * <ul>
  * <li>{@code @Inject @ProcessVariable Object accountNumber}</li>
  * <li>{@code @Inject @ProcessVariable("accountNumber") Object account}</li>

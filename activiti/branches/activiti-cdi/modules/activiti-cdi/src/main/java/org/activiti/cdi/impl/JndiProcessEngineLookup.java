@@ -12,6 +12,8 @@
  */
 package org.activiti.cdi.impl;
 
+import java.util.logging.Logger;
+
 import javax.enterprise.inject.Alternative;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -20,15 +22,14 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
 
 /**
+ * <!> EXPERIMENTAL <!>
+ * 
  * {@link ProcessEngineLookup} for looking up a {@link ProcessEngine} in Jndi.
  * 
- * Uses default values for the Jndi name:
- * <ul>
- * <li>In an Java EE environment, the default lookup String is
- * {@code java:comp/Activiti/default}</li>
- * <li>In a Java SE Environment (for example in a ServletContainer) the default
- * lookup String is {@code java:env/Activiti/default}
- * </ul>
+ * Looks up a process engine bound to 'activiti/default'.
+ * 
+ * TODO: test & make configurable! 
+ *  
  * Note that this in an {@link Alternative} implementation of the
  * {@link ProcessEngineLookup} interface: if you want to use this
  * implementation, enable it in the beans.xml deployment descriptor.
@@ -38,15 +39,20 @@ import org.activiti.engine.ProcessEngine;
 @Alternative
 public class JndiProcessEngineLookup implements ProcessEngineLookup {
 
+  Logger logger = Logger.getLogger(JndiProcessEngineLookup.class.getName());
+
   protected String jndiName;
 
-  public ProcessEngine getProcessEngine() {
+  @Override
+  public ProcessEngine getProcessEngine() {    
     try {
-      return (ProcessEngine) InitialContext.doLookup(jndiName);
+      Object engine = InitialContext.doLookup(getJndiName());
+      logger.info("Looked up ProcessEngine '" + engine + "' in jndi (" + jndiName + ")");
+      return (ProcessEngine) engine;
     } catch (NamingException e) {
-      throw new ActivitiException("No processEngine is bound to the jndi name '" + jndiName + "'.", e);
+      throw new ActivitiException("No Process Engine is bound to the jndi name '" + jndiName + "'.", e);
     } catch (ClassCastException e) {
-      throw new ActivitiException("The object bound to '" + jndiName + "' appears not to be a ProcessEngine. ", e);
+      throw new ActivitiException("The object bound to '" + jndiName + "' appears not to be a ProcessEngine: " + e.getMessage(), e);
     }
   }
   public String getJndiName() {
@@ -61,7 +67,7 @@ public class JndiProcessEngineLookup implements ProcessEngineLookup {
   }
 
   protected void initJndiName() {
-
+    jndiName = "activiti/default";
   }
 
   public void setJndiName(String jndiName) {

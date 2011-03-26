@@ -17,6 +17,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.spi.PassivationCapable;
 
 /**
@@ -26,10 +28,12 @@ import javax.enterprise.inject.spi.PassivationCapable;
  * <p />
  * Note: BusinessProcessScoped beans need to be {@link PassivationCapable}.
  * <p />
- * If no ProcessInstance is associated with the current conversation, instances
- * of {@link BusinessProcessScoped} beans are temporarily stored in the
- * conversation. If the conversation is later associated with a business process
- * instance, the bean instances are flushed to the ProcessInstance.
+ * If no ProcessInstance is currently managed, instances of
+ * {@link BusinessProcessScoped} beans are temporarily stored in a local scope
+ * (I.e. the Conversation or the Request, depending on the context, see javadoc
+ * on {@link ConversationScoped} and {@link RequestScoped} to find out when
+ * either context is active). If this scope is later associated with a business
+ * process instance, the bean instances are flushed to the ProcessInstance.
  * 
  * 
  * @author Daniel Meyer

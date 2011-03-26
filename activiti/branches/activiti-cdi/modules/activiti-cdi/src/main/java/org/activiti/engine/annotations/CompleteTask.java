@@ -24,8 +24,7 @@ import org.activiti.cdi.Actor;
 
 /**
  * Annotation signaling that a task is to be completed after the annotated
- * method returns. Requires a ProcessInstance to be associated with the current
- * conversation.
+ * method returns. Requires a ProcessInstance to be managed. 
  * 
  * If neither an id ("key") nor a name is specified, we try to resolve a single
  * task assigned to the current user (see {@link Actor}) in the current process

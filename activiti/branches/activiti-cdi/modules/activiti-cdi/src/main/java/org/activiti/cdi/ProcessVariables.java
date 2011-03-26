@@ -23,8 +23,8 @@ import javax.inject.Named;
 import org.activiti.engine.annotations.ProcessVariable;
 
 /**
- * Allows to access the process variables of the process instance associated
- * with the current conversation.
+ * Allows to access the process variables of the managed process instance. A
+ * process instnace cyn be managed, using the {@link BusinessProcess}-bean.
  * 
  * @author Daniel Meyer
  */
@@ -56,7 +56,7 @@ public class ProcessVariables {
   }
 
   /**
-   * intended to be used in El:
+   * Intended to be used in El:
    * <code>#{processVariables.get('variableName')}</code>
    * 
    */

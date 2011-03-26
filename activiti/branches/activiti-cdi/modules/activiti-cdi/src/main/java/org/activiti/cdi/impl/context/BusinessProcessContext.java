@@ -39,10 +39,12 @@ public class BusinessProcessContext implements Context {
     return ProgrammaticBeanLookup.lookup(BusinessProcess.class);
   }
 
+  @Override
   public Class< ? extends Annotation> getScope() {
     return BusinessProcessScoped.class;
   }
 
+  @Override
   public <T> T get(Contextual<T> contextual) {
     Bean<T> bean = (Bean<T>) contextual;
     String variableName = bean.getName();
@@ -63,6 +65,7 @@ public class BusinessProcessContext implements Context {
 
   }
 
+  @Override
   public <T> T get(Contextual<T> contextual, CreationalContext<T> arg1) {
 
     Bean<T> bean = (Bean<T>) contextual;
@@ -92,6 +95,7 @@ public class BusinessProcessContext implements Context {
 
   }
 
+  @Override
   public boolean isActive() {
     // we assume the business process is always 'active'. If no actual
     // business process is associated with the conversation, the

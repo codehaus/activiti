@@ -25,7 +25,7 @@ import org.activiti.cdi.annotation.BusinessProcessScoped;
 
 /**
  * Starts a new process instance after the annotated method returns. The process
- * instance is subsequently associated with the current conversation.
+ * instance is subsequently managed.
  * <p/>
  * Each process variable set through
  * {@link BusinessProcess#setProcessVariable(String, Object)} within this

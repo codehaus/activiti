@@ -30,6 +30,7 @@ public class ProcessEngineLookupForTestsuite implements ProcessEngineLookup {
 
   public static ProcessEngine processEngine;
 
+  @Override
   public ProcessEngine getProcessEngine() {
     return processEngine;
   }
