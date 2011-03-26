@@ -15,9 +15,13 @@ package org.activiti.engine.impl.persistence.mgr;
 
 import java.util.List;
 
+import org.activiti.engine.history.HistoricVariableUpdate;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.history.HistoricDetailEntity;
+import org.activiti.engine.impl.history.HistoricVariableUpdateEntity;
+import org.activiti.engine.impl.runtime.ByteArrayEntity;
 
 
 /**
@@ -26,6 +30,20 @@ import org.activiti.engine.impl.history.HistoricDetailEntity;
 public class HistoricDetailManager extends AbstractHistoricManager {
 
   public void deleteHistoricDetail(HistoricDetailEntity historicDetail) {
+    if (historicDetail instanceof HistoricVariableUpdateEntity) {
+      HistoricVariableUpdateEntity historicVariableUpdate = (HistoricVariableUpdateEntity) historicDetail;
+      String byteArrayValueId = historicVariableUpdate.getByteArrayValueId();
+      if (byteArrayValueId != null) {
+          // the next apparently useless line is probably to ensure consistency in the DbSqlSession 
+          // cache, but should be checked and docced here (or removed if it turns out to be unnecessary)
+          // @see also HistoricVariableInstanceEntity
+        historicVariableUpdate.getByteArrayValue();
+        Context
+          .getCommandContext()
+          .getSession(DbSqlSession.class)
+          .delete(ByteArrayEntity.class, byteArrayValueId);
+      }
+    }
     getPersistenceSession().delete(HistoricDetailEntity.class, historicDetail.getId());
   }
 
