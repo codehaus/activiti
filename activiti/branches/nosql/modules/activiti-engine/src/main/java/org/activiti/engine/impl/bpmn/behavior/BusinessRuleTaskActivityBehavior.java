@@ -47,7 +47,7 @@ public class BusinessRuleTaskActivityBehavior extends TaskActivityBehavior {
     PvmProcessDefinition processDefinition = execution.getActivity().getProcessDefinition();
     String deploymentId = processDefinition.getDeploymentId();
     
-    DeploymentEntity deploymentEntity = Context.getCommandContext().getRepositorySession().findDeploymentById(deploymentId);
+    DeploymentEntity deploymentEntity = Context.getCommandContext().getDeploymentManager().findDeploymentById(deploymentId);
     KnowledgeBase knowledgeBase = RulesHelper.findLatestKnowledgeBaseByDeploymentName(deploymentEntity.getName()); 
     StatefulKnowledgeSession ksession = knowledgeBase.newStatefulKnowledgeSession();
     

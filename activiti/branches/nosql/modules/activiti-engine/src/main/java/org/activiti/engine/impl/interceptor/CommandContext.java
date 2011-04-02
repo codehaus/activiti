@@ -24,7 +24,6 @@ import org.activiti.engine.impl.cfg.IdentitySession;
 import org.activiti.engine.impl.cfg.ManagementSession;
 import org.activiti.engine.impl.cfg.MessageSession;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.cfg.RuntimeSession;
 import org.activiti.engine.impl.cfg.TaskSession;
 import org.activiti.engine.impl.cfg.TimerSession;
@@ -229,9 +228,6 @@ public class CommandContext {
 
 
   
-  public RepositorySession getRepositorySession() {
-    return getSession(RepositorySession.class);
-  }
   public RuntimeSession getRuntimeSession() {
     return getSession(RuntimeSession.class);
   }

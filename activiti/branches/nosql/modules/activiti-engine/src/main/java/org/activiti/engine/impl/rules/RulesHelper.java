@@ -18,9 +18,7 @@ import java.util.Map;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.DeploymentQueryImpl;
-import org.activiti.engine.impl.cfg.RepositorySession;
 import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.db.DbRepositorySessionFactory;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.repository.Deployment;
 import org.drools.KnowledgeBase;
@@ -32,12 +30,11 @@ import org.drools.KnowledgeBase;
 public class RulesHelper {
 
   public static KnowledgeBase findKnowledgeBaseByDeploymentId(String deploymentId) {
-    DbRepositorySessionFactory repositorySessionFactory = (DbRepositorySessionFactory) Context
+    Map<String, Object> knowledgeBaseCache = Context
       .getProcessEngineConfiguration()
-      .getSessionFactories()
-      .get(RepositorySession.class);
+      .getDeploymentCache()
+      .getKnowledgeBaseCache();
   
-    Map<String, Object> knowledgeBaseCache = repositorySessionFactory.getKnowledgeBaseCache();
     KnowledgeBase knowledgeBase = (KnowledgeBase) knowledgeBaseCache.get(deploymentId);
     if (knowledgeBase==null) {
       DeploymentEntity deployment = Context

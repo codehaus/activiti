@@ -13,6 +13,10 @@
 
 package org.activiti.engine.impl.persistence.mgr;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.activiti.engine.impl.repository.ResourceEntity;
 
 
@@ -28,4 +32,18 @@ public class ResourceManager extends AbstractManager {
   public void deleteResourcesByDeploymentId(String deploymentId) {
     getPersistenceSession().delete("deleteResourcesByDeploymentId", deploymentId);
   }
+  
+  public ResourceEntity findResourceByDeploymentIdAndResourceName(String deploymentId, String resourceName) {
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("deploymentId", deploymentId);
+    params.put("resourceName", resourceName);
+    return (ResourceEntity) getPersistenceSession().selectOne("selectResourceByDeploymentIdAndResourceName", params);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<ResourceEntity> findResourcesByDeploymentId(String deploymentId) {
+    return getPersistenceSession().selectList("selectResourcesByDeploymentId", deploymentId);
+  }
+  
+
 }

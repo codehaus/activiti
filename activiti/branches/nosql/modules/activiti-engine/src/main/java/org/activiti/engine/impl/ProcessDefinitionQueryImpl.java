@@ -176,14 +176,14 @@ public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQ
   public long executeCount(CommandContext commandContext) {
     checkQueryOk();
     return commandContext
-      .getRepositorySession()
+      .getProcessDefinitionManager()
       .findProcessDefinitionCountByQueryCriteria(this);
   }
 
   public List<ProcessDefinition> executeList(CommandContext commandContext, Page page) {
     checkQueryOk();
     return commandContext
-      .getRepositorySession()
+      .getProcessDefinitionManager()
       .findProcessDefinitionsByQueryCriteria(this, page);
   }
   

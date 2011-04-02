@@ -64,7 +64,6 @@ import org.activiti.engine.impl.db.DbHistorySessionFactory;
 import org.activiti.engine.impl.db.DbIdGenerator;
 import org.activiti.engine.impl.db.DbIdentitySessionFactory;
 import org.activiti.engine.impl.db.DbManagementSessionFactory;
-import org.activiti.engine.impl.db.DbRepositorySessionFactory;
 import org.activiti.engine.impl.db.DbRuntimeSessionFactory;
 import org.activiti.engine.impl.db.DbSqlSessionFactory;
 import org.activiti.engine.impl.db.DbTaskSessionFactory;
@@ -520,10 +519,6 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       addSessionFactory(new JobExecutorTimerSessionFactory());
       addSessionFactory(new DbHistorySessionFactory());
       
-      DbRepositorySessionFactory dbRepositorySessionFactory = new DbRepositorySessionFactory();
-      dbRepositorySessionFactory.setDeployers(deployers);
-      addSessionFactory(dbRepositorySessionFactory);
-
       JobExecutorMessageSessionFactory jobExecutorMessageSessionFactory = new JobExecutorMessageSessionFactory();
       addSessionFactory(jobExecutorMessageSessionFactory);
       

@@ -15,10 +15,12 @@ package org.activiti.engine.impl.persistence.mgr;
 
 import java.util.List;
 
+import org.activiti.engine.impl.DeploymentQueryImpl;
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ResourceEntity;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
 
 
@@ -82,6 +84,21 @@ public class DeploymentManager extends AbstractManager {
   
   public DeploymentEntity findDeploymentById(String deploymentId) {
     return (DeploymentEntity) getPersistenceSession().selectOne("selectDeploymentById", deploymentId);
+  }
+  
+  public long findDeploymentCountByQueryCriteria(DeploymentQueryImpl deploymentQuery) {
+    return (Long) getPersistenceSession().selectOne("selectDeploymentCountByQueryCriteria", deploymentQuery);
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<Deployment> findDeploymentsByQueryCriteria(DeploymentQueryImpl deploymentQuery, Page page) {
+    final String query = "selectDeploymentsByQueryCriteria";
+    return getPersistenceSession().selectList(query, deploymentQuery, page);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<String> getDeploymentResourceNames(String deploymentId) {
+    return getPersistenceSession().getSqlSession().selectList("selectResourceNamesByDeploymentId", deploymentId);
   }
 
   public void close() {

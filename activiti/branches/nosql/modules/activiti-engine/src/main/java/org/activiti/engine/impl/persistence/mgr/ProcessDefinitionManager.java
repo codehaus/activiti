@@ -13,7 +13,14 @@
 
 package org.activiti.engine.impl.persistence.mgr;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.activiti.engine.impl.Page;
+import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
+import org.activiti.engine.repository.ProcessDefinition;
 
 
 /**
@@ -27,5 +34,26 @@ public class ProcessDefinitionManager extends AbstractManager {
 
   public void deleteProcessDefinitionsByDeploymentId(String deploymentId) {
     getPersistenceSession().delete("deleteProcessDefinitionsByDeploymentId", deploymentId);
+  }
+
+  public ProcessDefinitionEntity findLatestProcessDefinitionById(String processDefinitionId) {
+    return (ProcessDefinitionEntity) getPersistenceSession().selectOne("selectProcessDefinitionById", processDefinitionId);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<ProcessDefinition> findProcessDefinitionsByQueryCriteria(ProcessDefinitionQueryImpl processDefinitionQuery, Page page) {
+    final String query = "selectProcessDefinitionsByQueryCriteria";
+    return getPersistenceSession().selectList(query, processDefinitionQuery, page);
+  }
+
+  public long findProcessDefinitionCountByQueryCriteria(ProcessDefinitionQueryImpl processDefinitionQuery) {
+    return (Long) getPersistenceSession().selectOne("selectProcessDefinitionCountByQueryCriteria", processDefinitionQuery);
+  }
+  
+  public ProcessDefinitionEntity findProcessDefinitionByDeploymentAndKey(String deploymentId, String processDefinitionKey) {
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("deploymentId", deploymentId);
+    parameters.put("processDefinitionKey", processDefinitionKey);
+    return (ProcessDefinitionEntity) getPersistenceSession().selectOne("selectProcessDefinitionByDeploymentAndKey", parameters);
   }
 }

@@ -21,7 +21,6 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.repository.DeploymentEntity;
 import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
-import org.activiti.engine.repository.ProcessDefinition;
 
 
 /**
@@ -37,6 +36,21 @@ public class DeploymentCache {
     for (Deployer deployer: deployers) {
       deployer.deploy(deployment);
     }
+  }
+
+  public ProcessDefinitionEntity findDeployedProcessDefinitionById(String processDefinitionId) {
+    if (processDefinitionId == null) {
+      throw new ActivitiException("Invalid process definition id : null");
+    }
+    ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) Context
+      .getCommandContext()
+      .getProcessDefinitionManager()
+      .findLatestProcessDefinitionById(processDefinitionId);
+    if(processDefinition == null) {
+      throw new ActivitiException("no deployed process definition found with id '" + processDefinitionId + "'");
+    }
+    processDefinition = resolveProcessDefinition(processDefinition);
+    return processDefinition;
   }
 
   public ProcessDefinitionEntity findDeployedLatestProcessDefinitionByKey(String processDefinitionKey) {
@@ -77,6 +91,14 @@ public class DeploymentCache {
 
   public void removeProcessDefinition(String processDefinitionId) {
     processDefinitionCache.remove(processDefinitionId);
+  }
+
+  public void addKnowledgeBase(String knowledgeBaseId, Object knowledgeBase) {
+    knowledgeBaseCache.put(knowledgeBaseId, knowledgeBase);
+  }
+
+  public void removeKnowledgeBase(String knowledgeBaseId) {
+    knowledgeBaseCache.remove(knowledgeBaseId);
   }
 
   // getters and setters //////////////////////////////////////////////////////

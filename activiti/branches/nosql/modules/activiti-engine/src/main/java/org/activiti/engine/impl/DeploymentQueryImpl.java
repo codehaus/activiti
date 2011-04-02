@@ -87,7 +87,7 @@ public class DeploymentQueryImpl extends AbstractQuery<DeploymentQuery, Deployme
   public long executeCount(CommandContext commandContext) {
     checkQueryOk();
     return commandContext
-      .getRepositorySession()
+      .getDeploymentManager()
       .findDeploymentCountByQueryCriteria(this);
   }
 
@@ -95,7 +95,7 @@ public class DeploymentQueryImpl extends AbstractQuery<DeploymentQuery, Deployme
   public List<Deployment> executeList(CommandContext commandContext, Page page) {
     checkQueryOk();
     return commandContext
-      .getRepositorySession()
+      .getDeploymentManager()
       .findDeploymentsByQueryCriteria(this, page);
   }
   
