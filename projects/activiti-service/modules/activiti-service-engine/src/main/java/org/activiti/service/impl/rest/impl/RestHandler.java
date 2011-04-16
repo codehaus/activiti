@@ -13,6 +13,8 @@
 
 package org.activiti.service.impl.rest.impl;
 
+import org.activiti.service.impl.rest.RestRequestContext;
+
 
 
 
@@ -23,7 +25,7 @@ public abstract class RestHandler {
   
   public abstract String getUrlPattern();
 
-  public abstract void handle(RestCall call);
+  public abstract void handle(RestRequestContext restRequestContext);
 
   public abstract HttpServletMethod getMethod();
 }

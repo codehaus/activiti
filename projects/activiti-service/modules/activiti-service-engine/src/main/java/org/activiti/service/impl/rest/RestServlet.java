@@ -30,14 +30,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.activiti.service.impl.persistence.Persistence;
-import org.activiti.service.impl.persistence.entity.User;
+import org.activiti.service.api.Activiti;
+import org.activiti.service.api.model.User;
 import org.activiti.service.impl.rest.handler.TaskHandler;
 import org.activiti.service.impl.rest.handler.TasksHandler;
 import org.activiti.service.impl.rest.impl.BadRequestException;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.Parameter;
-import org.activiti.service.impl.rest.impl.RestCall;
 import org.activiti.service.impl.rest.impl.RestException;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.UrlMatcher;
@@ -52,12 +51,15 @@ public class RestServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static Logger log = Logger.getLogger(RestServlet.class.getName());
 
-  protected static Map<String, RestHandler> staticHandlers = new HashMap<String, RestHandler>();
-  protected static List<UrlMatcher> dynamicHandlers = new ArrayList<UrlMatcher>();
+  protected Map<String, RestHandler> staticHandlers = new HashMap<String, RestHandler>();
+  protected List<UrlMatcher> dynamicHandlers = new ArrayList<UrlMatcher>();
+
+  protected Activiti activiti;
 
   public RestServlet() { 
     register(new TasksHandler());
     register(new TaskHandler());
+    activiti = new Activiti();
   }
 
   public void register(RestHandler handler) {
@@ -69,21 +71,21 @@ public class RestServlet extends HttpServlet {
     }
   }
 
-  public void handle(RestCall restCall) {
-    RestHandler restHandler = getRestHandler(restCall);
-    restHandler.handle(restCall);
+  public void handle(RestRequestContext restRequestContext) {
+    RestHandler restHandler = getRestHandler(restRequestContext);
+    restHandler.handle(restRequestContext);
   }
 
-  private RestHandler getRestHandler(RestCall restCall) {
-    String pathInfo = restCall.getPathInfo();
+  private RestHandler getRestHandler(RestRequestContext restRequestContext) {
+    String pathInfo = restRequestContext.getPathInfo();
     RestHandler restHandler = staticHandlers.get(pathInfo);
     if (restHandler==null) {
       Iterator<UrlMatcher> iter = dynamicHandlers.iterator();
       while (restHandler==null && iter.hasNext()) {
         UrlMatcher urlMatcher = iter.next();
-        Map<String, String> urlVariables = urlMatcher.matches(restCall);
+        Map<String, String> urlVariables = urlMatcher.matches(restRequestContext);
         if (urlVariables!=null) {
-          restCall.setUrlVariables(urlVariables);
+          restRequestContext.setUrlVariables(urlVariables);
           restHandler = urlMatcher.getRestHandler();
         }
       }
@@ -108,9 +110,9 @@ public class RestServlet extends HttpServlet {
       return;
     }
     try {
-      RestCall call = new RestCall(method, request, response);
-      authenticate(call);
-      handle(call);
+      String authenticatedUserId = authenticate(request, response);
+      RestRequestContext restRequestContext = new RestRequestContext(activiti, authenticatedUserId, method, request, response);
+      handle(restRequestContext);
       
     } catch (RestException e) {
       log.log(Level.SEVERE, "exception while processing "+request.getPathInfo()+" : "+e.getMessage(), e);
@@ -118,10 +120,10 @@ public class RestServlet extends HttpServlet {
     }
   }
 
-  protected void authenticate(RestCall call) {
-    String headerText = call.getHttpServletRequest().getHeader("Auth");
+  protected String authenticate(HttpServletRequest request, HttpServletResponse response) {
+    String headerText = request.getHeader("Auth");
     if (headerText==null) {
-      headerText = call.getHttpServletRequest().getHeader("Authorization");
+      headerText = request.getHeader("Authorization");
     }
     if ( headerText!=null 
          && headerText.startsWith("Basic ") 
@@ -133,20 +135,19 @@ public class RestServlet extends HttpServlet {
         String username = decodedHeader.substring(0, colonIndex);
         String password = decodedHeader.substring(colonIndex+1);
         
-        User user = Persistence
+        User user = activiti
           .getUsers()
           .findUser(username);
         
         boolean authenticationOk = password.equals(user.getPassword());
         
         if (authenticationOk) {
-          call.setAuthenticatedUserId(username);
-          return; 
+          return username; 
         }
       }
     }
     
-    call.getHttpServletResponse().setHeader("WWW-Authenticate", "Basic realm=\"Activiti\"");
+    response.setHeader("WWW-Authenticate", "Basic realm=\"Activiti\"");
     throw new RestException(HttpServletResponse.SC_UNAUTHORIZED, "basic authentication required");
   }
 
@@ -227,5 +228,13 @@ public class RestServlet extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+  
+  public Activiti getActiviti() {
+    return activiti;
+  }
+  
+  public void setActiviti(Activiti activiti) {
+    this.activiti = activiti;
   }
 }

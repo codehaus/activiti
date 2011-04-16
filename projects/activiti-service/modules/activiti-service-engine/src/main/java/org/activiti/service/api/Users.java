@@ -11,9 +11,9 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api;
 
-import org.activiti.service.impl.persistence.entity.User;
+import org.activiti.service.api.model.User;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;

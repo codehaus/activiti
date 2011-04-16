@@ -15,6 +15,8 @@ package org.activiti.service.impl.rest.impl;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.service.impl.rest.RestRequestContext;
+
 
 
 /**
@@ -68,14 +70,14 @@ public abstract class Parameter <T> {
   public abstract T convert(String parameterValue);
   public abstract String getTypeDescription();
 
-  public T get(RestCall call) {
+  public T get(RestRequestContext restRequestContext) {
     String textValue = null;
     if (isParameter) {
-      textValue = call
+      textValue = restRequestContext
         .getHttpServletRequest()
         .getParameter(name);
     } else {
-      textValue = call
+      textValue = restRequestContext
         .getUrlVariables()
         .get(name);
     }

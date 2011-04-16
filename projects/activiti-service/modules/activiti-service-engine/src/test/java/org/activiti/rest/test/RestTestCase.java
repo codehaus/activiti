@@ -17,21 +17,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.activiti.service.impl.persistence.Persistence;
-import org.activiti.service.impl.persistence.entity.Task;
-import org.activiti.service.impl.persistence.entity.User;
+import org.activiti.service.api.Activiti;
+import org.activiti.service.api.model.Task;
+import org.activiti.service.api.model.User;
 import org.activiti.service.impl.rest.RestServlet;
 import org.activiti.service.impl.util.IoUtil;
 import org.activiti.service.impl.util.LogUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
  * @author Tom Baeyens
@@ -44,23 +43,25 @@ public class RestTestCase extends TestCase {
   
   private static Logger log = Logger.getLogger(RestTestCase.class.getName());
   
+  static Activiti activiti = new Activiti();
   static int serverPort = 8765;
   static String baseContextUrl = "http://localhost:"+serverPort+"/activiti";
   static Server server = null;
 
   protected String username = "kermit";
   protected String password = "kermit";
-  protected List<String> createdUsers = new ArrayList<String>();
-  protected List<String> createdTaskIds = new ArrayList<String>();
   
   public void setUp() throws Exception {
     super.setUp();
     
     if (server==null) {
-      server = new Server(serverPort);
+      RestServlet servlet = new RestServlet();
       ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
-      servletContextHandler.addServlet(RestServlet.class, "/activiti/*");
+      servletContextHandler.addServlet(new ServletHolder(servlet), "/activiti/*");
+      server = new Server(serverPort);
       server.start();
+      
+      activiti = servlet.getActiviti();
       
       User defaultUser = new User()
         .setUserId(username)
@@ -72,27 +73,25 @@ public class RestTestCase extends TestCase {
   
   protected void tearDown() throws Exception {
     log.info("=== cleaning db at teardown =================================");
-    Persistence.clean();
+    activiti.clean(true);
     
     super.tearDown();
   }
 
   protected void createUser(User user) {
-    Persistence.getUsers().insertUser(user);
-    createdUsers.add(username);
+    activiti.getUsers().insertUser(user);
   }
 
   protected void deleteUser(String userId) {
-    Persistence.getUsers().deleteUser(userId);
+    activiti.getUsers().deleteUser(userId);
   }
 
   protected void createTask(Task task) {
-    Persistence.getTasks().createTask(task);
-    createdTaskIds.add(task.getId());
+    activiti.getTasks().createTask(task);
   }
 
   protected void deleteTask(String taskId) {
-    Persistence.getTasks().deleteTask(taskId);
+    activiti.getTasks().deleteTask(taskId);
   }
 
   

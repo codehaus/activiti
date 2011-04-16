@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.service.impl.persistence.entity.Task;
+import org.activiti.service.api.model.Task;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;

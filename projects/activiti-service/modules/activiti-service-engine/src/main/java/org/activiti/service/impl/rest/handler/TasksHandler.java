@@ -15,10 +15,9 @@ package org.activiti.service.impl.rest.handler;
 
 import java.util.List;
 
-import org.activiti.service.impl.persistence.Persistence;
+import org.activiti.service.impl.rest.RestRequestContext;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.IntegerParameter;
-import org.activiti.service.impl.rest.impl.RestCall;
 import org.activiti.service.impl.rest.impl.RestHandler;
 
 import com.mongodb.DBObject;
@@ -55,13 +54,14 @@ public class TasksHandler extends RestHandler {
     .setMinValue(1)
     .setMaxValue(Integer.MAX_VALUE);
 
-  public void handle(RestCall call) {
+  public void handle(RestRequestContext restRequestContext) {
     // call the activiti api
-    List<DBObject> tasksJson = Persistence
+    List<DBObject> tasksJson = restRequestContext
+      .getActiviti()
       .getTasks()
-      .findTasksJson(call.getAuthenticatedUserId(), firstResult.get(call), maxResults.get(call));
+      .findTasksJson(restRequestContext.getAuthenticatedUserId(), firstResult.get(restRequestContext), maxResults.get(restRequestContext));
     
     // send response
-    call.sendResponse(tasksJson);
+    restRequestContext.sendResponse(tasksJson);
   }
 }

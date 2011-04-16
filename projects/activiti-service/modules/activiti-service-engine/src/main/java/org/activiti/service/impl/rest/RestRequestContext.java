@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.impl;
+package org.activiti.service.impl.rest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,8 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.service.api.Activiti;
+import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.util.json.JSONArray;
 import org.activiti.service.impl.util.json.JSONObject;
 
@@ -30,9 +32,10 @@ import com.mongodb.DBObject;
 /**
  * @author Tom Baeyens
  */
-public class RestCall {
+public class RestRequestContext {
 
-  protected String authenticatedUserId = null;
+  protected Activiti activiti;
+  protected String authenticatedUserId;
   protected List<String> parameterErrors = null;
   protected HttpServletMethod httpServletMethod;
   protected HttpServletRequest httpServletRequest;
@@ -40,7 +43,9 @@ public class RestCall {
   protected Map<String, String> urlVariables;
   protected List<String> choppedPath;
   
-  public RestCall(HttpServletMethod httpServletMethod, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  public RestRequestContext(Activiti activiti, String authenticatedUserId, HttpServletMethod httpServletMethod, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    this.activiti = activiti;
+    this.authenticatedUserId = authenticatedUserId;
     this.httpServletMethod = httpServletMethod;
     this.httpServletRequest = httpServletRequest;
     this.httpServletResponse = httpServletResponse;
@@ -113,11 +118,11 @@ public class RestCall {
     return httpServletResponse;
   }
   
-  public void setAuthenticatedUserId(String authenticatedUserId) {
-    this.authenticatedUserId = authenticatedUserId;
-  }
-  
   public String getAuthenticatedUserId() {
     return authenticatedUserId;
+  }
+  
+  public Activiti getActiviti() {
+    return activiti;
   }
 }

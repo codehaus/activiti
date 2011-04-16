@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence.entity;
+package org.activiti.service.api.model;
 
 import org.bson.types.ObjectId;
 

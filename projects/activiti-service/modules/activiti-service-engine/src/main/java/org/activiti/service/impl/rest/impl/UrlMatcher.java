@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.activiti.service.impl.rest.RestRequestContext;
+
 
 /**
  * @author Tom Baeyens
@@ -38,7 +40,7 @@ public class UrlMatcher {
     }
   }
 
-  public Map<String, String> matches(RestCall request) {
+  public Map<String, String> matches(RestRequestContext request) {
     List<String> requestPieces = request.getChoppedPath();
     if (requestPieces.size()!=urlPartMatchers.size()) {
       return null;

@@ -13,9 +13,8 @@
 
 package org.activiti.service.impl.rest.handler;
 
-import org.activiti.service.impl.persistence.Persistence;
+import org.activiti.service.impl.rest.RestRequestContext;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
-import org.activiti.service.impl.rest.impl.RestCall;
 import org.activiti.service.impl.rest.impl.RestHandler;
 
 import com.mongodb.DBObject;
@@ -40,11 +39,12 @@ public class TaskHandler extends RestHandler {
     .setDescription("the id of the task")
     .setMaxLength(20);
 
-  public void handle(RestCall call) {
-    DBObject taskJson = Persistence
+  public void handle(RestRequestContext restRequestContext) {
+    DBObject taskJson = restRequestContext
+      .getActiviti()
       .getTasks()
-      .findTask(taskId.get(call));
+      .findTask(taskId.get(restRequestContext));
 
-    call.sendResponse(taskJson);
+    restRequestContext.sendResponse(taskJson);
   }
 }

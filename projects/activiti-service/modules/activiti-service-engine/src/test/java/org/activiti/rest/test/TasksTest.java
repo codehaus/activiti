@@ -15,7 +15,7 @@ package org.activiti.rest.test;
 
 import java.util.logging.Logger;
 
-import org.activiti.service.impl.persistence.entity.Task;
+import org.activiti.service.api.model.Task;
 
 
 

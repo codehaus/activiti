@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api;
 
 import java.util.Set;
 import java.util.logging.Logger;
+
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -26,19 +27,23 @@ import com.mongodb.Mongo;
 /**
  * @author Tom Baeyens
  */
-public abstract class Persistence {
+public class Activiti {
   
-  private static Logger log = Logger.getLogger(Persistence.class.getName());
+  private static Logger log = Logger.getLogger(Activiti.class.getName());
 
-  static Mongo mongo = null;
-  static DB db = null;
-  static Users users = null; 
-  static Tasks tasks = null; 
+  protected Mongo mongo = null;
+  protected DB db = null;
+  protected Users users = null; 
+  protected Tasks tasks = null; 
   
-  static {
+  public Activiti() {
+    init();
+  }
+
+  protected void init() {
     try {
       mongo = new Mongo();
-      db = mongo.getDB( "vibes" );
+      db = mongo.getDB( "activiti" );
       users = new Users(db.getCollection("users"));
       tasks = new Tasks(db.getCollection("tasks"));
     } catch (Exception e) {
@@ -46,25 +51,27 @@ public abstract class Persistence {
     }
   }
 
-  public static Users getUsers() {
+  public Users getUsers() {
     return users;
   }
 
-  public static Tasks getTasks() {
+  public Tasks getTasks() {
     return tasks;
   }
 
-  public static void clean() {
-    log.info("cleaning database");
-    Set<String> collectionNames = db.getCollectionNames();
-    for (String collectionName : collectionNames) {
-      log.info(collectionName+" -----------------------");
-      DBCollection collection = db.getCollection(collectionName);
-      DBCursor cursor = collection.find();
-      while (cursor.hasNext()) {
-        DBObject dbObject = cursor.next();
-        log.info("  "+dbObject);
-        collection.remove(dbObject);
+  public void clean(boolean areYouSure) {
+    if (areYouSure) {
+      log.info("cleaning database");
+      Set<String> collectionNames = db.getCollectionNames();
+      for (String collectionName : collectionNames) {
+        log.info(collectionName + " -----------------------");
+        DBCollection collection = db.getCollection(collectionName);
+        DBCursor cursor = collection.find();
+        while (cursor.hasNext()) {
+          DBObject dbObject = cursor.next();
+          log.info("  " + dbObject);
+          collection.remove(dbObject);
+        }
       }
     }
   }
