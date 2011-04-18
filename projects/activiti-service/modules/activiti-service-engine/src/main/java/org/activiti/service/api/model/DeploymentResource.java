@@ -11,25 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.impl;
-
-import org.activiti.service.impl.rest.handler.RestRequestContext;
-
-
+package org.activiti.service.api.model;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RestHandler {
-  
-  public abstract String getUrlPattern();
+public class DeploymentResource {
 
-  public abstract void handle(RestRequestContext restRequestContext);
-
-  public abstract HttpServletMethod getMethod();
-
-  public boolean requiresAuthentication() {
-    return true;
-  }
 }

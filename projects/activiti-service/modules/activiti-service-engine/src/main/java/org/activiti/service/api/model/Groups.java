@@ -11,11 +11,10 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api;
+package org.activiti.service.api.model;
 
-import org.activiti.service.api.model.User;
+import org.activiti.service.api.Activiti;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -23,28 +22,26 @@ import com.mongodb.DBObject;
 /**
  * @author Tom Baeyens
  */
-public class Users {
+public class Groups {
 
-  DBCollection users;
+  protected Activiti activiti;
+  protected DBCollection groups;
 
-  public Users(DBCollection users) {
-    this.users = users;
+  public Groups(Activiti activiti, DBCollection groups) {
+    this.activiti = activiti;
+    this.groups = groups;
   }
 
-  public void insertUser(User user) {
-    users.insert(user.toJson());
+  public void createGroup(Group group) {
+    DBObject taskJson = group.toJson();
+    groups.insert(taskJson);
+    group.setOid(taskJson.get("_id").toString());
   }
 
-  public void deleteUser(String userId) {
-    DBObject query = new BasicDBObject();
-    query.put("userId", userId);
-    users.remove(query);
+  public void deleteGroup(String groupOid) {
+    DBObject query = new Group().setOid(groupOid).toJson();
+    groups.remove(query);
   }
 
-  public User findUser(String userId) {
-    DBObject query = new BasicDBObject();
-    query.put("userId", userId);
-    DBObject userJson = users.findOne(query);
-    return new User(userJson);
-  }
+
 }

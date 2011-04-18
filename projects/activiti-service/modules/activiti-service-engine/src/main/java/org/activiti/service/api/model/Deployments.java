@@ -11,25 +11,20 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.impl;
+package org.activiti.service.api.model;
 
-import org.activiti.service.impl.rest.handler.RestRequestContext;
+import org.activiti.service.impl.persistence.Manager;
 
-
+import com.mongodb.DBCollection;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RestHandler {
-  
-  public abstract String getUrlPattern();
+public class Deployments extends Manager<Deployment> {
 
-  public abstract void handle(RestRequestContext restRequestContext);
-
-  public abstract HttpServletMethod getMethod();
-
-  public boolean requiresAuthentication() {
-    return true;
+  public Deployments(Class<Deployment> persistableType, DBCollection dbCollection) {
+    super(persistableType, dbCollection);
   }
+
 }

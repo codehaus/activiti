@@ -11,26 +11,13 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.handler;
-
-import org.activiti.service.impl.rest.impl.Parameter;
+package org.activiti.service.impl.rest.parameter;
 
 
 /**
  * @author Tom Baeyens
  */
-public class StringParameter extends Parameter<String> {
+public class JsonParameter extends StringParameter {
 
-  public StringParameter() {
-    super(String.class);
-  }
-
-  public String convert(String parameterValue) {
-    return parameterValue;
-  }
-
-  public String getTypeDescription() {
-    return "string";
-  }
-
+  
 }

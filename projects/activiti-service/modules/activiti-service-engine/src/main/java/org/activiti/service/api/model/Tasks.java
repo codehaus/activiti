@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api;
+package org.activiti.service.api.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.service.api.model.Task;
+import org.activiti.service.api.Activiti;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -30,17 +30,18 @@ import com.mongodb.DBObject;
  */
 public class Tasks {
 
-  DBCollection tasks;
+  protected Activiti activiti;
+  protected DBCollection tasks;
 
-  public Tasks(DBCollection tasks) {
+  public Tasks(Activiti activiti, DBCollection tasks) {
+    this.activiti = activiti;
     this.tasks = tasks;
   }
 
   public void createTask(Task task) {
     DBObject taskJson = task.toJson();
     tasks.insert(taskJson);
-    ObjectId objectId = (ObjectId) taskJson.get("_id");
-    task.setId(objectId.toString());
+    task.setOid(taskJson.get("_id").toString());
   }
 
   public void deleteTask(String taskId) {

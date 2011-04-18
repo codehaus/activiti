@@ -15,10 +15,9 @@ package org.activiti.service.impl.rest.handler;
 
 import java.util.List;
 
-import org.activiti.service.impl.rest.RestRequestContext;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
-import org.activiti.service.impl.rest.impl.IntegerParameter;
 import org.activiti.service.impl.rest.impl.RestHandler;
+import org.activiti.service.impl.rest.parameter.IntegerParameter;
 
 import com.mongodb.DBObject;
 

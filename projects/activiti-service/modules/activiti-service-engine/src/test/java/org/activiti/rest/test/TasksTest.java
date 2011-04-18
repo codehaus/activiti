@@ -45,19 +45,19 @@ public class TasksTest extends RestTestCase {
     createTask(taskThree);
 
     log.info("tasks of default user kermit:");
-    log.info(get("/tasks?first=0&max=10"));
+    createRestRequest("/tasks?first=0&max=10").get();
     
     setUser("fozzie", "fozzie", true);
 
     log.info("tasks of default user fozzie:");
-    log.info(get("/tasks?first=0&max=10"));
+    createRestRequest("/tasks?first=0&max=10").get();
     
     setUser("misspiggy", "misspiggy", true);
 
     log.info("tasks of default user misspiggy:");
-    log.info(get("/tasks?first=0&max=10"));
+    createRestRequest("/tasks?first=0&max=10").get();
 
     log.info("task two");
-    log.info(get("/task/"+taskTwo.getId()));
+    createRestRequest("/task/"+taskTwo.getOid()).get();
   }
 }

@@ -11,25 +11,21 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.impl;
+package org.activiti.rest.test;
 
 import org.activiti.service.impl.rest.handler.RestRequestContext;
-
-
+import org.activiti.service.rest.RestServlet;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RestHandler {
-  
-  public abstract String getUrlPattern();
+public class TestRestServlet extends RestServlet {
 
-  public abstract void handle(RestRequestContext restRequestContext);
+  private static final long serialVersionUID = 1L;
 
-  public abstract HttpServletMethod getMethod();
-
-  public boolean requiresAuthentication() {
-    return true;
+  protected void logException(Throwable e, RestRequestContext restRequestContext) {
+    RestTestCase.servletException = e;
+    super.logException(e, restRequestContext);
   }
 }

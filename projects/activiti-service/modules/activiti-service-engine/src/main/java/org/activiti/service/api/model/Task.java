@@ -24,7 +24,7 @@ import com.mongodb.DBObject;
  */
 public class Task {
   
-  String id;
+  String oid;
   String title;
   String description;
   String assignee;
@@ -33,16 +33,16 @@ public class Task {
   }
 
   public Task(DBObject dbObject) {
-    id = dbObject.get("_id").toString();
-    title = (String) dbObject.get("title");
-    description = (String) dbObject.get("description");
-    assignee = (String) dbObject.get("assignee");
+    this.oid = dbObject.get("_id").toString();
+    this.title = (String) dbObject.get("title");
+    this.description = (String) dbObject.get("description");
+    this.assignee = (String) dbObject.get("assignee");
   }
   
   public DBObject toJson() {
     DBObject taskJson = new BasicDBObject();
-    if (id!=null) {
-      taskJson.put("_id", new ObjectId(id));
+    if (oid!=null) {
+      taskJson.put("_id", new ObjectId(oid));
     }
     taskJson.put("title", title);
     if (description!=null) taskJson.put("description", description);
@@ -77,12 +77,12 @@ public class Task {
     return this;
   }
   
-  public String getId() {
-    return id;
+  public String getOid() {
+    return oid;
   }
   
-  public Task setId(String id) {
-    this.id = id;
+  public Task setOid(String oid) {
+    this.oid = oid;
     return this;
   }
 }

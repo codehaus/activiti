@@ -11,7 +11,10 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.impl;
+package org.activiti.service.impl.rest.parameter;
+
+import org.activiti.service.impl.rest.impl.BadRequestException;
+import org.activiti.service.impl.rest.impl.Parameter;
 
 
 public class IntegerParameter extends Parameter<Integer> {

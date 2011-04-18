@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest;
+package org.activiti.service.impl.rest.handler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +43,8 @@ public class RestRequestContext {
   protected Map<String, String> urlVariables;
   protected List<String> choppedPath;
   
-  public RestRequestContext(Activiti activiti, String authenticatedUserId, HttpServletMethod httpServletMethod, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  public RestRequestContext(Activiti activiti, HttpServletMethod httpServletMethod, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     this.activiti = activiti;
-    this.authenticatedUserId = authenticatedUserId;
     this.httpServletMethod = httpServletMethod;
     this.httpServletRequest = httpServletRequest;
     this.httpServletResponse = httpServletResponse;
@@ -55,22 +54,30 @@ public class RestRequestContext {
     // add some nice formatting
     String json = jsonObject.toString();
     String formattedJson = new JSONObject(json).toString(2);
-    sendResponse(formattedJson);
+    sendResponseJsonText(formattedJson);
   }
   
   public void sendResponse(List<DBObject> jsonObjects) {
     // add some nice formatting
     String json = jsonObjects.toString();
     String formattedJson = new JSONArray(json).toString(2);
-    sendResponse(formattedJson);
+    sendResponseJsonText(formattedJson);
   }
 
-  public void sendResponse(String json) {
-    httpServletResponse.setContentType("text/json");
+  public void sendResponseJsonText(String json) {
+    sendResponse("text/json", json);
+  }
+
+  public void sendResponsePlainText(String text) {
+    sendResponse("text/plain", text);
+  }
+
+  public void sendResponse(String mimeType, String text) {
+    httpServletResponse.setContentType(mimeType);
     try {
       httpServletResponse
         .getOutputStream()
-        .println(json);
+        .println(text);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -122,6 +129,10 @@ public class RestRequestContext {
     return authenticatedUserId;
   }
   
+  public void setAuthenticatedUserId(String authenticatedUserId) {
+    this.authenticatedUserId = authenticatedUserId;
+  }
+
   public Activiti getActiviti() {
     return activiti;
   }

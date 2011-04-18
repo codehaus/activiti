@@ -13,40 +13,37 @@
 
 package org.activiti.service.api.model;
 
-import com.mongodb.BasicDBObject;
+import java.util.List;
+
+import org.activiti.service.impl.persistence.Persistable;
+
 import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class User {
+public class User extends Persistable {
 
-  String userId;
+  String id;
   String password;
+  List<String> groupIds;
 
   public User() {
-    super();
   }
 
-  public User(DBObject userJson) {
-    this.userId = (String) userJson.get("userId");
-    this.password = (String) userJson.get("password");
+  public User(DBObject jsonMongo) {
+    super(jsonMongo);
   }
 
-  public DBObject toJson() {
-    BasicDBObject userJson = new BasicDBObject();
-    userJson.put("userId", userId);
-    userJson.put("password", password);
-    return userJson;
-  }
+  // getters and setters //////////////////////////////////////////////////////
 
-  public String getUserId() {
-    return userId;
+  public String getId() {
+    return id;
   }
   
-  public User setUserId(String userId) {
-    this.userId = userId;
+  public User setId(String userId) {
+    this.id = userId;
     return this;
   }
   
@@ -56,6 +53,15 @@ public class User {
   
   public User setPassword(String password) {
     this.password = password;
+    return this;
+  }
+
+  public List<String> getGroupIds() {
+    return groupIds;
+  }
+
+  public User setGroupIds(List<String> groupIds) {
+    this.groupIds = groupIds;
     return this;
   }
 }

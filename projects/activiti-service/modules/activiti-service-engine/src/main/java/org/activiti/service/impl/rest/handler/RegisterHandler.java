@@ -13,38 +13,41 @@
 
 package org.activiti.service.impl.rest.handler;
 
+import org.activiti.service.api.model.Registration;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
+import org.activiti.service.impl.rest.impl.JsonParameter;
+import org.activiti.service.impl.rest.impl.Parameter;
 import org.activiti.service.impl.rest.impl.RestHandler;
-import org.activiti.service.impl.rest.parameter.StringParameter;
-
-import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TaskHandler extends RestHandler {
+public class RegisterHandler extends RestHandler {
+  
+  public boolean requiresAuthentication() {
+    return false;
+  }
 
   public HttpServletMethod getMethod() {
-    return HttpServletMethod.GET;
+    return HttpServletMethod.POST;
   }
 
   public String getUrlPattern() {
-    return "/task/{taskId}";
+    return "/register";
   }
-
-  protected StringParameter taskId = (StringParameter) new StringParameter()
-    .setUrlVariable()
-    .setName("taskId") 
-    .setDescription("the id of the task")
-    .setMaxLength(20);
-
+  
+  protected Parameter<Registration> registrationParameter = new JsonParameter<Registration>(Registration.class)
+    .setName("registration")
+    .setDescription("json registration");
+  
   public void handle(RestRequestContext restRequestContext) {
-    DBObject taskJson = restRequestContext
+    Registration registration = registrationParameter.get(restRequestContext);
+    restRequestContext
       .getActiviti()
-      .getTasks()
-      .findTask(taskId.get(restRequestContext));
-
-    restRequestContext.sendResponse(taskJson);
+      .getRegistrations()
+      .register(registration);
+    
+    restRequestContext.sendResponsePlainText("registration email sent to "+registration.getEmail());
   }
 }

@@ -11,13 +11,31 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.handler;
+package org.activiti.rest.test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.activiti.service.impl.mail.Mail;
+import org.activiti.service.impl.mail.MailService;
 
 
 /**
  * @author Tom Baeyens
  */
-public class AbstractRestHandler {
-
+public class TestMailService extends MailService {
   
+  List<Mail> mails = new ArrayList<Mail>();
+
+  public Mail newMail() {
+    return new Mail(this) {
+      public void send() {
+        mails.add(this);
+      }
+    };
+  }
+
+  public List<Mail> getMails() {
+    return mails;
+  }
 }

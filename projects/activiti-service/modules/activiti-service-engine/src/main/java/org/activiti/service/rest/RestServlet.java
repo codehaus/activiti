@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.activiti.service.impl.rest;
+package org.activiti.service.rest;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,7 +31,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.service.api.Activiti;
+import org.activiti.service.api.ActivitiConfiguration;
+import org.activiti.service.api.ActivitiException;
 import org.activiti.service.api.model.User;
+import org.activiti.service.impl.rest.handler.HelpHandler;
+import org.activiti.service.impl.rest.handler.RegisterHandler;
+import org.activiti.service.impl.rest.handler.RestRequestContext;
 import org.activiti.service.impl.rest.handler.TaskHandler;
 import org.activiti.service.impl.rest.handler.TasksHandler;
 import org.activiti.service.impl.rest.impl.BadRequestException;
@@ -57,9 +62,11 @@ public class RestServlet extends HttpServlet {
   protected Activiti activiti;
 
   public RestServlet() { 
+    register(new HelpHandler(this));
+    register(new RegisterHandler());
     register(new TasksHandler());
     register(new TaskHandler());
-    activiti = new Activiti();
+    activiti = new ActivitiConfiguration().buildActiviti();
   }
 
   public void register(RestHandler handler) {
@@ -69,11 +76,6 @@ public class RestServlet extends HttpServlet {
     } else {
       dynamicHandlers.add(new UrlMatcher(handler));
     }
-  }
-
-  public void handle(RestRequestContext restRequestContext) {
-    RestHandler restHandler = getRestHandler(restRequestContext);
-    restHandler.handle(restRequestContext);
   }
 
   private RestHandler getRestHandler(RestRequestContext restRequestContext) {
@@ -105,25 +107,38 @@ public class RestServlet extends HttpServlet {
   }
 
   protected void authenticateAndHandle(HttpServletMethod method, HttpServletRequest request, HttpServletResponse response) {
-    if ("/help".equals(request.getPathInfo())) {
-      sendHelp(response);
-      return;
-    }
+    RestRequestContext restRequestContext = new RestRequestContext(activiti, method, request, response);
     try {
-      String authenticatedUserId = authenticate(request, response);
-      RestRequestContext restRequestContext = new RestRequestContext(activiti, authenticatedUserId, method, request, response);
-      handle(restRequestContext);
-      
+      RestHandler restHandler = getRestHandler(restRequestContext);
+      if (restHandler.requiresAuthentication()) {
+        authenticate(restRequestContext);
+      }
+      restHandler.handle(restRequestContext);
+
     } catch (RestException e) {
-      log.log(Level.SEVERE, "exception while processing "+request.getPathInfo()+" : "+e.getMessage(), e);
-      sendError(response, e.getResponseCode(), e.getMessage());
+      logException(e, restRequestContext);
+      try {
+        restRequestContext.getHttpServletResponse().sendError(e.getResponseCode(), e.getMessage());
+      } catch (Exception e1) {
+        log.log(Level.SEVERE, "problem while sending error", e);
+      }
+      throw e;
+      
+    } catch (Throwable e) {
+      logException(e, restRequestContext);
+      throw new ActivitiException("rest exception", e);
     }
   }
 
-  protected String authenticate(HttpServletRequest request, HttpServletResponse response) {
-    String headerText = request.getHeader("Auth");
+  protected void logException(Throwable e, RestRequestContext restRequestContext) {
+    log.log(Level.SEVERE, "exception while processing "+restRequestContext.getHttpServletRequest().getPathInfo()+" : "+e.getMessage(), e);
+  }
+
+  protected void authenticate(RestRequestContext restRequestContext) {
+    HttpServletRequest httpServletRequest = restRequestContext.getHttpServletRequest();
+    String headerText = httpServletRequest.getHeader("Auth");
     if (headerText==null) {
-      headerText = request.getHeader("Authorization");
+      headerText = httpServletRequest.getHeader("Authorization");
     }
     if ( headerText!=null 
          && headerText.startsWith("Basic ") 
@@ -142,21 +157,14 @@ public class RestServlet extends HttpServlet {
         boolean authenticationOk = password.equals(user.getPassword());
         
         if (authenticationOk) {
-          return username; 
+           restRequestContext.setAuthenticatedUserId(username);
+           return;
         }
       }
     }
     
-    response.setHeader("WWW-Authenticate", "Basic realm=\"Activiti\"");
+    restRequestContext.getHttpServletResponse().setHeader("WWW-Authenticate", "Basic realm=\"Activiti\"");
     throw new RestException(HttpServletResponse.SC_UNAUTHORIZED, "basic authentication required");
-  }
-
-  protected void sendError(HttpServletResponse response, int responseCode, String errorMessage) {
-    try {
-      response.sendError(responseCode, errorMessage);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   protected void sendHelp(HttpServletResponse response) {
@@ -236,5 +244,15 @@ public class RestServlet extends HttpServlet {
   
   public void setActiviti(Activiti activiti) {
     this.activiti = activiti;
+  }
+
+  
+  public Map<String, RestHandler> getStaticHandlers() {
+    return staticHandlers;
+  }
+
+  
+  public List<UrlMatcher> getDynamicHandlers() {
+    return dynamicHandlers;
   }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.activiti.service.impl.rest.RestRequestContext;
+import org.activiti.service.impl.rest.handler.RestRequestContext;
 
 
 /**

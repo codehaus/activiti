@@ -11,25 +11,33 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.impl;
+package org.activiti.service.api.model;
 
-import org.activiti.service.impl.rest.handler.RestRequestContext;
+import org.activiti.service.impl.persistence.Persistable;
 
-
+import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RestHandler {
+public class Deployment extends Persistable {
+
+  String name;
   
-  public abstract String getUrlPattern();
+  public Deployment() {
+  }
 
-  public abstract void handle(RestRequestContext restRequestContext);
+  public Deployment(DBObject dbObject) {
+    super(dbObject);
+  }
 
-  public abstract HttpServletMethod getMethod();
-
-  public boolean requiresAuthentication() {
-    return true;
+  public String getName() {
+    return name;
+  }
+  
+  public Deployment setName(String name) {
+    this.name = name;
+    return this;
   }
 }
