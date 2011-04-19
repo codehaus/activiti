@@ -62,7 +62,7 @@ public class Activiti {
     if (manager==null) {
       try {
         String managerTypeName = managerType.getName();
-        String collectionName = ClassNameUtil.getClassNameWithoutPackage(managerType);
+        String collectionName = ClassNameUtil.getClassNameWithoutPackage(managerType).toLowerCase();
         String persistableClassName = managerTypeName.substring(0, managerTypeName.length()-1);
         Class<?> persistableClass = Class.forName(persistableClassName, true, Activiti.class.getClassLoader());
         DBCollection dbCollection = db.getCollection(collectionName);
@@ -104,6 +104,9 @@ public class Activiti {
           DBObject dbObject = cursor.next();
           log.info("  " + dbObject);
           collection.remove(dbObject);
+        }
+        if (!collectionName.startsWith("system.")) {
+          collection.drop();
         }
       }
     }

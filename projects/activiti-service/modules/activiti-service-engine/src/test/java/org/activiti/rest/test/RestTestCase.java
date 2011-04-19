@@ -37,11 +37,12 @@ public class RestTestCase extends TestCase {
   
   private static Logger log = Logger.getLogger(RestTestCase.class.getName());
   
-  static Activiti activiti = null;
+  protected static Activiti activiti = null;
+  protected static TestMailService testMailService = new TestMailService();
+
   static int serverPort = 8765;
   static String baseContextUrl = "http://localhost:"+serverPort+"/rest";
   static Server server = null;
-  static TestMailService testMailService = new TestMailService();
   static Throwable servletException = null;
 
   protected String username = "kermit";
@@ -50,7 +51,7 @@ public class RestTestCase extends TestCase {
   public void setUp() throws Exception {
     super.setUp();
     
-    if (server==null) {
+    if (activiti==null) {
       RestServlet restServlet = new TestRestServlet();
       server = new Server(serverPort);
       ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
@@ -61,13 +62,12 @@ public class RestTestCase extends TestCase {
       activiti
         .getActivitiConfiguration()
         .setMailService(testMailService);
-      
-      User defaultUser = new User()
-        .setId(username)
-        .setPassword(password);
-      
-      createUser(defaultUser);
     }
+    
+    User defaultUser = new User()
+      .setId(username)
+      .setPassword(password);
+    createUser(defaultUser);
     
     servletException = null;
     testMailService.getMails().clear();

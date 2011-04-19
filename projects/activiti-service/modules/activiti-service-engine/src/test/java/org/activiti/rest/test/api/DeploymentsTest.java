@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test;
+package org.activiti.rest.test.api;
 
 import java.util.List;
 
+import org.activiti.rest.test.RestTestCase;
 import org.activiti.service.api.model.Deployment;
 import org.activiti.service.api.model.Deployments;
 
@@ -36,7 +37,7 @@ public class DeploymentsTest extends RestTestCase {
     deployments.update(deployment);
 
     Deployment example = new Deployment()
-    .setName("by.bar");
+      .setName("by.jar");
   
     List<Deployment> fetched = deployments.findByExample(example);
     assertEquals(1, fetched.size());

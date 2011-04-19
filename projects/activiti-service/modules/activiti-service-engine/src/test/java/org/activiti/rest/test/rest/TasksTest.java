@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test;
+package org.activiti.rest.test.rest;
 
 import java.util.logging.Logger;
 
+import org.activiti.rest.test.RestTestCase;
 import org.activiti.service.api.model.Task;
 
 

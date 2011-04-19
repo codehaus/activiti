@@ -74,30 +74,35 @@ public class Persistable {
   public DBObject toJsonMongo() {
     BasicDBObject dbObject = new BasicDBObject();
     try {
-      for (Field field: getClass().getDeclaredFields()) {
-        field.setAccessible(true);
-        Object value = field.get(this);
-        if (value!=null) {
-          if (field.getName().equals("oid")) {
-            dbObject.put("_id", new ObjectId((String)value));
-          } else {
-            if (String.class.isAssignableFrom(field.getType())) {
-              dbObject.put(field.getName(), value);
-
-            } else if (List.class.isAssignableFrom(field.getType())) {
-              BasicDBList dbList = (BasicDBList) new BasicDBList();
-              for (String element: (List<String>)value) {
-                if (element instanceof String) {
-                  dbList.add(element);
-                }
-              }
-              dbObject.put(field.getName(), dbList);
-              
+      Class<?> persistentClass = getClass();
+      while (persistentClass!=null) {
+        for (Field field: getClass().getDeclaredFields()) {
+          field.setAccessible(true);
+          Object value = field.get(this);
+          if (value!=null) {
+            if (field.getName().equals("oid")) {
+              dbObject.put("_id", new ObjectId((String)value));
             } else {
-              throw new ActivitiException("unsupported field type "+field.getType().getName());
+              if (String.class.isAssignableFrom(field.getType())) {
+                dbObject.put(field.getName(), value);
+
+              } else if (List.class.isAssignableFrom(field.getType())) {
+                BasicDBList dbList = (BasicDBList) new BasicDBList();
+                for (String element: (List<String>)value) {
+                  if (element instanceof String) {
+                    dbList.add(element);
+                  }
+                }
+                dbObject.put(field.getName(), dbList);
+                
+              } else {
+                throw new ActivitiException("unsupported field type "+field.getType().getName());
+              }
             }
           }
         }
+
+        persistentClass = persistentClass.getSuperclass();
       }
       
       return dbObject;
