@@ -13,52 +13,20 @@
 
 package org.activiti.service.api.model;
 
-import org.bson.types.ObjectId;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
+import org.activiti.service.impl.persistence.Persistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Group {
+public class Group extends Persistable {
 
-  String oid;
   String id;
   String name;
 
   public Group() {
   }
 
-  public Group(DBObject userJson) {
-    this.oid = (String) userJson.get("_id").toString();
-    this.id = (String) userJson.get("id");
-    this.name = (String) userJson.get("name");
-  }
-
-  public DBObject toJson() {
-    BasicDBObject oid = new BasicDBObject();
-    if (id!=null) {
-      oid.put("_id", new ObjectId(id));
-    }
-    oid.put("id", id);
-    oid.put("name", name);
-    return oid;
-  }
-
-  
-  public String getOid() {
-    return oid;
-  }
-
-  
-  public Group setOid(String oid) {
-    this.oid = oid;
-    return this;
-  }
-
-  
   public String getId() {
     return id;
   }

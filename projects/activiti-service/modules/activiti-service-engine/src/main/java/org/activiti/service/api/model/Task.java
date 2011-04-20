@@ -15,8 +15,6 @@ package org.activiti.service.api.model;
 
 import org.activiti.service.impl.persistence.Persistable;
 
-import com.mongodb.DBObject;
-
 
 /**
  * @author Tom Baeyens
@@ -26,14 +24,6 @@ public class Task extends Persistable {
   String title;
   String description;
   String assignee;
-
-  public Task() {
-    super();
-  }
-
-  public Task(DBObject dbObject) {
-    super(dbObject);
-  }
 
   public String getTitle() {
     return title;

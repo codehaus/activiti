@@ -28,19 +28,28 @@ public class Persistable {
   
   protected String oid;
 
-  public Persistable() {
-  }
-  
-  public Persistable(DBObject dbObject) {
+  public void setJson(DBObject dbObject) {
     classMappers
       .get(getClass())
-      .set(this, dbObject);
+      .setJson(this, dbObject);
   }
   
-  public DBObject toJson() {
+  public DBObject getJson() {
     return classMappers
       .get(getClass())
-      .get(this);
+      .getJson(this);
+  }
+  
+  public void setJsonText(String jsonText) {
+    classMappers
+      .get(getClass())
+      .setJsonText(this, jsonText);
+  }
+
+  public String getJsonText() {
+    return classMappers
+      .get(getClass())
+      .getJsonText(this);
   }
 
   public String getOid() {

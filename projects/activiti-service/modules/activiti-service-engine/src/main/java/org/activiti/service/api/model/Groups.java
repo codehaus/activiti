@@ -14,34 +14,18 @@
 package org.activiti.service.api.model;
 
 import org.activiti.service.api.Activiti;
+import org.activiti.service.impl.persistence.Manager;
 
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Groups {
+public class Groups extends Manager<Group>{
 
-  protected Activiti activiti;
-  protected DBCollection groups;
-
-  public Groups(Activiti activiti, DBCollection groups) {
-    this.activiti = activiti;
-    this.groups = groups;
+  public Groups(Activiti activiti, Class<Group> persistableType, DBCollection dbCollection) {
+    super(activiti, persistableType, dbCollection);
   }
-
-  public void createGroup(Group group) {
-    DBObject taskJson = group.toJson();
-    groups.insert(taskJson);
-    group.setOid(taskJson.get("_id").toString());
-  }
-
-  public void deleteGroup(String groupOid) {
-    DBObject query = new Group().setOid(groupOid).toJson();
-    groups.remove(query);
-  }
-
 
 }

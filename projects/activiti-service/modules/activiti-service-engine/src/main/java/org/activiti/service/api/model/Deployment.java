@@ -15,8 +15,6 @@ package org.activiti.service.api.model;
 
 import org.activiti.service.impl.persistence.Persistable;
 
-import com.mongodb.DBObject;
-
 
 /**
  * @author Tom Baeyens
@@ -25,13 +23,6 @@ public class Deployment extends Persistable {
 
   String name;
   
-  public Deployment() {
-  }
-
-  public Deployment(DBObject dbObject) {
-    super(dbObject);
-  }
-
   public String getName() {
     return name;
   }

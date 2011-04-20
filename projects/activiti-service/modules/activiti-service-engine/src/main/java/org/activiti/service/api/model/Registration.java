@@ -14,9 +14,6 @@
 package org.activiti.service.api.model;
 
 import org.activiti.service.impl.persistence.Persistable;
-import org.activiti.service.impl.util.json.JSONObject;
-
-import com.mongodb.DBObject;
 
 
 /**
@@ -29,27 +26,6 @@ public class Registration extends Persistable {
   protected String email;
   protected String url;
   protected String clientIp;
-
-  public Registration() {
-    super();
-  }
-
-  public Registration(DBObject dbObject) {
-    super(dbObject);
-  }
-
-  public Registration(String jsonText) {
-    JSONObject jsonObject = new JSONObject(jsonText);
-    if (jsonObject.has("_id")) {
-      JSONObject objectId = (JSONObject) jsonObject.get("_id");
-      oid = objectId.get("$oid").toString();
-    }
-    userId = (String) jsonObject.get("userId");
-    password = (String) jsonObject.get("password");
-    email = (String) jsonObject.get("email");
-    url = (String) jsonObject.get("url");
-    clientIp = (String) jsonObject.get("clientIp");
-  }
 
   public String getUserId() {
     return userId;

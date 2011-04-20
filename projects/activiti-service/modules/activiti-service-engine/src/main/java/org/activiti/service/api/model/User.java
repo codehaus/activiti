@@ -17,8 +17,6 @@ import java.util.List;
 
 import org.activiti.service.impl.persistence.Persistable;
 
-import com.mongodb.DBObject;
-
 
 /**
  * @author Tom Baeyens
@@ -28,13 +26,6 @@ public class User extends Persistable {
   String id;
   String password;
   List<String> groupIds;
-
-  public User() {
-  }
-
-  public User(DBObject jsonMongo) {
-    super(jsonMongo);
-  }
 
   // getters and setters //////////////////////////////////////////////////////
 

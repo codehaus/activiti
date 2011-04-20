@@ -17,7 +17,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.util.json.JSONArray;
+import org.activiti.service.impl.util.json.JSONObject;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
@@ -34,33 +35,49 @@ public class ListFieldMapper extends FieldMapper {
 
   @SuppressWarnings("unchecked")
   public void get(DBObject dbObject, Persistable persistable) {
-    try {
-      List<String> value = (List<String>) field.get(persistable);
-      if (value!=null) {
-        BasicDBList dbList = (BasicDBList) new BasicDBList();
-        for (String element: (List<String>)value) {
-          if (element instanceof String) {
-            dbList.add(element);
-          }
+    List<String> value = (List<String>) getValueFromField(persistable);
+    if (value!=null) {
+      BasicDBList dbList = new BasicDBList();
+      for (String element: (List<String>)value) {
+        if (element instanceof String) {
+          dbList.add(element);
         }
-        dbObject.put(field.getName(), dbList);
       }
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
+      dbObject.put(field.getName(), dbList);
     }
   }
 
   @SuppressWarnings("unchecked")
   public void set(DBObject dbObject, Persistable persistable) {
-    try {
-      BasicDBList dbList = (BasicDBList) dbObject.get(field.getName());
-      if (dbList!=null) {
-        Object value = new ArrayList<String>((List)dbList);
-        field.set(persistable, value);
-      }
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
+    BasicDBList dbList = (BasicDBList) dbObject.get(field.getName());
+    if (dbList!=null) {
+      Object value = new ArrayList<String>((List)dbList);
+      setValueInField(persistable, value);
     }
   }
 
+  @SuppressWarnings("unchecked")
+  public void get(JSONObject jsonObject, Persistable persistable) {
+    List<String> value = (List<String>) getValueFromField(persistable);
+    if (value!=null) {
+      JSONArray jsonArray = new JSONArray();
+      for (String element: (List<String>) value) {
+        if (element instanceof String) {
+          jsonArray.put(element);
+        }
+      }
+      jsonObject.put(field.getName(), jsonArray);
+    }
+  }
+
+  public void set(JSONObject jsonObject, Persistable persistable) {
+    JSONArray jsonArray = (JSONArray) jsonObject.get(field.getName());
+    if (jsonArray!=null) {
+      List<String> value = new ArrayList<String>();
+      for (int i=0; i<jsonArray.length(); i++) {
+        value.add((String)jsonArray.get(i));
+      }
+      setValueInField(persistable, value);
+    }
+  }
 }

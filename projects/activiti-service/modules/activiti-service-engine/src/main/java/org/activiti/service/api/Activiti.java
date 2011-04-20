@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.activiti.service.api.model.Groups;
 import org.activiti.service.impl.persistence.Manager;
 import org.activiti.service.impl.util.ClassNameUtil;
 
@@ -40,8 +39,6 @@ public class Activiti {
   protected ActivitiConfiguration activitiConfiguration;
   protected Mongo mongo = null;
   protected DB db = null;
-  
-  protected Groups groups = null; 
   
   protected Map<Class<?>, Manager<?>> managers = new HashMap<Class<?>, Manager<?>>();
   
@@ -75,8 +72,6 @@ public class Activiti {
     try {
       mongo = new Mongo();
       db = mongo.getDB(activitiConfiguration.getDatabaseName());
-      
-      groups = new Groups(this, db.getCollection("groups"));
       
     } catch (Exception e) {
       throw new RuntimeException("couldn't open mongodb connection: "+e.getMessage(), e);
@@ -121,9 +116,5 @@ public class Activiti {
 
   public ActivitiConfiguration getActivitiConfiguration() {
     return activitiConfiguration;
-  }
-
-  public Groups getGroups() {
-    return groups;
   }
 }

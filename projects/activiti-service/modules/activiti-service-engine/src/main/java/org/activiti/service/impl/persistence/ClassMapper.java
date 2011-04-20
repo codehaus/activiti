@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.util.json.JSONObject;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -62,7 +63,7 @@ public class ClassMapper {
     }
   }
 
-  public void set(Persistable persistable, DBObject dbObject) {
+  public void setJson(Persistable persistable, DBObject dbObject) {
     ObjectId objectId = (ObjectId) dbObject.get("_id");
     if (objectId != null) {
       persistable.setOid(objectId.toString());
@@ -73,7 +74,21 @@ public class ClassMapper {
     }
   }
 
-  public DBObject get(Persistable persistable) {
+  public void setJsonText(Persistable persistable, String jsonText) {
+    JSONObject jsonObject = new JSONObject(jsonText);
+
+    if (jsonObject.has("_id")) {
+      JSONObject objectId = (JSONObject) jsonObject.get("_id");
+      String oid = (String) objectId.get("$oid");
+      persistable.setOid(oid);
+    }
+
+    for (FieldMapper fieldMapper: fieldMappers) {
+      fieldMapper.set(jsonObject, persistable);
+    }
+  }
+
+  public DBObject getJson(Persistable persistable) {
     BasicDBObject dbObject = new BasicDBObject();
 
     String oid = persistable.getOid();
@@ -86,5 +101,26 @@ public class ClassMapper {
     }
     
     return dbObject;
+  }
+
+  public String getJsonText(Persistable persistable) {
+    return getJsonText(persistable, -1);
+  }
+
+  public String getJsonText(Persistable persistable, int indent) {
+    JSONObject jsonObject = new JSONObject();
+
+    String oid = persistable.getOid();
+    if (oid!=null) {
+      JSONObject objectId = new JSONObject();
+      objectId.put("$oid", oid);
+      jsonObject.put("_id", new ObjectId(oid));
+    }
+      
+    for (FieldMapper fieldMapper: fieldMappers) {
+      fieldMapper.get(jsonObject, persistable);
+    }
+    
+    return (indent<1 ? jsonObject.toString(indent) : jsonObject.toString());
   }
 }

@@ -38,7 +38,9 @@ public class Tasks extends Manager<Task> {
   public List<Task> findTasks(String assignee, Integer firstResult, Integer maxResults) {
     List<Task> tasks = new ArrayList<Task>();
     for (DBObject taskJson: findTasksJson(assignee, firstResult, maxResults)) {
-      tasks.add(new Task(taskJson));
+      Task task = new Task();
+      task.setJson(taskJson);
+      tasks.add(task);
     }
     return tasks;
   }

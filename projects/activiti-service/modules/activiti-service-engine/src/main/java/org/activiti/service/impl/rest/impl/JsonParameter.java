@@ -13,15 +13,14 @@
 
 package org.activiti.service.impl.rest.impl;
 
-import java.lang.reflect.Constructor;
-
 import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.persistence.Persistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class JsonParameter <T> extends Parameter <T> {
+public class JsonParameter <T extends Persistable> extends Parameter <T> {
 
   public JsonParameter(Class<T> type) {
     super(type);
@@ -29,8 +28,8 @@ public class JsonParameter <T> extends Parameter <T> {
 
   public T convert(String parameterValue) {
     try {
-      Constructor<T> constructor = type.getDeclaredConstructor(String.class);
-      T object = constructor.newInstance(new Object[]{parameterValue});
+      T object = type.newInstance();
+      object.setJsonText(parameterValue);
       return object;
     } catch (Exception e) {
       throw new ActivitiException("couldn't create "+type.getName()+" based on json "+parameterValue, e);

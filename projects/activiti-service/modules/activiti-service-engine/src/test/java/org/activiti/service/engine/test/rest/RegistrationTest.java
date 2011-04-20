@@ -38,7 +38,7 @@ public class RegistrationTest extends RestTestCase {
     registration.setUrl("/item?id=928374");
     
     String registrationResponseContent = createRestRequest("/register")
-      .post("registration="+registration.toJson().toString())
+      .post("registration="+registration.getJson().toString())
       .getContent();
     
     assertEquals("registration email sent to johndoe@johndoe.kom", registrationResponseContent.trim());

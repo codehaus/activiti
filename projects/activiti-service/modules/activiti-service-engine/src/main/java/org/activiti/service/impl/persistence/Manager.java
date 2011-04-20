@@ -13,7 +13,6 @@
 
 package org.activiti.service.impl.persistence;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class Manager <T extends Persistable> {
   }
 
   public String insert(T persistable) {
-    DBObject jsonMongo = persistable.toJson();
+    DBObject jsonMongo = persistable.getJson();
     dbCollection.insert(jsonMongo);
     String oid = jsonMongo.get("_id").toString();
     persistable.setOid(oid);
@@ -53,25 +52,25 @@ public class Manager <T extends Persistable> {
   }
   
   public void delete(T persistable) {
-    DBObject jsonMongo = persistable.toJson();
+    DBObject jsonMongo = persistable.getJson();
     dbCollection.remove(jsonMongo);
   }
 
   public void update(T persistable) {
     DBObject query = new BasicDBObject("_id", new ObjectId(persistable.getOid()));
-    DBObject jsonMongo = persistable.toJson();
+    DBObject jsonMongo = persistable.getJson();
     dbCollection.update(query, jsonMongo);
   }
 
   public List<T> findAllByExample(T example) {
     List<T> persistables = new ArrayList<T>();
-    DBObject jsonMongo = example.toJson();
+    DBObject jsonMongo = example.getJson();
     DBCursor dbCursor = dbCollection.find(jsonMongo);
     while (dbCursor.hasNext()) {
       try {
         DBObject dbObject = dbCursor.next();
-        Constructor<T> constructor = persistableType.getDeclaredConstructor(DBObject.class);
-        T persistable = constructor.newInstance(new Object[]{dbObject});
+        T persistable = persistableType.newInstance();
+        persistable.setJson(dbObject);
         persistables.add(persistable);
       } catch (Exception e) {
         throw new ActivitiException("persistence reflection problem", e);
@@ -81,7 +80,7 @@ public class Manager <T extends Persistable> {
   }
   
   public T findOneByExample(T example) {
-    DBObject jsonMongo = example.toJson();
+    DBObject jsonMongo = example.getJson();
     return findOneJsonByExampleJson(jsonMongo);
   }
 
@@ -96,8 +95,8 @@ public class Manager <T extends Persistable> {
     DBObject dbObject = dbCollection.findOne(jsonMongo);
     if (dbObject!=null) {
       try {
-        Constructor<T> constructor = persistableType.getDeclaredConstructor(DBObject.class);
-        persistable = constructor.newInstance(new Object[]{dbObject});
+        persistable = persistableType.newInstance();
+        persistable.setJson(dbObject);
       } catch (Exception e) {
         throw new ActivitiException("persistence reflection problem", e);
       }
