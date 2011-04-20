@@ -50,11 +50,11 @@ public class ClassMapper {
             fieldMapper = new StringFieldMapper(field);
 
           } else if (List.class.isAssignableFrom(field.getType())) {
-            PersistentCollection persistentCollection = field.getAnnotation(PersistentCollection.class);
-            if (persistentCollection==null) {
+            PersistentList persistentList = field.getAnnotation(PersistentList.class);
+            if (persistentList==null) {
               throw new ActivitiException("collection "+field+" doesn't have the PersistentCollection annotation");
             }
-            Class<?> elementType = persistentCollection.type();
+            Class<?> elementType = persistentList.type();
             if (String.class.isAssignableFrom(elementType)) {
               fieldMapper = new ListStringFieldMapper(field);
             } else {

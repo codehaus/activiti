@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
  * @author Tom Baeyens
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PersistentCollection {
+public @interface PersistentList {
 
   Class<?> type();
 }

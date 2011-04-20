@@ -25,7 +25,7 @@ import com.mongodb.DBObject;
  * @author Tom Baeyens
  */
 public abstract class ListFieldMapper extends FieldMapper {
-
+  
   public ListFieldMapper(Field field) {
     super(field);
   }

@@ -49,7 +49,11 @@ public class Persistable {
   public String getJsonText() {
     return JSON.serialize(getJson());
   }
-  
+
+  public String getJsonTextPrettyPrint() {
+    return JsonPrettyPrinter.toJsonPrettyPrint(getJson());
+  }
+
   public String toString() {
     return getJsonText();
   }

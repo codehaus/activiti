@@ -46,6 +46,6 @@ public class CasesTest extends ActivitiTestCase {
       .getManager(Cazes.class)
       .findOneByOid(caze.getOid());
     
-    log.fine(caze.toString());
+    log.fine(caze.getJsonTextPrettyPrint());
   }
 }

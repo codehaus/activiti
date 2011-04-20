@@ -16,7 +16,7 @@ package org.activiti.service.api.model;
 import java.util.List;
 
 import org.activiti.service.impl.persistence.Persistable;
-import org.activiti.service.impl.persistence.PersistentCollection;
+import org.activiti.service.impl.persistence.PersistentList;
 
 
 /**
@@ -27,7 +27,7 @@ public class User extends Persistable {
   String id;
   String password;
   
-  @PersistentCollection(type=String.class)
+  @PersistentList(type=String.class)
   List<String> groupIds;
 
   // getters and setters //////////////////////////////////////////////////////
