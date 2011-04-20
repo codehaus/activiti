@@ -13,18 +13,42 @@
 
 package org.activiti.service.api.model;
 
-import org.activiti.service.api.Activiti;
-import org.activiti.service.impl.persistence.Manager;
-
-import com.mongodb.DBCollection;
+import org.activiti.service.impl.persistence.Persistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Deployments extends Manager<Deployment> {
+public class Caze extends Persistable {
+  
+  String title;
+  String description;
+  String assignee;
 
-  public Deployments(Activiti activiti, Class<Deployment> persistableType, DBCollection dbCollection) {
-    super(activiti, persistableType, dbCollection);
+  public String getTitle() {
+    return title;
+  }
+  
+  public Caze setTitle(String title) {
+    this.title = title;
+    return this;
+  }
+  
+  public String getDescription() {
+    return description;
+  }
+  
+  public Caze setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+  
+  public String getAssignee() {
+    return assignee;
+  }
+  
+  public Caze setAssignee(String assignee) {
+    this.assignee = assignee;
+    return this;
   }
 }

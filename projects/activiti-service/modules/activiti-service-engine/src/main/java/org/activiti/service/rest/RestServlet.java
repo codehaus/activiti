@@ -34,8 +34,8 @@ import org.activiti.service.api.model.Users;
 import org.activiti.service.impl.rest.handler.HelpHandler;
 import org.activiti.service.impl.rest.handler.RegisterHandler;
 import org.activiti.service.impl.rest.handler.RestRequestContext;
-import org.activiti.service.impl.rest.handler.TaskHandler;
-import org.activiti.service.impl.rest.handler.TasksHandler;
+import org.activiti.service.impl.rest.handler.CazeHandler;
+import org.activiti.service.impl.rest.handler.CazesHandler;
 import org.activiti.service.impl.rest.impl.BadRequestException;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestException;
@@ -60,8 +60,8 @@ public class RestServlet extends HttpServlet {
   public RestServlet() { 
     register(new HelpHandler(this));
     register(new RegisterHandler());
-    register(new TasksHandler());
-    register(new TaskHandler());
+    register(new CazesHandler());
+    register(new CazeHandler());
     activiti = new ActivitiConfiguration().buildActiviti();
   }
 

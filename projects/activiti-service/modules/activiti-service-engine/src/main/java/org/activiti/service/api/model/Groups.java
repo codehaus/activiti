@@ -13,19 +13,12 @@
 
 package org.activiti.service.api.model;
 
-import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.persistence.Manager;
-
-import com.mongodb.DBCollection;
 
 
 /**
  * @author Tom Baeyens
  */
 public class Groups extends Manager<Group>{
-
-  public Groups(Activiti activiti, Class<Group> persistableType, DBCollection dbCollection) {
-    super(activiti, persistableType, dbCollection);
-  }
 
 }

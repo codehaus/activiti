@@ -15,18 +15,17 @@ package org.activiti.service.impl.rest.handler;
 
 import java.util.List;
 
-import org.activiti.service.api.model.Tasks;
+import org.activiti.service.api.model.Caze;
+import org.activiti.service.api.model.Cazes;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.parameter.IntegerParameter;
-
-import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TasksHandler extends RestHandler {
+public class CazesHandler extends RestHandler {
   
   // private static Logger log = Logger.getLogger(TasksHandler.class.getName());
   
@@ -35,10 +34,10 @@ public class TasksHandler extends RestHandler {
   }
   
   public String getUrlPattern() {
-    return "/tasks";
+    return "/cases";
   }
 
-  protected IntegerParameter firstResult = new IntegerParameter()
+  protected IntegerParameter firstResultParameter = new IntegerParameter()
     .setName("first")
     .setDescription("first result to be shown starting from 0 (zero)")
     .setDefaultValue(0)
@@ -46,7 +45,7 @@ public class TasksHandler extends RestHandler {
     .setMinValue(0)
     .setMaxValue(Integer.MAX_VALUE);
   
-  protected IntegerParameter maxResults = new IntegerParameter()
+  protected IntegerParameter maxResultsParameter = new IntegerParameter()
     .setName("max") 
     .setDescription("max number of tasks to be retrieved")
     .setDefaultValue(10)
@@ -56,12 +55,18 @@ public class TasksHandler extends RestHandler {
 
   public void handle(RestRequestContext restRequestContext) {
     // call the activiti api
-    List<DBObject> tasksJson = restRequestContext
+    String authenticatedUserId = restRequestContext.getAuthenticatedUserId();
+    Integer firstResult = firstResultParameter.get(restRequestContext);
+    Integer maxResults = maxResultsParameter.get(restRequestContext);
+    
+    Caze query = new Caze().setAssignee(authenticatedUserId);
+    
+    List<Caze> cazes = restRequestContext
       .getActiviti()
-      .getManager(Tasks.class)
-      .findTasksJson(restRequestContext.getAuthenticatedUserId(), firstResult.get(restRequestContext), maxResults.get(restRequestContext));
+      .getManager(Cazes.class)
+      .findByExample(query, firstResult, maxResults);
     
     // send response
-    restRequestContext.sendResponse(tasksJson);
+    restRequestContext.sendResponse(cazes);
   }
 }

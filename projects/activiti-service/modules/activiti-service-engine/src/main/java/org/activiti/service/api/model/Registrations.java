@@ -13,20 +13,13 @@
 
 package org.activiti.service.api.model;
 
-import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.persistence.Manager;
-
-import com.mongodb.DBCollection;
 
 
 /**
  * @author Tom Baeyens
  */
 public class Registrations extends Manager<Registration>{
-
-  public Registrations(Activiti activiti, Class<Registration> persistableType, DBCollection dbCollection) {
-    super(activiti, persistableType, dbCollection);
-  }
 
   public void register(Registration registration) {
     insert(registration);

@@ -13,39 +13,40 @@
 
 package org.activiti.service.impl.rest.handler;
 
-import org.activiti.service.api.model.Tasks;
+import org.activiti.service.api.model.Caze;
+import org.activiti.service.api.model.Cazes;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.parameter.StringParameter;
-
-import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TaskHandler extends RestHandler {
+public class CazeHandler extends RestHandler {
 
   public HttpServletMethod getMethod() {
     return HttpServletMethod.GET;
   }
 
   public String getUrlPattern() {
-    return "/task/{taskId}";
+    return "/case/{caseOid}";
   }
 
-  protected StringParameter taskId = (StringParameter) new StringParameter()
+  protected StringParameter cazeOidParameter = (StringParameter) new StringParameter()
     .setUrlVariable()
-    .setName("taskId") 
-    .setDescription("the id of the task")
+    .setName("caseOid") 
+    .setDescription("the oid of the case")
     .setMaxLength(20);
 
   public void handle(RestRequestContext restRequestContext) {
-    DBObject taskJson = restRequestContext
+    String cazeOid = cazeOidParameter.get(restRequestContext);
+    
+    Caze caze = restRequestContext
       .getActiviti()
-      .getManager(Tasks.class)
-      .findTask(taskId.get(restRequestContext));
+      .getManager(Cazes.class)
+      .findOneByOid(cazeOid);
 
-    restRequestContext.sendResponse(taskJson);
+    restRequestContext.sendResponse(caze);
   }
 }

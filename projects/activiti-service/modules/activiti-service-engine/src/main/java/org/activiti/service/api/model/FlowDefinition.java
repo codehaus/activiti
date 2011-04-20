@@ -13,10 +13,12 @@
 
 package org.activiti.service.api.model;
 
+import org.activiti.service.impl.persistence.Persistable;
+
 
 /**
  * @author Tom Baeyens
  */
-public class DeploymentResource {
+public class FlowDefinition extends Persistable {
 
 }

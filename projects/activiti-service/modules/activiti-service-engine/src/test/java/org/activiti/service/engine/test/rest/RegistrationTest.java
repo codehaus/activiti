@@ -49,7 +49,7 @@ public class RegistrationTest extends RestTestCase {
     
     registration = activiti
       .getManager(Registrations.class)
-      .findAllByExample(new Registration().setEmail("johndoe@johndoe.kom"))
+      .findByExample(new Registration().setEmail("johndoe@johndoe.kom"))
       .get(0);
     
     // the next assert ensures that the registration link is in the mail body

@@ -22,11 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.service.api.Activiti;
+import org.activiti.service.impl.persistence.Persistable;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
-import org.activiti.service.impl.util.json.JSONArray;
-import org.activiti.service.impl.util.json.JSONObject;
-
-import com.mongodb.DBObject;
 
 
 /**
@@ -50,18 +47,12 @@ public class RestRequestContext {
     this.httpServletResponse = httpServletResponse;
   }
 
-  public void sendResponse(DBObject jsonObject) {
-    // add some nice formatting
-    String json = jsonObject.toString();
-    String formattedJson = new JSONObject(json).toString(2);
-    sendResponseJsonText(formattedJson);
+  public void sendResponse(Persistable persistable) {
+    sendResponseJsonText(persistable.getJsonText());
   }
   
-  public void sendResponse(List<DBObject> jsonObjects) {
-    // add some nice formatting
-    String json = jsonObjects.toString();
-    String formattedJson = new JSONArray(json).toString(2);
-    sendResponseJsonText(formattedJson);
+  public void sendResponse(List<? extends Persistable> persistables) {
+    sendResponseJsonText(persistables.toString());
   }
 
   public void sendResponseJsonText(String json) {

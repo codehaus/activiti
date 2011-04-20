@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
 
 
 /**
@@ -41,15 +42,16 @@ public class Persistable {
   }
   
   public void setJsonText(String jsonText) {
-    classMappers
-      .get(getClass())
-      .setJsonText(this, jsonText);
+    DBObject dbObject = (DBObject) JSON.parse(jsonText);
+    setJson(dbObject);
   }
 
   public String getJsonText() {
-    return classMappers
-      .get(getClass())
-      .getJsonText(this);
+    return JSON.serialize(getJson());
+  }
+  
+  public String toString() {
+    return getJsonText();
   }
 
   public String getOid() {

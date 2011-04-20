@@ -13,42 +13,12 @@
 
 package org.activiti.service.api.model;
 
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Task extends Persistable {
-  
-  String title;
-  String description;
-  String assignee;
+public class FlowDefinitions extends Manager<FlowDefinition> {
 
-  public String getTitle() {
-    return title;
-  }
-  
-  public Task setTitle(String title) {
-    this.title = title;
-    return this;
-  }
-  
-  public String getDescription() {
-    return description;
-  }
-  
-  public Task setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-  
-  public String getAssignee() {
-    return assignee;
-  }
-  
-  public Task setAssignee(String assignee) {
-    this.assignee = assignee;
-    return this;
-  }
 }

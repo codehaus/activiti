@@ -34,8 +34,8 @@ public class Manager <T extends Persistable> {
   protected Activiti activiti;
   protected Class<T> persistableType;
   protected DBCollection dbCollection;
-  
-  public Manager(Activiti activiti, Class<T> persistableType, DBCollection dbCollection) {
+
+  void init(Activiti activiti, Class<T> persistableType, DBCollection dbCollection) {
     this.activiti = activiti;
     this.persistableType = persistableType;
     this.dbCollection = dbCollection;
@@ -62,10 +62,19 @@ public class Manager <T extends Persistable> {
     dbCollection.update(query, jsonMongo);
   }
 
-  public List<T> findAllByExample(T example) {
+  public List<T> findByExample(T example) {
+    return findByExample(example, -1, -1);
+  }
+  
+  public List<T> findByExample(T example, int firstResult, int maxResults) {
     List<T> persistables = new ArrayList<T>();
     DBObject jsonMongo = example.getJson();
-    DBCursor dbCursor = dbCollection.find(jsonMongo);
+    DBCursor dbCursor = null;
+    if (firstResult>=0 && maxResults>0) {
+      dbCursor = dbCollection.find(jsonMongo, null, firstResult, maxResults);
+    } else {
+      dbCursor = dbCollection.find(jsonMongo);
+    }
     while (dbCursor.hasNext()) {
       try {
         DBObject dbObject = dbCursor.next();

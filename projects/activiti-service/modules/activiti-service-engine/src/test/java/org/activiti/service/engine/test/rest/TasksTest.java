@@ -15,8 +15,8 @@ package org.activiti.service.engine.test.rest;
 
 import java.util.logging.Logger;
 
-import org.activiti.service.api.model.Task;
-import org.activiti.service.api.model.Tasks;
+import org.activiti.service.api.model.Caze;
+import org.activiti.service.api.model.Cazes;
 import org.activiti.service.engine.test.RestTestCase;
 
 
@@ -28,23 +28,22 @@ public class TasksTest extends RestTestCase {
   
   private static Logger log = Logger.getLogger(TasksTest.class.getName());
 
-  public void testTasks() throws Exception {
+  public void testTaskLists() {
     // the default user is kermit
-    
-    Task taskOne = new Task()
+    Caze taskOne = new Caze()
       .setTitle("helloworld")
       .setAssignee("kermit");
-    activiti.getManager(Tasks.class).insert(taskOne);
+    activiti.getManager(Cazes.class).insert(taskOne);
     
-    Task taskTwo = new Task()
+    Caze taskTwo = new Caze()
       .setTitle("hiuniverse")
       .setAssignee("kermit");
-    activiti.getManager(Tasks.class).insert(taskTwo);
+    activiti.getManager(Cazes.class).insert(taskTwo);
     
-    Task taskThree= new Task()
+    Caze taskThree= new Caze()
       .setTitle("yowwhatsup")
       .setAssignee("fozzie");
-    activiti.getManager(Tasks.class).insert(taskThree);
+    activiti.getManager(Cazes.class).insert(taskThree);
 
     log.info("tasks of default user kermit:");
     createRestRequest("/tasks?first=0&max=10").get();
@@ -61,5 +60,8 @@ public class TasksTest extends RestTestCase {
 
     log.info("task two");
     createRestRequest("/task/"+taskTwo.getOid()).get();
+  }
+  
+  public void getTaskDetails() {
   }
 }

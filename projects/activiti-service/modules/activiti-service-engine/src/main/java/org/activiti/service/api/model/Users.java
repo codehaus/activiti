@@ -14,20 +14,13 @@
 package org.activiti.service.api.model;
 
 
-import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.persistence.Manager;
-
-import com.mongodb.DBCollection;
 
 
 /**
  * @author Tom Baeyens
  */
 public class Users extends Manager<User>{
-
-  public Users(Activiti activiti, Class<User> persistableType, DBCollection dbCollection) {
-    super(activiti, persistableType, dbCollection);
-  }
 
   public User findUserById(String userId) {
     User example = new User().setId(userId);

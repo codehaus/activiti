@@ -13,7 +13,7 @@
 
 package org.activiti.service.api;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -57,8 +57,10 @@ public class Activiti {
         String persistableClassName = managerTypeName.substring(0, managerTypeName.length()-1);
         Class<?> persistableClass = Class.forName(persistableClassName, true, Activiti.class.getClassLoader());
         DBCollection dbCollection = db.getCollection(collectionName);
-        Constructor<T> managerConstructor = managerType.getDeclaredConstructor(Activiti.class, Class.class, DBCollection.class);
-        manager = managerConstructor.newInstance(new Object[]{this, persistableClass, dbCollection});
+        manager = managerType.newInstance();
+        Method init = managerType.getDeclaredMethod("init", Activiti.class, Class.class, DBCollection.class);
+        init.setAccessible(true);
+        init.invoke(manager, new Object[]{this, persistableClass, dbCollection});
         managers.put(managerType, (T) manager);
         
       } catch (Exception e) {

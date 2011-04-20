@@ -13,22 +13,12 @@
 
 package org.activiti.service.api.model;
 
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Deployment extends Persistable {
+public class Cazes extends Manager<Caze> {
 
-  String name;
-  
-  public String getName() {
-    return name;
-  }
-  
-  public Deployment setName(String name) {
-    this.name = name;
-    return this;
-  }
 }
