@@ -15,7 +15,6 @@ package org.activiti.service.impl.rest.impl;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.activiti.service.impl.rest.handler.RestRequestContext;
 
 
 

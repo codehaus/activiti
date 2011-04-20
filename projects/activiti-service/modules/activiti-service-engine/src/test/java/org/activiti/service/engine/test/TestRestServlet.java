@@ -13,7 +13,7 @@
 
 package org.activiti.service.engine.test;
 
-import org.activiti.service.impl.rest.handler.RestRequestContext;
+import org.activiti.service.impl.rest.impl.RestRequestContext;
 import org.activiti.service.rest.RestServlet;
 
 

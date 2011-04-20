@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.Parameter;
 import org.activiti.service.impl.rest.impl.RestHandler;
+import org.activiti.service.impl.rest.impl.RestRequestContext;
 import org.activiti.service.impl.rest.impl.UrlMatcher;
 import org.activiti.service.rest.RestServlet;
 

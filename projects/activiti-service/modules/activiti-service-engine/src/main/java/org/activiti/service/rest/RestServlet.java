@@ -33,13 +33,13 @@ import org.activiti.service.api.model.User;
 import org.activiti.service.api.model.Users;
 import org.activiti.service.impl.rest.handler.HelpHandler;
 import org.activiti.service.impl.rest.handler.RegisterHandler;
-import org.activiti.service.impl.rest.handler.RestRequestContext;
 import org.activiti.service.impl.rest.handler.CazeHandler;
 import org.activiti.service.impl.rest.handler.CazesHandler;
 import org.activiti.service.impl.rest.impl.BadRequestException;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestException;
 import org.activiti.service.impl.rest.impl.RestHandler;
+import org.activiti.service.impl.rest.impl.RestRequestContext;
 import org.activiti.service.impl.rest.impl.UrlMatcher;
 import org.apache.commons.codec.binary.Base64;
 

@@ -17,6 +17,7 @@ import org.activiti.service.api.model.Caze;
 import org.activiti.service.api.model.Cazes;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
+import org.activiti.service.impl.rest.impl.RestRequestContext;
 import org.activiti.service.impl.rest.parameter.StringParameter;
 
 

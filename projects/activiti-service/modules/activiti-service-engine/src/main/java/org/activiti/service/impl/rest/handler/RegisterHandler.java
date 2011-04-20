@@ -19,6 +19,7 @@ import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.JsonParameter;
 import org.activiti.service.impl.rest.impl.Parameter;
 import org.activiti.service.impl.rest.impl.RestHandler;
+import org.activiti.service.impl.rest.impl.RestRequestContext;
 
 
 /**

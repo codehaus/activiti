@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.rest.handler;
+package org.activiti.service.impl.rest.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.persistence.Persistable;
-import org.activiti.service.impl.rest.impl.HttpServletMethod;
 
 
 /**

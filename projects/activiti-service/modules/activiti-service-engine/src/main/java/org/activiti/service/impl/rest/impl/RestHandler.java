@@ -13,7 +13,6 @@
 
 package org.activiti.service.impl.rest.impl;
 
-import org.activiti.service.impl.rest.handler.RestRequestContext;
 
 
 

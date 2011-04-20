@@ -24,42 +24,41 @@ import org.activiti.service.engine.test.RestTestCase;
 /**
  * @author Tom Baeyens
  */
-public class TasksTest extends RestTestCase {
+public class CazesTest extends RestTestCase {
   
-  private static Logger log = Logger.getLogger(TasksTest.class.getName());
+  private static Logger log = Logger.getLogger(CazesTest.class.getName());
 
   public void testTaskLists() {
-    // the default user is kermit
-    Caze taskOne = new Caze()
+    Caze cazeOne = new Caze()
       .setTitle("helloworld")
       .setAssignee("kermit");
-    activiti.getManager(Cazes.class).insert(taskOne);
+    activiti.getManager(Cazes.class).insert(cazeOne);
     
-    Caze taskTwo = new Caze()
+    Caze cazeTwo = new Caze()
       .setTitle("hiuniverse")
       .setAssignee("kermit");
-    activiti.getManager(Cazes.class).insert(taskTwo);
+    activiti.getManager(Cazes.class).insert(cazeTwo);
     
-    Caze taskThree= new Caze()
+    Caze cazeThree= new Caze()
       .setTitle("yowwhatsup")
       .setAssignee("fozzie");
-    activiti.getManager(Cazes.class).insert(taskThree);
+    activiti.getManager(Cazes.class).insert(cazeThree);
 
-    log.info("tasks of default user kermit:");
-    createRestRequest("/tasks?first=0&max=10").get();
+    log.info("cases of default user kermit:");
+    createRestRequest("/cases?first=0&max=10").get();
     
     setUser("fozzie", "fozzie", true);
 
-    log.info("tasks of default user fozzie:");
-    createRestRequest("/tasks?first=0&max=10").get();
+    log.info("cases of user fozzie:");
+    createRestRequest("/cases?first=0&max=10").get();
     
     setUser("misspiggy", "misspiggy", true);
 
-    log.info("tasks of default user misspiggy:");
-    createRestRequest("/tasks?first=0&max=10").get();
+    log.info("cases of user misspiggy:");
+    createRestRequest("/cases?first=0&max=10").get();
 
-    log.info("task two");
-    createRestRequest("/task/"+taskTwo.getOid()).get();
+    log.info("case two");
+    createRestRequest("/case/"+cazeTwo.getOid()).get();
   }
   
   public void getTaskDetails() {

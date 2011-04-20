@@ -16,7 +16,6 @@ package org.activiti.service.impl.persistence;
 import java.lang.reflect.Field;
 
 import org.activiti.service.api.ActivitiException;
-import org.activiti.service.impl.util.json.JSONObject;
 
 import com.mongodb.DBObject;
 
@@ -34,9 +33,6 @@ public abstract class FieldMapper {
 
   public abstract void set(DBObject dbObject, Persistable persistable);
   public abstract void get(DBObject dbObject, Persistable persistable);
-
-  public abstract void set(JSONObject jsonObject, Persistable persistable);
-  public abstract void get(JSONObject jsonObject, Persistable persistable);
 
   public Object getValueFromField(Persistable persistable) {
     try {

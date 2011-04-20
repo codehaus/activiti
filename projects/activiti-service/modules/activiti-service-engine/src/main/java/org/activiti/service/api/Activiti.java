@@ -58,7 +58,7 @@ public class Activiti {
         Class<?> persistableClass = Class.forName(persistableClassName, true, Activiti.class.getClassLoader());
         DBCollection dbCollection = db.getCollection(collectionName);
         manager = managerType.newInstance();
-        Method init = managerType.getDeclaredMethod("init", Activiti.class, Class.class, DBCollection.class);
+        Method init = findManagerInit(managerType);
         init.setAccessible(true);
         init.invoke(manager, new Object[]{this, persistableClass, dbCollection});
         managers.put(managerType, (T) manager);
@@ -68,6 +68,15 @@ public class Activiti {
       }
     }
     return manager;
+  }
+
+  protected <T> Method findManagerInit(Class<T> managerType) throws NoSuchMethodException {
+    for (Method method: managerType.getDeclaredMethods()) {
+      if ("init".equals(method.getName())) {
+        return method;
+      }
+    }
+    return findManagerInit(managerType.getSuperclass());
   }
 
   protected void init() {

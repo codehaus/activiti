@@ -15,8 +15,6 @@ package org.activiti.service.impl.persistence;
 
 import java.lang.reflect.Field;
 
-import org.activiti.service.impl.util.json.JSONObject;
-
 import com.mongodb.DBObject;
 
 
@@ -38,20 +36,6 @@ public class StringFieldMapper extends FieldMapper {
 
   public void set(DBObject dbObject, Persistable persistable) {
     String value = (String) dbObject.get(field.getName());
-    if (value!=null) {
-      setValueInField(persistable, value);
-    }
-  }
-
-  public void get(JSONObject jsonObject, Persistable persistable) {
-    String value = (String) getValueFromField(persistable);
-    if (value!=null) {
-      jsonObject.put(field.getName(), value);
-    }
-  }
-
-  public void set(JSONObject jsonObject, Persistable persistable) {
-    String value = (String) jsonObject.get(field.getName());
     if (value!=null) {
       setValueInField(persistable, value);
     }
