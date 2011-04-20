@@ -13,31 +13,15 @@
 
 package org.activiti.service.impl.persistence;
 
-import java.lang.reflect.Field;
-
-import com.mongodb.DBObject;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public class StringFieldMapper extends FieldMapper {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PersistentCollection {
 
-  public StringFieldMapper(Field field) {
-    super(field);
-  }
-
-  public void get(DBObject dbObject, Object persistable) {
-    String value = (String) getValueFromField(persistable);
-    if (value!=null) {
-      dbObject.put(field.getName(), value);
-    }
-  }
-
-  public void set(DBObject dbObject, Object persistable) {
-    String value = (String) dbObject.get(field.getName());
-    if (value!=null) {
-      setValueInField(persistable, value);
-    }
-  }
+  Class<?> type();
 }

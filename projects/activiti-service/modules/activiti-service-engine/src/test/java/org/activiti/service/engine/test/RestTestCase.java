@@ -13,7 +13,6 @@
 
 package org.activiti.service.engine.test;
 
-import org.activiti.service.api.Activiti;
 import org.activiti.service.rest.RestServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -31,18 +30,20 @@ public class RestTestCase extends ActivitiTestCase {
   static Server server = null;
   static Throwable servletException = null;
   
-  protected Activiti buildActiviti() throws Exception {
-    RestServlet restServlet = new TestRestServlet();
-    server = new Server(serverPort);
-    ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
-    servletContextHandler.addServlet(new ServletHolder(restServlet), "/rest/*");
-    server.start();
+  public void setUp() throws Exception {
+    super.setUp();
     
-    return restServlet.getActiviti();
+    if (server==null) {
+      RestServlet restServlet = new TestRestServlet(activiti);
+      server = new Server(serverPort);
+      ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
+      servletContextHandler.addServlet(new ServletHolder(restServlet), "/rest/*");
+      server.start();
+    }
   }
 
   public RestRequest createRestRequest(String url) {
-    return new RestRequest(baseContextUrl, url).authenticate(username, password);
+    return new RestRequest(baseContextUrl, url).authenticate(userId, password);
   }
   
   public RestRequest createRestRequestWithoutAuthentication(String url) {

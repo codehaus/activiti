@@ -62,6 +62,10 @@ public class RestServlet extends HttpServlet {
     register(new RegisterHandler());
     register(new CazesHandler());
     register(new CazeHandler());
+    initializeActiviti();
+  }
+
+  protected void initializeActiviti() {
     activiti = new ActivitiConfiguration().buildActiviti();
   }
 

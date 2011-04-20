@@ -24,7 +24,7 @@ import org.activiti.service.impl.mail.Mail;
 /**
  * @author Tom Baeyens
  */
-public class RegistrationTest extends RestTestCase {
+public class RegistrationRestTest extends RestTestCase {
   
   public void testRegistration() {
     // ensure registrations manager is initialized.  it is used in the registration.getJson below

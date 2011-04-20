@@ -11,29 +11,33 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.test;
+package org.activiti.service.impl.persistence;
 
-import org.activiti.service.api.Activiti;
-import org.activiti.service.impl.rest.impl.RestRequestContext;
-import org.activiti.service.rest.RestServlet;
+import org.bson.types.ObjectId;
+
+import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestRestServlet extends RestServlet {
+public class OidFieldMapper extends FieldMapper {
 
-  private static final long serialVersionUID = 1L;
-
-  public TestRestServlet(Activiti activiti) {
-    this.activiti = activiti;
-  }
-  
-  protected void initializeActiviti() {
+  public OidFieldMapper() {
+    super(null);
   }
 
-  protected void logException(Throwable e, RestRequestContext restRequestContext) {
-    RestTestCase.setServletException(e);
-    super.logException(e, restRequestContext);
+  public void get(DBObject dbObject, Object bean) {
+    String oid = ((Persistable)bean).getOid();
+    if (oid!=null) {
+      dbObject.put("_id", new ObjectId(oid));
+    }
+  }
+
+  public void set(DBObject dbObject, Object bean) {
+    ObjectId objectId = (ObjectId) dbObject.get("_id");
+    if (objectId != null) {
+      ((Persistable)bean).setOid(objectId.toString());
+    }
   }
 }

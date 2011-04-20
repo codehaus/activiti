@@ -11,29 +11,25 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.test;
+package org.activiti.service.impl.persistence;
 
-import org.activiti.service.api.Activiti;
-import org.activiti.service.impl.rest.impl.RestRequestContext;
-import org.activiti.service.rest.RestServlet;
+import java.lang.reflect.Field;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestRestServlet extends RestServlet {
+public class ListStringFieldMapper extends ListFieldMapper {
 
-  private static final long serialVersionUID = 1L;
-
-  public TestRestServlet(Activiti activiti) {
-    this.activiti = activiti;
-  }
-  
-  protected void initializeActiviti() {
+  public ListStringFieldMapper(Field field) {
+    super(field);
   }
 
-  protected void logException(Throwable e, RestRequestContext restRequestContext) {
-    RestTestCase.setServletException(e);
-    super.logException(e, restRequestContext);
+  public Object convertElement(Object element) {
+    return element;
+  }
+
+  public Object convertJsonElement(Object jsonElement) {
+    return null;
   }
 }

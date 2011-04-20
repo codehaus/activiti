@@ -24,9 +24,9 @@ import org.activiti.service.engine.test.RestTestCase;
 /**
  * @author Tom Baeyens
  */
-public class CazesTest extends RestTestCase {
+public class CasesRestTest extends RestTestCase {
   
-  private static Logger log = Logger.getLogger(CazesTest.class.getName());
+  private static Logger log = Logger.getLogger(CasesRestTest.class.getName());
 
   public void testTaskLists() {
     Caze cazeOne = new Caze()

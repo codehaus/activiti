@@ -24,32 +24,40 @@ import com.mongodb.DBObject;
 /**
  * @author Tom Baeyens
  */
-public class ListFieldMapper extends FieldMapper {
+public abstract class ListFieldMapper extends FieldMapper {
 
   public ListFieldMapper(Field field) {
     super(field);
   }
 
+  public abstract Object convertElement(Object element);
+  public abstract Object convertJsonElement(Object jsonElement);
+
   @SuppressWarnings("unchecked")
-  public void get(DBObject dbObject, Persistable persistable) {
-    List<String> value = (List<String>) getValueFromField(persistable);
-    if (value!=null) {
-      BasicDBList dbList = new BasicDBList();
-      for (String element: (List<String>)value) {
-        if (element instanceof String) {
-          dbList.add(element);
+  public void get(DBObject dbObject, Object bean) {
+    List<Object> list = (List<Object>) getValueFromField(bean);
+    if (list!=null && !list.isEmpty()) {
+      BasicDBList jsonList = new BasicDBList();
+      for (Object element: (List<Object>) list) {
+        if (element!=null) {
+          Object jsonElement = convertElement(element);
+          jsonList.add(jsonElement);
         }
       }
-      dbObject.put(field.getName(), dbList);
+      dbObject.put(field.getName(), jsonList);
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public void set(DBObject dbObject, Persistable persistable) {
-    BasicDBList dbList = (BasicDBList) dbObject.get(field.getName());
-    if (dbList!=null) {
-      Object value = new ArrayList<String>((List)dbList);
-      setValueInField(persistable, value);
+  public void set(DBObject dbObject, Object bean) {
+    BasicDBList jsonList = (BasicDBList) dbObject.get(field.getName());
+    if (jsonList!=null) {
+      List<Object> list = new ArrayList<Object>();
+      for (Object jsonElement: jsonList) {
+        Object element = convertJsonElement(jsonElement);
+        list.add(element);
+      }
+      
+      setValueInField(bean, list);
     }
   }
 }

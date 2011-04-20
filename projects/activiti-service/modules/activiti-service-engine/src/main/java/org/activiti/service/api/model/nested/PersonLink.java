@@ -11,29 +11,32 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.test;
-
-import org.activiti.service.api.Activiti;
-import org.activiti.service.impl.rest.impl.RestRequestContext;
-import org.activiti.service.rest.RestServlet;
+package org.activiti.service.api.model.nested;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestRestServlet extends RestServlet {
+public class PersonLink {
 
-  private static final long serialVersionUID = 1L;
-
-  public TestRestServlet(Activiti activiti) {
-    this.activiti = activiti;
+  String userId;
+  String role;
+  
+  public String getUserId() {
+    return userId;
   }
   
-  protected void initializeActiviti() {
+  public PersonLink setUserId(String userId) {
+    this.userId = userId;
+    return this;
   }
-
-  protected void logException(Throwable e, RestRequestContext restRequestContext) {
-    RestTestCase.setServletException(e);
-    super.logException(e, restRequestContext);
+  
+  public String getRole() {
+    return role;
+  }
+  
+  public PersonLink setRole(String role) {
+    this.role = role;
+    return this;
   }
 }

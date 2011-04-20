@@ -40,7 +40,7 @@ public class ActivitiTestCase extends TestCase {
   protected static Activiti activiti = null;
   protected static TestMailService testMailService = new TestMailService();
 
-  protected String username = "kermit";
+  protected String userId = "kermit";
   protected String password = "kermit";
   
   public void setUp() throws Exception {
@@ -48,24 +48,17 @@ public class ActivitiTestCase extends TestCase {
     
     if (activiti==null) {
       log.info("### initializing Activiti ######################################");
-      activiti = buildActiviti();
+      activiti = new ActivitiConfiguration().buildActiviti();
       activiti
         .getActivitiConfiguration()
         .setMailService(testMailService);
       log.info("################################################################");
     }
     
-    User defaultUser = new User()
-      .setId(username)
-      .setPassword(password);
-    activiti.getManager(Users.class).insert(defaultUser);
+    createUser(userId, password);
     
     testMailService.getMails().clear();
     log.info("=== starting test "+getName()+" =================================");
-  }
-  
-  protected Activiti buildActiviti() throws Exception {
-    return new ActivitiConfiguration().buildActiviti();
   }
 
   protected void tearDown() throws Exception {
@@ -74,18 +67,23 @@ public class ActivitiTestCase extends TestCase {
     super.tearDown();
   }
 
-  public void setUser(String username, String password) {
-    setUser(username, password, false);
+  public void setUser(String userId, String password) {
+    setUser(userId, password, false);
   }
   
-  public void setUser(String username, String password, boolean create) {
+  public void setUser(String userId, String password, boolean create) {
     if (create) {
-      User user = new User()
-        .setId(username)
-        .setPassword(password);
-      activiti.getManager(Users.class).insert(user);
+      createUser(userId, password);
     }
-    this.username = username;
+    this.userId = userId;
     this.password = password;
+  }
+  
+  /** @return user oid */
+  public void createUser(String userId, String password) {
+    User user = new User()
+      .setId(userId)
+      .setPassword(password);
+    activiti.getManager(Users.class).insert(user);
   }
 }

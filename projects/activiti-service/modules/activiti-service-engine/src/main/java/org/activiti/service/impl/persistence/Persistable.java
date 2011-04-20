@@ -32,13 +32,13 @@ public class Persistable {
   public void setJson(DBObject dbObject) {
     classMappers
       .get(getClass())
-      .setJson(this, dbObject);
+      .setJsonInBean(this, dbObject);
   }
   
   public DBObject getJson() {
     return classMappers
       .get(getClass())
-      .getJson(this);
+      .getJsonFromBean(this);
   }
   
   public void setJsonText(String jsonText) {

@@ -14,11 +14,11 @@
 package org.activiti.service.impl.persistence;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.service.api.ActivitiException;
-import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -31,60 +31,62 @@ public class ClassMapper {
   
   List<FieldMapper> fieldMappers = new ArrayList<FieldMapper>();
   
-  public ClassMapper(Class<?> persistableType) {
+  public ClassMapper(Class<?> type) {
     try {
-      Class<?> persistentClass = getClass();
-      while (persistentClass!=null) {
-        for (Field field: persistableType.getDeclaredFields()) {
+      Class<?> scannedClass = type;
+      while (scannedClass!=null) {
+        for (Field field: scannedClass.getDeclaredFields()) {
           FieldMapper fieldMapper = null;
-          if (!field.getName().equals("oid")) {
-            field.setAccessible(true);
+          field.setAccessible(true);
+          
+          if (Modifier.isStatic(field.getModifiers())) { 
+            // ignore static fields
+            fieldMapper = null;
             
-            if (String.class.isAssignableFrom(field.getType())) {
-              fieldMapper = new StringFieldMapper(field);
+          } else if (Persistable.class.isAssignableFrom(scannedClass) && field.getName().equals("oid")) {
+            fieldMapper = new OidFieldMapper();
+            
+          } else if (String.class.isAssignableFrom(field.getType())) {
+            fieldMapper = new StringFieldMapper(field);
 
-            } else if (List.class.isAssignableFrom(field.getType())) {
-              fieldMapper = new ListFieldMapper(field);
-              
-            } else {
-              throw new ActivitiException("unsupported field type "+field);
+          } else if (List.class.isAssignableFrom(field.getType())) {
+            PersistentCollection persistentCollection = field.getAnnotation(PersistentCollection.class);
+            if (persistentCollection==null) {
+              throw new ActivitiException("collection "+field+" doesn't have the PersistentCollection annotation");
             }
+            Class<?> elementType = persistentCollection.type();
+            if (String.class.isAssignableFrom(elementType)) {
+              fieldMapper = new ListStringFieldMapper(field);
+            } else {
+              fieldMapper = new ListBeanFieldMapper(field, elementType);
+            }
+            
+          } else {
+            throw new ActivitiException("unsupported field type "+field);
           }
           if (fieldMapper!=null) {
             fieldMappers.add(fieldMapper);
           }
         }
         
-        persistentClass = persistentClass.getSuperclass();
+        scannedClass = scannedClass.getSuperclass();
       }
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);
     }
   }
 
-  public void setJson(Persistable persistable, DBObject dbObject) {
-    ObjectId objectId = (ObjectId) dbObject.get("_id");
-    if (objectId != null) {
-      persistable.setOid(objectId.toString());
-    }
-
+  public void setJsonInBean(Object bean, DBObject json) {
     for (FieldMapper fieldMapper: fieldMappers) {
-      fieldMapper.set(dbObject, persistable);
+      fieldMapper.set(json, bean);
     }
   }
 
-  public DBObject getJson(Persistable persistable) {
-    BasicDBObject dbObject = new BasicDBObject();
-
-    String oid = persistable.getOid();
-    if (oid!=null) {
-      dbObject.put("_id", new ObjectId(oid));
-    }
-      
+  public DBObject getJsonFromBean(Object bean) {
+    BasicDBObject json = new BasicDBObject();
     for (FieldMapper fieldMapper: fieldMappers) {
-      fieldMapper.get(dbObject, persistable);
+      fieldMapper.get(json, bean);
     }
-    
-    return dbObject;
+    return json;
   }
 }

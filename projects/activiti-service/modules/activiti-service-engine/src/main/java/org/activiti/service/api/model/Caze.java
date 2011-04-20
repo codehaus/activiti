@@ -13,7 +13,12 @@
 
 package org.activiti.service.api.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.activiti.service.api.model.nested.PersonLink;
 import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.impl.persistence.PersistentCollection;
 
 
 /**
@@ -24,7 +29,11 @@ public class Caze extends Persistable {
   String title;
   String description;
   String assignee;
+  String owner;
 
+  @PersistentCollection(type=PersonLink.class)
+  List<PersonLink> personLinks = new ArrayList<PersonLink>();
+  
   public String getTitle() {
     return title;
   }
@@ -50,5 +59,17 @@ public class Caze extends Persistable {
   public Caze setAssignee(String assignee) {
     this.assignee = assignee;
     return this;
+  }
+
+  public String getOwner() {
+    return owner;
+  }
+
+  public void setOwner(String owner) {
+    this.owner = owner;
+  }
+
+  public List<PersonLink> getPersonLinks() {
+    return personLinks;
   }
 }

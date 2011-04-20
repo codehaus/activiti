@@ -23,28 +23,26 @@ import com.mongodb.DBObject;
 /**
  * @author Tom Baeyens
  */
-public abstract class FieldMapper {
+public class ListBeanFieldMapper extends ListFieldMapper {
 
-  protected Field field;
+  protected Class<?> elementType;
+  protected ClassMapper classMapper;
   
-  public FieldMapper(Field field) {
-    this.field = field;
+  public ListBeanFieldMapper(Field field, Class<?> elementType) {
+    super(field);
+    this.classMapper = new ClassMapper(elementType);
+    this.elementType = elementType;
   }
 
-  public abstract void set(DBObject dbObject, Object bean);
-  public abstract void get(DBObject dbObject, Object bean);
-
-  public Object getValueFromField(Object bean) {
-    try {
-      return field.get(bean);
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
-    }
+  public Object convertElement(Object element) {
+    return classMapper.getJsonFromBean(element);
   }
 
-  public void setValueInField(Object bean, Object value) {
+  public Object convertJsonElement(Object jsonElement) {
     try {
-      field.set(bean, value);
+      Object bean = elementType.newInstance(); 
+      classMapper.setJsonInBean(bean, (DBObject) jsonElement);
+      return bean;
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);
     }
