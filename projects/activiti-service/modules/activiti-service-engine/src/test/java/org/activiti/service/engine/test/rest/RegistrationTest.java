@@ -11,11 +11,11 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test.rest;
+package org.activiti.service.engine.test.rest;
 
-import org.activiti.rest.test.RestTestCase;
 import org.activiti.service.api.model.Registration;
 import org.activiti.service.api.model.User;
+import org.activiti.service.engine.base.RestTestCase;
 import org.activiti.service.impl.mail.Mail;
 
 

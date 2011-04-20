@@ -11,31 +11,21 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test;
+package org.activiti.service.engine.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.activiti.service.impl.mail.Mail;
-import org.activiti.service.impl.mail.MailService;
+import org.activiti.service.impl.rest.handler.RestRequestContext;
+import org.activiti.service.rest.RestServlet;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestMailService extends MailService {
-  
-  List<Mail> mails = new ArrayList<Mail>();
+public class TestRestServlet extends RestServlet {
 
-  public Mail newMail() {
-    return new Mail(this) {
-      public void send() {
-        mails.add(this);
-      }
-    };
-  }
+  private static final long serialVersionUID = 1L;
 
-  public List<Mail> getMails() {
-    return mails;
+  protected void logException(Throwable e, RestRequestContext restRequestContext) {
+    RestTestCase.servletException = e;
+    super.logException(e, restRequestContext);
   }
 }

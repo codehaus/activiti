@@ -11,19 +11,19 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test.api;
+package org.activiti.service.engine.test.api;
 
 import java.util.List;
 
-import org.activiti.rest.test.RestTestCase;
 import org.activiti.service.api.model.Deployment;
 import org.activiti.service.api.model.Deployments;
+import org.activiti.service.engine.base.ActivitiTestCase;
 
 
 /**
  * @author Tom Baeyens
  */
-public class DeploymentsTest extends RestTestCase {
+public class DeploymentsTest extends ActivitiTestCase {
 
   public void testDeployments() {
     Deployments deployments = activiti.getManager(Deployments.class);

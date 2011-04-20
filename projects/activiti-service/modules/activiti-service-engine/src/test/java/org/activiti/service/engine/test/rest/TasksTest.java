@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test.rest;
+package org.activiti.service.engine.test.rest;
 
 import java.util.logging.Logger;
 
-import org.activiti.rest.test.RestTestCase;
 import org.activiti.service.api.model.Task;
+import org.activiti.service.engine.base.RestTestCase;
 
 
 
@@ -33,17 +33,17 @@ public class TasksTest extends RestTestCase {
     Task taskOne = new Task()
       .setTitle("helloworld")
       .setAssignee("kermit");
-    createTask(taskOne);
+    activiti.getTasks().createTask(taskOne);
     
     Task taskTwo = new Task()
       .setTitle("hiuniverse")
       .setAssignee("kermit");
-    createTask(taskTwo);
+    activiti.getTasks().createTask(taskTwo);
     
     Task taskThree= new Task()
       .setTitle("yowwhatsup")
       .setAssignee("fozzie");
-    createTask(taskThree);
+    activiti.getTasks().createTask(taskThree);
 
     log.info("tasks of default user kermit:");
     createRestRequest("/tasks?first=0&max=10").get();

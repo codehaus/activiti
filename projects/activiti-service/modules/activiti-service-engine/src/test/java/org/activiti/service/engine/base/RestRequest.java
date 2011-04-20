@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.rest.test;
+package org.activiti.service.engine.base;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
