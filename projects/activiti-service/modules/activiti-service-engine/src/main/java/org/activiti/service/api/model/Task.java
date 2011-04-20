@@ -13,41 +13,26 @@
 
 package org.activiti.service.api.model;
 
-import org.bson.types.ObjectId;
+import org.activiti.service.impl.persistence.Persistable;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Task {
+public class Task extends Persistable {
   
-  String oid;
   String title;
   String description;
   String assignee;
-  
+
   public Task() {
+    super();
   }
 
   public Task(DBObject dbObject) {
-    this.oid = dbObject.get("_id").toString();
-    this.title = (String) dbObject.get("title");
-    this.description = (String) dbObject.get("description");
-    this.assignee = (String) dbObject.get("assignee");
-  }
-  
-  public DBObject toJson() {
-    DBObject taskJson = new BasicDBObject();
-    if (oid!=null) {
-      taskJson.put("_id", new ObjectId(oid));
-    }
-    taskJson.put("title", title);
-    if (description!=null) taskJson.put("description", description);
-    if (assignee!=null) taskJson.put("assignee", assignee);
-    return taskJson;
+    super(dbObject);
   }
 
   public String getTitle() {
@@ -74,15 +59,6 @@ public class Task {
   
   public Task setAssignee(String assignee) {
     this.assignee = assignee;
-    return this;
-  }
-  
-  public String getOid() {
-    return oid;
-  }
-  
-  public Task setOid(String oid) {
-    this.oid = oid;
     return this;
   }
 }

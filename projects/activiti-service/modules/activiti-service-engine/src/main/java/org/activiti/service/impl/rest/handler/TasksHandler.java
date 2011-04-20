@@ -15,6 +15,7 @@ package org.activiti.service.impl.rest.handler;
 
 import java.util.List;
 
+import org.activiti.service.api.model.Tasks;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.parameter.IntegerParameter;
@@ -57,7 +58,7 @@ public class TasksHandler extends RestHandler {
     // call the activiti api
     List<DBObject> tasksJson = restRequestContext
       .getActiviti()
-      .getTasks()
+      .getManager(Tasks.class)
       .findTasksJson(restRequestContext.getAuthenticatedUserId(), firstResult.get(restRequestContext), maxResults.get(restRequestContext));
     
     // send response

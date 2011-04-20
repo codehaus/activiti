@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.base;
+package org.activiti.service.engine.test;
 
 import java.util.logging.Logger;
 
@@ -20,12 +20,15 @@ import junit.framework.TestCase;
 import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiConfiguration;
 import org.activiti.service.api.model.User;
+import org.activiti.service.api.model.Users;
 import org.activiti.service.impl.util.LogUtil;
+import org.junit.Ignore;
 
 
 /**
  * @author Tom Baeyens
  */
+@Ignore
 public class ActivitiTestCase extends TestCase {
 
   static {
@@ -55,7 +58,7 @@ public class ActivitiTestCase extends TestCase {
     User defaultUser = new User()
       .setId(username)
       .setPassword(password);
-    activiti.getUsers().insertUser(defaultUser);
+    activiti.getManager(Users.class).insert(defaultUser);
     
     testMailService.getMails().clear();
     log.info("=== starting test "+getName()+" =================================");
@@ -80,7 +83,7 @@ public class ActivitiTestCase extends TestCase {
       User user = new User()
         .setId(username)
         .setPassword(password);
-      activiti.getUsers().insertUser(user);
+      activiti.getManager(Users.class).insert(user);
     }
     this.username = username;
     this.password = password;

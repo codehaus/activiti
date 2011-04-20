@@ -14,8 +14,10 @@
 package org.activiti.service.engine.test.rest;
 
 import org.activiti.service.api.model.Registration;
+import org.activiti.service.api.model.Registrations;
 import org.activiti.service.api.model.User;
-import org.activiti.service.engine.base.RestTestCase;
+import org.activiti.service.api.model.Users;
+import org.activiti.service.engine.test.RestTestCase;
 import org.activiti.service.impl.mail.Mail;
 
 
@@ -25,6 +27,9 @@ import org.activiti.service.impl.mail.Mail;
 public class RegistrationTest extends RestTestCase {
   
   public void testRegistration() {
+    // ensure registrations manager is initialized.  it is used in the registration.getJson below
+    activiti.getManager(Registrations.class);
+    
     Registration registration = new Registration();
     registration.setUserId("johndoe");
     registration.setEmail("johndoe@johndoe.kom");
@@ -43,18 +48,20 @@ public class RegistrationTest extends RestTestCase {
     assertEquals("Confirm your Activiti registration", mail.getSubject());
     
     registration = activiti
-      .getRegistrations()
-      .findRegistrationsByExample(new Registration().setEmail("johndoe@johndoe.kom"))
+      .getManager(Registrations.class)
+      .findAllByExample(new Registration().setEmail("johndoe@johndoe.kom"))
       .get(0);
     
     // the next assert ensures that the registration link is in the mail body
     assertTrue(mail.getBody().indexOf("/confirm-registration?id="+registration.getOid())!=-1);
   
-    Registration confirmedRegistration = activiti.getRegistrations().confirmRegistration(registration.getOid());
+    Registration confirmedRegistration = activiti
+      .getManager(Registrations.class)
+      .confirmRegistration(registration.getOid());
     assertEquals(registration.getClientIp(), confirmedRegistration.getClientIp());
     assertEquals(registration.getUrl(), confirmedRegistration.getUrl());
     
-    User johnDoe = activiti.getUsers().findUser("johndoe");
+    User johnDoe = activiti.getManager(Users.class).findUserById("johndoe");
     assertNotNull(johnDoe);
   }
 }

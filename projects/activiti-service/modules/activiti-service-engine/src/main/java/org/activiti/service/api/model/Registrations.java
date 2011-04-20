@@ -13,37 +13,23 @@
 
 package org.activiti.service.api.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.activiti.service.api.Activiti;
-import org.bson.types.ObjectId;
+import org.activiti.service.impl.persistence.Manager;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Registrations {
+public class Registrations extends Manager<Registration>{
 
-  protected Activiti activiti;
-  protected DBCollection registrations;
-  
-  public Registrations(Activiti activiti, DBCollection registrations) {
-    this.activiti = activiti;
-    this.registrations = registrations;
+  public Registrations(Activiti activiti, Class<Registration> persistableType, DBCollection dbCollection) {
+    super(activiti, persistableType, dbCollection);
   }
-  
+
   public void register(Registration registration) {
-    DBObject taskJson = registration.toJson();
-    registrations.insert(taskJson);
-    ObjectId objectId = (ObjectId) taskJson.get("_id");
-    String registrationId = objectId.toString();
-    registration.setOid(registrationId);
+    insert(registration);
 
     // TODO check if there are already existing registrations for the given email and handle appropriate
     
@@ -60,33 +46,21 @@ public class Registrations {
    * original requested url (registration.getUrl()) if it is not null. */
   public Registration confirmRegistration(String registrationId) {
     // lookup registration
-    DBObject query = new BasicDBObject();
-    query.put("_id", new ObjectId(registrationId));
-    DBObject dbObject = registrations.findOne(query);
+    Registration registration = findOneByOid(registrationId);
     // if registration does not exist return null.
-    if (dbObject==null) {
+    if (registration==null) {
       return null;
     }
-    Registration registration = new Registration(dbObject);
     
     // create user from registration
     User user = new User();
     user.setId(registration.getUserId());
     user.setPassword(registration.getPassword());
-    activiti.getUsers().insertUser(user);
+    activiti.getManager(Users.class).insert(user);
     
     // delete registration
-    registrations.remove(dbObject);
+    delete(registration);
     
     return registration;
-  }
-
-  public List<Registration> findRegistrationsByExample(Registration query) {
-    List<Registration> registrations = new ArrayList<Registration>(); 
-    DBCursor dbCursor = this.registrations.find(query.toJson());
-    while (dbCursor.hasNext()) {
-      registrations.add(new Registration(dbCursor.next()));
-    }
-    return registrations;
   }
 }

@@ -20,9 +20,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.activiti.service.api.model.Groups;
-import org.activiti.service.api.model.Registrations;
-import org.activiti.service.api.model.Tasks;
-import org.activiti.service.api.model.Users;
 import org.activiti.service.impl.persistence.Manager;
 import org.activiti.service.impl.util.ClassNameUtil;
 
@@ -45,9 +42,6 @@ public class Activiti {
   protected DB db = null;
   
   protected Groups groups = null; 
-  protected Registrations registrations = null; 
-  protected Tasks tasks = null; 
-  protected Users users = null; 
   
   protected Map<Class<?>, Manager<?>> managers = new HashMap<Class<?>, Manager<?>>();
   
@@ -66,8 +60,8 @@ public class Activiti {
         String persistableClassName = managerTypeName.substring(0, managerTypeName.length()-1);
         Class<?> persistableClass = Class.forName(persistableClassName, true, Activiti.class.getClassLoader());
         DBCollection dbCollection = db.getCollection(collectionName);
-        Constructor<T> managerConstructor = managerType.getDeclaredConstructor(Class.class, DBCollection.class);
-        manager = managerConstructor.newInstance(new Object[]{persistableClass, dbCollection});
+        Constructor<T> managerConstructor = managerType.getDeclaredConstructor(Activiti.class, Class.class, DBCollection.class);
+        manager = managerConstructor.newInstance(new Object[]{this, persistableClass, dbCollection});
         managers.put(managerType, (T) manager);
         
       } catch (Exception e) {
@@ -83,9 +77,6 @@ public class Activiti {
       db = mongo.getDB(activitiConfiguration.getDatabaseName());
       
       groups = new Groups(this, db.getCollection("groups"));
-      registrations = new Registrations(this, db.getCollection("registrations"));
-      tasks = new Tasks(this, db.getCollection("tasks"));
-      users = new Users(this, db.getCollection("users"));
       
     } catch (Exception e) {
       throw new RuntimeException("couldn't open mongodb connection: "+e.getMessage(), e);
@@ -111,23 +102,25 @@ public class Activiti {
       }
     }
   }
+
+  public void dump() {
+    log.info("dumping activiti database contents");
+    Set<String> collectionNames = db.getCollectionNames();
+    for (String collectionName : collectionNames) {
+      log.info(collectionName + " -----------------------");
+      DBCollection collection = db.getCollection(collectionName);
+      DBCursor cursor = collection.find();
+      while (cursor.hasNext()) {
+        DBObject dbObject = cursor.next();
+        log.info("  " + dbObject);
+      }
+    }
+  }
   
   // getters and setters //////////////////////////////////////////////////////
 
   public ActivitiConfiguration getActivitiConfiguration() {
     return activitiConfiguration;
-  }
-
-  public Users getUsers() {
-    return users;
-  }
-
-  public Tasks getTasks() {
-    return tasks;
-  }
-
-  public Registrations getRegistrations() {
-    return registrations;
   }
 
   public Groups getGroups() {

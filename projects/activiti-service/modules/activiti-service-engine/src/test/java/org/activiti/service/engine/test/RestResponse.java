@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.base;
+package org.activiti.service.engine.test;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -58,7 +58,7 @@ public class RestResponse {
                 && (!restRequest.getExpectedResponseMessage().equals(responseMessage))
               )
          ){
-        throw new ActivitiException("exception while performing request "+restRequest.getContextPath()+" ["+responseCode+"] "+responseMessage, RestTestCase.servletException);
+        throw new ActivitiException("exception while performing request "+restRequest.getContextPath()+" ["+responseCode+"] "+responseMessage, RestTestCase.getServletException());
       }
     }
   }

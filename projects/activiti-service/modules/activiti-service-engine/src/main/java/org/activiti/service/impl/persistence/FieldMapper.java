@@ -11,21 +11,25 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.base;
+package org.activiti.service.impl.persistence;
 
-import org.activiti.service.impl.rest.handler.RestRequestContext;
-import org.activiti.service.rest.RestServlet;
+import java.lang.reflect.Field;
+
+import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestRestServlet extends RestServlet {
+public abstract class FieldMapper {
 
-  private static final long serialVersionUID = 1L;
-
-  protected void logException(Throwable e, RestRequestContext restRequestContext) {
-    RestTestCase.servletException = e;
-    super.logException(e, restRequestContext);
+  protected Field field;
+  
+  public FieldMapper(Field field) {
+    this.field = field;
   }
+
+  public abstract void set(DBObject dbObject, Persistable persistable);
+  public abstract void get(DBObject dbObject, Persistable persistable);
+
 }

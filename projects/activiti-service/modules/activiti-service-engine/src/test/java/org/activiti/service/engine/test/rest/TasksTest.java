@@ -16,7 +16,8 @@ package org.activiti.service.engine.test.rest;
 import java.util.logging.Logger;
 
 import org.activiti.service.api.model.Task;
-import org.activiti.service.engine.base.RestTestCase;
+import org.activiti.service.api.model.Tasks;
+import org.activiti.service.engine.test.RestTestCase;
 
 
 
@@ -33,17 +34,17 @@ public class TasksTest extends RestTestCase {
     Task taskOne = new Task()
       .setTitle("helloworld")
       .setAssignee("kermit");
-    activiti.getTasks().createTask(taskOne);
+    activiti.getManager(Tasks.class).insert(taskOne);
     
     Task taskTwo = new Task()
       .setTitle("hiuniverse")
       .setAssignee("kermit");
-    activiti.getTasks().createTask(taskTwo);
+    activiti.getManager(Tasks.class).insert(taskTwo);
     
     Task taskThree= new Task()
       .setTitle("yowwhatsup")
       .setAssignee("fozzie");
-    activiti.getTasks().createTask(taskThree);
+    activiti.getManager(Tasks.class).insert(taskThree);
 
     log.info("tasks of default user kermit:");
     createRestRequest("/tasks?first=0&max=10").get();

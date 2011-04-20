@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.activiti.service.api.model.Deployment;
 import org.activiti.service.api.model.Deployments;
-import org.activiti.service.engine.base.ActivitiTestCase;
+import org.activiti.service.engine.test.ActivitiTestCase;
 
 
 /**
@@ -39,7 +39,7 @@ public class DeploymentsTest extends ActivitiTestCase {
     Deployment example = new Deployment()
       .setName("by.jar");
   
-    List<Deployment> fetched = deployments.findByExample(example);
+    List<Deployment> fetched = deployments.findAllByExample(example);
     assertEquals(1, fetched.size());
     
     deployments.delete(fetched.get(0));

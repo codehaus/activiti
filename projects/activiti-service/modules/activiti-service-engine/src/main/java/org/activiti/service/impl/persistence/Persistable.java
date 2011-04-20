@@ -13,15 +13,9 @@
 
 package org.activiti.service.impl.persistence;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.activiti.service.api.ActivitiException;
-import org.bson.types.ObjectId;
-
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 
@@ -30,85 +24,23 @@ import com.mongodb.DBObject;
  */
 public class Persistable {
   
-  String oid;
+  static Map<Class<?>, ClassMapper> classMappers = new HashMap<Class<?>, ClassMapper>(); 
+  
+  protected String oid;
 
   public Persistable() {
   }
   
-  @SuppressWarnings("unchecked")
   public Persistable(DBObject dbObject) {
-    try {
-      for (Field field: getClass().getDeclaredFields()) {
-        Object value = null;
-        field.setAccessible(true);
-        if (field.getName().equals("oid")) {
-          ObjectId objectId = (ObjectId) dbObject.get("_id");
-          if (objectId != null) {
-            value = objectId.toString();
-          }
-        } else {
-
-          if (String.class.isAssignableFrom(field.getType())) {
-            value = dbObject.get(field.getName());
-
-          } else if (List.class.isAssignableFrom(field.getType())) {
-            BasicDBList dbList = (BasicDBList) dbObject.get(field.getName());
-            if (dbList!=null) {
-              value = new ArrayList<String>((List)dbList);
-            }
-            
-          } else {
-            throw new ActivitiException("unsupported field type "+field.getType().getName());
-          }
-        }
-        if (value!=null) {
-          field.set(this, value);
-        }
-      }
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
-    }
+    classMappers
+      .get(getClass())
+      .set(this, dbObject);
   }
   
-  @SuppressWarnings("unchecked")
-  public DBObject toJsonMongo() {
-    BasicDBObject dbObject = new BasicDBObject();
-    try {
-      Class<?> persistentClass = getClass();
-      while (persistentClass!=null) {
-        for (Field field: getClass().getDeclaredFields()) {
-          field.setAccessible(true);
-          Object value = field.get(this);
-          if (value!=null) {
-            if (field.getName().equals("oid")) {
-              dbObject.put("_id", new ObjectId((String)value));
-            } else {
-              if (String.class.isAssignableFrom(field.getType())) {
-                dbObject.put(field.getName(), value);
-
-              } else if (List.class.isAssignableFrom(field.getType())) {
-                BasicDBList dbList = (BasicDBList) new BasicDBList();
-                for (String element: (List<String>)value) {
-                  if (element instanceof String) {
-                    dbList.add(element);
-                  }
-                }
-                dbObject.put(field.getName(), dbList);
-                
-              } else {
-                throw new ActivitiException("unsupported field type "+field.getType().getName());
-              }
-            }
-          }
-        }
-
-        persistentClass = persistentClass.getSuperclass();
-      }
-      
-      return dbObject;
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
-    }
+  public DBObject toJson() {
+    return classMappers
+      .get(getClass())
+      .get(this);
   }
 
   public String getOid() {

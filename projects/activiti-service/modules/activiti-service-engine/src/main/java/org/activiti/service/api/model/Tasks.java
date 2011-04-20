@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.service.api.Activiti;
+import org.activiti.service.impl.persistence.Manager;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -28,26 +29,10 @@ import com.mongodb.DBObject;
 /**
  * @author Tom Baeyens
  */
-public class Tasks {
+public class Tasks extends Manager<Task> {
 
-  protected Activiti activiti;
-  protected DBCollection tasks;
-
-  public Tasks(Activiti activiti, DBCollection tasks) {
-    this.activiti = activiti;
-    this.tasks = tasks;
-  }
-
-  public void createTask(Task task) {
-    DBObject taskJson = task.toJson();
-    tasks.insert(taskJson);
-    task.setOid(taskJson.get("_id").toString());
-  }
-
-  public void deleteTask(String taskId) {
-    DBObject query = new BasicDBObject();
-    query.put("_id", taskId);
-    tasks.remove(query);
+  public Tasks(Activiti activiti, Class<Task> persistableType, DBCollection dbCollection) {
+    super(activiti, persistableType, dbCollection);
   }
 
   public List<Task> findTasks(String assignee, Integer firstResult, Integer maxResults) {
@@ -61,7 +46,7 @@ public class Tasks {
   public List<DBObject> findTasksJson(String assignee, Integer firstResult, Integer maxResults) {
     DBObject query = new BasicDBObject();
     query.put("assignee", assignee);
-    DBCursor dbCursor = tasks.find(query, null, firstResult, maxResults);
+    DBCursor dbCursor = dbCollection.find(query, null, firstResult, maxResults);
     
     List<DBObject> list = new ArrayList<DBObject>();
     while (dbCursor.hasNext()) {
@@ -74,7 +59,7 @@ public class Tasks {
   public DBObject findTask(String taskId) {
     DBObject query = new BasicDBObject();
     query.put("_id", new ObjectId(taskId));
-    DBObject dbObject = tasks.findOne(query);
+    DBObject dbObject = dbCollection.findOne(query);
     return dbObject;
   }
 }

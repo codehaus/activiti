@@ -13,19 +13,17 @@
 
 package org.activiti.service.api.model;
 
+import org.activiti.service.impl.persistence.Persistable;
 import org.activiti.service.impl.util.json.JSONObject;
-import org.bson.types.ObjectId;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Registration {
+public class Registration extends Persistable {
 
-  protected String oid;
   protected String userId;
   protected String password;
   protected String email;
@@ -33,6 +31,11 @@ public class Registration {
   protected String clientIp;
 
   public Registration() {
+    super();
+  }
+
+  public Registration(DBObject dbObject) {
+    super(dbObject);
   }
 
   public Registration(String jsonText) {
@@ -46,28 +49,6 @@ public class Registration {
     email = (String) jsonObject.get("email");
     url = (String) jsonObject.get("url");
     clientIp = (String) jsonObject.get("clientIp");
-  }
-  
-  public Registration(DBObject dbObject) {
-    oid = dbObject.get("_id").toString();
-    userId = (String) dbObject.get("userId");
-    password = (String) dbObject.get("password");
-    email = (String) dbObject.get("email");
-    url = (String) dbObject.get("url");
-    clientIp = (String) dbObject.get("clientIp");
-  }
-  
-  public DBObject toJson() {
-    DBObject json = new BasicDBObject();
-    if (oid!=null) {
-      json.put("_id", new ObjectId(oid));
-    }
-    if (userId!=null) json.put("userId", userId);
-    if (password!=null) json.put("password", password);
-    if (email!=null) json.put("email", email);
-    if (url!=null) json.put("url", url);
-    if (clientIp!=null) json.put("clientIp", clientIp);
-    return json;
   }
 
   public String getUserId() {
@@ -103,15 +84,6 @@ public class Registration {
   
   public Registration setUrl(String url) {
     this.url = url;
-    return this;
-  }
-  
-  public String getOid() {
-    return oid;
-  }
-  
-  public Registration setOid(String oid) {
-    this.oid = oid;
     return this;
   }
   

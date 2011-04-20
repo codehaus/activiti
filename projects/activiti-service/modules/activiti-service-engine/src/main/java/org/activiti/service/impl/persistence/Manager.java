@@ -17,6 +17,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiException;
 import org.bson.types.ObjectId;
 
@@ -31,16 +32,20 @@ import com.mongodb.DBObject;
  */
 public class Manager <T extends Persistable> {
 
-  Class<T> persistableType;
-  DBCollection dbCollection;
+  protected Activiti activiti;
+  protected Class<T> persistableType;
+  protected DBCollection dbCollection;
   
-  public Manager(Class<T> persistableType, DBCollection dbCollection) {
+  public Manager(Activiti activiti, Class<T> persistableType, DBCollection dbCollection) {
+    this.activiti = activiti;
     this.persistableType = persistableType;
     this.dbCollection = dbCollection;
+    // initialize this class
+    Persistable.classMappers.put(persistableType, new ClassMapper(persistableType));
   }
 
   public String insert(T persistable) {
-    DBObject jsonMongo = persistable.toJsonMongo();
+    DBObject jsonMongo = persistable.toJson();
     dbCollection.insert(jsonMongo);
     String oid = jsonMongo.get("_id").toString();
     persistable.setOid(oid);
@@ -48,19 +53,19 @@ public class Manager <T extends Persistable> {
   }
   
   public void delete(T persistable) {
-    DBObject jsonMongo = persistable.toJsonMongo();
+    DBObject jsonMongo = persistable.toJson();
     dbCollection.remove(jsonMongo);
   }
 
   public void update(T persistable) {
     DBObject query = new BasicDBObject("_id", new ObjectId(persistable.getOid()));
-    DBObject jsonMongo = persistable.toJsonMongo();
+    DBObject jsonMongo = persistable.toJson();
     dbCollection.update(query, jsonMongo);
   }
 
-  public List<T> findByExample(T example) {
+  public List<T> findAllByExample(T example) {
     List<T> persistables = new ArrayList<T>();
-    DBObject jsonMongo = example.toJsonMongo();
+    DBObject jsonMongo = example.toJson();
     DBCursor dbCursor = dbCollection.find(jsonMongo);
     while (dbCursor.hasNext()) {
       try {
@@ -73,5 +78,30 @@ public class Manager <T extends Persistable> {
       }
     }
     return persistables;
+  }
+  
+  public T findOneByExample(T example) {
+    DBObject jsonMongo = example.toJson();
+    return findOneJsonByExampleJson(jsonMongo);
+  }
+
+  public T findOneByOid(String oid) {
+    DBObject jsonMongo = new BasicDBObject();
+    jsonMongo.put("_id", new ObjectId(oid));
+    return findOneJsonByExampleJson(jsonMongo);
+  }
+
+  private T findOneJsonByExampleJson(DBObject jsonMongo) {
+    T persistable = null;
+    DBObject dbObject = dbCollection.findOne(jsonMongo);
+    if (dbObject!=null) {
+      try {
+        Constructor<T> constructor = persistableType.getDeclaredConstructor(DBObject.class);
+        persistable = constructor.newInstance(new Object[]{dbObject});
+      } catch (Exception e) {
+        throw new ActivitiException("persistence reflection problem", e);
+      }
+    }
+    return persistable;
   }
 }

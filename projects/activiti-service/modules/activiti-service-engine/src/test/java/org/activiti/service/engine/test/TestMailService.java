@@ -11,26 +11,31 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.engine.test;
 
+import java.util.ArrayList;
+import java.util.List;
 
-import org.activiti.service.api.Activiti;
-import org.activiti.service.impl.persistence.Manager;
-
-import com.mongodb.DBCollection;
+import org.activiti.service.impl.mail.Mail;
+import org.activiti.service.impl.mail.MailService;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Users extends Manager<User>{
+public class TestMailService extends MailService {
+  
+  List<Mail> mails = new ArrayList<Mail>();
 
-  public Users(Activiti activiti, Class<User> persistableType, DBCollection dbCollection) {
-    super(activiti, persistableType, dbCollection);
+  public Mail newMail() {
+    return new Mail(this) {
+      public void send() {
+        mails.add(this);
+      }
+    };
   }
 
-  public User findUserById(String userId) {
-    User example = new User().setId(userId);
-    return findOneByExample(example);
+  public List<Mail> getMails() {
+    return mails;
   }
 }

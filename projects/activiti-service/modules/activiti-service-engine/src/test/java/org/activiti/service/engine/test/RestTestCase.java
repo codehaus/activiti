@@ -11,17 +11,19 @@
  * limitations under the License.
  */
 
-package org.activiti.service.engine.base;
+package org.activiti.service.engine.test;
 
 import org.activiti.service.api.Activiti;
 import org.activiti.service.rest.RestServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.junit.Ignore;
 
 /**
  * @author Tom Baeyens
  */
+@Ignore
 public class RestTestCase extends ActivitiTestCase {
   
   static int serverPort = 8765;
@@ -45,5 +47,13 @@ public class RestTestCase extends ActivitiTestCase {
   
   public RestRequest createRestRequestWithoutAuthentication(String url) {
     return new RestRequest(baseContextUrl, url);
+  }
+
+  public static Throwable getServletException() {
+    return servletException;
+  }
+
+  public static void setServletException(Throwable servletException) {
+    RestTestCase.servletException = servletException;
   }
 }

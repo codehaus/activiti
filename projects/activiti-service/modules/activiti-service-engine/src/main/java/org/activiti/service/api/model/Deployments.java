@@ -13,6 +13,7 @@
 
 package org.activiti.service.api.model;
 
+import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.persistence.Manager;
 
 import com.mongodb.DBCollection;
@@ -23,8 +24,7 @@ import com.mongodb.DBCollection;
  */
 public class Deployments extends Manager<Deployment> {
 
-  public Deployments(Class<Deployment> persistableType, DBCollection dbCollection) {
-    super(persistableType, dbCollection);
+  public Deployments(Activiti activiti, Class<Deployment> persistableType, DBCollection dbCollection) {
+    super(activiti, persistableType, dbCollection);
   }
-
 }

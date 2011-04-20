@@ -13,6 +13,7 @@
 
 package org.activiti.service.impl.rest.handler;
 
+import org.activiti.service.api.model.Tasks;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.parameter.StringParameter;
@@ -42,7 +43,7 @@ public class TaskHandler extends RestHandler {
   public void handle(RestRequestContext restRequestContext) {
     DBObject taskJson = restRequestContext
       .getActiviti()
-      .getTasks()
+      .getManager(Tasks.class)
       .findTask(taskId.get(restRequestContext));
 
     restRequestContext.sendResponse(taskJson);

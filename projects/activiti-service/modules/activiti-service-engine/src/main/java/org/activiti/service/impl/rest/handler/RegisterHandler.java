@@ -14,6 +14,7 @@
 package org.activiti.service.impl.rest.handler;
 
 import org.activiti.service.api.model.Registration;
+import org.activiti.service.api.model.Registrations;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.JsonParameter;
 import org.activiti.service.impl.rest.impl.Parameter;
@@ -45,7 +46,7 @@ public class RegisterHandler extends RestHandler {
     Registration registration = registrationParameter.get(restRequestContext);
     restRequestContext
       .getActiviti()
-      .getRegistrations()
+      .getManager(Registrations.class)
       .register(registration);
     
     restRequestContext.sendResponsePlainText("registration email sent to "+registration.getEmail());
