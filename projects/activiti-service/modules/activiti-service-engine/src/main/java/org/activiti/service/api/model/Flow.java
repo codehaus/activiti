@@ -14,7 +14,9 @@
 package org.activiti.service.api.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.activiti.service.api.model.nested.ActivityInstance;
 import org.activiti.service.impl.persistence.Persistable;
@@ -23,8 +25,23 @@ import org.activiti.service.impl.persistence.Persistable;
 /**
  * @author Tom Baeyens
  */
-public class Flow extends Persistable {
+public class Flow extends Case {
 
   String processOid;
+  // TODO 
+  // Map<String,Object> variables = new HashMap<String, Object>(); 
   List<ActivityInstance> activityInstances = new ArrayList<ActivityInstance>();
+
+  public String getProcessOid() {
+    return processOid;
+  }
+  
+  public Flow setProcessOid(String processOid) {
+    this.processOid = processOid;
+    return this;
+  }
+  
+  public List<ActivityInstance> getActivityInstances() {
+    return activityInstances;
+  }
 }

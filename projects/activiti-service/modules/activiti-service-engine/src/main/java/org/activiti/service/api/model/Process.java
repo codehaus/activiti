@@ -35,6 +35,10 @@ public class Process extends Persistable {
   @PersistentMap(type=Activity.class, key="id")
   Map<String, Activity> activities = new HashMap<String, Activity>();
   
+  public Flow createNewFlow() {
+    return new Flow().setProcessOid(oid);
+  }
+  
   public Process setDescription(String description) {
     this.description = description;
     return this; 
