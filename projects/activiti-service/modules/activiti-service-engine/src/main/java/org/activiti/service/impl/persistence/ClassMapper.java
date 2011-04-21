@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiException;
 
 import com.mongodb.BasicDBObject;
@@ -52,8 +53,8 @@ public class ClassMapper {
             throw new ActivitiException("type is a reserved json key and field name: "+field);
           }
           
-          if (Modifier.isStatic(field.getModifiers())) { 
-            // ignore static fields
+          if (Modifier.isStatic(field.getModifiers()) || Activiti.class.equals(field.getType())) { 
+            // ignore static fields and Activiti typed fields
             fieldMapper = null;
             
           } else if (Persistable.class.isAssignableFrom(scannedClass) && field.getName().equals("oid")) {
@@ -65,12 +66,9 @@ public class ClassMapper {
           } else if (List.class.isAssignableFrom(field.getType())) {
             PersistentList persistentList = field.getAnnotation(PersistentList.class);
             if (persistentList==null) {
-              throw new ActivitiException("list "+field+" doesn't have "+PersistentList.class);
-            }
-            Class<?> elementType = persistentList.type();
-            if (String.class.isAssignableFrom(elementType)) {
               fieldMapper = new CollectionStringFieldMapper(field);
             } else {
+              Class<?> elementType = persistentList.type();
               fieldMapper = new CollectionBeanFieldMapper(field, elementType);
             }
             

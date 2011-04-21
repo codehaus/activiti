@@ -16,6 +16,8 @@ package org.activiti.service.impl.persistence;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.activiti.service.api.Activiti;
+
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
@@ -27,6 +29,7 @@ public class Persistable {
   
   static Map<Class<?>, ClassMapper> classMappers = new HashMap<Class<?>, ClassMapper>(); 
   
+  protected Activiti activiti;
   protected String oid;
   
   static ClassMapper getClassMapper(Class<?> type) {
@@ -74,5 +77,13 @@ public class Persistable {
 
   public void setOid(String oid) {
     this.oid = oid;
+  }
+
+  public Activiti getActiviti() {
+    return activiti;
+  }
+
+  public void setActiviti(Activiti activiti) {
+    this.activiti = activiti;
   }
 }

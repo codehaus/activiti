@@ -11,49 +11,43 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api.model.nested;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import org.activiti.service.impl.persistence.Persistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class User extends Persistable {
+public class UserLink {
 
-  String id;
-  String password;
+  public static final String ROLE_ASSIGNEE = "assignee";
+  public static final String ROLE_OWNER = "owner";
   
-  List<String> groupIds;
-
-  // getters and setters //////////////////////////////////////////////////////
-
-  public String getId() {
-    return id;
+  String userId;
+  String role;
+  List<String> tags = new ArrayList<String>();
+  
+  public String getUserId() {
+    return userId;
   }
   
-  public User setId(String userId) {
-    this.id = userId;
+  public UserLink setUserId(String userId) {
+    this.userId = userId;
     return this;
   }
   
-  public String getPassword() {
-    return password;
+  public String getRole() {
+    return role;
   }
   
-  public User setPassword(String password) {
-    this.password = password;
+  public UserLink setRole(String role) {
+    this.role = role;
     return this;
   }
 
-  public List<String> getGroupIds() {
-    return groupIds;
-  }
-
-  public User setGroupIds(List<String> groupIds) {
-    this.groupIds = groupIds;
-    return this;
+  public List<String> getTags() {
+    return tags;
   }
 }

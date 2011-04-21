@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.activiti.service.api.ActivitiException;
 import org.activiti.service.api.model.process.Activity;
+import org.activiti.service.impl.persistence.Persistable;
 import org.activiti.service.impl.persistence.PersistentMap;
 
 
@@ -25,16 +26,15 @@ import org.activiti.service.impl.persistence.PersistentMap;
 /**
  * @author Tom Baeyens
  */
-public class Process extends Case {
+public class Process extends Persistable {
+
+  String name;
+  String description;
+  String owner;
 
   @PersistentMap(type=Activity.class, key="id")
   Map<String, Activity> activities = new HashMap<String, Activity>();
-
-  public Process setAssignee(String assignee) {
-    this.assignee = assignee;
-    return this; 
-  }
-
+  
   public Process setDescription(String description) {
     this.description = description;
     return this; 
@@ -48,6 +48,18 @@ public class Process extends Case {
   public Process setOwner(String owner) {
     this.owner = owner;
     return this; 
+  }
+  
+  public String getName() {
+    return name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getOwner() {
+    return owner;
   }
 
   public Map<String, Activity> getActivities() {

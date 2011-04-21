@@ -11,32 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.process;
+package org.activiti.service.api.model.nested;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Transition {
+public class ActivityInstance {
 
-  String id;
-  String destination;
-
-  public String getId() {
-    return id;
-  }
-
-  public Transition setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getDestination() {
-    return destination;
-  }
-
-  public Transition setDestination(String destination) {
-    this.destination = destination;
-    return this;
-  }
 }

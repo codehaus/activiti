@@ -49,7 +49,7 @@ public class CollectionBeanFieldMapper extends CollectionFieldMapper {
   public Object convertJsonElement(Object jsonElement) {
     try {
       DBObject jsonMongo = (DBObject) jsonElement;
-      Object bean = Manager.instantiate(jsonMongo, elementType); 
+      Object bean = Manager.instantiate(jsonMongo, elementType, null); 
       classMapper.setJsonInBean(bean, jsonMongo);
       return bean;
     } catch (Exception e) {

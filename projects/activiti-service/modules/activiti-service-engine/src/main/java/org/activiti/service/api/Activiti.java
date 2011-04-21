@@ -52,9 +52,10 @@ public class Activiti {
     T manager = (T) managers.get(managerType);
     if (manager==null) {
       try {
-        String managerTypeName = managerType.getName();
         String collectionName = "activiti."+ClassNameUtil.getClassNameWithoutPackage(managerType).toLowerCase();
-        String persistableClassName = managerTypeName.substring(0, managerTypeName.length()-1);
+        String managerTypeName = managerType.getName();
+        int diff = (managerTypeName.endsWith("Processes") ? 2 : 1);
+        String persistableClassName = managerTypeName.substring(0, managerTypeName.length()-diff);
         Class<?> persistableClass = Class.forName(persistableClassName, true, Activiti.class.getClassLoader());
         DBCollection dbCollection = db.getCollection(collectionName);
         manager = managerType.newInstance();

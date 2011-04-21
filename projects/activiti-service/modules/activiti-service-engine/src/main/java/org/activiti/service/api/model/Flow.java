@@ -11,32 +11,20 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.nested;
+package org.activiti.service.api.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.activiti.service.api.model.nested.ActivityInstance;
+import org.activiti.service.impl.persistence.Persistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class PersonLink {
+public class Flow extends Persistable {
 
-  String userId;
-  String role;
-  
-  public String getUserId() {
-    return userId;
-  }
-  
-  public PersonLink setUserId(String userId) {
-    this.userId = userId;
-    return this;
-  }
-  
-  public String getRole() {
-    return role;
-  }
-  
-  public PersonLink setRole(String role) {
-    this.role = role;
-    return this;
-  }
+  String processOid;
+  List<ActivityInstance> activityInstances = new ArrayList<ActivityInstance>();
 }

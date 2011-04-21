@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.activiti.service.api.model.Case;
 import org.activiti.service.api.model.Cases;
+import org.activiti.service.api.model.nested.UserLink;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.RestRequestContext;
@@ -26,7 +27,7 @@ import org.activiti.service.impl.rest.parameter.IntegerParameter;
 /**
  * @author Tom Baeyens
  */
-public class CazesHandler extends RestHandler {
+public class CasesHandler extends RestHandler {
   
   // private static Logger log = Logger.getLogger(TasksHandler.class.getName());
   
@@ -60,14 +61,14 @@ public class CazesHandler extends RestHandler {
     Integer firstResult = firstResultParameter.get(restRequestContext);
     Integer maxResults = maxResultsParameter.get(restRequestContext);
     
-    Case query = new Case().setAssignee(authenticatedUserId);
+    Case query = new Case().addUserLink(authenticatedUserId, UserLink.ROLE_ASSIGNEE);
     
-    List<Case> cazes = restRequestContext
+    List<Case> cases = restRequestContext
       .getActiviti()
       .getManager(Cases.class)
       .findByExample(query, firstResult, maxResults);
     
     // send response
-    restRequestContext.sendResponse(cazes);
+    restRequestContext.sendResponse(cases);
   }
 }

@@ -29,20 +29,20 @@ public class CasesRestTest extends RestTestCase {
   private static Logger log = Logger.getLogger(CasesRestTest.class.getName());
 
   public void testTaskLists() {
-    Case cazeOne = new Case()
+    Case caseOne = new Case()
       .setName("helloworld")
       .setAssignee("kermit");
-    activiti.getManager(Cases.class).insert(cazeOne);
+    activiti.getManager(Cases.class).insert(caseOne);
     
-    Case cazeTwo = new Case()
+    Case caseTwo = new Case()
       .setName("hiuniverse")
       .setAssignee("kermit");
-    activiti.getManager(Cases.class).insert(cazeTwo);
+    activiti.getManager(Cases.class).insert(caseTwo);
     
-    Case cazeThree= new Case()
+    Case caseThree= new Case()
       .setName("yowwhatsup")
       .setAssignee("fozzie");
-    activiti.getManager(Cases.class).insert(cazeThree);
+    activiti.getManager(Cases.class).insert(caseThree);
 
     log.info("cases of default user kermit:");
     createRestRequest("/cases?first=0&max=10").get();
@@ -58,7 +58,7 @@ public class CasesRestTest extends RestTestCase {
     createRestRequest("/cases?first=0&max=10").get();
 
     log.info("case two");
-    createRestRequest("/case/"+cazeTwo.getOid()).get();
+    createRestRequest("/case/"+caseTwo.getOid()).get();
   }
   
   public void getTaskDetails() {

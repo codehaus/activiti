@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.service.api.ActivitiException;
 import org.activiti.service.impl.persistence.PersistentList;
 import org.activiti.service.impl.persistence.PersistentMap;
 
@@ -54,6 +55,15 @@ public class Activity {
 
   public Activity addTransition(Transition transition) {
     transitions.add(transition);
+    return this;
+  }
+
+  public Activity addActivity(Activity activity) {
+    String activityId = activity.getId();
+    if (activityId==null) {
+      throw new ActivitiException("activity id is null");
+    }
+    activities.put(activityId, activity);
     return this;
   }
 }

@@ -15,8 +15,8 @@ package org.activiti.service.engine.test.api;
 
 import java.util.logging.Logger;
 
-import org.activiti.service.api.model.Cases;
 import org.activiti.service.api.model.Process;
+import org.activiti.service.api.model.Processes;
 import org.activiti.service.api.model.process.Activity;
 import org.activiti.service.api.model.process.Transition;
 import org.activiti.service.engine.test.ActivitiTestCase;
@@ -36,14 +36,20 @@ public class ProcessTest extends ActivitiTestCase {
       .addActivity(new Activity()
         .setId("a")
         .addTransition(new Transition().setId("t1"))
-        .addTransition(new Transition().setId("t2")))
+        .addTransition(new Transition().setId("t2"))
+        .addActivity(new Activity()
+          .setId("a1")
+          .addTransition(new Transition().setId("t3"))
+          .addTransition(new Transition().setId("t4")))
+        .addActivity(new Activity()
+          .setId("a2")))
       .addActivity(new Activity()
         .setId("b"));
     
-    Cases cases = activiti.getManager(Cases.class);
-    cases.insert(process);
+    Processes processes = activiti.getManager(Processes.class);
+    processes.insert(process);
     
-    process = (Process) cases.findOneByOid(process.getOid());
+    process = (Process) processes.findOneByOid(process.getOid());
 
     assertEquals("My first process", process.getName());
     

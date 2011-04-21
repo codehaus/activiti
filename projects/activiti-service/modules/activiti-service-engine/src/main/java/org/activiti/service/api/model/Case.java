@@ -14,11 +14,15 @@
 package org.activiti.service.api.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.activiti.service.api.model.nested.PersonLink;
+import org.activiti.service.api.model.nested.GroupLink;
+import org.activiti.service.api.model.nested.UserLink;
 import org.activiti.service.impl.persistence.Persistable;
 import org.activiti.service.impl.persistence.PersistentList;
+import org.activiti.service.impl.persistence.PersistentMap;
 
 
 /**
@@ -28,12 +32,27 @@ public class Case extends Persistable {
   
   String name;
   String description;
-  String assignee;
-  String owner;
 
-  @PersistentList(type=PersonLink.class)
-  List<PersonLink> personLinks = new ArrayList<PersonLink>();
+  @PersistentMap(type=UserLink.class, key="userId")
+  Map<String, UserLink> users = new HashMap<String, UserLink>();
   
+  @PersistentList(type=GroupLink.class)
+  List<GroupLink> groups = new ArrayList<GroupLink>();
+  
+  public Case addUserLink(String userId, String role) {
+    UserLink userLink = new UserLink().setUserId(userId).setRole(role);
+    users.put(userId, userLink);
+    return this;
+  }
+
+  public Case setAssignee(String userId) {
+    return addUserLink(userId, UserLink.ROLE_ASSIGNEE);
+  }
+
+  public Case setOwner(String userId) {
+    return addUserLink(userId, UserLink.ROLE_OWNER);
+  }
+
   public String getName() {
     return name;
   }
@@ -52,25 +71,7 @@ public class Case extends Persistable {
     return this;
   }
   
-  public String getAssignee() {
-    return assignee;
-  }
-  
-  public Case setAssignee(String assignee) {
-    this.assignee = assignee;
-    return this;
-  }
-
-  public String getOwner() {
-    return owner;
-  }
-
-  public Case setOwner(String owner) {
-    this.owner = owner;
-    return this;
-  }
-
-  public List<PersonLink> getPersonLinks() {
-    return personLinks;
+  public Map<String, UserLink> getUsers() {
+    return users;
   }
 }

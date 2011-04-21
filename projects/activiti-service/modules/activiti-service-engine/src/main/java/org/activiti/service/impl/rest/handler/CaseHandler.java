@@ -24,7 +24,7 @@ import org.activiti.service.impl.rest.parameter.StringParameter;
 /**
  * @author Tom Baeyens
  */
-public class CazeHandler extends RestHandler {
+public class CaseHandler extends RestHandler {
 
   public HttpServletMethod getMethod() {
     return HttpServletMethod.GET;
@@ -34,19 +34,19 @@ public class CazeHandler extends RestHandler {
     return "/case/{caseOid}";
   }
 
-  protected StringParameter cazeOidParameter = (StringParameter) new StringParameter()
+  protected StringParameter caseOidParameter = (StringParameter) new StringParameter()
     .setUrlVariable()
     .setName("caseOid") 
     .setDescription("the oid of the case")
     .setMaxLength(20);
 
   public void handle(RestRequestContext restRequestContext) {
-    String cazeOid = cazeOidParameter.get(restRequestContext);
+    String caseOid = caseOidParameter.get(restRequestContext);
     
     Case caze = restRequestContext
       .getActiviti()
       .getManager(Cases.class)
-      .findOneByOid(cazeOid);
+      .findOneByOid(caseOid);
 
     restRequestContext.sendResponse(caze);
   }

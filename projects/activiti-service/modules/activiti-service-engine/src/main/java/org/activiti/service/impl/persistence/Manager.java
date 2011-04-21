@@ -49,6 +49,7 @@ public class Manager <T extends Persistable> {
     dbCollection.insert(jsonMongo);
     String oid = jsonMongo.get("_id").toString();
     persistable.setOid(oid);
+    persistable.setActiviti(activiti);
     return oid;
   }
   
@@ -78,7 +79,7 @@ public class Manager <T extends Persistable> {
     }
     while (dbCursor.hasNext()) {
       DBObject dbObject = dbCursor.next();
-      T persistable = instantiate(dbObject, persistableType);
+      T persistable = instantiate(dbObject, persistableType, activiti);
       persistable.setJson(dbObject);
       persistables.add(persistable);
     }
@@ -86,14 +87,20 @@ public class Manager <T extends Persistable> {
   }
 
   @SuppressWarnings("unchecked")
-  static <T> T instantiate(DBObject dbObject, Class<T> baseType) {
+  static <T> T instantiate(DBObject dbObject, Class<T> baseType, Activiti activiti) {
     try {
       Class<T> instanceType = baseType;
       String type = (String) dbObject.get("type");
       if (type!=null) {
         instanceType = (Class<T>) Class.forName(type, true, Manager.class.getClassLoader());
       }
-      return instanceType.newInstance();
+      T object = instanceType.newInstance();
+      
+      if (object instanceof Persistable) {
+        ((Persistable)object).setActiviti(activiti);
+      }
+      
+      return object;
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);
     }
@@ -114,7 +121,7 @@ public class Manager <T extends Persistable> {
     T persistable = null;
     DBObject dbObject = dbCollection.findOne(jsonMongo);
     if (dbObject!=null) {
-      persistable = instantiate(dbObject, persistableType);
+      persistable = instantiate(dbObject, persistableType, activiti);
       persistable.setJson(dbObject);
     }
     return persistable;

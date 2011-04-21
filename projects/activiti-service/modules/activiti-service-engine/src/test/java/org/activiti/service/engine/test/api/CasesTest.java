@@ -13,12 +13,11 @@
 
 package org.activiti.service.engine.test.api;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.activiti.service.api.model.Case;
 import org.activiti.service.api.model.Cases;
-import org.activiti.service.api.model.nested.PersonLink;
+import org.activiti.service.api.model.nested.UserLink;
 import org.activiti.service.engine.test.ActivitiTestCase;
 
 
@@ -32,19 +31,18 @@ public class CasesTest extends ActivitiTestCase {
   public void testCasePeopleLinks() {
     Case caze = new Case()
       .setName("run")
-      .setAssignee("kermit");
-    
-    List<PersonLink> personLinks = caze.getPersonLinks();
-    personLinks.add(new PersonLink().setUserId("johndoe").setRole("interested"));
-    personLinks.add(new PersonLink().setUserId("joesmoe").setRole("interested"));
-    
-    activiti
-      .getManager(Cases.class)
-      .insert(caze);
-    
-    caze = activiti
-      .getManager(Cases.class)
-      .findOneByOid(caze.getOid());
+      .addUserLink("kermit", UserLink.ROLE_ASSIGNEE);
+
+    Cases cases = activiti.getManager(Cases.class);
+
+    cases.insert(caze);
+    caze = cases.findOneByOid(caze.getOid());
+  
+    caze.addUserLink("johndoe", "interested");
+    caze.addUserLink("joesmoe", "interested");
+  
+    cases.update(caze);
+    caze = cases.findOneByOid(caze.getOid());
     
     log.fine(caze.getJsonTextPrettyPrint());
   }

@@ -11,32 +11,32 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.process;
+package org.activiti.service.api.model.nested;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Transition {
+public class GroupLink {
 
-  String id;
-  String destination;
-
-  public String getId() {
-    return id;
+  String groupId;
+  String role;
+  
+  public String getGroupId() {
+    return groupId;
   }
-
-  public Transition setId(String id) {
-    this.id = id;
+  
+  public GroupLink setGroupId(String groupId) {
+    this.groupId = groupId;
     return this;
   }
-
-  public String getDestination() {
-    return destination;
+  
+  public String getRole() {
+    return role;
   }
-
-  public Transition setDestination(String destination) {
-    this.destination = destination;
+  
+  public GroupLink setRole(String role) {
+    this.role = role;
     return this;
   }
 }
