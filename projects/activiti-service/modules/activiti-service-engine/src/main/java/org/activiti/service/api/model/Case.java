@@ -24,9 +24,9 @@ import org.activiti.service.impl.persistence.PersistentList;
 /**
  * @author Tom Baeyens
  */
-public class Caze extends Persistable {
+public class Case extends Persistable {
   
-  String title;
+  String name;
   String description;
   String assignee;
   String owner;
@@ -34,12 +34,12 @@ public class Caze extends Persistable {
   @PersistentList(type=PersonLink.class)
   List<PersonLink> personLinks = new ArrayList<PersonLink>();
   
-  public String getTitle() {
-    return title;
+  public String getName() {
+    return name;
   }
   
-  public Caze setTitle(String title) {
-    this.title = title;
+  public Case setName(String name) {
+    this.name = name;
     return this;
   }
   
@@ -47,7 +47,7 @@ public class Caze extends Persistable {
     return description;
   }
   
-  public Caze setDescription(String description) {
+  public Case setDescription(String description) {
     this.description = description;
     return this;
   }
@@ -56,7 +56,7 @@ public class Caze extends Persistable {
     return assignee;
   }
   
-  public Caze setAssignee(String assignee) {
+  public Case setAssignee(String assignee) {
     this.assignee = assignee;
     return this;
   }
@@ -65,7 +65,7 @@ public class Caze extends Persistable {
     return owner;
   }
 
-  public Caze setOwner(String owner) {
+  public Case setOwner(String owner) {
     this.owner = owner;
     return this;
   }

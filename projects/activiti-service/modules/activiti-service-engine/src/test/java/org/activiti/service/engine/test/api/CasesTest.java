@@ -16,8 +16,8 @@ package org.activiti.service.engine.test.api;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.activiti.service.api.model.Caze;
-import org.activiti.service.api.model.Cazes;
+import org.activiti.service.api.model.Case;
+import org.activiti.service.api.model.Cases;
 import org.activiti.service.api.model.nested.PersonLink;
 import org.activiti.service.engine.test.ActivitiTestCase;
 
@@ -30,8 +30,8 @@ public class CasesTest extends ActivitiTestCase {
   private static Logger log = Logger.getLogger(CasesTest.class.getName());
 
   public void testCasePeopleLinks() {
-    Caze caze = new Caze()
-      .setTitle("run")
+    Case caze = new Case()
+      .setName("run")
       .setAssignee("kermit");
     
     List<PersonLink> personLinks = caze.getPersonLinks();
@@ -39,11 +39,11 @@ public class CasesTest extends ActivitiTestCase {
     personLinks.add(new PersonLink().setUserId("joesmoe").setRole("interested"));
     
     activiti
-      .getManager(Cazes.class)
+      .getManager(Cases.class)
       .insert(caze);
     
     caze = activiti
-      .getManager(Cazes.class)
+      .getManager(Cases.class)
       .findOneByOid(caze.getOid());
     
     log.fine(caze.getJsonTextPrettyPrint());

@@ -15,8 +15,8 @@ package org.activiti.service.engine.test.rest;
 
 import java.util.logging.Logger;
 
-import org.activiti.service.api.model.Caze;
-import org.activiti.service.api.model.Cazes;
+import org.activiti.service.api.model.Case;
+import org.activiti.service.api.model.Cases;
 import org.activiti.service.engine.test.RestTestCase;
 
 
@@ -29,20 +29,20 @@ public class CasesRestTest extends RestTestCase {
   private static Logger log = Logger.getLogger(CasesRestTest.class.getName());
 
   public void testTaskLists() {
-    Caze cazeOne = new Caze()
-      .setTitle("helloworld")
+    Case cazeOne = new Case()
+      .setName("helloworld")
       .setAssignee("kermit");
-    activiti.getManager(Cazes.class).insert(cazeOne);
+    activiti.getManager(Cases.class).insert(cazeOne);
     
-    Caze cazeTwo = new Caze()
-      .setTitle("hiuniverse")
+    Case cazeTwo = new Case()
+      .setName("hiuniverse")
       .setAssignee("kermit");
-    activiti.getManager(Cazes.class).insert(cazeTwo);
+    activiti.getManager(Cases.class).insert(cazeTwo);
     
-    Caze cazeThree= new Caze()
-      .setTitle("yowwhatsup")
+    Case cazeThree= new Case()
+      .setName("yowwhatsup")
       .setAssignee("fozzie");
-    activiti.getManager(Cazes.class).insert(cazeThree);
+    activiti.getManager(Cases.class).insert(cazeThree);
 
     log.info("cases of default user kermit:");
     createRestRequest("/cases?first=0&max=10").get();

@@ -13,12 +13,18 @@
 
 package org.activiti.service.impl.persistence;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 
 /**
  * @author Tom Baeyens
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface PersistentMap {
 
   Class<?> type();
+
+  String key();
 
 }

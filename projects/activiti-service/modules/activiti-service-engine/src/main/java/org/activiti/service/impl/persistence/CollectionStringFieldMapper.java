@@ -11,14 +11,25 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.impl.persistence;
 
-import org.activiti.service.impl.persistence.Manager;
+import java.lang.reflect.Field;
 
 
 /**
  * @author Tom Baeyens
  */
-public class FlowDefinitions extends Manager<FlowDefinition> {
+public class CollectionStringFieldMapper extends CollectionFieldMapper {
 
+  public CollectionStringFieldMapper(Field field) {
+    super(field);
+  }
+
+  public Object convertElement(Object element) {
+    return element;
+  }
+
+  public Object convertJsonElement(Object jsonElement) {
+    return jsonElement;
+  }
 }

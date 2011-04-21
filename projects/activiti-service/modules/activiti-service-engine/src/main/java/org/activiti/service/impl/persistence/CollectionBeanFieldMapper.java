@@ -23,25 +23,34 @@ import com.mongodb.DBObject;
 /**
  * @author Tom Baeyens
  */
-public class ListBeanFieldMapper extends ListFieldMapper {
+public class CollectionBeanFieldMapper extends CollectionFieldMapper {
 
   protected Class<?> elementType;
   protected ClassMapper classMapper;
   
-  public ListBeanFieldMapper(Field field, Class<?> elementType) {
-    super(field);
-    this.classMapper = new ClassMapper(elementType);
+  public CollectionBeanFieldMapper(Field field, Class<?> elementType) {
+    this(field, elementType, null);
+  }
+
+  public CollectionBeanFieldMapper(Field field, Class<?> elementType, String key) {
+    super(field, key);
+    this.classMapper = Persistable.getClassMapper(elementType);
     this.elementType = elementType;
   }
 
   public Object convertElement(Object element) {
-    return classMapper.getJsonFromBean(element);
+    DBObject jsonMongo = classMapper.getJsonFromBean(element);
+    if (!elementType.equals(element.getClass())) {
+      jsonMongo.put("type", element.getClass().getName());
+    }
+    return jsonMongo;
   }
 
   public Object convertJsonElement(Object jsonElement) {
     try {
-      Object bean = elementType.newInstance(); 
-      classMapper.setJsonInBean(bean, (DBObject) jsonElement);
+      DBObject jsonMongo = (DBObject) jsonElement;
+      Object bean = Manager.instantiate(jsonMongo, elementType); 
+      classMapper.setJsonInBean(bean, jsonMongo);
       return bean;
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);

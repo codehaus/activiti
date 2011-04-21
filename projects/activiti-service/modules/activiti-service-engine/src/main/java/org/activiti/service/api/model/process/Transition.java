@@ -11,14 +11,22 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
-
-import org.activiti.service.impl.persistence.Persistable;
+package org.activiti.service.api.model.process;
 
 
 /**
  * @author Tom Baeyens
  */
-public class FlowDefinition extends Persistable {
+public class Transition {
 
+  String id;
+
+  public String getId() {
+    return id;
+  }
+
+  public Transition setId(String id) {
+    this.id = id;
+    return this;
+  }
 }

@@ -13,8 +13,8 @@
 
 package org.activiti.service.impl.rest.handler;
 
-import org.activiti.service.api.model.Caze;
-import org.activiti.service.api.model.Cazes;
+import org.activiti.service.api.model.Case;
+import org.activiti.service.api.model.Cases;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.RestRequestContext;
@@ -43,9 +43,9 @@ public class CazeHandler extends RestHandler {
   public void handle(RestRequestContext restRequestContext) {
     String cazeOid = cazeOidParameter.get(restRequestContext);
     
-    Caze caze = restRequestContext
+    Case caze = restRequestContext
       .getActiviti()
-      .getManager(Cazes.class)
+      .getManager(Cases.class)
       .findOneByOid(cazeOid);
 
     restRequestContext.sendResponse(caze);

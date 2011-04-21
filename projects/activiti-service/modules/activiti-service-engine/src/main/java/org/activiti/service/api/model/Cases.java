@@ -11,25 +11,14 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api.model;
 
-import java.lang.reflect.Field;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ListStringFieldMapper extends ListFieldMapper {
+public class Cases extends Manager<Case> {
 
-  public ListStringFieldMapper(Field field) {
-    super(field);
-  }
-
-  public Object convertElement(Object element) {
-    return element;
-  }
-
-  public Object convertJsonElement(Object jsonElement) {
-    return null;
-  }
 }

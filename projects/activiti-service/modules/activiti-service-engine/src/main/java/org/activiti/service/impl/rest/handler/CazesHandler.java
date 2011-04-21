@@ -15,8 +15,8 @@ package org.activiti.service.impl.rest.handler;
 
 import java.util.List;
 
-import org.activiti.service.api.model.Caze;
-import org.activiti.service.api.model.Cazes;
+import org.activiti.service.api.model.Case;
+import org.activiti.service.api.model.Cases;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.RestRequestContext;
@@ -60,11 +60,11 @@ public class CazesHandler extends RestHandler {
     Integer firstResult = firstResultParameter.get(restRequestContext);
     Integer maxResults = maxResultsParameter.get(restRequestContext);
     
-    Caze query = new Caze().setAssignee(authenticatedUserId);
+    Case query = new Case().setAssignee(authenticatedUserId);
     
-    List<Caze> cazes = restRequestContext
+    List<Case> cazes = restRequestContext
       .getActiviti()
-      .getManager(Cazes.class)
+      .getManager(Cases.class)
       .findByExample(query, firstResult, maxResults);
     
     // send response

@@ -28,17 +28,27 @@ public class Persistable {
   static Map<Class<?>, ClassMapper> classMappers = new HashMap<Class<?>, ClassMapper>(); 
   
   protected String oid;
+  
+  static ClassMapper getClassMapper(Class<?> type) {
+    ClassMapper classMapper = classMappers.get(type); 
+    if (classMapper==null) {
+      classMapper = new ClassMapper(type);
+      classMappers.put(type, classMapper);
+      classMapper.init();
+    }
+    return classMapper;
+  }
 
   public void setJson(DBObject dbObject) {
-    classMappers
-      .get(getClass())
-      .setJsonInBean(this, dbObject);
+    getClassMapper().setJsonInBean(this, dbObject);
+  }
+
+  public DBObject getJson() {
+    return getClassMapper().getJsonFromBean(this);
   }
   
-  public DBObject getJson() {
-    return classMappers
-      .get(getClass())
-      .getJsonFromBean(this);
+  protected ClassMapper getClassMapper() {
+    return getClassMapper(getClass());
   }
   
   public void setJsonText(String jsonText) {

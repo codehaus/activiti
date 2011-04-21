@@ -39,12 +39,13 @@ public class Manager <T extends Persistable> {
     this.activiti = activiti;
     this.persistableType = persistableType;
     this.dbCollection = dbCollection;
-    // initialize this class
-    Persistable.classMappers.put(persistableType, new ClassMapper(persistableType));
   }
 
   public String insert(T persistable) {
     DBObject jsonMongo = persistable.getJson();
+    if (!persistableType.equals(persistable.getClass())) {
+      jsonMongo.put("type", persistable.getClass().getName());
+    }
     dbCollection.insert(jsonMongo);
     String oid = jsonMongo.get("_id").toString();
     persistable.setOid(oid);
@@ -76,16 +77,26 @@ public class Manager <T extends Persistable> {
       dbCursor = dbCollection.find(jsonMongo);
     }
     while (dbCursor.hasNext()) {
-      try {
-        DBObject dbObject = dbCursor.next();
-        T persistable = persistableType.newInstance();
-        persistable.setJson(dbObject);
-        persistables.add(persistable);
-      } catch (Exception e) {
-        throw new ActivitiException("persistence reflection problem", e);
-      }
+      DBObject dbObject = dbCursor.next();
+      T persistable = instantiate(dbObject, persistableType);
+      persistable.setJson(dbObject);
+      persistables.add(persistable);
     }
     return persistables;
+  }
+
+  @SuppressWarnings("unchecked")
+  static <T> T instantiate(DBObject dbObject, Class<T> baseType) {
+    try {
+      Class<T> instanceType = baseType;
+      String type = (String) dbObject.get("type");
+      if (type!=null) {
+        instanceType = (Class<T>) Class.forName(type, true, Manager.class.getClassLoader());
+      }
+      return instanceType.newInstance();
+    } catch (Exception e) {
+      throw new ActivitiException("persistence reflection problem", e);
+    }
   }
   
   public T findOneByExample(T example) {
@@ -103,12 +114,8 @@ public class Manager <T extends Persistable> {
     T persistable = null;
     DBObject dbObject = dbCollection.findOne(jsonMongo);
     if (dbObject!=null) {
-      try {
-        persistable = persistableType.newInstance();
-        persistable.setJson(dbObject);
-      } catch (Exception e) {
-        throw new ActivitiException("persistence reflection problem", e);
-      }
+      persistable = instantiate(dbObject, persistableType);
+      persistable.setJson(dbObject);
     }
     return persistable;
   }
