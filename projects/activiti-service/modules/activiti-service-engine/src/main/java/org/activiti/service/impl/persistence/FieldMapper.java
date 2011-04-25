@@ -25,9 +25,11 @@ import com.mongodb.DBObject;
  */
 public abstract class FieldMapper {
 
+  protected ClassMapper classMapper;
   protected Field field;
   
-  public FieldMapper(Field field) {
+  public FieldMapper(ClassMapper classMapper, Field field) {
+    this.classMapper = classMapper;
     this.field = field;
   }
 

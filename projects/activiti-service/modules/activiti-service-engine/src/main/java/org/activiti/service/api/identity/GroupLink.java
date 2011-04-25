@@ -11,14 +11,32 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api.identity;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface Persistable {
+public class GroupLink {
 
-  String getOid();
-  void setOid(String oid);
+  String groupId;
+  String role;
+  
+  public String getGroupId() {
+    return groupId;
+  }
+  
+  public GroupLink setGroupId(String groupId) {
+    this.groupId = groupId;
+    return this;
+  }
+  
+  public String getRole() {
+    return role;
+  }
+  
+  public GroupLink setRole(String role) {
+    this.role = role;
+    return this;
+  }
 }

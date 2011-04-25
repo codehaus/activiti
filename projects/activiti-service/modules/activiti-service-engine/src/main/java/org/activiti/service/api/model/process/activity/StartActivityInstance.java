@@ -11,14 +11,16 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api.model.process.activity;
 
-import org.activiti.service.impl.persistence.Manager;
+import org.activiti.service.api.process.instance.ActivityInstance;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Flows extends Manager<Flow> {
+public class StartActivityInstance extends ActivityInstance {
 
+  
+  
 }

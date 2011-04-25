@@ -11,8 +11,10 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api;
 
+import org.activiti.service.api.identity.Registration;
+import org.activiti.service.api.identity.User;
 import org.activiti.service.impl.persistence.Manager;
 
 
@@ -20,6 +22,10 @@ import org.activiti.service.impl.persistence.Manager;
  * @author Tom Baeyens
  */
 public class Registrations extends Manager<Registration>{
+
+  public Class<Registration> getPersistableType() {
+    return Registration.class;
+  }
 
   public void register(Registration registration) {
     insert(registration);

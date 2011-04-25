@@ -11,16 +11,16 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api.cases;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.service.api.model.nested.GroupLink;
-import org.activiti.service.api.model.nested.UserLink;
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.api.identity.GroupLink;
+import org.activiti.service.api.identity.UserLink;
+import org.activiti.service.impl.persistence.AbstractPersistable;
 import org.activiti.service.impl.persistence.PersistentList;
 import org.activiti.service.impl.persistence.PersistentMap;
 
@@ -28,7 +28,7 @@ import org.activiti.service.impl.persistence.PersistentMap;
 /**
  * @author Tom Baeyens
  */
-public class Case extends Persistable {
+public class Case extends AbstractPersistable {
   
   String name;
   String description;

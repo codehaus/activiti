@@ -16,7 +16,7 @@ package org.activiti.service.impl.mail;
 import java.util.Properties;
 
 import org.activiti.service.api.Activiti;
-import org.activiti.service.api.model.Registration;
+import org.activiti.service.api.identity.Registration;
 
 
 /**

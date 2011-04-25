@@ -11,32 +11,19 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.process;
+package org.activiti.service.api.model.process.activity;
+
+import org.activiti.service.api.process.definition.ActivityType;
+import org.activiti.service.api.process.instance.ActivityInstance;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Transition {
+public class EndActivityType implements ActivityType {
 
-  String id;
-  String destination;
-
-  public String getId() {
-    return id;
+  public ActivityInstance createActivityInstance() {
+    return null;
   }
 
-  public Transition setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getDestination() {
-    return destination;
-  }
-
-  public Transition setDestination(String destination) {
-    this.destination = destination;
-    return this;
-  }
 }

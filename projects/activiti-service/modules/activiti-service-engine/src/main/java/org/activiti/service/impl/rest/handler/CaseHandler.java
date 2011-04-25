@@ -13,8 +13,8 @@
 
 package org.activiti.service.impl.rest.handler;
 
-import org.activiti.service.api.model.Case;
-import org.activiti.service.api.model.Cases;
+import org.activiti.service.api.Cases;
+import org.activiti.service.api.cases.Case;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.RestRequestContext;
@@ -48,6 +48,6 @@ public class CaseHandler extends RestHandler {
       .getManager(Cases.class)
       .findOneByOid(caseOid);
 
-    restRequestContext.sendResponse(caze);
+    restRequestContext.sendResponseJsonBean(caze);
   }
 }

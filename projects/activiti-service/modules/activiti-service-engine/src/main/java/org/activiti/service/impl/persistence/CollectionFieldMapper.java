@@ -31,12 +31,12 @@ public abstract class CollectionFieldMapper extends FieldMapper {
   
   protected String key;
 
-  public CollectionFieldMapper(Field field) {
-    super(field);
+  public CollectionFieldMapper(ClassMapper classMapper, Field field) {
+    super(classMapper, field);
   }
 
-  public CollectionFieldMapper(Field field, String key) {
-    super(field);
+  public CollectionFieldMapper(ClassMapper classMapper, Field field, String key) {
+    super(classMapper, field);
     this.key = key;
   }
 

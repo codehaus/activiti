@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.nested;
+package org.activiti.service.api.identity;
 
 import java.util.ArrayList;
 import java.util.List;

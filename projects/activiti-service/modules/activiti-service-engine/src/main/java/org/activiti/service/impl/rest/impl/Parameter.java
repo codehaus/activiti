@@ -15,6 +15,8 @@ package org.activiti.service.impl.rest.impl;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.service.api.Activiti;
+
 
 
 
@@ -66,7 +68,7 @@ public abstract class Parameter <T> {
     return this;
   }
   
-  public abstract T convert(String parameterValue);
+  public abstract T convert(String parameterValue, Activiti activiti);
   public abstract String getTypeDescription();
 
   public T get(RestRequestContext restRequestContext) {
@@ -88,7 +90,7 @@ public abstract class Parameter <T> {
       throw new RestException(HttpServletResponse.SC_BAD_REQUEST, "parameter "+name+" is required");
     }
     
-    return convert(textValue);
+    return convert(textValue, restRequestContext.getActiviti());
   }
 
   public Class<T> getType() {

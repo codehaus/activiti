@@ -21,8 +21,8 @@ import java.lang.reflect.Field;
  */
 public class CollectionStringFieldMapper extends CollectionFieldMapper {
 
-  public CollectionStringFieldMapper(Field field) {
-    super(field);
+  public CollectionStringFieldMapper(ClassMapper classMapper, Field field) {
+    super(classMapper, field);
   }
 
   public Object convertElement(Object element) {

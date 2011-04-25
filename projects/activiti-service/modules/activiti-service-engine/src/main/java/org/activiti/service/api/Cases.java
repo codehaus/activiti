@@ -11,32 +11,18 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.nested;
+package org.activiti.service.api;
+
+import org.activiti.service.api.cases.Case;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class GroupLink {
+public class Cases extends Manager<Case> {
 
-  String groupId;
-  String role;
-  
-  public String getGroupId() {
-    return groupId;
-  }
-  
-  public GroupLink setGroupId(String groupId) {
-    this.groupId = groupId;
-    return this;
-  }
-  
-  public String getRole() {
-    return role;
-  }
-  
-  public GroupLink setRole(String role) {
-    this.role = role;
-    return this;
+  public Class<Case> getPersistableType() {
+    return Case.class;
   }
 }

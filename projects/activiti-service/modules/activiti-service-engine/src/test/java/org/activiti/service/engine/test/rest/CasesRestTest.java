@@ -15,8 +15,8 @@ package org.activiti.service.engine.test.rest;
 
 import java.util.logging.Logger;
 
-import org.activiti.service.api.model.Case;
-import org.activiti.service.api.model.Cases;
+import org.activiti.service.api.Cases;
+import org.activiti.service.api.cases.Case;
 import org.activiti.service.engine.test.RestTestCase;
 
 

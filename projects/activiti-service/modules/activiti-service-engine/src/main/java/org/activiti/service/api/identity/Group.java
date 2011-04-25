@@ -11,12 +11,40 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.nested;
+package org.activiti.service.api.identity;
+
+import org.activiti.service.impl.persistence.AbstractPersistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ActivityInstance {
+public class Group extends AbstractPersistable {
 
+  String id;
+  String name;
+
+  public Group() {
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  
+  public Group setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  
+  public String getName() {
+    return name;
+  }
+
+  
+  public Group setName(String name) {
+    this.name = name;
+    return this;
+  }
 }

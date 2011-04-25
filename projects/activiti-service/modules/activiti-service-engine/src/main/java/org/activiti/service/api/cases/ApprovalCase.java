@@ -11,19 +11,12 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
-
-
-import org.activiti.service.impl.persistence.Manager;
+package org.activiti.service.api.cases;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Users extends Manager<User>{
+public class ApprovalCase extends Case {
 
-  public User findUserById(String userId) {
-    User example = new User().setId(userId);
-    return findOneByExample(example);
-  }
 }

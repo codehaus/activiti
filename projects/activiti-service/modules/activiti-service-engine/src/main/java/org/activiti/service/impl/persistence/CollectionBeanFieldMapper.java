@@ -16,6 +16,7 @@ package org.activiti.service.impl.persistence;
 import java.lang.reflect.Field;
 
 import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.json.JsonConverter;
 
 import com.mongodb.DBObject;
 
@@ -26,22 +27,22 @@ import com.mongodb.DBObject;
 public class CollectionBeanFieldMapper extends CollectionFieldMapper {
 
   protected Class<?> elementType;
-  protected ClassMapper classMapper;
+  protected JsonConverter jsonConverter;
   
-  public CollectionBeanFieldMapper(Field field, Class<?> elementType) {
-    this(field, elementType, null);
+  public CollectionBeanFieldMapper(ClassMapper classMapper, Field field, Class<?> elementType) {
+    this(classMapper, field, elementType, null);
   }
 
-  public CollectionBeanFieldMapper(Field field, Class<?> elementType, String key) {
-    super(field, key);
-    this.classMapper = Persistable.getClassMapper(elementType);
+  public CollectionBeanFieldMapper(ClassMapper classMapper, Field field, Class<?> elementType, String key) {
+    super(classMapper, field, key);
+    this.jsonConverter = classMapper.getJsonConverter();
     this.elementType = elementType;
   }
 
   public Object convertElement(Object element) {
-    DBObject jsonMongo = classMapper.getJsonFromBean(element);
+    DBObject jsonMongo = jsonConverter.getJsonFromBean(element);
     if (!elementType.equals(element.getClass())) {
-      jsonMongo.put("type", element.getClass().getName());
+      jsonMongo.put("class", element.getClass().getName());
     }
     return jsonMongo;
   }
@@ -49,8 +50,8 @@ public class CollectionBeanFieldMapper extends CollectionFieldMapper {
   public Object convertJsonElement(Object jsonElement) {
     try {
       DBObject jsonMongo = (DBObject) jsonElement;
-      Object bean = Manager.instantiate(jsonMongo, elementType, null); 
-      classMapper.setJsonInBean(bean, jsonMongo);
+      Object bean = jsonConverter.instantiate(jsonMongo, elementType, null); 
+      jsonConverter.setJsonInBean(jsonMongo, bean);
       return bean;
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);

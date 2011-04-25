@@ -11,37 +11,47 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api.process.instance;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.service.api.model.nested.ActivityInstance;
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.api.cases.Case;
+import org.activiti.service.api.process.definition.Trigger;
+
 
 
 /**
  * @author Tom Baeyens
  */
-public class Flow extends Case {
+public class FlowInstance extends Case {
 
   String processOid;
-  // TODO 
-  // Map<String,Object> variables = new HashMap<String, Object>(); 
+  Map<String,Object> variables = new HashMap<String, Object>(); 
   List<ActivityInstance> activityInstances = new ArrayList<ActivityInstance>();
+
+  public Trigger getTrigger(String triggerName) {
+    for (ActivityInstance activityInstance: activityInstances) {
+      Trigger trigger = activityInstance.getTrigger(triggerName);
+      if (trigger!=null) {
+        return trigger;
+      }
+    }
+    return null;
+  }
+
+  public List<ActivityInstance> getActivityInstances() {
+    return activityInstances;
+  }
 
   public String getProcessOid() {
     return processOid;
   }
   
-  public Flow setProcessOid(String processOid) {
+  public FlowInstance setProcessOid(String processOid) {
     this.processOid = processOid;
     return this;
-  }
-  
-  public List<ActivityInstance> getActivityInstances() {
-    return activityInstances;
   }
 }

@@ -13,24 +13,26 @@
 
 package org.activiti.service.impl.rest.impl;
 
+import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiException;
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.impl.json.JsonConverter;
 
 
 /**
  * @author Tom Baeyens
  */
-public class JsonParameter <T extends Persistable> extends Parameter <T> {
+public class JsonParameter <T> extends Parameter <T> {
 
   public JsonParameter(Class<T> type) {
     super(type);
   }
 
-  public T convert(String parameterValue) {
+  public T convert(String parameterValue, Activiti activiti) {
     try {
-      T object = type.newInstance();
-      object.setJsonText(parameterValue);
-      return object;
+      T persistable = type.newInstance();
+      JsonConverter jsonConverter = activiti.getJsonConverter();
+      jsonConverter.setJsonTextInBean(parameterValue, persistable);
+      return persistable;
     } catch (Exception e) {
       throw new ActivitiException("couldn't create "+type.getName()+" based on json "+parameterValue, e);
     }

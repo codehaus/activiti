@@ -14,11 +14,19 @@
 package org.activiti.service.impl.persistence;
 
 
+
 /**
  * @author Tom Baeyens
  */
-public interface Persistable {
+public class AbstractPersistable implements Persistable {
+  
+  protected String oid;
+  
+  public String getOid() {
+    return oid;
+  }
 
-  String getOid();
-  void setOid(String oid);
+  public void setOid(String oid) {
+    this.oid = oid;
+  }
 }

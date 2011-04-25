@@ -15,29 +15,36 @@ package org.activiti.service.impl.persistence;
 
 import java.lang.reflect.Field;
 
+import org.activiti.service.impl.json.JsonConverter;
+
 import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class StringFieldMapper extends FieldMapper {
+public class BeanFieldMapper extends FieldMapper {
 
-  public StringFieldMapper(ClassMapper classMapper, Field field) {
+  protected Class<?> elementType;
+  protected JsonConverter jsonConverter;
+  
+  public BeanFieldMapper(ClassMapper classMapper, Field field, Class<?> elementType) {
     super(classMapper, field);
+    this.jsonConverter = classMapper.getJsonConverter();
+    this.elementType = elementType;
   }
 
-  public void get(DBObject dbObject, Object persistable) {
-    String value = (String) getValueFromField(persistable);
-    if (value!=null) {
-      dbObject.put(field.getName(), value);
+  @Override
+  public void get(DBObject json, Object bean) {
+    jsonConverter.getJsonFromBean(json, bean);
+    if (!elementType.equals(bean.getClass())) {
+      json.put("class", bean.getClass().getName());
     }
   }
 
-  public void set(DBObject dbObject, Object persistable) {
-    String value = (String) dbObject.get(field.getName());
-    if (value!=null) {
-      setValueInField(persistable, value);
-    }
+  @Override
+  public void set(DBObject json, Object bean) {
+    jsonConverter.setJsonInBean(json, bean);
   }
+
 }

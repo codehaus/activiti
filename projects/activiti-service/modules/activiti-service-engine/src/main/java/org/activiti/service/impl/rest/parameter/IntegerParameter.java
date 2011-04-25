@@ -13,6 +13,7 @@
 
 package org.activiti.service.impl.rest.parameter;
 
+import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.rest.impl.BadRequestException;
 import org.activiti.service.impl.rest.impl.Parameter;
 
@@ -72,7 +73,7 @@ public class IntegerParameter extends Parameter<Integer> {
     return this;
   }
 
-  public Integer convert(String textValue) {
+  public Integer convert(String textValue, Activiti activiti) {
     try {
       Integer intValue = new Integer(textValue);
       if (intValue<minValue) {

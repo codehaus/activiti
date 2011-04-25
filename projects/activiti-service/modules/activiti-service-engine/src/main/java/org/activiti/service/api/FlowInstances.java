@@ -11,14 +11,18 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api;
 
+import org.activiti.service.api.process.instance.FlowInstance;
 import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Groups extends Manager<Group>{
+public class FlowInstances extends Manager<FlowInstance> {
 
+  public Class<FlowInstance> getPersistableType() {
+    return FlowInstance.class;
+  }
 }

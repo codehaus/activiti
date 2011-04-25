@@ -11,40 +11,49 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api.identity;
 
-import org.activiti.service.impl.persistence.Persistable;
+import java.util.List;
+
+import org.activiti.service.impl.persistence.AbstractPersistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Group extends Persistable {
+public class User extends AbstractPersistable {
 
   String id;
-  String name;
+  String password;
+  
+  List<String> groupIds;
 
-  public Group() {
-  }
+  // getters and setters //////////////////////////////////////////////////////
 
   public String getId() {
     return id;
   }
-
   
-  public Group setId(String id) {
-    this.id = id;
+  public User setId(String userId) {
+    this.id = userId;
+    return this;
+  }
+  
+  public String getPassword() {
+    return password;
+  }
+  
+  public User setPassword(String password) {
+    this.password = password;
     return this;
   }
 
-  
-  public String getName() {
-    return name;
+  public List<String> getGroupIds() {
+    return groupIds;
   }
 
-  
-  public Group setName(String name) {
-    this.name = name;
+  public User setGroupIds(List<String> groupIds) {
+    this.groupIds = groupIds;
     return this;
   }
 }

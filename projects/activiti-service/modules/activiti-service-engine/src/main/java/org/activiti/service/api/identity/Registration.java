@@ -11,15 +11,15 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api.identity;
 
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.impl.persistence.AbstractPersistable;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Registration extends Persistable {
+public class Registration extends AbstractPersistable {
 
   protected String userId;
   protected String password;

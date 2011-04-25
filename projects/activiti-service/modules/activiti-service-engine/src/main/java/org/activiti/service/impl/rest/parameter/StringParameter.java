@@ -13,6 +13,7 @@
 
 package org.activiti.service.impl.rest.parameter;
 
+import org.activiti.service.api.Activiti;
 import org.activiti.service.impl.rest.impl.Parameter;
 
 
@@ -25,7 +26,7 @@ public class StringParameter extends Parameter<String> {
     super(String.class);
   }
 
-  public String convert(String parameterValue) {
+  public String convert(String parameterValue, Activiti activiti) {
     return parameterValue;
   }
 

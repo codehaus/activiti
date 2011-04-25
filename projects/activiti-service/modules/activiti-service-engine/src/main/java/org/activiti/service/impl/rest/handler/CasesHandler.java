@@ -15,9 +15,9 @@ package org.activiti.service.impl.rest.handler;
 
 import java.util.List;
 
-import org.activiti.service.api.model.Case;
-import org.activiti.service.api.model.Cases;
-import org.activiti.service.api.model.nested.UserLink;
+import org.activiti.service.api.Cases;
+import org.activiti.service.api.cases.Case;
+import org.activiti.service.api.identity.UserLink;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.RestRequestContext;
@@ -69,6 +69,6 @@ public class CasesHandler extends RestHandler {
       .findByExample(query, firstResult, maxResults);
     
     // send response
-    restRequestContext.sendResponse(cases);
+    restRequestContext.sendResponseJsonBeans(cases);
   }
 }

@@ -11,14 +11,17 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api.process.definition;
+
+import org.activiti.service.api.process.instance.ActivityInstance;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface Persistable {
+public interface ActivityType {
 
-  String getOid();
-  void setOid(String oid);
+  ActivityInstance createActivityInstance();
+  
+  
 }

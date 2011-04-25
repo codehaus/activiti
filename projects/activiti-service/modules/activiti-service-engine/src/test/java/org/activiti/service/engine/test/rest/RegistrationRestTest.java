@@ -13,10 +13,10 @@
 
 package org.activiti.service.engine.test.rest;
 
-import org.activiti.service.api.model.Registration;
-import org.activiti.service.api.model.Registrations;
-import org.activiti.service.api.model.User;
-import org.activiti.service.api.model.Users;
+import org.activiti.service.api.Registrations;
+import org.activiti.service.api.Users;
+import org.activiti.service.api.identity.Registration;
+import org.activiti.service.api.identity.User;
 import org.activiti.service.engine.test.RestTestCase;
 import org.activiti.service.impl.mail.Mail;
 
@@ -37,8 +37,10 @@ public class RegistrationRestTest extends RestTestCase {
     registration.setClientIp("johndoeslaptop");
     registration.setUrl("/item?id=928374");
     
+    String registrationJsonText = activiti.getJsonConverter().getJsonTextFromBean(registration);
+    
     String registrationResponseContent = createRestRequest("/register")
-      .post("registration="+registration.getJson().toString())
+      .post("registration="+registrationJsonText)
       .getContent();
     
     assertEquals("registration email sent to johndoe@johndoe.kom", registrationResponseContent.trim());

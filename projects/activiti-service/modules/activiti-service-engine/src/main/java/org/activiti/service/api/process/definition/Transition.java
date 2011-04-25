@@ -11,49 +11,32 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
-
-import java.util.List;
-
-import org.activiti.service.impl.persistence.Persistable;
+package org.activiti.service.api.process.definition;
 
 
 /**
  * @author Tom Baeyens
  */
-public class User extends Persistable {
+public class Transition {
 
   String id;
-  String password;
-  
-  List<String> groupIds;
-
-  // getters and setters //////////////////////////////////////////////////////
+  String destination;
 
   public String getId() {
     return id;
   }
-  
-  public User setId(String userId) {
-    this.id = userId;
-    return this;
-  }
-  
-  public String getPassword() {
-    return password;
-  }
-  
-  public User setPassword(String password) {
-    this.password = password;
+
+  public Transition setId(String id) {
+    this.id = id;
     return this;
   }
 
-  public List<String> getGroupIds() {
-    return groupIds;
+  public String getDestination() {
+    return destination;
   }
 
-  public User setGroupIds(List<String> groupIds) {
-    this.groupIds = groupIds;
+  public Transition setDestination(String destination) {
+    this.destination = destination;
     return this;
   }
 }

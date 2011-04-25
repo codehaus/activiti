@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.json.JsonConverter;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -34,10 +35,12 @@ public class ClassMapper {
   
   private static Logger log = Logger.getLogger(ClassMapper.class.getName());
   
+  JsonConverter jsonConverter;
   Class<?> type;
   List<FieldMapper> fieldMappers = new ArrayList<FieldMapper>();
   
-  public ClassMapper(Class<?> type) {
+  public ClassMapper(JsonConverter jsonConverter, Class<?> type) {
+    this.jsonConverter = jsonConverter;
     this.type = type;
   }
 
@@ -49,27 +52,23 @@ public class ClassMapper {
           FieldMapper fieldMapper = null;
           field.setAccessible(true);
           
-          if ("type".equals(field.getName())) {
-            throw new ActivitiException("type is a reserved json key and field name: "+field);
-          }
-          
           if (Modifier.isStatic(field.getModifiers()) || Activiti.class.equals(field.getType())) { 
             // ignore static fields and Activiti typed fields
             fieldMapper = null;
             
           } else if (Persistable.class.isAssignableFrom(scannedClass) && field.getName().equals("oid")) {
-            fieldMapper = new OidFieldMapper();
+            fieldMapper = new OidFieldMapper(this);
             
           } else if (String.class.isAssignableFrom(field.getType())) {
-            fieldMapper = new StringFieldMapper(field);
+            fieldMapper = new StringFieldMapper(this, field);
 
           } else if (List.class.isAssignableFrom(field.getType())) {
             PersistentList persistentList = field.getAnnotation(PersistentList.class);
             if (persistentList==null) {
-              fieldMapper = new CollectionStringFieldMapper(field);
+              fieldMapper = new CollectionStringFieldMapper(this, field);
             } else {
               Class<?> elementType = persistentList.type();
-              fieldMapper = new CollectionBeanFieldMapper(field, elementType);
+              fieldMapper = new CollectionBeanFieldMapper(this, field, elementType);
             }
             
           } else if (Map.class.isAssignableFrom(field.getType())) {
@@ -78,10 +77,11 @@ public class ClassMapper {
               throw new ActivitiException("map "+field+" doesn't have "+PersistentMap.class);
             }
             Class<?> elementType = persistentMap.type();
-            fieldMapper = new CollectionBeanFieldMapper(field, elementType, persistentMap.key());
+            fieldMapper = new CollectionBeanFieldMapper(this, field, elementType, persistentMap.key());
 
           } else {
-            throw new ActivitiException("unsupported field type "+field);
+            Class<?> elementType = field.getType();
+            fieldMapper = new BeanFieldMapper(this, field, elementType);
           }
           
           if (fieldMapper!=null) {
@@ -110,5 +110,16 @@ public class ClassMapper {
       fieldMapper.get(json, bean);
     }
     return json;
+  }
+
+  public void getJsonFromBean(DBObject json, Object bean) {
+    for (FieldMapper fieldMapper: fieldMappers) {
+      log.fine("getting "+fieldMapper.field);
+      fieldMapper.get(json, bean);
+    }
+  }
+
+  public JsonConverter getJsonConverter() {
+    return jsonConverter;
   }
 }

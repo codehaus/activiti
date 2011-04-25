@@ -13,8 +13,8 @@
 
 package org.activiti.service.impl.rest.handler;
 
-import org.activiti.service.api.model.Registration;
-import org.activiti.service.api.model.Registrations;
+import org.activiti.service.api.Registrations;
+import org.activiti.service.api.identity.Registration;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.JsonParameter;
 import org.activiti.service.impl.rest.impl.Parameter;

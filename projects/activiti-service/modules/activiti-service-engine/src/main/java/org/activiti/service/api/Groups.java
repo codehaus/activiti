@@ -11,14 +11,18 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api;
+
+import org.activiti.service.api.identity.Group;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface Persistable {
+public class Groups extends Manager<Group>{
 
-  String getOid();
-  void setOid(String oid);
+  public Class<Group> getPersistableType() {
+    return Group.class;
+  }
 }

@@ -11,14 +11,19 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api;
+
+import org.activiti.service.api.process.definition.FlowDefinition;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface Persistable {
+public class ModellingFlowDefinitions extends Manager<FlowDefinition> {
 
-  String getOid();
-  void setOid(String oid);
+  public Class<FlowDefinition> getPersistableType() {
+    return FlowDefinition.class;
+  }
+
 }

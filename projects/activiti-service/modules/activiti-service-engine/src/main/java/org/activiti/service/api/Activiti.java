@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.activiti.service.impl.json.JsonConverter;
 import org.activiti.service.impl.persistence.Manager;
 import org.activiti.service.impl.util.ClassNameUtil;
 
@@ -37,10 +38,10 @@ public class Activiti {
   private static Logger log = Logger.getLogger(Activiti.class.getName());
 
   protected ActivitiConfiguration activitiConfiguration;
+  protected JsonConverter jsonConverter = new JsonConverter(this); 
+  protected Map<Class<?>, Manager<?>> managers = new HashMap<Class<?>, Manager<?>>();
   protected Mongo mongo = null;
   protected DB db = null;
-  
-  protected Map<Class<?>, Manager<?>> managers = new HashMap<Class<?>, Manager<?>>();
   
   Activiti(ActivitiConfiguration activitiConfiguration) {
     this.activitiConfiguration = activitiConfiguration;
@@ -53,15 +54,11 @@ public class Activiti {
     if (manager==null) {
       try {
         String collectionName = "activiti."+ClassNameUtil.getClassNameWithoutPackage(managerType).toLowerCase();
-        String managerTypeName = managerType.getName();
-        int diff = (managerTypeName.endsWith("Processes") ? 2 : 1);
-        String persistableClassName = managerTypeName.substring(0, managerTypeName.length()-diff);
-        Class<?> persistableClass = Class.forName(persistableClassName, true, Activiti.class.getClassLoader());
         DBCollection dbCollection = db.getCollection(collectionName);
         manager = managerType.newInstance();
         Method init = findManagerInit(managerType);
         init.setAccessible(true);
-        init.invoke(manager, new Object[]{this, persistableClass, dbCollection});
+        init.invoke(manager, new Object[]{this, dbCollection});
         managers.put(managerType, (T) manager);
         
       } catch (Exception e) {
@@ -128,5 +125,9 @@ public class Activiti {
 
   public ActivitiConfiguration getActivitiConfiguration() {
     return activitiConfiguration;
+  }
+
+  public JsonConverter getJsonConverter() {
+    return jsonConverter;
   }
 }

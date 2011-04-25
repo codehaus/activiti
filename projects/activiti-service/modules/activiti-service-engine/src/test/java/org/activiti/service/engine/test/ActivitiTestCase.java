@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 
 import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiConfiguration;
-import org.activiti.service.api.model.User;
-import org.activiti.service.api.model.Users;
+import org.activiti.service.api.Users;
+import org.activiti.service.api.identity.User;
 import org.activiti.service.impl.util.LogUtil;
 import org.junit.Ignore;
 

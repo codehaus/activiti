@@ -23,8 +23,8 @@ import com.mongodb.DBObject;
  */
 public class OidFieldMapper extends FieldMapper {
 
-  public OidFieldMapper() {
-    super(null);
+  public OidFieldMapper(ClassMapper classMapper) {
+    super(classMapper, null);
   }
 
   public void get(DBObject dbObject, Object bean) {

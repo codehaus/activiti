@@ -22,7 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.service.api.Activiti;
-import org.activiti.service.impl.persistence.Persistable;
+import org.activiti.service.impl.json.JsonConverter;
+
+import com.mongodb.BasicDBList;
+import com.mongodb.DBObject;
 
 
 /**
@@ -46,12 +49,21 @@ public class RestRequestContext {
     this.httpServletResponse = httpServletResponse;
   }
 
-  public void sendResponse(Persistable persistable) {
-    sendResponseJsonText(persistable.getJsonText());
+  public void sendResponseJsonBean(Object bean) {
+    String jsonText = activiti
+      .getJsonConverter()
+      .getJsonTextFromBean(bean);
+    sendResponseJsonText(jsonText);
   }
   
-  public void sendResponse(List<? extends Persistable> persistables) {
-    sendResponseJsonText(persistables.toString());
+  public void sendResponseJsonBeans(List<? extends Object> beans) {
+    JsonConverter jsonConverter = activiti.getJsonConverter();
+    BasicDBList jsonList = new BasicDBList();
+    for (Object bean: beans) {
+      DBObject jsonBean = jsonConverter.getJsonFromBean(bean);
+      jsonList.add(jsonBean);
+    }
+    sendResponseJsonText(jsonList.toString());
   }
 
   public void sendResponseJsonText(String json) {

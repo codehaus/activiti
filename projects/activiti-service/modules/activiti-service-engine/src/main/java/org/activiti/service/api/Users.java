@@ -11,14 +11,24 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model;
+package org.activiti.service.api;
 
+
+import org.activiti.service.api.identity.User;
 import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Cases extends Manager<Case> {
+public class Users extends Manager<User>{
 
+  public User findUserById(String userId) {
+    User example = new User().setId(userId);
+    return findOneByExample(example);
+  }
+
+  public Class<User> getPersistableType() {
+    return User.class;
+  }
 }
