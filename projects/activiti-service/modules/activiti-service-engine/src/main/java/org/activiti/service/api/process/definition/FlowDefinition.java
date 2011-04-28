@@ -13,7 +13,7 @@
 
 package org.activiti.service.api.process.definition;
 
-import org.activiti.service.api.process.instance.ActivityInstance;
+import org.activiti.service.api.model.process.activity.WaitState;
 import org.activiti.service.api.process.instance.FlowInstance;
 
 
@@ -29,16 +29,25 @@ public class FlowDefinition extends ScopeDefinition {
   String startActivityId;
 
   public FlowDefinition buildExecutableProcess() {
+    for (ActivityDefinition activityDefinition: activityDefinitions.values()) {
+      if (WaitState.class.equals(activityDefinition.getActivityType().getClass())) {
+        startActivityId = activityDefinition.getId();
+        break;
+      }
+    }
     return this;
   }
 
-  public FlowInstance createNewFlow() {
+  public FlowInstance createNewFlowInstance() {
     FlowInstance flowInstance = new FlowInstance()
-      .setProcessOid(oid);
+      .setFlowDefinition(this);
 
-    ActivityDefinition startActivity = activityDefinitions.get(startActivityId);
-    ActivityInstance startActivityInstance = startActivity.createActivityInstance();
-    flowInstance.getActivityInstances().add(startActivityInstance);
+    if (startActivityId==null) {
+      buildExecutableProcess();
+    }
+    
+    ActivityDefinition startActivityDefinition = activityDefinitions.get(startActivityId);
+    flowInstance.startActivityInstance(startActivityDefinition);
 
     return flowInstance;
   }

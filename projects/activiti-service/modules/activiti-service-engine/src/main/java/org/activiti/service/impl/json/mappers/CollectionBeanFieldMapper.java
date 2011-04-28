@@ -11,13 +11,15 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json.mappers;
 
 import java.lang.reflect.Field;
 
 import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.json.ClassMapper;
 import org.activiti.service.impl.json.JsonConverter;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 
@@ -39,19 +41,19 @@ public class CollectionBeanFieldMapper extends CollectionFieldMapper {
     this.elementType = elementType;
   }
 
-  public Object convertElement(Object element) {
-    DBObject jsonMongo = jsonConverter.getJsonFromBean(element);
-    if (!elementType.equals(element.getClass())) {
-      jsonMongo.put("class", element.getClass().getName());
+  public Object convertElement(Object beanElement) {
+    BasicDBObject jsonElement = (BasicDBObject) jsonConverter.toJson(beanElement);
+    if (!elementType.equals(beanElement.getClass())) {
+      jsonElement.put("class", beanElement.getClass().getName());
     }
-    return jsonMongo;
+    return jsonElement;
   }
 
-  public Object convertJsonElement(Object jsonElement) {
+  public Object convertJsonElement(Object jsonElement, Object parentBean) {
     try {
       DBObject jsonMongo = (DBObject) jsonElement;
-      Object bean = jsonConverter.instantiate(jsonMongo, elementType, null); 
-      jsonConverter.setJsonInBean(jsonMongo, bean);
+      Object bean = jsonConverter.instantiate(jsonMongo, elementType); 
+      jsonConverter.setJsonInBean(jsonMongo, bean, parentBean);
       return bean;
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);

@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,7 +21,6 @@ import java.lang.annotation.RetentionPolicy;
  * @author Tom Baeyens
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PersistentList {
+public @interface JsonParent {
 
-  Class<?> type();
 }

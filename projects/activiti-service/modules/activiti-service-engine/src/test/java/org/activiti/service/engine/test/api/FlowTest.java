@@ -15,12 +15,13 @@ package org.activiti.service.engine.test.api;
 
 import java.util.logging.Logger;
 
+import org.activiti.service.api.ExecutableFlowDefinitions;
 import org.activiti.service.api.ModellingFlowDefinitions;
-import org.activiti.service.api.model.process.activity.EndActivityType;
-import org.activiti.service.api.model.process.activity.StartActivityType;
+import org.activiti.service.api.model.process.activity.WaitState;
 import org.activiti.service.api.process.definition.ActivityDefinition;
 import org.activiti.service.api.process.definition.FlowDefinition;
 import org.activiti.service.api.process.definition.Transition;
+import org.activiti.service.api.process.instance.FlowInstance;
 import org.activiti.service.engine.test.ActivitiTestCase;
 
 
@@ -31,37 +32,42 @@ public class FlowTest extends ActivitiTestCase {
   
   private static Logger log = Logger.getLogger(FlowTest.class.getName());
 
-  public void testProcess() {
+  public void testFlow() {
     FlowDefinition modellingFlowDefinition = new FlowDefinition()
       .setId("My first process")
       .addActivity(new ActivityDefinition()
         .setId("start")
-        .setType(new StartActivityType())
+        .setActivityType(new WaitState())
         .addTransition(new Transition().setId("t1").setDestination("end")))
       .addActivity(new ActivityDefinition()
         .setId("end")
-        .setType(new EndActivityType()));
+        .setActivityType(new WaitState()));
     
     ModellingFlowDefinitions modellingFlowDefinitions = activiti.getManager(ModellingFlowDefinitions.class);
     modellingFlowDefinitions.insert(modellingFlowDefinition);
-//    
-//    modellingProcess = (Process) modellingProcesses.findOneByOid(modellingProcess.getOid());
-//
-//    assertEquals("My first process", modellingProcess.getName());
-//
-//    ExecutableProcesses executableProcesses = activiti.getManager(ExecutableProcesses.class);
-//    
-//    Process executableProcess = modellingProcess.buildExecutableProcess();
-//    executableProcesses.insert(executableProcess);
-//
-//    executableProcess = (Process) executableProcesses.findOneByOid(executableProcess.getOid());
-//
-//    Flow flow = executableProcess.createNewFlow();
-//    flow
-//      .getTrigger("start")
-//      .set("var1", "value1")
-//      .set("var2", "value2")
-//      .fire();
+    
+    modellingFlowDefinition = modellingFlowDefinitions.findOneByOid(modellingFlowDefinition.getOid());
+
+    assertEquals("My first process", modellingFlowDefinition.getId());
+
+    ExecutableFlowDefinitions executableProcesses = activiti.getManager(ExecutableFlowDefinitions.class);
+    
+    FlowDefinition executableFlowDefinition = modellingFlowDefinition.buildExecutableProcess();
+    executableProcesses.insert(executableFlowDefinition);
+
+    executableFlowDefinition = executableProcesses.findOneByOid(executableFlowDefinition.getOid());
+    
+    log.fine(activiti.getJsonConverter().getJsonTextPrettyPrintFromBean(executableFlowDefinition));
+
+    FlowInstance flowInstance = executableFlowDefinition.createNewFlowInstance();
+    flowInstance
+      .getTrigger("start")
+      .set("var1", "value1")
+      .set("var2", "value2")
+      .fire();
+
+    log.fine(activiti.getJsonConverter().getJsonTextPrettyPrintFromBean(flowInstance));
+
 //    
 //    Flows flows = activiti.getManager(Flows.class);
 //    flows.insert(flow);

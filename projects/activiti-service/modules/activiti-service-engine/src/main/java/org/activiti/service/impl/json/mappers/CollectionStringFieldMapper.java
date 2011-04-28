@@ -11,33 +11,27 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json.mappers;
 
 import java.lang.reflect.Field;
 
-import com.mongodb.DBObject;
+import org.activiti.service.impl.json.ClassMapper;
 
 
 /**
  * @author Tom Baeyens
  */
-public class StringFieldMapper extends FieldMapper {
+public class CollectionStringFieldMapper extends CollectionFieldMapper {
 
-  public StringFieldMapper(ClassMapper classMapper, Field field) {
+  public CollectionStringFieldMapper(ClassMapper classMapper, Field field) {
     super(classMapper, field);
   }
 
-  public void get(DBObject dbObject, Object persistable) {
-    String value = (String) getValueFromField(persistable);
-    if (value!=null) {
-      dbObject.put(field.getName(), value);
-    }
+  public Object convertElement(Object element) {
+    return element;
   }
 
-  public void set(DBObject dbObject, Object persistable) {
-    String value = (String) dbObject.get(field.getName());
-    if (value!=null) {
-      setValueInField(persistable, value);
-    }
+  public Object convertJsonElement(Object jsonElement, Object parentBean) {
+    return jsonElement;
   }
 }

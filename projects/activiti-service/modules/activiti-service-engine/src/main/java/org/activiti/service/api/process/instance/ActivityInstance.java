@@ -13,52 +13,98 @@
 
 package org.activiti.service.api.process.instance;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.activiti.service.api.ActivitiException;
 import org.activiti.service.api.process.definition.ActivityDefinition;
-import org.activiti.service.api.process.definition.Engine;
+import org.activiti.service.api.process.definition.Condition;
 import org.activiti.service.api.process.definition.Transition;
-import org.activiti.service.api.process.definition.Trigger;
+import org.activiti.service.impl.json.JsonIgnore;
+import org.activiti.service.impl.json.JsonMap;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ActivityInstance {
+public class ActivityInstance extends ScopeInstance {
 
-  FlowInstance flowInstance;
-  ActivityInstance parentActivityInstance;
+  String activityDefinitionId;
+  
+  @JsonIgnore
   ActivityDefinition activityDefinition;
-
-  public void complete() {
-    List<Transition> transitions = activityDefinition.getTransitions();
-    if (transitions==null || transitions.size()!=1) {
-      throw new ActivitiException("expected exactly one outgoing transition out of "+activityDefinition.getId());
+  
+  @JsonMap(type=Trigger.class, key="id")
+  Map<String, Trigger> triggers = new HashMap<String, Trigger>();
+  
+  boolean isFinished = false;
+  
+  public void start() {
+    activityDefinition
+      .getActivityType()
+      .start(this);
+  }
+  
+  public void finished() {
+    isFinished = true;
+  }
+  
+  public void end() {
+    List<AtomicOperation> atomicOperations = new ArrayList<AtomicOperation>(); 
+    
+    for (Transition transition: activityDefinition.getTransitions()) {
+      Condition condition = transition.getCondition();
+      if (condition==null || condition.evaluate(this)) {
+        atomicOperations.add(new TakeTransition(this, transition));
+      }
     }
-    Transition singleOutgoingTransition = transitions.get(0);
-    Engine.take(this, singleOutgoingTransition);
-  }
-
-  public Trigger getTrigger(String triggerName) {
-    return null;
+    
+    parentScopeInstance.getActivityInstances().remove(this);
+    
+    flowInstance.getEngine().execute(atomicOperations);
   }
   
-  public FlowInstance getFlow() {
-    return flowInstance;
-  }
+  // getters and setters //////////////////////////////////////////////////////
   
-  public ActivityInstance setFlow(FlowInstance flowInstance) {
-    this.flowInstance = flowInstance;
-    return this;
-  }
-  
-  public ActivityDefinition getActivity() {
+  public ActivityDefinition getActivityDefinition() {
+    if (activityDefinition==null && activityDefinitionId!=null) {
+      activityDefinition = flowInstance.getFlowDefinition().findActivityDefinition(activityDefinitionId);
+    }
     return activityDefinition;
   }
   
-  public ActivityInstance setActivity(ActivityDefinition activityDefinition) {
+  public ActivityInstance setActivityDefinition(ActivityDefinition activityDefinition) {
     this.activityDefinition = activityDefinition;
+    this.activityDefinitionId = activityDefinition.getId();
+    return this;
+  }
+  
+  public ActivityInstance setParentScopeInstance(ScopeInstance parentScopeInstance) {
+    super.setParentScopeInstance(parentScopeInstance);
+    return this;
+  }
+
+  // getters and setters //////////////////////////////////////////////////////
+
+  public Trigger getTrigger(String triggerName) {
+    return triggers.get(triggerName);
+  }
+
+  public void addTrigger(Trigger trigger) {
+    triggers.put(trigger.getId(), trigger);
+  }
+
+  public void removeTrigger(Trigger trigger) {
+    triggers.remove(trigger.getId());
+  }
+
+  public FlowInstance getFlowInstance() {
+    return flowInstance;
+  }
+  
+  public ActivityInstance setFlowInstance(FlowInstance flowInstance) {
+    this.flowInstance = flowInstance;
     return this;
   }
 }

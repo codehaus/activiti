@@ -13,6 +13,7 @@
 
 package org.activiti.service.api.identity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.service.impl.persistence.AbstractPersistable;
@@ -26,7 +27,17 @@ public class User extends AbstractPersistable {
   String id;
   String password;
   
-  List<String> groupIds;
+  List<String> groupIds = new ArrayList<String>();
+  
+  public User addGroupId(String groupId) {
+    groupIds.add(groupId);
+    return this;
+  }
+
+  public User removeGroupId(String groupId) {
+    groupIds.remove(groupId);
+    return this;
+  }
 
   // getters and setters //////////////////////////////////////////////////////
 

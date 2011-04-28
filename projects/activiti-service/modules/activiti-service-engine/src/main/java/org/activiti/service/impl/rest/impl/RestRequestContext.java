@@ -60,7 +60,7 @@ public class RestRequestContext {
     JsonConverter jsonConverter = activiti.getJsonConverter();
     BasicDBList jsonList = new BasicDBList();
     for (Object bean: beans) {
-      DBObject jsonBean = jsonConverter.getJsonFromBean(bean);
+      DBObject jsonBean = (DBObject) jsonConverter.toJson(bean);
       jsonList.add(jsonBean);
     }
     sendResponseJsonText(jsonList.toString());

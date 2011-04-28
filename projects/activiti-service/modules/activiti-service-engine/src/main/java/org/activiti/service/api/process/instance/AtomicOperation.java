@@ -11,25 +11,14 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
-
-import java.lang.reflect.Field;
+package org.activiti.service.api.process.instance;
 
 
 /**
  * @author Tom Baeyens
  */
-public class CollectionStringFieldMapper extends CollectionFieldMapper {
+public interface AtomicOperation {
 
-  public CollectionStringFieldMapper(ClassMapper classMapper, Field field) {
-    super(classMapper, field);
-  }
+  void execute();
 
-  public Object convertElement(Object element) {
-    return element;
-  }
-
-  public Object convertJsonElement(Object jsonElement) {
-    return jsonElement;
-  }
 }

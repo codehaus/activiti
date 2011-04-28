@@ -13,45 +13,71 @@
 
 package org.activiti.service.api.process.instance;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.activiti.service.api.Activiti;
+import org.activiti.service.api.ExecutableFlowDefinitions;
+import org.activiti.service.api.process.definition.FlowDefinition;
+import org.activiti.service.impl.json.JsonIgnore;
 
-import org.activiti.service.api.cases.Case;
-import org.activiti.service.api.process.definition.Trigger;
-
+import com.mongodb.DBObject;
 
 
 /**
  * @author Tom Baeyens
  */
-public class FlowInstance extends Case {
+public class FlowInstance extends ScopeInstance {
 
-  String processOid;
-  Map<String,Object> variables = new HashMap<String, Object>(); 
-  List<ActivityInstance> activityInstances = new ArrayList<ActivityInstance>();
-
-  public Trigger getTrigger(String triggerName) {
-    for (ActivityInstance activityInstance: activityInstances) {
-      Trigger trigger = activityInstance.getTrigger(triggerName);
-      if (trigger!=null) {
-        return trigger;
-      }
-    }
-    return null;
-  }
-
-  public List<ActivityInstance> getActivityInstances() {
-    return activityInstances;
-  }
-
-  public String getProcessOid() {
-    return processOid;
+  String flowDefinitionOid;
+  
+  @JsonIgnore
+  FlowDefinition flowDefinition;
+  
+  @JsonIgnore
+  Engine engine = new Engine();
+  
+  public FlowInstance setFlowDefinition(FlowDefinition flowDefinition) {
+    this.flowDefinition = flowDefinition;
+    this.flowDefinitionOid = flowDefinition.getOid();
+    return this;
   }
   
-  public FlowInstance setProcessOid(String processOid) {
-    this.processOid = processOid;
+  public void toBeanCompleted(DBObject json, Activiti activiti) {
+    if (flowDefinition==null && flowDefinitionOid!=null) {
+      flowDefinition = activiti
+        .getManager(ExecutableFlowDefinitions.class)
+        .findOneByOid(flowDefinitionOid);
+    }
+    
+    flowInstance = this;
+    parentScopeInstance = null;
+    
+    toBeanCompleted(this, this);
+  }
+
+  protected void toBeanCompleted(ScopeInstance scopeInstance, FlowInstance flowInstance) {
+    // initialize flowInstance and parentScopeInstance
+    for (ActivityInstance activityInstance: scopeInstance.activityInstances) {
+      activityInstance.flowInstance = flowInstance;
+      activityInstance.parentScopeInstance = scopeInstance;
+      toBeanCompleted(activityInstance, flowInstance);
+    }
+  }
+
+  // getters and setters //////////////////////////////////////////////////////
+
+  public String getFlowDefinitionOid() {
+    return flowDefinitionOid;
+  }
+
+  public FlowInstance setFlowDefinitionOid(String flowDefinitionOid) {
+    this.flowDefinitionOid = flowDefinitionOid;
     return this;
+  }
+
+  public Engine getEngine() {
+    return engine;
+  }
+  
+  public FlowDefinition getFlowDefinition() {
+    return flowDefinition;
   }
 }

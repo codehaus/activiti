@@ -14,6 +14,7 @@
 package org.activiti.service.api.process.definition;
 
 
+
 /**
  * @author Tom Baeyens
  */
@@ -21,6 +22,7 @@ public class Transition {
 
   String id;
   String destination;
+  Condition condition;
 
   public String getId() {
     return id;
@@ -37,6 +39,16 @@ public class Transition {
 
   public Transition setDestination(String destination) {
     this.destination = destination;
+    return this;
+  }
+
+  
+  public Condition getCondition() {
+    return condition;
+  }
+
+  public Transition setCondition(Condition condition) {
+    this.condition = condition;
     return this;
   }
 }

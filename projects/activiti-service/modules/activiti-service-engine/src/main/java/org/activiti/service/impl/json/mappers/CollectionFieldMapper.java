@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json.mappers;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -19,6 +19,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.activiti.service.impl.json.ClassMapper;
+import org.activiti.service.impl.json.FieldMapper;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
@@ -41,11 +44,11 @@ public abstract class CollectionFieldMapper extends FieldMapper {
   }
 
   public abstract Object convertElement(Object element);
-  public abstract Object convertJsonElement(Object jsonElement);
+  public abstract Object convertJsonElement(Object jsonElement, Object parentBean);
 
   @SuppressWarnings("unchecked")
-  public void get(DBObject dbObject, Object bean) {
-    Object collection = getValueFromField(bean);
+  public void toJson(DBObject dbObject, Object bean) throws Exception {
+    Object collection = field.get(bean);
     if (collection!=null) {
       BasicDBList jsonList = new BasicDBList();
       Collection elements = (key!=null ? ((Map<String,Object>) collection).values() : (List<Object>) collection);
@@ -61,7 +64,7 @@ public abstract class CollectionFieldMapper extends FieldMapper {
     }
   }
 
-  public void set(DBObject dbObject, Object bean) {
+  public void toBean(DBObject dbObject, Object bean, Object parentBean) throws Exception {
     BasicDBList jsonList = (BasicDBList) dbObject.get(field.getName());
     Object collection = null;
     if (jsonList!=null) {
@@ -70,19 +73,20 @@ public abstract class CollectionFieldMapper extends FieldMapper {
         collection = map;
         for (Object jsonElement: jsonList) {
           String keyValue = (String) ((DBObject)jsonElement).get(key);
-          Object element = convertJsonElement(jsonElement);
+          Object element = convertJsonElement(jsonElement, bean);
           map.put(keyValue, element);
         }
+        field.set(bean, collection);
         
       } else {
         List<Object> list = new ArrayList<Object>();
         collection = list;
         for (Object jsonElement: jsonList) {
-          Object element = convertJsonElement(jsonElement);
+          Object element = convertJsonElement(jsonElement, bean);
           list.add(element);
         }
       }
+      field.set(bean, collection);
     }
-    setValueInField(bean, collection);
   }
 }

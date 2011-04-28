@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.process.activity;
+package org.activiti.service.api.process.definition;
 
 import org.activiti.service.api.process.instance.ActivityInstance;
 
@@ -19,8 +19,8 @@ import org.activiti.service.api.process.instance.ActivityInstance;
 /**
  * @author Tom Baeyens
  */
-public class StartActivityInstance extends ActivityInstance {
+public interface Condition {
 
-  
-  
+  boolean evaluate(ActivityInstance activityInstance);
+
 }

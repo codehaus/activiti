@@ -11,18 +11,24 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.process.definition;
+package org.activiti.service.api.model.process.activity;
 
+import org.activiti.service.api.process.definition.ActivityType;
 import org.activiti.service.api.process.instance.ActivityInstance;
-
+import org.activiti.service.api.process.instance.Trigger;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface ActivityType {
-
-  void start(ActivityInstance activityInstance);
-
+public class WaitState implements ActivityType {
   
+  public void start(ActivityInstance activityInstance) {
+    String activityDefinitionId = activityInstance.getActivityDefinition().getId();
+    Trigger trigger = new Trigger()
+      .setActivityInstance(activityInstance)
+      .setId(activityDefinitionId);
+    activityInstance.addTrigger(trigger);
+  }
+
 }

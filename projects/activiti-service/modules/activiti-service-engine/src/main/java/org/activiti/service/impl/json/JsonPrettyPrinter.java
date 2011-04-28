@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json;
 
 import java.util.Set;
 import java.util.TreeSet;

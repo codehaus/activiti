@@ -20,9 +20,9 @@ import java.util.Map;
 
 import org.activiti.service.api.identity.GroupLink;
 import org.activiti.service.api.identity.UserLink;
+import org.activiti.service.impl.json.JsonList;
+import org.activiti.service.impl.json.JsonMap;
 import org.activiti.service.impl.persistence.AbstractPersistable;
-import org.activiti.service.impl.persistence.PersistentList;
-import org.activiti.service.impl.persistence.PersistentMap;
 
 
 /**
@@ -33,10 +33,10 @@ public class Case extends AbstractPersistable {
   String name;
   String description;
 
-  @PersistentMap(type=UserLink.class, key="userId")
+  @JsonMap(type=UserLink.class, key="userId")
   Map<String, UserLink> users = new HashMap<String, UserLink>();
   
-  @PersistentList(type=GroupLink.class)
+  @JsonList(type=GroupLink.class)
   List<GroupLink> groups = new ArrayList<GroupLink>();
   
   public Case addUserLink(String userId, String role) {
@@ -48,10 +48,29 @@ public class Case extends AbstractPersistable {
   public Case setAssignee(String userId) {
     return addUserLink(userId, UserLink.ROLE_ASSIGNEE);
   }
+  
+  public String getAssignee() {
+    return findFirstUserIdForLink(UserLink.ROLE_ASSIGNEE);
+  }
 
   public Case setOwner(String userId) {
     return addUserLink(userId, UserLink.ROLE_OWNER);
   }
+  
+  public String getOwner() {
+    return findFirstUserIdForLink(UserLink.ROLE_OWNER);
+  }
+
+  protected String findFirstUserIdForLink(String role) {
+    for (UserLink userLink: users.values()) {
+      if (role.equals(userLink.getRole())) {
+        return userLink.getUserId();
+      }
+    }
+    return null;
+  } 
+
+  // getters and setters //////////////////////////////////////////////////////
 
   public String getName() {
     return name;

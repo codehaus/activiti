@@ -13,15 +13,17 @@
 
 package org.activiti.service.impl.json;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiException;
-import org.activiti.service.impl.persistence.ClassMapper;
-import org.activiti.service.impl.persistence.JsonPrettyPrinter;
 import org.activiti.service.impl.persistence.Manager;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
@@ -50,7 +52,7 @@ public class JsonConverter {
   }
   
   @SuppressWarnings("unchecked")
-  public <T> T instantiate(DBObject dbObject, Class<T> baseType, Activiti activiti) {
+  public <T> T instantiate(DBObject dbObject, Class<T> baseType) {
     try {
       Class<T> instanceType = baseType;
       String type = (String) dbObject.get("class");
@@ -65,16 +67,100 @@ public class JsonConverter {
     }
   }
   
-  public void setJsonInBean(DBObject dbObject, Object bean) {
-    getClassMapper(bean.getClass()).setJsonInBean(bean, dbObject);
-  }
+  public Object toBean(Object json, Class<?> beanType) {
+    if ( (json instanceof String) || (json instanceof Boolean) ) {
+      return json;
 
-  public DBObject getJsonFromBean(Object bean) {
-    return getClassMapper(bean.getClass()).getJsonFromBean(bean);
+    } else if (json instanceof BasicDBObject) {
+      try {
+        BasicDBObject jsonObject = (BasicDBObject) json;
+        String beanTypeName = (String) jsonObject.get("class");
+        if (beanTypeName!=null) {
+          beanType = Class.forName(beanTypeName);
+        }
+        ClassMapper classMapper = getClassMapper(beanType);
+        return classMapper.toBean(jsonObject);
+      } catch (Exception e) {
+        throw new ActivitiException("json reflection problem", e);
+      }
+
+    } else if (json instanceof BasicDBList) {
+      List<Object> beans = new ArrayList<Object>();
+      BasicDBList jsonList = (BasicDBList) json;
+      for (Object jsonElement: jsonList) {
+        Object beanElement = toBean(jsonElement, beanType);
+        beans.add(beanElement);
+      }
+      return beans;
+    } 
+    
+    throw new ActivitiException("supported json type "+json.getClass().getName());
   }
   
+  @SuppressWarnings("unchecked")
+  public Object toJson(Object bean) {
+    try {
+      if (bean instanceof String || bean instanceof Boolean) {
+        return bean;
+        
+      } else if (Map.class.isAssignableFrom(bean.getClass())) {
+        Map<String,Object> beanMap = (Map<String, Object>) bean;
+        if (beanMap!=null && !beanMap.isEmpty()) {
+          BasicDBObject jsonMap = new BasicDBObject();
+          for (String elementKey: beanMap.keySet()) {
+            Object elementValue = beanMap.get(elementKey);
+            Object jsonElementValue = toJson(elementValue);
+            jsonMap.put(elementKey, jsonElementValue);
+          }
+          return jsonMap;
+        }
+        
+      } else if (Collection.class.isAssignableFrom(bean.getClass())) {
+        BasicDBList jsonList = new BasicDBList();
+        Collection beanCollection = (Collection)bean;
+        for (Object beanCollectionElement: beanCollection) {
+          Object jsonCollectionElement = toJson(beanCollectionElement);
+          jsonList.add(jsonCollectionElement);
+        }
+        return jsonList;
+        
+      }
+      Class<?> beanType = bean.getClass();
+      return getClassMapper(beanType).toJson(bean);
+    } catch (Exception e) {
+      throw new ActivitiException("problem getting json from bean "+bean, e);
+    }
+  }
+
+  public String toJsonText(Object bean) {
+    return toJson(bean).toString();
+  }
+
+  public String toJsonTextPretty(Object bean) {
+    return JsonPrettyPrinter.toJsonPrettyPrint((DBObject) toJson(bean));
+  }
+  
+  ///////////////////////////////////////////////////////////////////////
+
+  
+  public void setJsonInBean(DBObject dbObject, Object bean) {
+    setJsonInBean(dbObject, bean, null);
+  }
+  
+  public void setJsonInBean(DBObject dbObject, Object bean, Object parentBean) {
+    try {
+      getClassMapper(bean.getClass()).setJsonInBean(bean, dbObject, parentBean);
+    } catch (Exception e) {
+      throw new ActivitiException("problem setting json in bean "+dbObject, e);
+    }
+  }
+
   public void getJsonFromBean(DBObject json, Object bean) {
-    getClassMapper(bean.getClass()).getJsonFromBean(json, bean);
+    try {
+      getClassMapper(bean.getClass()).getJsonFromBean(json, bean);
+    } catch (Exception e) {
+      throw new ActivitiException("problem getting json from bean "+bean, e);
+    }
   }
   
   public void setJsonTextInBean(String jsonText, Object bean) {
@@ -83,11 +169,11 @@ public class JsonConverter {
   }
 
   public String getJsonTextFromBean(Object bean) {
-    return JSON.serialize(getJsonFromBean(bean));
+    return JSON.serialize(toJson(bean));
   }
 
   public String getJsonTextPrettyPrintFromBean(Object bean) {
-    return JsonPrettyPrinter.toJsonPrettyPrint(getJsonFromBean(bean));
+    return JsonPrettyPrinter.toJsonPrettyPrint((DBObject) toJson(bean));
   }
 
   public Activiti getActiviti() {

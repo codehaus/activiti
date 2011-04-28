@@ -11,20 +11,27 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api.process.instance;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * @author Tom Baeyens
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface PersistentMap {
+public class Engine {
+  
+  boolean isExecuting = false;
+  List<AtomicOperation> atomicOperations = new ArrayList<AtomicOperation>();
 
-  Class<?> type();
-
-  String key();
-
+  public void execute(List<AtomicOperation> atomicOperations) {
+    this.atomicOperations.addAll(atomicOperations);
+    if (!isExecuting) {
+      while (!atomicOperations.isEmpty()) {
+        AtomicOperation atomicOperation = atomicOperations.remove(0);
+        atomicOperation.execute();
+      }
+    }
+  }
 }

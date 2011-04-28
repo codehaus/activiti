@@ -11,18 +11,20 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.model.process.activity;
+package org.activiti.service.impl.json;
 
-import org.activiti.service.api.process.definition.ActivityType;
-import org.activiti.service.api.process.instance.ActivityInstance;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public class StartActivityType implements ActivityType {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface JsonMap {
 
-  public ActivityInstance createActivityInstance() {
-    return new StartActivityInstance();
-  }
+  Class<?> type();
+
+  String key();
+
 }

@@ -11,13 +11,14 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.process.definition;
+package org.activiti.service.api.process.instance;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.activiti.service.api.process.instance.ActivityInstance;
-import org.activiti.service.api.process.instance.FlowInstance;
+import org.activiti.service.impl.json.JsonBeanMap;
+import org.activiti.service.impl.json.JsonParent;
+
 
 
 /**
@@ -25,23 +26,20 @@ import org.activiti.service.api.process.instance.FlowInstance;
  */
 public class Trigger {
 
-  String name;
-  FlowInstance flowInstance;
-  ActivityInstance activityInstance;
+  String id;
+  
+  @JsonBeanMap
   Map<String, Object> data = new HashMap<String, Object>();
   
-  public Trigger(String name, FlowInstance flowInstance, ActivityInstance activityInstance) {
-    this.name = name;
-    this.flowInstance = flowInstance;
-    this.activityInstance = activityInstance;
-  }
-
-  public String getName() {
-    return name;
+  @JsonParent
+  ActivityInstance activityInstance;
+  
+  public String getId() {
+    return id;
   }
   
-  public Trigger setName(String name) {
-    this.name = name;
+  public Trigger setId(String id) {
+    this.id = id;
     return this;
   }
   
@@ -51,6 +49,18 @@ public class Trigger {
   }
 
   public void fire() {
-    activityInstance.complete();
+    for (String variableName: data.keySet()) {
+      activityInstance.setVariable(variableName, data.get(variableName));
+    }
+    activityInstance.end();
+  }
+
+  public ActivityInstance getActivityInstance() {
+    return activityInstance;
+  }
+
+  public Trigger setActivityInstance(ActivityInstance activityInstance) {
+    this.activityInstance = activityInstance;
+    return this;
   }
 }

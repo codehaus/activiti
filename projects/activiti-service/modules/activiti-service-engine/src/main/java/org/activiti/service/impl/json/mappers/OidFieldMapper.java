@@ -11,8 +11,11 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json.mappers;
 
+import org.activiti.service.impl.json.ClassMapper;
+import org.activiti.service.impl.json.FieldMapper;
+import org.activiti.service.impl.persistence.Persistable;
 import org.bson.types.ObjectId;
 
 import com.mongodb.DBObject;
@@ -27,14 +30,14 @@ public class OidFieldMapper extends FieldMapper {
     super(classMapper, null);
   }
 
-  public void get(DBObject dbObject, Object bean) {
+  public void toJson(DBObject dbObject, Object bean) {
     String oid = ((Persistable)bean).getOid();
     if (oid!=null) {
       dbObject.put("_id", new ObjectId(oid));
     }
   }
 
-  public void set(DBObject dbObject, Object bean) {
+  public void toBean(DBObject dbObject, Object bean, Object parentBean) {
     ObjectId objectId = (ObjectId) dbObject.get("_id");
     if (objectId != null) {
       ((Persistable)bean).setOid(objectId.toString());

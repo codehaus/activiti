@@ -11,18 +11,17 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.process.definition;
+package org.activiti.service.impl.json;
 
-import org.activiti.service.api.process.instance.ActivityInstance;
-
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface ActivityType {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface JsonList {
 
-  void start(ActivityInstance activityInstance);
-
-  
+  Class<?> type();
 }

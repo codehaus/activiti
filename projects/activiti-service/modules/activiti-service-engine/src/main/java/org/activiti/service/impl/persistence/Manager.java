@@ -44,10 +44,7 @@ public abstract class Manager <T extends Persistable> {
   public abstract Class<T> getPersistableType();
 
   public String insert(T persistable) {
-    DBObject jsonMongo = jsonConverter.getJsonFromBean(persistable);
-    if (!getPersistableType().equals(persistable.getClass())) {
-      jsonMongo.put("class", persistable.getClass().getName());
-    }
+    DBObject jsonMongo = (DBObject) jsonConverter.toJson(persistable);
     dbCollection.insert(jsonMongo);
     String oid = jsonMongo.get("_id").toString();
     persistable.setOid(oid);
@@ -55,13 +52,13 @@ public abstract class Manager <T extends Persistable> {
   }
   
   public void delete(T persistable) {
-    DBObject jsonMongo = jsonConverter.getJsonFromBean(persistable);
+    DBObject jsonMongo = (DBObject) jsonConverter.toJson(persistable);
     dbCollection.remove(jsonMongo);
   }
 
   public void update(T persistable) {
     DBObject query = new BasicDBObject("_id", new ObjectId(persistable.getOid()));
-    DBObject jsonMongo = jsonConverter.getJsonFromBean(persistable);
+    DBObject jsonMongo = (DBObject) jsonConverter.toJson(persistable);
     dbCollection.update(query, jsonMongo);
   }
 
@@ -71,7 +68,7 @@ public abstract class Manager <T extends Persistable> {
   
   public List<T> findByExample(T example, int firstResult, int maxResults) {
     List<T> persistables = new ArrayList<T>();
-    DBObject jsonMongo = jsonConverter.getJsonFromBean(example);
+    DBObject jsonMongo = (DBObject) jsonConverter.toJson(example);
     DBCursor dbCursor = null;
     if (firstResult>=0 && maxResults>0) {
       dbCursor = dbCollection.find(jsonMongo, null, firstResult, maxResults);
@@ -80,7 +77,7 @@ public abstract class Manager <T extends Persistable> {
     }
     while (dbCursor.hasNext()) {
       DBObject dbObject = dbCursor.next();
-      T persistable = jsonConverter.instantiate(dbObject, getPersistableType(), activiti);
+      T persistable = jsonConverter.instantiate(dbObject, getPersistableType());
       jsonConverter.setJsonInBean(dbObject, persistable);
       persistables.add(persistable);
     }
@@ -88,7 +85,7 @@ public abstract class Manager <T extends Persistable> {
   }
 
   public T findOneByExample(T example) {
-    DBObject jsonMongo = jsonConverter.getJsonFromBean(example);
+    DBObject jsonMongo = (DBObject) jsonConverter.toJson(example);
     return findOneJsonByExampleJson(jsonMongo);
   }
 
@@ -102,7 +99,7 @@ public abstract class Manager <T extends Persistable> {
     T persistable = null;
     DBObject dbObject = dbCollection.findOne(jsonMongo);
     if (dbObject!=null) {
-      persistable = jsonConverter.instantiate(dbObject, getPersistableType(), activiti);
+      persistable = jsonConverter.instantiate(dbObject, getPersistableType());
       jsonConverter.setJsonInBean(dbObject, persistable);
     }
     return persistable;

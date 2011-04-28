@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.service.api.process.instance.ActivityInstance;
-import org.activiti.service.impl.persistence.PersistentList;
+import org.activiti.service.impl.json.JsonList;
 
 
 /**
@@ -26,17 +25,11 @@ import org.activiti.service.impl.persistence.PersistentList;
  */
 public class ActivityDefinition extends ScopeDefinition {
 
-  ActivityType type;
+  ActivityType activityType;
   
-  @PersistentList(type=Transition.class)
+  @JsonList(type=Transition.class)
   List<Transition> transitions = new ArrayList<Transition>();
   
-  public ActivityInstance createActivityInstance() {
-    ActivityInstance clone = null;
-    // TODO clone activity instance configuration
-    return clone;
-  }
-
   // customized getters and setters ///////////////////////////////////////////
   
   public ActivityDefinition setDescription(String description) {
@@ -61,7 +54,7 @@ public class ActivityDefinition extends ScopeDefinition {
 
   // getters and setters //////////////////////////////////////////////////////
 
-  public Map<String, ActivityDefinition> getActivities() {
+  public Map<String, ActivityDefinition> getActivityDefinitions() {
     return activityDefinitions;
   }
   
@@ -74,12 +67,12 @@ public class ActivityDefinition extends ScopeDefinition {
     return this;
   }
 
-  public ActivityType getType() {
-    return type;
+  public ActivityType getActivityType() {
+    return activityType;
   }
 
-  public ActivityDefinition setType(ActivityType type) {
-    this.type = type;
+  public ActivityDefinition setActivityType(ActivityType type) {
+    this.activityType = type;
     return this;
   }
 }

@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.service.api.ActivitiException;
+import org.activiti.service.impl.json.JsonMap;
 import org.activiti.service.impl.persistence.AbstractPersistable;
-import org.activiti.service.impl.persistence.PersistentMap;
 
 
 /**
@@ -30,7 +30,7 @@ public class ScopeDefinition extends AbstractPersistable {
   String id;
   String description;
 
-  @PersistentMap(type=ActivityDefinition.class, key="id")
+  @JsonMap(type=ActivityDefinition.class, key="id")
   Map<String, ActivityDefinition> activityDefinitions = new HashMap<String, ActivityDefinition>();
   
   // collection modifiers /////////////////////////////////////////////////////
@@ -53,9 +53,24 @@ public class ScopeDefinition extends AbstractPersistable {
     return this;
   }
 
-  public Map<String, ActivityDefinition> getActivities() {
+  public Map<String, ActivityDefinition> getActivityDefinitions() {
     return Collections.unmodifiableMap(activityDefinitions);
   }
+  
+  public ActivityDefinition findActivityDefinition(String activityDefinitionId) {
+    ActivityDefinition activityDefinition = activityDefinitions.get(activityDefinitionId);
+    if (activityDefinition!=null) {
+      return activityDefinition;
+    }
+    for (ActivityDefinition activityDefinition2: activityDefinitions.values()) {
+      ActivityDefinition activityDefinition3 = activityDefinition2.findActivityDefinition(activityDefinitionId);
+      if (activityDefinition3!=null) {
+        return activityDefinition3;
+      }
+    }
+    return null;
+  }
+
 
   // getters and setters //////////////////////////////////////////////////////
 

@@ -11,11 +11,9 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.impl.json;
 
 import java.lang.reflect.Field;
-
-import org.activiti.service.api.ActivitiException;
 
 import com.mongodb.DBObject;
 
@@ -33,22 +31,6 @@ public abstract class FieldMapper {
     this.field = field;
   }
 
-  public abstract void set(DBObject dbObject, Object bean);
-  public abstract void get(DBObject dbObject, Object bean);
-
-  public Object getValueFromField(Object bean) {
-    try {
-      return field.get(bean);
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
-    }
-  }
-
-  public void setValueInField(Object bean, Object value) {
-    try {
-      field.set(bean, value);
-    } catch (Exception e) {
-      throw new ActivitiException("persistence reflection problem", e);
-    }
-  }
+  public abstract void toBean(DBObject dbObject, Object bean, Object parentBean) throws Exception;
+  public abstract void toJson(DBObject dbObject, Object bean) throws Exception;
 }
