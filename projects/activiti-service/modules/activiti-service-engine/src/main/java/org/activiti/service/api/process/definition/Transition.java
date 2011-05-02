@@ -21,7 +21,7 @@ package org.activiti.service.api.process.definition;
 public class Transition {
 
   String id;
-  String destination;
+  String to;
   Condition condition;
 
   public String getId() {
@@ -33,15 +33,14 @@ public class Transition {
     return this;
   }
 
-  public String getDestination() {
-    return destination;
+  public String getTo() {
+    return to;
   }
 
-  public Transition setDestination(String destination) {
-    this.destination = destination;
+  public Transition setTo(String to) {
+    this.to = to;
     return this;
   }
-
   
   public Condition getCondition() {
     return condition;

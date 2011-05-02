@@ -32,7 +32,7 @@ public class TakeTransition implements AtomicOperation {
 
   public void execute() {
     FlowInstance flowInstance = activityInstance.getFlowInstance();
-    String destinationActivityDefinitionId = transition.getDestination();
+    String destinationActivityDefinitionId = transition.getTo();
     
     ActivityDefinition activityDefinition = activityInstance
       .getFlowInstance()

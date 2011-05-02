@@ -11,18 +11,22 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.process.definition;
+package org.activiti.service.api.model.process.activity;
 
+import java.util.logging.Logger;
+
+import org.activiti.service.api.process.definition.ActivityType;
 import org.activiti.service.api.process.instance.ActivityInstance;
-
 
 
 /**
  * @author Tom Baeyens
  */
-public interface ActivityType {
-
-  void execute(ActivityInstance activityInstance);
-
+public class AutomaticActivityType implements ActivityType {
   
+  private static Logger log = Logger.getLogger(AutomaticActivityType.class.getName());
+
+  public void execute(ActivityInstance activityInstance) {
+    log.fine("executing automatic "+activityInstance.getActivityDefinition().getId());
+  }
 }

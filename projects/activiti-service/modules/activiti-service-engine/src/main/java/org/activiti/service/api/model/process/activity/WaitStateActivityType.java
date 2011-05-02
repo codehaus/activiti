@@ -15,20 +15,14 @@ package org.activiti.service.api.model.process.activity;
 
 import org.activiti.service.api.process.definition.ActivityType;
 import org.activiti.service.api.process.instance.ActivityInstance;
-import org.activiti.service.api.process.instance.Trigger;
 
 
 /**
  * @author Tom Baeyens
  */
-public class WaitState implements ActivityType {
+public class WaitStateActivityType implements ActivityType {
   
-  public void start(ActivityInstance activityInstance) {
-    String activityDefinitionId = activityInstance.getActivityDefinition().getId();
-    Trigger trigger = new Trigger()
-      .setActivityInstance(activityInstance)
-      .setId(activityDefinitionId);
-    activityInstance.addTrigger(trigger);
+  public void execute(ActivityInstance activityInstance) {
+    activityInstance.createTrigger();
   }
-
 }

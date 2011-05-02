@@ -11,18 +11,17 @@
  * limitations under the License.
  */
 
-package org.activiti.service.api.process.definition;
+package org.activiti.service.api.model.process.activity;
 
+import org.activiti.service.api.process.definition.ActivityType;
 import org.activiti.service.api.process.instance.ActivityInstance;
-
 
 
 /**
  * @author Tom Baeyens
  */
-public interface ActivityType {
+public class EndActivityType implements ActivityType {
 
-  void execute(ActivityInstance activityInstance);
-
-  
+  public void execute(ActivityInstance activityInstance) {
+  }
 }

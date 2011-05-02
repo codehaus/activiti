@@ -38,34 +38,52 @@ public class ActivityInstance extends ScopeInstance {
   @JsonMap(type=Trigger.class, key="id")
   Map<String, Trigger> triggers = new HashMap<String, Trigger>();
   
-  boolean isFinished = false;
-  
   public void start() {
     activityDefinition
       .getActivityType()
-      .start(this);
-  }
-  
-  public void finished() {
-    isFinished = true;
+      .execute(this);
+
+    if (triggers.isEmpty()) {
+      end();
+    }
   }
   
   public void end() {
-    List<AtomicOperation> atomicOperations = new ArrayList<AtomicOperation>(); 
-    
-    for (Transition transition: activityDefinition.getTransitions()) {
-      Condition condition = transition.getCondition();
-      if (condition==null || condition.evaluate(this)) {
-        atomicOperations.add(new TakeTransition(this, transition));
+    List<Transition> transitions = activityDefinition.getTransitions();
+    List<ActivityInstance> parentActivityInstances = parentScopeInstance.getActivityInstances();
+
+    if (transitions.isEmpty()) {
+      parentActivityInstances.remove(this);
+      if (parentActivityInstances.isEmpty()) {
+        parentScopeInstance.end();
       }
+      
+    } else {
+      List<AtomicOperation> transitionOperations = new ArrayList<AtomicOperation>(); 
+      for (Transition transition : transitions) {
+        Condition condition = transition.getCondition();
+        if (condition == null || condition.evaluate(this)) {
+          transitionOperations.add(new TakeTransition(this, transition));
+        }
+      }
+      parentActivityInstances.remove(this);
+      flowInstance.getEngine().execute(transitionOperations);
     }
-    
-    parentScopeInstance.getActivityInstances().remove(this);
-    
-    flowInstance.getEngine().execute(atomicOperations);
+
   }
   
-  // getters and setters //////////////////////////////////////////////////////
+  public void createTrigger() {
+    createTrigger(activityDefinitionId);
+  }
+  
+  public void createTrigger(String triggerId) {
+    Trigger trigger = new Trigger()
+      .setActivityInstance(this)
+      .setId(triggerId);
+    triggers.put(triggerId, trigger);
+  }
+  
+  // customized getters and setters ///////////////////////////////////////////
   
   public ActivityDefinition getActivityDefinition() {
     if (activityDefinition==null && activityDefinitionId!=null) {
@@ -85,18 +103,14 @@ public class ActivityInstance extends ScopeInstance {
     return this;
   }
 
-  // getters and setters //////////////////////////////////////////////////////
-
   public Trigger getTrigger(String triggerName) {
     return triggers.get(triggerName);
   }
 
-  public void addTrigger(Trigger trigger) {
-    triggers.put(trigger.getId(), trigger);
-  }
-
-  public void removeTrigger(Trigger trigger) {
-    triggers.remove(trigger.getId());
+  // getters and setters //////////////////////////////////////////////////////
+  
+  public String getActivityDefinitionId() {
+    return activityDefinitionId;
   }
 
   public FlowInstance getFlowInstance() {

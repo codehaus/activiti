@@ -66,6 +66,7 @@ public abstract class Manager <T extends Persistable> {
     return findByExample(example, -1, -1);
   }
   
+  @SuppressWarnings("unchecked")
   public List<T> findByExample(T example, int firstResult, int maxResults) {
     List<T> persistables = new ArrayList<T>();
     DBObject jsonMongo = (DBObject) jsonConverter.toJson(example);
@@ -77,8 +78,7 @@ public abstract class Manager <T extends Persistable> {
     }
     while (dbCursor.hasNext()) {
       DBObject dbObject = dbCursor.next();
-      T persistable = jsonConverter.instantiate(dbObject, getPersistableType());
-      jsonConverter.setJsonInBean(dbObject, persistable);
+      T persistable = (T) jsonConverter.toBean(dbObject, getPersistableType());
       persistables.add(persistable);
     }
     return persistables;
@@ -95,12 +95,12 @@ public abstract class Manager <T extends Persistable> {
     return findOneJsonByExampleJson(jsonMongo);
   }
 
+  @SuppressWarnings("unchecked")
   private T findOneJsonByExampleJson(DBObject jsonMongo) {
     T persistable = null;
     DBObject dbObject = dbCollection.findOne(jsonMongo);
     if (dbObject!=null) {
-      persistable = jsonConverter.instantiate(dbObject, getPersistableType());
-      jsonConverter.setJsonInBean(dbObject, persistable);
+      persistable = (T) jsonConverter.toBean(dbObject, getPersistableType());
     }
     return persistable;
   }

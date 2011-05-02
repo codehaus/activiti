@@ -13,7 +13,7 @@
 
 package org.activiti.service.engine.test.api;
 
-import java.util.logging.Logger;
+import java.util.Map;
 
 import org.activiti.service.api.Cases;
 import org.activiti.service.api.cases.Case;
@@ -26,11 +26,10 @@ import org.activiti.service.engine.test.ActivitiTestCase;
  */
 public class CasesTest extends ActivitiTestCase {
   
-  private static Logger log = Logger.getLogger(CasesTest.class.getName());
-
   public void testCasePeopleLinks() {
     Case caze = new Case()
       .setName("run")
+      .setDescription("burn calories")
       .addUserLink("kermit", UserLink.ROLE_ASSIGNEE);
 
     Cases cases = activiti.getManager(Cases.class);
@@ -44,6 +43,14 @@ public class CasesTest extends ActivitiTestCase {
     cases.update(caze);
     caze = cases.findOneByOid(caze.getOid());
     
-    // log.fine(caze.getJsonTextPrettyPrintFromBean());
+    assertEquals("run", caze.getName());
+    assertEquals("burn calories", caze.getDescription());
+    assertEquals("kermit", caze.getAssignee());
+    assertNull(caze.getOwner());
+
+    Map<String, UserLink> users = caze.getUsers();
+    assertEquals("interested", users.get("johndoe").getRole());
+    assertEquals("interested", users.get("joesmoe").getRole());
+    assertEquals(UserLink.ROLE_ASSIGNEE, users.get("kermit").getRole());
   }
 }

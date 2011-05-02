@@ -21,7 +21,7 @@ import org.activiti.service.api.identity.Group;
 import org.activiti.service.api.identity.Registration;
 import org.activiti.service.api.identity.User;
 import org.activiti.service.api.identity.UserLink;
-import org.activiti.service.api.model.process.activity.WaitState;
+import org.activiti.service.api.model.process.activity.WaitStateActivityType;
 import org.activiti.service.api.process.definition.ActivityDefinition;
 import org.activiti.service.api.process.definition.FlowDefinition;
 import org.activiti.service.api.process.definition.Transition;
@@ -42,11 +42,11 @@ public class JsonTest extends ActivitiTestCase {
       .setId("My first process")
       .addActivity(new ActivityDefinition()
         .setId("start")
-        .setActivityType(new WaitState())
-        .addTransition(new Transition().setId("t1").setDestination("end")))
+        .setActivityType(new WaitStateActivityType())
+        .addTransition(new Transition().setId("t1").setTo("end")))
       .addActivity(new ActivityDefinition()
         .setId("end")
-        .setActivityType(new WaitState()));
+        .setActivityType(new WaitStateActivityType()));
 
     JsonConverter jsonConverter = activiti.getJsonConverter();
     Object json = jsonConverter.toJson(flowDefinition);
@@ -54,14 +54,14 @@ public class JsonTest extends ActivitiTestCase {
     
     assertEquals("My first process", flowDefinition.getId());
     ActivityDefinition startActivityDefinition = flowDefinition.getActivityDefinitions().get("start");
-    assertEquals(WaitState.class, startActivityDefinition.getActivityType().getClass());
+    assertEquals(WaitStateActivityType.class, startActivityDefinition.getActivityType().getClass());
     Transition transition = startActivityDefinition.getTransitions().get(0);
     assertEquals("t1", transition.getId());
-    assertEquals("end", transition.getDestination());
+    assertEquals("end", transition.getTo());
     assertEquals(1, startActivityDefinition.getTransitions().size());
     
     ActivityDefinition endActivityDefinition = flowDefinition.getActivityDefinitions().get("end");
-    assertEquals(WaitState.class, endActivityDefinition.getActivityType().getClass());
+    assertEquals(WaitStateActivityType.class, endActivityDefinition.getActivityType().getClass());
     assertEquals(0, endActivityDefinition.getTransitions().size());
     
     FlowInstance flowInstance = flowDefinition.createNewFlowInstance();
@@ -80,7 +80,7 @@ public class JsonTest extends ActivitiTestCase {
 
     assertEquals("end", flowInstance.getActivityInstances().get(0).getActivityDefinition().getId());
 
-    log.fine(activiti.getJsonConverter().getJsonTextPrettyPrintFromBean(flowInstance));
+    log.fine(activiti.getJsonConverter().toJsonTextPretty(flowInstance));
   }
 
   public void testUserJson() {

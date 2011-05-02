@@ -29,7 +29,7 @@ import org.activiti.service.impl.persistence.AbstractPersistable;
 /**
  * @author Tom Baeyens
  */
-public class ScopeInstance extends AbstractPersistable {
+public abstract class ScopeInstance extends AbstractPersistable {
 
   
   @JsonIgnore // initialized in FlowInstance.toBeanCompleted
@@ -63,6 +63,8 @@ public class ScopeInstance extends AbstractPersistable {
     return null;
   }
   
+  public abstract void end();
+
   public void setVariable(String variableName, Object value) {
     if (variables.containsKey(variableName) || parentScopeInstance==null) {
       variables.put(variableName, value);

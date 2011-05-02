@@ -55,7 +55,7 @@ public class BeanMapFieldMapper extends FieldMapper {
       for (String key: jsonMap.keySet()) {
         Object jsonEntryValue = jsonMap.get(key);
         JsonConverter jsonConverter = classMapper.getJsonConverter();
-        Object beanEntryValue = jsonConverter.toBean(jsonEntryValue, Object.class);
+        Object beanEntryValue = jsonConverter.toBean(jsonEntryValue, Object.class, bean);
         beanFieldMap.put(key, beanEntryValue);
       }
       field.set(bean, beanFieldMap);

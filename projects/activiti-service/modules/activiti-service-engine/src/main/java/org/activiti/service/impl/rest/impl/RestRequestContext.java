@@ -52,7 +52,7 @@ public class RestRequestContext {
   public void sendResponseJsonBean(Object bean) {
     String jsonText = activiti
       .getJsonConverter()
-      .getJsonTextFromBean(bean);
+      .toJsonText(bean);
     sendResponseJsonText(jsonText);
   }
   

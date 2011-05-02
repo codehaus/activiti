@@ -37,7 +37,7 @@ public class RegistrationRestTest extends RestTestCase {
     registration.setClientIp("johndoeslaptop");
     registration.setUrl("/item?id=928374");
     
-    String registrationJsonText = activiti.getJsonConverter().getJsonTextFromBean(registration);
+    String registrationJsonText = activiti.getJsonConverter().toJsonText(registration);
     
     String registrationResponseContent = createRestRequest("/register")
       .post("registration="+registrationJsonText)

@@ -13,7 +13,7 @@
 
 package org.activiti.service.api.process.definition;
 
-import org.activiti.service.api.model.process.activity.WaitState;
+import org.activiti.service.api.model.process.activity.StartActivityType;
 import org.activiti.service.api.process.instance.FlowInstance;
 
 
@@ -30,7 +30,7 @@ public class FlowDefinition extends ScopeDefinition {
 
   public FlowDefinition buildExecutableProcess() {
     for (ActivityDefinition activityDefinition: activityDefinitions.values()) {
-      if (WaitState.class.equals(activityDefinition.getActivityType().getClass())) {
+      if (StartActivityType.class.equals(activityDefinition.getActivityType().getClass())) {
         startActivityId = activityDefinition.getId();
         break;
       }

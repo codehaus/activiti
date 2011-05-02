@@ -34,6 +34,10 @@ public class FlowInstance extends ScopeInstance {
   @JsonIgnore
   Engine engine = new Engine();
   
+  public FlowInstance() {
+    flowInstance = this;
+  }
+  
   public FlowInstance setFlowDefinition(FlowDefinition flowDefinition) {
     this.flowDefinition = flowDefinition;
     this.flowDefinitionOid = flowDefinition.getOid();
@@ -47,7 +51,6 @@ public class FlowInstance extends ScopeInstance {
         .findOneByOid(flowDefinitionOid);
     }
     
-    flowInstance = this;
     parentScopeInstance = null;
     
     toBeanCompleted(this, this);
@@ -61,6 +64,11 @@ public class FlowInstance extends ScopeInstance {
       toBeanCompleted(activityInstance, flowInstance);
     }
   }
+  
+  public void end() {
+  }
+
+
 
   // getters and setters //////////////////////////////////////////////////////
 

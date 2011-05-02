@@ -55,8 +55,7 @@ public class BeanFieldMapper extends FieldMapper {
     try {
       DBObject beanFieldJson = (DBObject) json.get(field.getName());
       if (beanFieldJson!=null) {
-        Object beanFieldValue = jsonConverter.instantiate(beanFieldJson, field.getType());
-        jsonConverter.setJsonInBean(beanFieldJson, beanFieldValue);
+        Object beanFieldValue = jsonConverter.toBean(beanFieldJson, field.getType());
         field.set(bean, beanFieldValue);
       }
     } catch (Exception e) {

@@ -52,8 +52,7 @@ public class CollectionBeanFieldMapper extends CollectionFieldMapper {
   public Object convertJsonElement(Object jsonElement, Object parentBean) {
     try {
       DBObject jsonMongo = (DBObject) jsonElement;
-      Object bean = jsonConverter.instantiate(jsonMongo, elementType); 
-      jsonConverter.setJsonInBean(jsonMongo, bean, parentBean);
+      Object bean = jsonConverter.toBean(jsonMongo, elementType, parentBean); 
       return bean;
     } catch (Exception e) {
       throw new ActivitiException("persistence reflection problem", e);

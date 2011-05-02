@@ -17,6 +17,8 @@ import org.activiti.service.api.Activiti;
 import org.activiti.service.api.ActivitiException;
 import org.activiti.service.impl.json.JsonConverter;
 
+import com.mongodb.util.JSON;
+
 
 /**
  * @author Tom Baeyens
@@ -27,11 +29,12 @@ public class JsonParameter <T> extends Parameter <T> {
     super(type);
   }
 
+  @SuppressWarnings("unchecked")
   public T convert(String parameterValue, Activiti activiti) {
     try {
-      T persistable = type.newInstance();
+      Object json = JSON.parse(parameterValue);
       JsonConverter jsonConverter = activiti.getJsonConverter();
-      jsonConverter.setJsonTextInBean(parameterValue, persistable);
+      T persistable = (T) jsonConverter.toBean(json, type);
       return persistable;
     } catch (Exception e) {
       throw new ActivitiException("couldn't create "+type.getName()+" based on json "+parameterValue, e);

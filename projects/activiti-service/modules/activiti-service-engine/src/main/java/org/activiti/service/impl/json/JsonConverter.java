@@ -26,7 +26,6 @@ import org.activiti.service.impl.persistence.Manager;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 
 
 /**
@@ -68,6 +67,9 @@ public class JsonConverter {
   }
   
   public Object toBean(Object json, Class<?> beanType) {
+    return toBean(json, beanType, null);
+  }
+  public Object toBean(Object json, Class<?> beanType, Object parentBean) {
     if ( (json instanceof String) || (json instanceof Boolean) ) {
       return json;
 
@@ -79,7 +81,7 @@ public class JsonConverter {
           beanType = Class.forName(beanTypeName);
         }
         ClassMapper classMapper = getClassMapper(beanType);
-        return classMapper.toBean(jsonObject);
+        return classMapper.toBean(jsonObject, parentBean);
       } catch (Exception e) {
         throw new ActivitiException("json reflection problem", e);
       }
@@ -88,7 +90,7 @@ public class JsonConverter {
       List<Object> beans = new ArrayList<Object>();
       BasicDBList jsonList = (BasicDBList) json;
       for (Object jsonElement: jsonList) {
-        Object beanElement = toBean(jsonElement, beanType);
+        Object beanElement = toBean(jsonElement, beanType, parentBean);
         beans.add(beanElement);
       }
       return beans;
@@ -133,6 +135,7 @@ public class JsonConverter {
   }
 
   public String toJsonText(Object bean) {
+    // what is the difference between json.toString() and JSON.serialize(json); ?
     return toJson(bean).toString();
   }
 
@@ -140,42 +143,6 @@ public class JsonConverter {
     return JsonPrettyPrinter.toJsonPrettyPrint((DBObject) toJson(bean));
   }
   
-  ///////////////////////////////////////////////////////////////////////
-
-  
-  public void setJsonInBean(DBObject dbObject, Object bean) {
-    setJsonInBean(dbObject, bean, null);
-  }
-  
-  public void setJsonInBean(DBObject dbObject, Object bean, Object parentBean) {
-    try {
-      getClassMapper(bean.getClass()).setJsonInBean(bean, dbObject, parentBean);
-    } catch (Exception e) {
-      throw new ActivitiException("problem setting json in bean "+dbObject, e);
-    }
-  }
-
-  public void getJsonFromBean(DBObject json, Object bean) {
-    try {
-      getClassMapper(bean.getClass()).getJsonFromBean(json, bean);
-    } catch (Exception e) {
-      throw new ActivitiException("problem getting json from bean "+bean, e);
-    }
-  }
-  
-  public void setJsonTextInBean(String jsonText, Object bean) {
-    DBObject dbObject = (DBObject) JSON.parse(jsonText);
-    setJsonInBean(dbObject, bean);
-  }
-
-  public String getJsonTextFromBean(Object bean) {
-    return JSON.serialize(toJson(bean));
-  }
-
-  public String getJsonTextPrettyPrintFromBean(Object bean) {
-    return JsonPrettyPrinter.toJsonPrettyPrint((DBObject) toJson(bean));
-  }
-
   public Activiti getActiviti() {
     return activiti;
   }
