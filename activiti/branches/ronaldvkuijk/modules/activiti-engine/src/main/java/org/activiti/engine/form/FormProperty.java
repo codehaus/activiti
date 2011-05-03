@@ -36,6 +36,9 @@ public interface FormProperty {
   /** Optional value that should be used to display in this property */
   String getValue();
   
+  /** Optional value that should be used to display in this property */
+  Object getRawValue();
+  
   /** Is this property read to be displayed in the form and made accessible with the methods 
    * {@link FormService#getStartFormData(String)} and {@link FormService#getTaskFormData(String)}. */
   boolean isReadable();

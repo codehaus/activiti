@@ -49,6 +49,7 @@ public class FormPropertyHandler {
       }
       if (type != null) {
         String formValue = type.convertModelValueToFormValue(modelValue);
+        formProperty.setRawValue(modelValue);
         formProperty.setValue(formValue);
       } else if (modelValue != null) {
         formProperty.setValue(modelValue.toString());

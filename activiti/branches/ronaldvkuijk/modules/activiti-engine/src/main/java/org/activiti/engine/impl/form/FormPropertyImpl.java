@@ -30,6 +30,7 @@ public class FormPropertyImpl implements FormProperty {
   protected boolean isWritable;
 
   protected String value;
+  protected Object rawValue;
 
   public FormPropertyImpl(FormPropertyHandler formPropertyHandler) {
     this.id = formPropertyHandler.getId();
@@ -70,5 +71,13 @@ public class FormPropertyImpl implements FormProperty {
 
   public boolean isWritable() {
     return isWritable;
+  }
+  
+  public Object getRawValue() {
+    return rawValue;
+  }
+  
+  public void setRawValue(Object rawValue) {
+    this.rawValue = rawValue;
   }
 }

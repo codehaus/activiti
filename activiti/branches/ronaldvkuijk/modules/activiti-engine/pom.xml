@@ -3,130 +3,127 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-  <name>Activiti - Engine</name>
-  <groupId>org.activiti</groupId>
-  <artifactId>activiti-engine</artifactId>
+	<name>Activiti - Engine</name>
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-engine</artifactId>
 
-  <parent>
-    <groupId>org.activiti</groupId>
-    <artifactId>activiti-root</artifactId>
-    <relativePath>../..</relativePath>
-    <version>5.2-SNAPSHOT</version>
-  </parent>
+	<parent>
+		<groupId>org.activiti</groupId>
+		<artifactId>activiti-root</artifactId>
+		<relativePath>../..</relativePath>
+		<version>5.2-SNAPSHOT</version>
+	</parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-email</artifactId>
-    </dependency>
-    <dependency>
-      <!-- required for building with JDK 5 -->
-      <groupId>org.livetribe</groupId>
-      <artifactId>livetribe-jsr223</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.ant</groupId>
-      <artifactId>ant</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-compiler</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>persistence-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jta_1.1_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa</artifactId>
-        <scope>test</scope>
-      </dependency>
-    <dependency>
-        <groupId>org.subethamail</groupId>
-      <artifactId>subethasmtp-wiser</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <scope>test</scope>
-    </dependency>
-	<dependency>
-      <groupId>org.subethamail</groupId>
-	  <artifactId>subethasmtp-wiser</artifactId>
-	  <scope>test</scope>
-	</dependency>
-	<dependency>
-	  <groupId>mysql</groupId>
-	  <artifactId>mysql-connector-java</artifactId>
-	  <scope>test</scope>
-	</dependency>
-	<dependency>
-	  <groupId>postgresql</groupId>
-	  <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-          <dependency>
-      <groupId>net.sourceforge.jtds</groupId>
-      <artifactId>jtds</artifactId>
-      <scope>test</scope>
-    </dependency>
-	</dependency><!--
-	<dependency>
-		<groupId>org.apache.geronimo.specs</groupId>
-		<artifactId>geronimo-ejb_3.0_spec</artifactId>
-		<version>1.0.1</version>
-		<scope>provided</scope>
-	</dependency>
-	--><dependency>
-		<groupId>org.jboss.jbossas</groupId>
-		<artifactId>jboss-as-client</artifactId>
-		<version>5.1.0.GA</version>
-		<type>pom</type>
-		<scope>test</scope>
-		<exclusions>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-email</artifactId>
+		</dependency>
+		<dependency>
+			<!-- required for building with JDK 5 -->
+			<groupId>org.livetribe</groupId>
+			<artifactId>livetribe-jsr223</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-compiler</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>persistence-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jta_1.1_spec</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openjpa</groupId>
+			<artifactId>openjpa</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.subethamail</groupId>
+			<artifactId>subethasmtp-wiser</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.subethamail</groupId>
+			<artifactId>subethasmtp-wiser</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!--dependency>
+			<groupId>net.sourceforge.jtds</groupId>
+			<artifactId>jtds</artifactId>
+			<scope>test</scope>
+		</dependency-->
+		<!-- <dependency> <groupId>org.apache.geronimo.specs</groupId> 
+			<artifactId>geronimo-ejb_3.0_spec</artifactId> <version>1.0.1</version> <scope>provided</scope> 
+			</dependency> -->
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-client</artifactId>
+			<version>5.1.0.GA</version>
+			<type>pom</type>
+			<scope>test</scope>
+			<exclusions>
 				<exclusion>
 					<groupId>jboss.web</groupId>
 					<artifactId>servlet-api</artifactId>
@@ -136,228 +133,150 @@
 					<artifactId>jboss-test</artifactId>
 				</exclusion>
 			</exclusions>
-	</dependency>
-	
-				<!-- JBoss client jars, non-ejb -->
-			<!-- dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-j2se</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-javaee</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-logging-spi</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jbosssx-client</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-security-spi</artifactId>
-				<version>${jboss.version.security}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>concurrent</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>javassist</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-aop-client</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-client</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-common-core</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-integration</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-mdr</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-remoting</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jboss-serialization</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jmx-invoker-adaptor-client</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>jnp-client</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone</groupId>
-				<artifactId>trove</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone.ejb</groupId>
-				<artifactId>jboss-ejb3-common-client</artifactId>
-				<version>${jboss.version.ejb3}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone.ejb</groupId>
-				<artifactId>jboss-aspect-jdk50-client</artifactId>
-				<version>${jboss.version.standalone}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone.ejb</groupId>
-				<artifactId>jboss-ejb3-core-client</artifactId>
-				<version>${jboss.version.ejb3}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone.ejb</groupId>
-				<artifactId>jboss-ejb3-proxy-impl-client</artifactId>
-				<version>${jboss.version.ejb3}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone.ejb</groupId>
-				<artifactId>jboss-ejb3-proxy-spi-client</artifactId>
-				<version>${jboss.version.ejb3}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.client.standalone.ejb</groupId>
-				<artifactId>jboss-ejb3-security-client</artifactId>
-				<version>${jboss.version.ejb3}</version>
-			</dependency-->
-	
-	
-	
+		</dependency>
+
+		<!-- JBoss client jars, non-ejb -->
+		<!-- dependency> <groupId>org.jboss.client.standalone</groupId> <artifactId>jboss-j2se</artifactId> 
+			<version>${jboss.version.standalone}</version> </dependency> <dependency> 
+			<groupId>org.jboss.client.standalone</groupId> <artifactId>jboss-javaee</artifactId> 
+			<version>${jboss.version.standalone}</version> </dependency> <dependency> 
+			<groupId>org.jboss.client.standalone</groupId> <artifactId>jboss-logging-spi</artifactId> 
+			<version>${jboss.version.standalone}</version> </dependency> <dependency> 
+			<groupId>org.jboss.client.standalone</groupId> <artifactId>jbosssx-client</artifactId> 
+			<version>${jboss.version.standalone}</version> </dependency> <dependency> 
+			<groupId>org.jboss.client.standalone</groupId> <artifactId>jboss-security-spi</artifactId> 
+			<version>${jboss.version.security}</version> </dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>concurrent</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>javassist</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-aop-client</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-client</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-common-core</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-integration</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-mdr</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-remoting</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jboss-serialization</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jmx-invoker-adaptor-client</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>jnp-client</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone</groupId> 
+			<artifactId>trove</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone.ejb</groupId> 
+			<artifactId>jboss-ejb3-common-client</artifactId> <version>${jboss.version.ejb3}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone.ejb</groupId> 
+			<artifactId>jboss-aspect-jdk50-client</artifactId> <version>${jboss.version.standalone}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone.ejb</groupId> 
+			<artifactId>jboss-ejb3-core-client</artifactId> <version>${jboss.version.ejb3}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone.ejb</groupId> 
+			<artifactId>jboss-ejb3-proxy-impl-client</artifactId> <version>${jboss.version.ejb3}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone.ejb</groupId> 
+			<artifactId>jboss-ejb3-proxy-spi-client</artifactId> <version>${jboss.version.ejb3}</version> 
+			</dependency> <dependency> <groupId>org.jboss.client.standalone.ejb</groupId> 
+			<artifactId>jboss-ejb3-security-client</artifactId> <version>${jboss.version.ejb3}</version> 
+			</dependency -->
+
+
+
 	</dependencies>
 
 
-    <properties>
-        <activiti.artifact>org.activiti.engine</activiti.artifact>
-        <activiti.osgi.import.additional>
-            junit*;resolution:=optional,
-            org.junit*;resolution:=optional,
-            com.sun*;resolution:=optional,
-            javax.persistence*;resolution:=optional,
-            org.apache.commons.mail;resolution:=optional,
-            org.apache.tools.ant*;resolution:=optional,
-            org.apache.xerces*;resolution:=optional,
+	<properties>
+		<activiti.artifact>org.activiti.engine</activiti.artifact>
+		<activiti.osgi.import.additional>
+			junit*;resolution:=optional,
+			org.junit*;resolution:=optional,
+			com.sun*;resolution:=optional,
+			javax.persistence*;resolution:=optional,
+			org.apache.commons.mail;resolution:=optional,
+			org.apache.tools.ant*;resolution:=optional,
+			org.apache.xerces*;resolution:=optional,
         </activiti.osgi.import.additional>
-        <jboss.version.standalone>5.1.0.GA</jboss.version.standalone> <!-- The jars compiled with programs running outside of JBoss  -->
+		<jboss.version.standalone>5.1.0.GA</jboss.version.standalone> <!-- The jars compiled with programs running outside of JBoss -->
 		<jboss.version.ejb3>5.1.0.GA.19</jboss.version.ejb3>
 		<jboss.version.security>5.1.0.GA.SP3</jboss.version.security>
-    </properties>
+	</properties>
 
-    <repositories>
+	<repositories>
 		<repository>
 			<id>alfresco</id>
 			<url>http://maven.alfresco.com/nexus/content/groups/public</url>
 		</repository>
 	</repositories>
 
-  <build>
-    <plugins>      
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/*TestCase.java</exclude>
-            <exclude>**/CompetingJobAcquisitionTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-234 -->
-            <exclude>**/WSDLImporterTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-315 -->
-            <exclude>**/JobExecutorTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-427 -->
-            <exclude>**/HistoricTaskInstanceUpdateTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-485  -->
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-      <!-- plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.2</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin -->
-      <plugin>
-         <groupId>org.apache.felix</groupId>
-         <artifactId>maven-bundle-plugin</artifactId>
-          <executions>
-              <execution>
-                  <phase>generate-sources</phase>
-                  <goals>
-                      <goal>cleanVersions</goal>
-                  </goals>
-              </execution>
-		    <execution>
-		      <id>bundle-manifest</id>
-		      <phase>process-classes</phase>
-		      <goals>
-		        <goal>manifest</goal>
-		      </goals>
-		    </execution>
-		  </executions>
-		</plugin>
-    </plugins>
-  </build>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/*TestCase.java</exclude>
+						<exclude>**/CompetingJobAcquisitionTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-234 -->
+						<exclude>**/WSDLImporterTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-315 -->
+						<exclude>**/JobExecutorTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-427 -->
+						<exclude>**/HistoricTaskInstanceUpdateTest.java</exclude> <!-- http://jira.codehaus.org/browse/ACT-485 -->
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+			<!-- plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
+				<version>2.2</version> <executions> <execution> <goals> <goal>test-jar</goal> 
+				</goals> </execution> </executions> </plugin -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>cleanVersions</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
-	
+
 		<profile>
 			<id>checkspring</id>
 			<properties>
 				<skipTests>true</skipTests>
 			</properties>
 		</profile>
-    <profile>
-      <id>upgradeDatabase</id>
-      <activation>
-        <property>
-          <name>upgradeDatabase</name>
-        </property>
-      </activation>
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-    </profile>
+		<profile>
+			<id>upgradeDatabase</id>
+			<activation>
+				<property>
+					<name>upgradeDatabase</name>
+				</property>
+			</activation>
+			<properties>
+				<skipTests>true</skipTests>
+			</properties>
+		</profile>
 		<profile>
 			<id>distro</id>
 			<build>
@@ -380,7 +299,7 @@
 			</build>
 		</profile>
 
-		<!--  database qa profile -->
+		<!-- database qa profile -->
 		<profile>
 			<id>database</id>
 			<activation>
@@ -392,10 +311,8 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
-						<!--
-							only worked with this version, there might be a bug with antrun
-							see http://jira.codehaus.org/browse/MANTRUN-109
-						-->
+						<!-- only worked with this version, there might be a bug with antrun 
+							see http://jira.codehaus.org/browse/MANTRUN-109 -->
 						<version>1.4</version>
 						<executions>
 							<execution>
@@ -412,7 +329,7 @@
 											<property name="test_classpath" refid="maven.test.classpath" />
 											<property name="database" value="${database}" />
 										</ant>
-                    <echo message="updating activiti cfg to ${database}" />
+										<echo message="updating activiti cfg to ${database}" />
 										<ant antfile="${basedir}/../../qa/db/build.xml" target="create.activiti.cfg">
 											<property name="database" value="${database}" />
 										</ant>
@@ -459,8 +376,8 @@
 			</dependencies>
 		</profile>
 	</profiles>
-	
-	
+
+
 
 	<reporting>
 		<plugins>
