@@ -48,6 +48,7 @@ public abstract class Manager <T extends Persistable> {
     dbCollection.insert(jsonMongo);
     String oid = jsonMongo.get("_id").toString();
     persistable.setOid(oid);
+    persistable.setActiviti(activiti);
     return oid;
   }
   
@@ -79,6 +80,7 @@ public abstract class Manager <T extends Persistable> {
     while (dbCursor.hasNext()) {
       DBObject dbObject = dbCursor.next();
       T persistable = (T) jsonConverter.toBean(dbObject, getPersistableType());
+      persistable.setActiviti(activiti);
       persistables.add(persistable);
     }
     return persistables;
@@ -101,6 +103,7 @@ public abstract class Manager <T extends Persistable> {
     DBObject dbObject = dbCollection.findOne(jsonMongo);
     if (dbObject!=null) {
       persistable = (T) jsonConverter.toBean(dbObject, getPersistableType());
+      persistable.setActiviti(activiti);
     }
     return persistable;
   }

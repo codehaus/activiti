@@ -11,19 +11,20 @@
  * limitations under the License.
  */
 
-package org.activiti.service.impl.persistence;
+package org.activiti.service.api;
 
-import org.activiti.service.api.Activiti;
+import org.activiti.service.api.content.Repository;
+import org.activiti.service.impl.persistence.Manager;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface Persistable {
+public class Repositories extends Manager<Repository> {
 
-  String getOid();
-  void setOid(String oid);
-  
-  void setActiviti(Activiti activiti);
-  
+  @Override
+  public Class<Repository> getPersistableType() {
+    return Repository.class;
+  }
+
 }

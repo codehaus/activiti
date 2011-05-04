@@ -13,6 +13,8 @@
 
 package org.activiti.service.impl.persistence;
 
+import org.activiti.service.api.Activiti;
+
 
 
 /**
@@ -21,6 +23,7 @@ package org.activiti.service.impl.persistence;
 public class AbstractPersistable implements Persistable {
   
   protected String oid;
+  protected Activiti activiti;
   
   public String getOid() {
     return oid;
@@ -28,5 +31,13 @@ public class AbstractPersistable implements Persistable {
 
   public void setOid(String oid) {
     this.oid = oid;
+  }
+
+  public void setActiviti(Activiti activiti) {
+    this.activiti = activiti;
+  }
+  
+  public String toString() {
+    return activiti.getJsonConverter().toJsonText(this);
   }
 }
