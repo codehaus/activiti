@@ -17,8 +17,10 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.activiti.service.api.identity.User;
 import org.activiti.service.impl.json.JsonConverter;
 import org.activiti.service.impl.persistence.Manager;
 import org.activiti.service.impl.util.ClassNameUtil;
@@ -46,6 +48,11 @@ public class Activiti {
   Activiti(ActivitiConfiguration activitiConfiguration) {
     this.activitiConfiguration = activitiConfiguration;
     init();
+    User user = new User();
+    user.setId("test");
+    user.setPassword("test");
+    String feedback = this.getManager(Users.class).insert(user);
+    log.log(Level.SEVERE, "user test created " + feedback);
   }
   
   @SuppressWarnings("unchecked")
@@ -79,8 +86,19 @@ public class Activiti {
 
   protected void init() {
     try {
-      mongo = new Mongo();
+    	if(activitiConfiguration.isOnCloud() == false) {
+    		mongo = new Mongo();
+    	} else {
+    		log.log(Level.SEVERE, "running on cloud");
+    		mongo = new Mongo(activitiConfiguration.getActivitiHost(), activitiConfiguration.getActivitiPort());
+    	}
       db = mongo.getDB(activitiConfiguration.getDatabaseName());
+      log.log(Level.SEVERE, "database " + activitiConfiguration.getDatabaseName());
+      if(activitiConfiguration.getUserName() != null) {
+      	log.log(Level.SEVERE, "authenticating");
+      	boolean authenticated = db.authenticate(activitiConfiguration.getUserName(), activitiConfiguration.getPassword().toCharArray());
+      	log.log(Level.SEVERE, "authenticated " + authenticated);
+      }
       
     } catch (Exception e) {
       throw new RuntimeException("couldn't open mongodb connection: "+e.getMessage(), e);

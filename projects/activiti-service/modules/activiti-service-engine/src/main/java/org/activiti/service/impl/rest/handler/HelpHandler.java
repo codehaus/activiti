@@ -30,6 +30,9 @@ import org.activiti.service.impl.rest.impl.RestHandler;
 import org.activiti.service.impl.rest.impl.RestRequestContext;
 import org.activiti.service.impl.rest.impl.UrlMatcher;
 import org.activiti.service.rest.RestServlet;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 
 /**
@@ -63,6 +66,42 @@ public class HelpHandler extends RestHandler {
       out.println("<html><body>");
       out.println("<h1>Activiti Rest Interface</h1>");
       out.println("<p>This page documents the rest interface of Activiti</p>");
+      
+      /*Map<String, String> envMap = System.getenv();
+      for (String envKey : envMap.keySet()) {
+    	  out.println("<p>key " + envKey + " value " + envMap.get(envKey) + "</p>");
+      }
+      
+      String serviceParam = System.getenv().get("VCAP_SERVICES");
+      Object jsonObj = JSONValue.parse(serviceParam);
+      JSONObject serviceObject = (JSONObject) jsonObj;
+      JSONArray mongoArray = (JSONArray) serviceObject.get("mongodb-1.8");
+      JSONObject mongoObject = (JSONObject) mongoArray.get(0);
+      JSONObject credentialsObject = (JSONObject) mongoObject.get("credentials");
+      String hostname = credentialsObject.get("hostname").toString();
+      String username = credentialsObject.get("username").toString();
+      String password = credentialsObject.get("password").toString();
+      Object passwordObj = credentialsObject.get("password");
+      String name = credentialsObject.get("db").toString();
+      String port = credentialsObject.get("port").toString();
+      out.println("<p>");
+      out.println("hostname " + hostname);
+      out.println("</p>");
+      out.println("<p>");
+      out.println("username " + username);
+      out.println("</p>");
+      out.println("<p>");
+      out.println("password " + password);
+      out.println("</p>");
+      out.println("<p>");
+      out.println("passwordObj " + passwordObj);
+      out.println("</p>");
+      out.println("<p>");
+      out.println("name " + name);
+      out.println("</p>");
+      out.println("<p>");
+      out.println("port " + port);
+      out.println("</p>");*/
       
       Map<String, RestHandler> restHandlers = new HashMap<String, RestHandler>();
       restHandlers.putAll(restServlet.getStaticHandlers());

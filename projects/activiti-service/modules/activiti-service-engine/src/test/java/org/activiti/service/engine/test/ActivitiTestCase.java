@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import junit.framework.TestCase;
 
 import org.activiti.service.api.Activiti;
-import org.activiti.service.api.ActivitiConfiguration;
+import org.activiti.service.api.ActivitiConfigurationBuilder;
 import org.activiti.service.api.Users;
 import org.activiti.service.api.identity.User;
 import org.activiti.service.impl.util.LogUtil;
@@ -48,7 +48,7 @@ public class ActivitiTestCase extends TestCase {
     
     if (activiti==null) {
       log.info("### initializing Activiti ######################################");
-      activiti = new ActivitiConfiguration().buildActiviti();
+      activiti = new ActivitiConfigurationBuilder().buildActiviti();
       activiti
         .getActivitiConfiguration()
         .setMailService(testMailService);

@@ -27,14 +27,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.activiti.service.api.Activiti;
-import org.activiti.service.api.ActivitiConfiguration;
+import org.activiti.service.api.ActivitiConfigurationBuilder;
 import org.activiti.service.api.ActivitiException;
 import org.activiti.service.api.Users;
 import org.activiti.service.api.identity.User;
-import org.activiti.service.impl.rest.handler.HelpHandler;
-import org.activiti.service.impl.rest.handler.RegisterHandler;
 import org.activiti.service.impl.rest.handler.CaseHandler;
 import org.activiti.service.impl.rest.handler.CasesHandler;
+import org.activiti.service.impl.rest.handler.HelpHandler;
+import org.activiti.service.impl.rest.handler.RegisterHandler;
 import org.activiti.service.impl.rest.impl.BadRequestException;
 import org.activiti.service.impl.rest.impl.HttpServletMethod;
 import org.activiti.service.impl.rest.impl.RestException;
@@ -66,7 +66,7 @@ public class RestServlet extends HttpServlet {
   }
 
   protected void initializeActiviti() {
-    activiti = new ActivitiConfiguration().buildActiviti();
+    activiti = new ActivitiConfigurationBuilder().buildActiviti();
   }
 
   public void register(RestHandler handler) {
@@ -149,6 +149,8 @@ public class RestServlet extends HttpServlet {
       if (colonIndex!=-1) {
         String username = decodedHeader.substring(0, colonIndex);
         String password = decodedHeader.substring(colonIndex+1);
+        
+        log.log(Level.SEVERE, "username " + username + ", password " + password);
         
         User user = activiti
           .getManager(Users.class)

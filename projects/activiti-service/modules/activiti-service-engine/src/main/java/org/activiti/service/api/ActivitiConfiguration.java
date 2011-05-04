@@ -21,16 +21,15 @@ import org.activiti.service.impl.mail.MailService;
  */
 public class ActivitiConfiguration {
 
-  protected String activitiHost = "activiti.com";
-  protected int activitiPort = 80;
-  protected String databaseName = "activiti";
+  protected String activitiHost;
+  protected int activitiPort;
+  protected String databaseName;
+  protected String userName;
+  protected String password;
+  protected boolean onCloud;
   protected MailService mailService = new MailService();
   
   public ActivitiConfiguration() {
-  }
-  
-  public Activiti buildActiviti() {
-    return new Activiti(this);
   }
 
   public String getDatabaseName() {
@@ -40,7 +39,6 @@ public class ActivitiConfiguration {
   public void setDatabaseName(String databaseName) {
     this.databaseName = databaseName;
   }
-
   
   public String getActivitiHost() {
     return activitiHost;
@@ -57,14 +55,36 @@ public class ActivitiConfiguration {
   public void setActivitiPort(int activitiPort) {
     this.activitiPort = activitiPort;
   }
-
   
-  public MailService getMailService() {
-    return mailService;
+  public String getUserName() {
+  	return userName;
   }
 
+	public void setUserName(String userName) {
+  	this.userName = userName;
+  }
+
+	public String getPassword() {
+  	return password;
+  }
+
+	public void setPassword(String password) {
+  	this.password = password;
+  }
+
+	public MailService getMailService() {
+    return mailService;
+	}
   
-  public void setMailService(MailService mailService) {
+  public boolean isOnCloud() {
+  	return onCloud;
+  }
+
+	public void setOnCloud(boolean onCloud) {
+  	this.onCloud = onCloud;
+  }
+
+	public void setMailService(MailService mailService) {
     this.mailService = mailService;
   }
   
