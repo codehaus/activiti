@@ -665,4 +665,8 @@ public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask,
   public String getParentTaskId() {
     return parentTaskId;
   }
+  public Map<String, VariableInstanceEntity> getVariableInstances() {
+	ensureVariableInstancesInitialized();
+    return variableInstances;
+  }
 }
