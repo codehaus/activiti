@@ -64,6 +64,7 @@ public class HistoricTaskInstanceEntity extends HistoricScopeInstanceEntity impl
     persistentState.put("name", name);
     persistentState.put("owner", owner);
     persistentState.put("assignee", assignee);
+    persistentState.put("description", description);
     persistentState.put("endTime", endTime);
     persistentState.put("durationInMillis", durationInMillis);
     persistentState.put("deleteReason", deleteReason);
