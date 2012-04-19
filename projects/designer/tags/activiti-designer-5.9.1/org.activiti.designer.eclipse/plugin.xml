@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="org.activiti.designer.eclipse.extension.export.ExportMarshaller" name="Export Marshaller" schema="schema/org.activiti.designer.eclipse.extension.export.ExportMarshaller.exsd"/>
+   <extension-point id="org.activiti.designer.eclipse.extension.validation.ProcessValidator" name="ProcessValidator" schema="schema/org.activiti.designer.eclipse.extension.validation.ProcessValidator.exsd"/>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
+            fixed="false"
+            icon="community_icon.png"
+            id="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
+            name="Activiti">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.activiti.designer.eclipse.category"
+            name="Activiti">
+      </category>
+      <wizard
+            category="org.activiti.designer.eclipse.category"
+            class="org.activiti.designer.eclipse.ui.wizard.project.CreateDefaultActivitiProjectWizard"
+            finalPerspective="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
+            icon="icons/logo/activiti.logo.gradients.16x16.png"
+            id="org.activiti.designer.eclipse.ui.wizard.project.CreateDefaultActivitiProjectWizard"
+            name="Activiti Project"
+            project="true">
+            <description>
+               Create a new Activiti Project with a basic folder structure and a Maven POM file.
+            </description>
+      </wizard>
+      
+       <wizard
+            category="org.activiti.designer.eclipse.category"
+            class="org.activiti.designer.eclipse.ui.wizard.diagram.CreateDefaultActivitiDiagramWizard"
+            finalPerspective="org.activiti.designer.eclipse.perspective.ActivitiPerspective"
+            icon="icons/logo/activiti.logo.gradients.16x16.png"
+            id="org.activiti.designer.eclipse.ui.wizard.diagram.CreateDefaultActivitiDiagramWizard"
+            name="Activiti Diagram">
+             <description>
+               Create a new Activiti BPMN 2.0 Diagram.
+            </description>
+      </wizard>
+   </extension>
+   <extension
+         id="org.activiti.designer.nature"
+         name="Activiti nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.activiti.designer.eclipse.common.ActivitiProjectNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.graphiti.ui.imageProviders">
+      <imageProvider
+            class="org.activiti.designer.eclipse.common.ActivitiEclipseImageProvider"
+            id="org.activiti.designer.eclipse.common.ActivitiImageProvider">
+      </imageProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+   <editor
+         class="org.activiti.designer.eclipse.editor.ActivitiDiagramEditor"
+         contributorClass="org.eclipse.graphiti.ui.editor.DiagramEditorActionBarContributor"
+         default="true"
+         extensions="bpmn"
+         icon="community_icon.png"
+         id="org.activiti.designer.editor.diagramEditor"
+         matchingStrategy="org.activiti.designer.eclipse.editor.ActivitiDiagramMatchingStrategy"
+         name="Activiti Diagram Editor">
+      <contentTypeBinding
+            contentTypeId="org.activiti.designer.editor.diagram.contenttype">
+      </contentTypeBinding>
+   </editor>
+   </extension>
+ <extension
+       point="org.eclipse.wst.xml.core.catalogContributions">
+       <catalogContribution> 
+         <uri
+               name="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+               uri="xsd/BPMN20.xsd"/> 
+         <uri
+               name="http://activiti.org/bpmn" 
+               uri="xsd/activiti-bpmn-extensions-5.4.xsd"/> 
+      </catalogContribution> 
+ </extension>
+ <extension
+       point="org.eclipse.core.contenttype.contentTypes">
+    <content-type
+          base-type="org.eclipse.core.runtime.xml"
+          file-extensions="bpmn"
+          id="org.activiti.designer.editor.diagram.contenttype"
+          name="Activiti Diagram Editor File"
+          priority="normal">
+    </content-type>
+ </extension>
+ 	<extension id="activitiMarker" point="org.eclipse.core.resources.markers" name="Activiti Marker">
+	   <super type="org.eclipse.core.resources.problemmarker"/>
+	   <persistent value="true"/>
+	</extension>
+	<extension id="activitiGeneralMarker" point="org.eclipse.core.resources.markers" name="Activiti General Marker">
+	   <super type="org.eclipse.core.resources.problemmarker"/>
+	   <super type="org.activiti.designer.eclipse.activitiMarker"/>
+	   <persistent value="true"/>
+	</extension>
+	<extension id="activitiMarshallerMarker" point="org.eclipse.core.resources.markers" name="Activiti Marshaller Marker">
+	   <super type="org.eclipse.core.resources.problemmarker"/>
+	   <super type="org.activiti.designer.eclipse.activitiMarker"/>
+	   <super type="org.activiti.designer.eclipse.activitiGeneralMarker"/>
+	   <attribute name="nodeId"/>
+	   <persistent value="true"/>
+	</extension>
+	<extension id="activitiValidatorMarker" point="org.eclipse.core.resources.markers" name="Activiti Validator Marker">
+		<super type="org.eclipse.core.resources.problemmarker"/>
+	   <super type="org.activiti.designer.eclipse.activitiMarker"/>
+	   <super type="org.activiti.designer.eclipse.activitiGeneralMarker"/>
+	   <attribute name="nodeId"/>
+	   <persistent value="true"/>
+	</extension>
+	<extension
+	      point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.activiti.designer.eclipse.preferences.ActivitiSavePreferencesPageInitializer">
+      </initializer>
+   </extension>
+</plugin>
