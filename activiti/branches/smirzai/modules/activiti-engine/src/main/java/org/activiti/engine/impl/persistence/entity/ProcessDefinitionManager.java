@@ -71,4 +71,8 @@ public class ProcessDefinitionManager extends AbstractManager {
     }
     return null; 
   }
+  
+  public List<ProcessDefinition> findProcessDefinitionsStartableByUser(String user) {
+    return null;
+  }
 }

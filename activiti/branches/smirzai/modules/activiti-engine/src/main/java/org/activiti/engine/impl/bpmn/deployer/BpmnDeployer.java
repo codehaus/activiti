@@ -14,12 +14,15 @@ package org.activiti.engine.impl.bpmn.deployer;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramGenerator;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
@@ -37,6 +40,7 @@ import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.persistence.deploy.DeploymentCache;
 import org.activiti.engine.impl.persistence.entity.DeploymentEntity;
 import org.activiti.engine.impl.persistence.entity.EventSubscriptionEntity;
+import org.activiti.engine.impl.persistence.entity.IdentityLinkEntity;
 import org.activiti.engine.impl.persistence.entity.MessageEventSubscriptionEntity;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionManager;
@@ -141,6 +145,8 @@ public class BpmnDeployer implements Deployer {
 
         dbSqlSession.insert(processDefinition);
         deploymentCache.addProcessDefinition(processDefinition);
+        addAuthorizations(processDefinition);
+
         
       } else {
         String deploymentId = deployment.getId();
@@ -149,6 +155,8 @@ public class BpmnDeployer implements Deployer {
         processDefinition.setId(persistedProcessDefinition.getId());
         processDefinition.setVersion(persistedProcessDefinition.getVersion());
         deploymentCache.addProcessDefinition(processDefinition);
+        addAuthorizations(processDefinition);
+
       }
 
       Context
@@ -237,6 +245,23 @@ public class BpmnDeployer implements Deployer {
           
           newSubscription.insert();
         }
+      }
+    }      
+  }
+
+  @SuppressWarnings("unchecked")
+  protected void addAuthorizations(ProcessDefinitionEntity processDefinition) {
+    CommandContext commandContext = Context.getCommandContext();
+    Set<Expression>  candidateStarterUsers =  processDefinition.getCandidateStarterUserIdExpressions();
+    if(candidateStarterUsers != null) {     
+      Iterator<Expression> userIterator = candidateStarterUsers.iterator();
+      while (userIterator.hasNext()) {
+        Expression userExpr = (Expression) userIterator.next();
+        IdentityLinkEntity identityLink = new IdentityLinkEntity();
+        identityLink.setProcessDef(processDefinition);
+        identityLink.setUserId(userExpr.toString());
+        identityLink.setType("candidate");
+        commandContext.getDbSqlSession().insert(identityLink);
       }
     }      
   }

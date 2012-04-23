@@ -15,11 +15,13 @@ package org.activiti.engine.impl.pvm.process;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.impl.pvm.PvmActivity;
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.pvm.PvmProcessDefinition;
 import org.activiti.engine.impl.pvm.PvmProcessInstance;
 import org.activiti.engine.impl.pvm.runtime.ExecutionImpl;
@@ -38,6 +40,10 @@ public class ProcessDefinitionImpl extends ScopeImpl implements PvmProcessDefini
   protected String description;
   protected ActivityImpl initial;
   protected Map<ActivityImpl, List<ActivityImpl>> initialActivityStacks = new HashMap<ActivityImpl, List<ActivityImpl>>();
+  
+  protected Set<Expression> candidateStarterUserIdExpressions = new HashSet<Expression>();
+  protected Set<Expression> candidateStarterGroupIdExpressions = new HashSet<Expression>();
+
 
   public ProcessDefinitionImpl(String id) {
     super(id, null);
@@ -134,4 +140,21 @@ public class ProcessDefinitionImpl extends ScopeImpl implements PvmProcessDefini
   public String getDescription() {
     return (String) getProperty("documentation");
   }
+  
+  public Set<Expression> getCandidateStarterUserIdExpressions() {
+    return candidateStarterUserIdExpressions;
+  }
+
+  public void addCandidateStarterUserIdExpression(Expression userId) {
+    candidateStarterUserIdExpressions.add(userId);
+  }
+
+  public Set<Expression> getCandidateStarterGroupIdExpressions() {
+    return candidateStarterGroupIdExpressions;
+  }
+
+  public void addCandidateStarterGroupIdExpression(Expression groupId) {
+    candidateStarterGroupIdExpressions.add(groupId);
+  }
+
 }

@@ -50,4 +50,9 @@ public class IdentityLinkManager extends AbstractManager {
       deleteIdentityLink(identityLink);
     }
   }
+  
+  public void deleteIdentityLinksByProcDef(String processDefId) {
+    getDbSqlSession().delete("deleteIdentityLinkByProcDef", processDefId);
+  }
+  
 }

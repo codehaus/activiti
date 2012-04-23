@@ -77,6 +77,12 @@
     <if test="eventSubscriptionType != null">
     	inner join ${prefix}ACT_RU_EVENT_SUBSCR EVT on PD.ID_ = EVT.CONFIGURATION_
     </if>
+    <if test="authorizationUserId != null">
+    	inner join ${prefix}ACT_RU_IDENTITYLINK  IDN on PD.ID_ = IDN.PROC_DEF_ID_
+        
+    </if>
+    
+    
     <where>
       <if test="id != null">
         PD.ID_ = #{id}
@@ -117,6 +123,10 @@
       <if test="eventSubscriptionType != null">
       	and (EVT.EVENT_TYPE_ = #{eventSubscriptionType} and EVT.EVENT_NAME_ = #{eventSubscriptionName}) 
       </if>
+      <if test="authorizationUserId != null">
+        and (IDN.USER_ID_ = #{authorizationUserId})
+      </if>
+      
     </where>
   </sql>
   
@@ -160,6 +170,13 @@
   <select id="selectProcessDefinitionCountByQueryCriteria_mysql" parameterType="org.activiti.engine.impl.ProcessDefinitionQueryImpl" resultType="long">
     select distinct count(PD.ID_)
     <include refid="selectProcessDefinitionsByQueryCriteriaSql"/>
+  </select>
+
+  
+  <select id="selectProcessDefinitionsStartableByUser" parameterType="string" resultMap="processDefinitionResultMap">
+    select *
+    from ${prefix}ACT_RE_PROCDEF
+    
   </select>
 
 </mapper>

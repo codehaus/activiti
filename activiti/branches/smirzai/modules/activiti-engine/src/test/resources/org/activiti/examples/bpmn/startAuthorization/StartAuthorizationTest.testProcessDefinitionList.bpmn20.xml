@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:activiti="http://activiti.org/bpmn" targetNamespace="Examples">
+
+	<process id="one" name="One" >
+		<startEvent id="start1" />
+		<sequenceFlow id="flow11" sourceRef="start1" targetRef="end1" />
+		<endEvent id="end1" />
+	</process>
+
+	<process id="two" name="Two" activiti:candidateStarterUsers="user1, user2">
+		<startEvent id="start2" />
+		<sequenceFlow id="flow12" sourceRef="start2" targetRef="end2" />
+		<endEvent id="end2" />
+	</process>
+
+	<process id="three" name="Three" activiti:candidateStarterUsers="user1">
+		<startEvent id="start3" />
+		<sequenceFlow id="flow13" sourceRef="start3" targetRef="end3" />
+		<endEvent id="end3" />
+	</process>
+
+
+</definitions>

@@ -89,6 +89,11 @@ public interface ProcessDefinitionQuery extends Query<ProcessDefinitionQuery, Pr
   ProcessDefinitionQuery processDefinitionResourceNameLike(String resourceNameLike);
   
   /**
+   * Only selects process definitions which given userId is authoriezed to start
+   */
+  ProcessDefinitionQuery startableByUser(String userId);
+
+  /**
    * Only selects process definitions which are suspended
    */
   ProcessDefinitionQuery suspended();
@@ -125,4 +130,5 @@ public interface ProcessDefinitionQuery extends Query<ProcessDefinitionQuery, Pr
   
   /** Order by deployment id (needs to be followed by {@link #asc()} or {@link #desc()}). */
   ProcessDefinitionQuery orderByDeploymentId();
+  
 }

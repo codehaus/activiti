@@ -46,6 +46,7 @@ public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQ
   protected Integer version;
   protected boolean latest = false;
   protected SuspensionState suspensionState;
+  protected String authorizationUserId;
   
   protected String eventSubscriptionName;
   protected String eventSubscriptionType;
@@ -273,5 +274,14 @@ public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQ
   }  
   public void setSuspensionState(SuspensionState suspensionState) {
     this.suspensionState = suspensionState;
+  }
+
+  @Override
+  public ProcessDefinitionQuery startableByUser(String userId) {
+    if (userId == null) {
+      throw new ActivitiException("userId is null");
+    }
+    this.authorizationUserId = userId;
+    return this;
   }
 }
