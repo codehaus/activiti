@@ -77,12 +77,6 @@
     <if test="eventSubscriptionType != null">
     	inner join ${prefix}ACT_RU_EVENT_SUBSCR EVT on PD.ID_ = EVT.CONFIGURATION_
     </if>
-    <if test="authorizationUserId != null">
-    	inner join ${prefix}ACT_RU_IDENTITYLINK  IDN on PD.ID_ = IDN.PROC_DEF_ID_
-        
-    </if>
-    
-    
     <where>
       <if test="id != null">
         PD.ID_ = #{id}
@@ -124,9 +118,9 @@
       	and (EVT.EVENT_TYPE_ = #{eventSubscriptionType} and EVT.EVENT_NAME_ = #{eventSubscriptionName}) 
       </if>
       <if test="authorizationUserId != null">
-        and (IDN.USER_ID_ = #{authorizationUserId})
+        AND exists (select ID_  from ${prefix} ACT_RU_IDENTITYLINK  IDN where IDN.PROC_DEF_ID_ = PD.ID_ and IDN.USER_ID_ = #{authorizationUserId})
       </if>
-      
+       
     </where>
   </sql>
   
@@ -171,12 +165,4 @@
     select distinct count(PD.ID_)
     <include refid="selectProcessDefinitionsByQueryCriteriaSql"/>
   </select>
-
-  
-  <select id="selectProcessDefinitionsStartableByUser" parameterType="string" resultMap="processDefinitionResultMap">
-    select *
-    from ${prefix}ACT_RE_PROCDEF
-    
-  </select>
-
 </mapper>

@@ -53,7 +53,7 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
     identityService.createMembership(userInGroup3.getId(), group3.getId());
   }
 
-  protected void TearDownUsersAndGroups() throws Exception {
+  protected void tearDownUsersAndGroups() throws Exception {
     identityService.deleteMembership(userInGroup1.getId(), group1.getId());
     identityService.deleteMembership(userInGroup2.getId(), group2.getId());
     identityService.deleteMembership(userInGroup3.getId(), group3.getId());
@@ -74,55 +74,58 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
 
     setUpUsersAndGroups();
 
-    
-    // an undefined user should not be able to start process
-    identityService.setAuthenticatedUserId("unauthorizedUser");
     try {
-      runtimeService.startProcessInstanceByKey("potentialStarter");
-
-    } catch (StartAuthorizationException ae) {
-
-    } catch (Exception e) {
-      fail("Wrong exception caught. StartAuthorizationException expected, " + e.getClass().getName() + " caught.");
-    }
-
-    // check with an authorized user in activiti:candidateStarterUsers attibute
-    identityService.setAuthenticatedUserId("user1");
-    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-    assertProcessEnded(processInstance.getId());
-    assertTrue(processInstance.isEnded());
-
-    // make sure more comma seperation for users in activiti:candidateStarterUsers work properly
-    identityService.setAuthenticatedUserId("user2");
-    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-    assertProcessEnded(processInstance.getId());
-    assertTrue(processInstance.isEnded());
     
-    // check with an authorized user defined in activiti:potentialStarter in user() format
-    identityService.setAuthenticatedUserId("user3");
-    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-    assertProcessEnded(processInstance.getId());
-    assertTrue(processInstance.isEnded());
+	    // an undefined user should not be able to start process
+	    identityService.setAuthenticatedUserId("unauthorizedUser");
+	    try {
+	      runtimeService.startProcessInstanceByKey("potentialStarter");
+	
+	    } catch (StartAuthorizationException ae) {
+	
+	    } catch (Exception e) {
+	      fail("Wrong exception caught. StartAuthorizationException expected, " + e.getClass().getName() + " caught.");
+	    }
+	
+	    // check with an authorized user in activiti:candidateStarterUsers attibute
+	    identityService.setAuthenticatedUserId("user1");
+	    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
+	    assertProcessEnded(processInstance.getId());
+	    assertTrue(processInstance.isEnded());
+	
+	    // make sure more comma seperation for users in activiti:candidateStarterUsers work properly
+	    identityService.setAuthenticatedUserId("user2");
+	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
+	    assertProcessEnded(processInstance.getId());
+	    assertTrue(processInstance.isEnded());
+	    
+	    // check with an authorized user defined in activiti:potentialStarter in user() format
+	    identityService.setAuthenticatedUserId("user3");
+	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
+	    assertProcessEnded(processInstance.getId());
+	    assertTrue(processInstance.isEnded());
+	
+	    // check the user in a group defined in activiti:candidateStarterGroups
+	    identityService.setAuthenticatedUserId("userInGroup1");
+	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
+	    assertProcessEnded(processInstance.getId());
+	    assertTrue(processInstance.isEnded());
+	
+	    // check the user in a group defined in activiti:potentialStarter as default target
+	    identityService.setAuthenticatedUserId("userInGroup2");
+	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
+	    assertProcessEnded(processInstance.getId());
+	    assertTrue(processInstance.isEnded());
+	
+	    // check the user in a group defined in activiti:potentialStarter in group() format
+	    identityService.setAuthenticatedUserId("userInGroup3");
+	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
+	    assertProcessEnded(processInstance.getId());
+	    assertTrue(processInstance.isEnded());
+    } finally {
 
-    // check the user in a group defined in activiti:candidateStarterGroups
-    identityService.setAuthenticatedUserId("userInGroup1");
-    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-    assertProcessEnded(processInstance.getId());
-    assertTrue(processInstance.isEnded());
-
-    // check the user in a group defined in activiti:potentialStarter as default target
-    identityService.setAuthenticatedUserId("userInGroup2");
-    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-    assertProcessEnded(processInstance.getId());
-    assertTrue(processInstance.isEnded());
-
-    // check the user in a group defined in activiti:potentialStarter in group() format
-    identityService.setAuthenticatedUserId("userInGroup3");
-    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-    assertProcessEnded(processInstance.getId());
-    assertTrue(processInstance.isEnded());
-
-    TearDownUsersAndGroups();
+    tearDownUsersAndGroups();
+    }
 
   }
 
@@ -142,50 +145,61 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
   
   // this test checks the list without user constraint
   @Deployment
-	public void testProcessDefinitionList() {
-		List<ProcessDefinition> processDefinitions = repositoryService
-				.createProcessDefinitionQuery().orderByProcessDefinitionName()
-				.asc().orderByProcessDefinitionVersion().asc()
-				.orderByProcessDefinitionCategory().asc().list();
-
-		ProcessDefinition processDefinition = processDefinitions.get(0);
-		assertEquals("one", processDefinition.getKey());
-		assertEquals("One", processDefinition.getName());
-		assertTrue(processDefinition.getId().startsWith("one:1"));
-		assertEquals("Examples", processDefinition.getCategory());
-
-		processDefinition = processDefinitions.get(2);
-		assertEquals("two", processDefinition.getKey());
-		assertEquals("Two", processDefinition.getName());
-		assertTrue(processDefinition.getId().startsWith("two:1"));
-		assertEquals("Examples", processDefinition.getCategory());
-
-		processDefinitions = repositoryService.createProcessDefinitionQuery()
-				.orderByProcessDefinitionName().asc()
-				.orderByProcessDefinitionVersion().asc()
-				.orderByProcessDefinitionCategory().asc()
-				.startableByUser("user1").list();
-		
-		assertEquals(2, processDefinitions.size());
-
-		
-		processDefinitions = repositoryService.createProcessDefinitionQuery()
-				.orderByProcessDefinitionName().asc()
-				.orderByProcessDefinitionVersion().asc()
-				.orderByProcessDefinitionCategory().asc()
-				.startableByUser("user2").list();
-		
-		assertEquals(1, processDefinitions.size());
-
-		processDefinitions = repositoryService.createProcessDefinitionQuery()
-				.orderByProcessDefinitionName().asc()
-				.orderByProcessDefinitionVersion().asc()
-				.orderByProcessDefinitionCategory().asc()
-				.startableByUser("user3").list();
-		
-		assertEquals(0, processDefinitions.size());
-
-		
+	public void testProcessDefinitionList() throws Exception {
+	  
+	  setUpUsersAndGroups();
+	  try {
+	  
+			List<ProcessDefinition> processDefinitions = repositoryService
+					.createProcessDefinitionQuery().orderByProcessDefinitionName()
+					.asc().orderByProcessDefinitionName().asc()
+					.orderByProcessDefinitionCategory().asc().list();
+	
+			ProcessDefinition processDefinition = processDefinitions.get(0);
+			assertEquals("process1", processDefinition.getKey());
+			assertEquals("Process1", processDefinition.getName());
+			assertTrue(processDefinition.getId().startsWith("process1:1"));
+			assertEquals("Examples", processDefinition.getCategory());
+	
+			processDefinition = processDefinitions.get(1);
+			assertEquals("process2", processDefinition.getKey());
+			assertEquals("Process2", processDefinition.getName());
+			assertTrue(processDefinition.getId().startsWith("process2:1"));
+			assertEquals("Examples", processDefinition.getCategory());
+	
+			processDefinition = processDefinitions.get(2);
+			assertEquals("process3", processDefinition.getKey());
+			assertEquals("Process3", processDefinition.getName());
+			assertTrue(processDefinition.getId().startsWith("process3:1"));
+			assertEquals("Examples", processDefinition.getCategory());
+	
+			processDefinitions = repositoryService.createProcessDefinitionQuery()
+					.orderByProcessDefinitionName().asc()
+					.orderByProcessDefinitionVersion().asc()
+					.orderByProcessDefinitionCategory().asc()
+					.startableByUser("user1").list();
+			
+			assertEquals(2, processDefinitions.size());
+	
+			
+			processDefinitions = repositoryService.createProcessDefinitionQuery()
+					.orderByProcessDefinitionName().asc()
+					.orderByProcessDefinitionVersion().asc()
+					.orderByProcessDefinitionCategory().asc()
+					.startableByUser("user2").list();
+			
+			assertEquals(1, processDefinitions.size());
+	
+			processDefinitions = repositoryService.createProcessDefinitionQuery()
+					.orderByProcessDefinitionName().asc()
+					.orderByProcessDefinitionVersion().asc()
+					.orderByProcessDefinitionCategory().asc()
+					.startableByUser("user3").list();
+			
+			assertEquals(0, processDefinitions.size());
+	  } finally {
+		tearDownUsersAndGroups();
+	  }
 	}
 
 }

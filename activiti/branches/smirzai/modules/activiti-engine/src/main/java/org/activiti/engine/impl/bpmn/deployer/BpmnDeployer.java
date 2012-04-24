@@ -248,24 +248,34 @@ public class BpmnDeployer implements Deployer {
       }
     }      
   }
-
-  @SuppressWarnings("unchecked")
-  protected void addAuthorizations(ProcessDefinitionEntity processDefinition) {
+  
+  enum ExprType {
+	  USER, GROUP
+  }
+  
+  private void addAuthorizationsFromIterator(Set<Expression> exprSet, ProcessDefinitionEntity processDefinition, ExprType exprType) {
     CommandContext commandContext = Context.getCommandContext();
-    Set<Expression>  candidateStarterUsers =  processDefinition.getCandidateStarterUserIdExpressions();
-    if(candidateStarterUsers != null) {     
-      Iterator<Expression> userIterator = candidateStarterUsers.iterator();
-      while (userIterator.hasNext()) {
-        Expression userExpr = (Expression) userIterator.next();
+    if (exprSet != null) {
+      Iterator<Expression> iterator = exprSet.iterator();
+      while (iterator.hasNext()) {
+        Expression expr = (Expression) iterator.next();
         IdentityLinkEntity identityLink = new IdentityLinkEntity();
         identityLink.setProcessDef(processDefinition);
-        identityLink.setUserId(userExpr.toString());
+        if (exprType.equals(ExprType.USER))
+           identityLink.setUserId(expr.toString());
+        else if (exprType.equals(ExprType.GROUP))
+          identityLink.setGroupId(expr.toString());          
         identityLink.setType("candidate");
         commandContext.getDbSqlSession().insert(identityLink);
       }
-    }      
+    }
   }
 
+  @SuppressWarnings("unchecked")
+  protected void addAuthorizations(ProcessDefinitionEntity processDefinition) {
+    addAuthorizationsFromIterator(processDefinition.getCandidateStarterUserIdExpressions(), processDefinition, ExprType.USER);
+    addAuthorizationsFromIterator(processDefinition.getCandidateStarterGroupIdExpressions(), processDefinition, ExprType.GROUP);
+  }
 
   /**
    * Returns the default name of the image resource for a certain process.
