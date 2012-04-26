@@ -75,54 +75,27 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
     setUpUsersAndGroups();
 
     try {
+      boolean execptionOccured = false;
     
-	    // an undefined user should not be able to start process
+	    // Authentication should not be done. So an unidentified user should also be able to start the process
 	    identityService.setAuthenticatedUserId("unauthorizedUser");
 	    try {
 	      runtimeService.startProcessInstanceByKey("potentialStarter");
 	
 	    } catch (StartAuthorizationException ae) {
+	      execptionOccured = true;
 	
 	    } catch (Exception e) {
 	      fail("Wrong exception caught. StartAuthorizationException expected, " + e.getClass().getName() + " caught.");
 	    }
+	    assertFalse("Process could not be started for unauthorized user.", execptionOccured);
 	
-	    // check with an authorized user in activiti:candidateStarterUsers attibute
+	    // check with an authorized user obviously it should be no problem starting the process
 	    identityService.setAuthenticatedUserId("user1");
 	    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
 	    assertProcessEnded(processInstance.getId());
 	    assertTrue(processInstance.isEnded());
-	
-	    // make sure more comma seperation for users in activiti:candidateStarterUsers work properly
-	    identityService.setAuthenticatedUserId("user2");
-	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-	    assertProcessEnded(processInstance.getId());
-	    assertTrue(processInstance.isEnded());
-	    
-	    // check with an authorized user defined in activiti:potentialStarter in user() format
-	    identityService.setAuthenticatedUserId("user3");
-	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-	    assertProcessEnded(processInstance.getId());
-	    assertTrue(processInstance.isEnded());
-	
-	    // check the user in a group defined in activiti:candidateStarterGroups
-	    identityService.setAuthenticatedUserId("userInGroup1");
-	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-	    assertProcessEnded(processInstance.getId());
-	    assertTrue(processInstance.isEnded());
-	
-	    // check the user in a group defined in activiti:potentialStarter as default target
-	    identityService.setAuthenticatedUserId("userInGroup2");
-	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-	    assertProcessEnded(processInstance.getId());
-	    assertTrue(processInstance.isEnded());
-	
-	    // check the user in a group defined in activiti:potentialStarter in group() format
-	    identityService.setAuthenticatedUserId("userInGroup3");
-	    processInstance = runtimeService.startProcessInstanceByKey("potentialStarter");
-	    assertProcessEnded(processInstance.getId());
-	    assertTrue(processInstance.isEnded());
-    } finally {
+	    } finally {
 
     tearDownUsersAndGroups();
     }
