@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
 import org.activiti.engine.impl.persistence.AbstractManager;
@@ -73,6 +75,16 @@ public class ProcessDefinitionManager extends AbstractManager {
   }
   
   public List<ProcessDefinition> findProcessDefinitionsStartableByUser(String user) {
+    return   new ProcessDefinitionQueryImpl().startableByUser(user).list();
+  }
+  
+  public List<User> findProcessDefinitionPotentialStarterUsers() {
     return null;
   }
+  
+  public List<Group> findProcessDefinitionPotentialStarterGroups() {
+    return null;
+  }
+
+ 
 }

@@ -47,6 +47,7 @@ public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQ
   protected boolean latest = false;
   protected SuspensionState suspensionState;
   protected String authorizationUserId;
+  protected String procDefId;
   
   protected String eventSubscriptionName;
   protected String eventSubscriptionType;
@@ -167,7 +168,12 @@ public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQ
   public ProcessDefinitionQuery messageEventSubscription(String messageName) {
     return eventSubscription("message", messageName);
   }
-  
+
+  public ProcessDefinitionQuery processDefinitionStarter(String procDefId) {
+    this.procDefId = procDefId;
+    return this;
+  }
+
   public ProcessDefinitionQuery eventSubscription(String eventType, String eventName) {
     if(eventName == null) {
       throw new ActivitiException("event name is null");
@@ -277,7 +283,7 @@ public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQ
   }
 
   @Override
-  public ProcessDefinitionQuery startableByUser(String userId) {
+  public ProcessDefinitionQueryImpl startableByUser(String userId) {
     if (userId == null) {
       throw new ActivitiException("userId is null");
     }

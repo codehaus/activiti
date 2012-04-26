@@ -3,7 +3,7 @@ package org.activiti.examples.bpmn.startAuthorization;
 import java.util.List;
 
 import org.activiti.engine.IdentityService;
-import org.activiti.engine.StartAuthorizationException;
+import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
@@ -26,6 +26,10 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
   protected void setUpUsersAndGroups() throws Exception {
 
     identityService = processEngine.getIdentityService();
+
+    identityService.saveUser(identityService.newUser("user1"));
+    identityService.saveUser(identityService.newUser("user2"));
+    identityService.saveUser(identityService.newUser("user3"));
 
     // create users
     userInGroup1 = identityService.newUser("userInGroup1");
@@ -65,6 +69,11 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
     identityService.deleteUser(userInGroup1.getId());
     identityService.deleteUser(userInGroup2.getId());
     identityService.deleteUser(userInGroup3.getId());
+    
+    identityService.deleteUser("user1");
+    identityService.deleteUser("user2");
+    identityService.deleteUser("user3");
+    
 
   }
 
@@ -75,20 +84,15 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
     setUpUsersAndGroups();
 
     try {
-      boolean execptionOccured = false;
     
 	    // Authentication should not be done. So an unidentified user should also be able to start the process
 	    identityService.setAuthenticatedUserId("unauthorizedUser");
 	    try {
 	      runtimeService.startProcessInstanceByKey("potentialStarter");
 	
-	    } catch (StartAuthorizationException ae) {
-	      execptionOccured = true;
-	
-	    } catch (Exception e) {
+	    }  catch (Exception e) {
 	      fail("Wrong exception caught. StartAuthorizationException expected, " + e.getClass().getName() + " caught.");
 	    }
-	    assertFalse("Process could not be started for unauthorized user.", execptionOccured);
 	
 	    // check with an authorized user obviously it should be no problem starting the process
 	    identityService.setAuthenticatedUserId("user1");
@@ -122,6 +126,25 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
 	  
     setUpUsersAndGroups();
     try {
+      
+      // Process 1 has no potential starters
+      ProcessDefinition latestProcessDef = repositoryService
+              .createProcessDefinitionQuery().latestVersion().processDefinitionKey("process1")
+              .singleResult();      
+      List<User> authorizedUsers =  ProcessEngines.getDefaultProcessEngine().getIdentityService().createUserQuery().potentialStarter(latestProcessDef.getId()).list();
+      assertEquals(0, authorizedUsers.size());
+
+      
+      
+      // user1 and user2 are potential Startes of Process2
+      latestProcessDef = repositoryService
+              .createProcessDefinitionQuery().latestVersion().processDefinitionKey("process2")
+              .singleResult();      
+      authorizedUsers =  ProcessEngines.getDefaultProcessEngine().getIdentityService().createUserQuery().potentialStarter(latestProcessDef.getId()).orderByUserId().asc().list();
+      assertEquals(2, authorizedUsers.size());
+      assertEquals("user1", authorizedUsers.get(0).getId());
+      assertEquals("user2", authorizedUsers.get(1).getId());
+      
 
       // do not mention user, all processes should be selected
       List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc()
@@ -170,6 +193,8 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
 
       assertEquals(1, processDefinitions.size());
       assertEquals("process4", processDefinitions.get(0).getKey());
+      
+      
 
     } finally {
       tearDownUsersAndGroups();

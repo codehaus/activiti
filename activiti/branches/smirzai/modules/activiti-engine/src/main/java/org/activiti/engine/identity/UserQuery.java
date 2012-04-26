@@ -52,6 +52,9 @@ public interface UserQuery extends Query<UserQuery, User> {
   
   /** Only select {@link User}s that belong to the given group. */ 
   UserQuery memberOfGroup(String groupId);
+
+  /** Only select {@link User}S that are potential starter if guven Process Definition Id. */  
+  public UserQuery potentialStarter(String procDefId);
   
   //sorting ////////////////////////////////////////////////////////
   

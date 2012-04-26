@@ -105,4 +105,13 @@ public class UserManager extends AbstractManager {
     }
     return false;
   }
+  
+  public List<User> findPotentialStarterUsers(String proceDefId) {
+    Map<String, String> parameters = new HashMap<String, String>();
+    parameters.put("procDefId", proceDefId);
+    return  (List<User>) getDbSqlSession().selectOne("selectUserByQueryCriteria", parameters);
+    
+  }
+  
+  
 }
