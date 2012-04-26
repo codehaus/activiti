@@ -147,59 +147,60 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
   @Deployment
 	public void testProcessDefinitionList() throws Exception {
 	  
-	  setUpUsersAndGroups();
-	  try {
-	  
-			List<ProcessDefinition> processDefinitions = repositoryService
-					.createProcessDefinitionQuery().orderByProcessDefinitionName()
-					.asc().orderByProcessDefinitionName().asc()
-					.orderByProcessDefinitionCategory().asc().list();
-	
-			ProcessDefinition processDefinition = processDefinitions.get(0);
-			assertEquals("process1", processDefinition.getKey());
-			assertEquals("Process1", processDefinition.getName());
-			assertTrue(processDefinition.getId().startsWith("process1:1"));
-			assertEquals("Examples", processDefinition.getCategory());
-	
-			processDefinition = processDefinitions.get(1);
-			assertEquals("process2", processDefinition.getKey());
-			assertEquals("Process2", processDefinition.getName());
-			assertTrue(processDefinition.getId().startsWith("process2:1"));
-			assertEquals("Examples", processDefinition.getCategory());
-	
-			processDefinition = processDefinitions.get(2);
-			assertEquals("process3", processDefinition.getKey());
-			assertEquals("Process3", processDefinition.getName());
-			assertTrue(processDefinition.getId().startsWith("process3:1"));
-			assertEquals("Examples", processDefinition.getCategory());
-	
-			processDefinitions = repositoryService.createProcessDefinitionQuery()
-					.orderByProcessDefinitionName().asc()
-					.orderByProcessDefinitionVersion().asc()
-					.orderByProcessDefinitionCategory().asc()
-					.startableByUser("user1").list();
-			
-			assertEquals(2, processDefinitions.size());
-	
-			
-			processDefinitions = repositoryService.createProcessDefinitionQuery()
-					.orderByProcessDefinitionName().asc()
-					.orderByProcessDefinitionVersion().asc()
-					.orderByProcessDefinitionCategory().asc()
-					.startableByUser("user2").list();
-			
-			assertEquals(1, processDefinitions.size());
-	
-			processDefinitions = repositoryService.createProcessDefinitionQuery()
-					.orderByProcessDefinitionName().asc()
-					.orderByProcessDefinitionVersion().asc()
-					.orderByProcessDefinitionCategory().asc()
-					.startableByUser("user3").list();
-			
-			assertEquals(0, processDefinitions.size());
-	  } finally {
-		tearDownUsersAndGroups();
-	  }
-	}
+    setUpUsersAndGroups();
+    try {
+
+      // do not mention user, all processes should be selected
+      List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc()
+              .orderByProcessDefinitionName().asc().orderByProcessDefinitionCategory().asc().list();
+
+      assertEquals(4, processDefinitions.size());
+
+      assertEquals("process1", processDefinitions.get(0).getKey());
+      assertEquals("process2", processDefinitions.get(1).getKey());
+      assertEquals("process3", processDefinitions.get(2).getKey());
+      assertEquals("process4", processDefinitions.get(3).getKey());
+
+      // check user1, process3 has "user1" as only authorized starter, and
+      // process2 has two authorized starters, of which one is "user1"
+      processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc().orderByProcessDefinitionVersion().asc()
+              .orderByProcessDefinitionCategory().asc().startableByUser("user1").list();
+
+      assertEquals(2, processDefinitions.size());
+      assertEquals("process2", processDefinitions.get(0).getKey());
+      assertEquals("process3", processDefinitions.get(1).getKey());
+
+      // "user2" can only start process2
+      processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc().orderByProcessDefinitionVersion().asc()
+              .orderByProcessDefinitionCategory().asc().startableByUser("user2").list();
+
+      assertEquals(1, processDefinitions.size());
+      assertEquals("process2", processDefinitions.get(0).getKey());
+
+      // no process could be started with "user4"
+      processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc().orderByProcessDefinitionVersion().asc()
+              .orderByProcessDefinitionCategory().asc().startableByUser("user4").list();
+
+      assertEquals(0, processDefinitions.size());
+
+      // "userInGroup3" is in "group3" and can start only process4 via group authorization
+      processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc().orderByProcessDefinitionVersion().asc()
+              .orderByProcessDefinitionCategory().asc().startableByUser("userInGroup3").list();
+
+      assertEquals(1, processDefinitions.size());
+      assertEquals("process4", processDefinitions.get(0).getKey());
+
+      // "userInGroup2" can start process4, via both user and group authorizations
+      // but we have to be sure that process4 appears only once
+      processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc().orderByProcessDefinitionVersion().asc()
+              .orderByProcessDefinitionCategory().asc().startableByUser("userInGroup2").list();
+
+      assertEquals(1, processDefinitions.size());
+      assertEquals("process4", processDefinitions.get(0).getKey());
+
+    } finally {
+      tearDownUsersAndGroups();
+    }
+  }
 
 }

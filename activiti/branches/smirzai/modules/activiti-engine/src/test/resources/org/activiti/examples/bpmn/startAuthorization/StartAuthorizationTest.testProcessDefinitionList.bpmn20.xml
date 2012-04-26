@@ -21,7 +21,7 @@
 		<endEvent id="end3" />
 	</process>
 
-	<process id="process4" name="Process4" activiti:candidateStarterGroups="group1, group2">
+	<process id="process4" name="Process4" activiti:candidateStarterUsers="userInGroup2" activiti:candidateStarterGroups="group1, group2, group3">
 		<startEvent id="start4" />
 		<sequenceFlow id="flow14" sourceRef="start4" targetRef="end4" />
 		<endEvent id="end4" />
