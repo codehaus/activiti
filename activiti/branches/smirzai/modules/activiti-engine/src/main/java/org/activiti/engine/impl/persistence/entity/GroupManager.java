@@ -13,7 +13,9 @@
 
 package org.activiti.engine.impl.persistence.entity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
@@ -69,4 +71,13 @@ public class GroupManager extends AbstractManager {
   public List<Group> findGroupsByUser(String userId) {
     return getDbSqlSession().selectList("selectGroupsByUserId", userId);
   }
+
+  @SuppressWarnings("unchecked")
+  public List<Group> findPotentialStarterUsers(String proceDefId) {
+    Map<String, String> parameters = new HashMap<String, String>();
+    parameters.put("procDefId", proceDefId);
+    return  (List<Group>) getDbSqlSession().selectOne("selectGroupByQueryCriteria", parameters);
+  }
+    
+  
 }

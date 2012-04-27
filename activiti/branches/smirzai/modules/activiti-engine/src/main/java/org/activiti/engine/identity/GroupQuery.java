@@ -39,6 +39,10 @@ public interface GroupQuery extends Query<GroupQuery, Group> {
   /** Only selects {@link Group}s where the given user is a member of. */
   GroupQuery groupMember(String groupMemberUserId);
   
+  /** Only select {@link User}S that are potential starter if guven Process Definition Id. */  
+  public GroupQuery potentialStarter(String procDefId);
+
+  
   //sorting ////////////////////////////////////////////////////////
   
   /** Order by group id (needs to be followed by {@link #asc()} or {@link #desc()}). */

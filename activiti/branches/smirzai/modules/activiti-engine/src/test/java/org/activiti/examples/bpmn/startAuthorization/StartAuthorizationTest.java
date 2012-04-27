@@ -144,7 +144,25 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
       assertEquals(2, authorizedUsers.size());
       assertEquals("user1", authorizedUsers.get(0).getId());
       assertEquals("user2", authorizedUsers.get(1).getId());
+
+      // Process 1 has no potential starter groups
+      latestProcessDef = repositoryService
+              .createProcessDefinitionQuery().latestVersion().processDefinitionKey("process1")
+              .singleResult();      
+      List<Group> authorizedGroups =  ProcessEngines.getDefaultProcessEngine().getIdentityService().createGroupQuery().potentialStarter(latestProcessDef.getId()).list();
+      assertEquals(0, authorizedGroups.size());
       
+      // Process 3 has 3 groups as authorized starter groups
+      latestProcessDef = repositoryService
+              .createProcessDefinitionQuery().latestVersion().processDefinitionKey("process4")
+              .singleResult();      
+      authorizedGroups =  ProcessEngines.getDefaultProcessEngine().getIdentityService().createGroupQuery().potentialStarter(latestProcessDef.getId()).list();
+      assertEquals(3, authorizedGroups.size());
+      assertEquals("group1", authorizedGroups.get(0).getId());
+      assertEquals("group2", authorizedGroups.get(1).getId());
+      assertEquals("group3", authorizedGroups.get(2).getId());
+
+
 
       // do not mention user, all processes should be selected
       List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc()
@@ -165,6 +183,7 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
       assertEquals(2, processDefinitions.size());
       assertEquals("process2", processDefinitions.get(0).getKey());
       assertEquals("process3", processDefinitions.get(1).getKey());
+
 
       // "user2" can only start process2
       processDefinitions = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName().asc().orderByProcessDefinitionVersion().asc()
@@ -193,6 +212,7 @@ public class StartAuthorizationTest extends PluggableActivitiTestCase {
 
       assertEquals(1, processDefinitions.size());
       assertEquals("process4", processDefinitions.get(0).getKey());
+
       
       
 

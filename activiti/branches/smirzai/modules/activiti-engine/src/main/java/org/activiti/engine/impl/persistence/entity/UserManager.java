@@ -106,6 +106,7 @@ public class UserManager extends AbstractManager {
     return false;
   }
   
+  @SuppressWarnings("unchecked")
   public List<User> findPotentialStarterUsers(String proceDefId) {
     Map<String, String> parameters = new HashMap<String, String>();
     parameters.put("procDefId", proceDefId);
