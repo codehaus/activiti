@@ -121,6 +121,7 @@ import org.activiti.engine.impl.variable.VariableDeclaration;
  * @author Falko Menge
  * @author Esteban Robles
  * @author Daniel Meyer
+ * @author Saeid Mirzaei
  */
 public class BpmnParse extends Parse {
 

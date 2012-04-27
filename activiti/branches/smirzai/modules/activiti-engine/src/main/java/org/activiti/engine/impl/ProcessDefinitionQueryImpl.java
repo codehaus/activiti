@@ -28,6 +28,7 @@ import org.activiti.engine.runtime.ExecutionQuery;
  * @author Tom Baeyens
  * @author Joram Barrez
  * @author Daniel Meyer
+ * @author Saeid Mirzaei
  */
 public class ProcessDefinitionQueryImpl extends AbstractQuery<ProcessDefinitionQuery, ProcessDefinition> 
   implements ProcessDefinitionQuery {

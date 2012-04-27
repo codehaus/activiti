@@ -52,6 +52,7 @@ import org.activiti.engine.runtime.Job;
 /**
  * @author Tom Baeyens
  * @author Joram Barrez
+ * @author Saeid Mirzaei
  */
 public class BpmnDeployer implements Deployer {
 

@@ -29,6 +29,7 @@ import org.activiti.engine.impl.persistence.AbstractManager;
 
 /**
  * @author Tom Baeyens
+ * @author Saeid Mirzaei
  */
 public class UserManager extends AbstractManager {
 
