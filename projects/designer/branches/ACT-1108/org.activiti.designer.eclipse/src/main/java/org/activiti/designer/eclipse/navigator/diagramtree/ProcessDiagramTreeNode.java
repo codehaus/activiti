@@ -16,6 +16,7 @@ package org.activiti.designer.eclipse.navigator.diagramtree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.Artifact;
 import org.activiti.designer.bpmn2.model.FlowElement;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.Process;
@@ -25,30 +26,44 @@ import org.activiti.designer.bpmn2.model.Process;
  */
 public class ProcessDiagramTreeNode extends AbstractProcessDiagramTreeNode {
 
-  public ProcessDiagramTreeNode(final Object parent, final Process process) {
-    super(parent, process);
-  }
+	public ProcessDiagramTreeNode(final Object parent, final Process process) {
+		super(parent, process);
+	}
 
-  @Override
-  protected List<DiagramTreeNode> createChildNodesForFlowElements(List<FlowElement> flowElements) {
-    final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
+	@Override
+	protected List<DiagramTreeNode> createChildNodesForFlowElements(
+			List<FlowElement> flowElements) {
+		final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
 
-    for (final FlowElement flowElement : flowElements) {
-      result.add(DiagramTreeNodeFactory.createFlowElementNode(this, flowElement));
-    }
+		for (final FlowElement flowElement : flowElements) {
+			result.add(DiagramTreeNodeFactory.createFlowElementNode(this,
+					flowElement));
+		}
 
-    return result;
-  }
+		return result;
+	}
 
-  @Override
-  protected List<DiagramTreeNode> createChildNodesForLanes(List<Lane> lanes) {
-    final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
+	@Override
+	protected List<DiagramTreeNode> createChildNodesForLanes(List<Lane> lanes) {
+		final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
 
-    for (final Lane lane : lanes) {
-      result.add(DiagramTreeNodeFactory.createLaneNode(this, lane));
-    }
+		for (final Lane lane : lanes) {
+			result.add(DiagramTreeNodeFactory.createLaneNode(this, lane));
+		}
 
-    return result;
-  }
+		return result;
+	}
+
+	@Override
+	protected List<DiagramTreeNode> createChildNodesForArtifacts(
+			List<Artifact> artifacts) {
+		
+		final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
+		for (final Artifact artifact : artifacts) {
+			result.add(DiagramTreeNodeFactory.createArtifactNode(this, artifact));
+		}
+		
+		return result;
+	}
 
 }

@@ -16,6 +16,7 @@ package org.activiti.designer.eclipse.navigator.diagramtree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.Artifact;
 import org.activiti.designer.bpmn2.model.FlowElement;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.Process;
@@ -33,6 +34,8 @@ public abstract class AbstractProcessDiagramTreeNode extends AbstractDiagramTree
   protected void extractChildren() {
 
     final List<FlowElement> allFlowElements = getModelObject().getFlowElements();
+    
+    final List<Artifact> artifacts = getModelObject().getArtifacts();
 
     final List<Lane> lanes = getModelObject().getLanes();
 
@@ -54,13 +57,20 @@ public abstract class AbstractProcessDiagramTreeNode extends AbstractDiagramTree
     for (final DiagramTreeNode flowElementChild : flowElementChildren) {
       addChildNode(flowElementChild);
     }
-
+    
+    final List<DiagramTreeNode> artifactChildren = createChildNodesForArtifacts(artifacts);
+    for (final DiagramTreeNode artifactChild : artifactChildren) {
+    	addChildNode(artifactChild);
+    }
+ 
     final List<DiagramTreeNode> laneChildren = createChildNodesForLanes(lanes);
     for (final DiagramTreeNode laneChild : laneChildren) {
       addChildNode(laneChild);
     }
 
   }
+  
+  protected abstract List<DiagramTreeNode> createChildNodesForArtifacts(final List<Artifact> artifacts);
 
   protected abstract List<DiagramTreeNode> createChildNodesForFlowElements(List<FlowElement> flowElements);
 

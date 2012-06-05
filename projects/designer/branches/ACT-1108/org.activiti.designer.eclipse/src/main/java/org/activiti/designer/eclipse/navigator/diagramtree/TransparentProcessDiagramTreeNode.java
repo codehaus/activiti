@@ -16,6 +16,7 @@ package org.activiti.designer.eclipse.navigator.diagramtree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.Artifact;
 import org.activiti.designer.bpmn2.model.FlowElement;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.Process;
@@ -23,34 +24,50 @@ import org.activiti.designer.bpmn2.model.Process;
 /**
  * @author Tiese Barrell
  */
-public class TransparentProcessDiagramTreeNode extends AbstractProcessDiagramTreeNode {
+public class TransparentProcessDiagramTreeNode extends
+		AbstractProcessDiagramTreeNode {
 
-  public TransparentProcessDiagramTreeNode(final Object parent, final Process process) {
-    super(parent, process);
-  }
+	public TransparentProcessDiagramTreeNode(final Object parent,
+			final Process process) {
+		super(parent, process);
+	}
 
-  @Override
-  protected List<DiagramTreeNode> createChildNodesForFlowElements(List<FlowElement> flowElements) {
-    final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
+	@Override
+	protected List<DiagramTreeNode> createChildNodesForFlowElements(
+			List<FlowElement> flowElements) {
+		final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
 
-    for (final FlowElement flowElement : flowElements) {
-      // wire directly to parent to provide transparency
-      result.add(DiagramTreeNodeFactory.createFlowElementNode(getParentNode(), flowElement));
-    }
+		for (final FlowElement flowElement : flowElements) {
+			// wire directly to parent to provide transparency
+			result.add(DiagramTreeNodeFactory.createFlowElementNode(
+					getParentNode(), flowElement));
+		}
 
-    return result;
-  }
+		return result;
+	}
 
-  @Override
-  protected List<DiagramTreeNode> createChildNodesForLanes(List<Lane> lanes) {
-    final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
+	@Override
+	protected List<DiagramTreeNode> createChildNodesForLanes(List<Lane> lanes) {
+		final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
 
-    for (final Lane lane : lanes) {
-      // wire directly to parent to provide transparency
-      result.add(DiagramTreeNodeFactory.createLaneNode(getParentNode(), lane));
-    }
+		for (final Lane lane : lanes) {
+			// wire directly to parent to provide transparency
+			result.add(DiagramTreeNodeFactory.createLaneNode(getParentNode(),
+					lane));
+		}
 
-    return result;
-  }
+		return result;
+	}
 
+	@Override
+	protected List<DiagramTreeNode> createChildNodesForArtifacts(
+			List<Artifact> artifacts) {
+
+		final List<DiagramTreeNode> result = new ArrayList<DiagramTreeNode>();
+		for (final Artifact artifact : artifacts) {
+			result.add(DiagramTreeNodeFactory.createArtifactNode(getParentNode(), artifact));
+		}
+		
+		return result;
+	}
 }

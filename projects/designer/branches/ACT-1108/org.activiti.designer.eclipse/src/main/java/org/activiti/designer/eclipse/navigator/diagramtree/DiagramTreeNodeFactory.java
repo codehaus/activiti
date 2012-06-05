@@ -12,11 +12,13 @@
  */
 package org.activiti.designer.eclipse.navigator.diagramtree;
 
+import org.activiti.designer.bpmn2.model.Artifact;
 import org.activiti.designer.bpmn2.model.FlowElement;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.Pool;
 import org.activiti.designer.bpmn2.model.Process;
 import org.activiti.designer.bpmn2.model.SubProcess;
+import org.activiti.designer.bpmn2.model.TextAnnotation;
 import org.eclipse.core.resources.IFile;
 
 /**
@@ -25,40 +27,55 @@ import org.eclipse.core.resources.IFile;
  */
 public final class DiagramTreeNodeFactory {
 
-  private DiagramTreeNodeFactory() {
-    super();
-  }
+	private DiagramTreeNodeFactory() {
+		super();
+	}
 
-  public static final DiagramTreeNode createModelFileNode(final IFile modelFile) {
-    return new FileDiagramTreeNode(modelFile);
-  }
+	public static final DiagramTreeNode createModelFileNode(
+			final IFile modelFile) {
+		return new FileDiagramTreeNode(modelFile);
+	}
 
-  public static final DiagramTreeNode createFlowElementNode(final DiagramTreeNode parent, final FlowElement flowElement) {
-    if (flowElement instanceof SubProcess) {
-      return createSubProcessNode(parent, (SubProcess) flowElement);
-    } else {
-      return new FlowElementDiagramTreeNode(parent, flowElement);
-    }
-  }
+	public static final DiagramTreeNode createFlowElementNode(
+			final DiagramTreeNode parent, final FlowElement flowElement) {
+		if (flowElement instanceof SubProcess) {
+			return createSubProcessNode(parent, (SubProcess) flowElement);
+		} else {
+			return new FlowElementDiagramTreeNode(parent, flowElement);
+		}
+	}
 
-  public static final DiagramTreeNode createProcessNode(final DiagramTreeNode parent, final Process process) {
-    return new ProcessDiagramTreeNode(parent, process);
-  }
+	public static final DiagramTreeNode createProcessNode(
+			final DiagramTreeNode parent, final Process process) {
+		return new ProcessDiagramTreeNode(parent, process);
+	}
 
-  public static final DiagramTreeNode createTransparentProcessNode(final DiagramTreeNode parent, final Process process) {
-    return new TransparentProcessDiagramTreeNode(parent, process);
-  }
+	public static final DiagramTreeNode createTransparentProcessNode(
+			final DiagramTreeNode parent, final Process process) {
+		return new TransparentProcessDiagramTreeNode(parent, process);
+	}
 
-  public static final DiagramTreeNode createSubProcessNode(final DiagramTreeNode parent, final SubProcess subProcess) {
-    return new SubProcessDiagramTreeNode(parent, subProcess);
-  }
+	public static final DiagramTreeNode createSubProcessNode(
+			final DiagramTreeNode parent, final SubProcess subProcess) {
+		return new SubProcessDiagramTreeNode(parent, subProcess);
+	}
 
-  public static final DiagramTreeNode createPoolNode(final DiagramTreeNode parent, final Pool pool) {
-    return new PoolDiagramTreeNode(parent, pool);
-  }
+	public static final DiagramTreeNode createPoolNode(
+			final DiagramTreeNode parent, final Pool pool) {
+		return new PoolDiagramTreeNode(parent, pool);
+	}
 
-  public static final DiagramTreeNode createLaneNode(final DiagramTreeNode parent, final Lane lane) {
-    return new LaneDiagramTreeNode(parent, lane);
-  }
+	public static final DiagramTreeNode createLaneNode(
+			final DiagramTreeNode parent, final Lane lane) {
+		return new LaneDiagramTreeNode(parent, lane);
+	}
 
+	public static DiagramTreeNode createArtifactNode(
+			DiagramTreeNode parent, Artifact artifact) {
+		
+		if (artifact instanceof TextAnnotation) {
+			return new TextAnnotationDiagramTreeNode(parent, (TextAnnotation) artifact);
+		}
+		return null;
+	}
 }

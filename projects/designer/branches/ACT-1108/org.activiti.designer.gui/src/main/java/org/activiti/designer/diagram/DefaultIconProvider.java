@@ -37,6 +37,7 @@ import org.activiti.designer.bpmn2.model.ServiceTask;
 import org.activiti.designer.bpmn2.model.SignalEventDefinition;
 import org.activiti.designer.bpmn2.model.StartEvent;
 import org.activiti.designer.bpmn2.model.SubProcess;
+import org.activiti.designer.bpmn2.model.TextAnnotation;
 import org.activiti.designer.bpmn2.model.ThrowEvent;
 import org.activiti.designer.bpmn2.model.TimerEventDefinition;
 import org.activiti.designer.bpmn2.model.UserTask;
@@ -163,6 +164,8 @@ public class DefaultIconProvider implements IconProvider {
       } else {
         result = Activator.getImage(PluginImage.IMG_BOUNDARY_TIMER);
       }
+    } else if (context instanceof TextAnnotation) {
+    	result = Activator.getImage(PluginImage.IMG_TEXT_ANNOTATION);
     } else {
       throw new IllegalArgumentException("This provider has no Icon for the provided context");
     }
