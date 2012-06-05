@@ -17,19 +17,28 @@ package org.activiti.designer.property;
 
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.BaseElement;
+import org.activiti.designer.bpmn2.model.ExclusiveGateway;
+import org.activiti.designer.bpmn2.model.FlowElement;
+import org.activiti.designer.bpmn2.model.Gateway;
+import org.activiti.designer.bpmn2.model.InclusiveGateway;
+import org.activiti.designer.bpmn2.model.Lane;
+import org.activiti.designer.bpmn2.model.Pool;
+import org.activiti.designer.bpmn2.model.SequenceFlow;
+import org.activiti.designer.bpmn2.model.TextAnnotation;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.property.ActivitiPropertySection;
-import org.eclipse.bpmn2.Activity;
-import org.eclipse.bpmn2.ExclusiveGateway;
-import org.eclipse.bpmn2.FlowElement;
-import org.eclipse.bpmn2.InclusiveGateway;
-import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.graphiti.features.IUpdateFeature;
+import org.eclipse.graphiti.features.context.impl.UpdateContext;
+import org.eclipse.graphiti.mm.algorithms.MultiText;
 import org.eclipse.graphiti.mm.pictograms.ConnectionDecorator;
+import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -46,13 +55,16 @@ import org.eclipse.ui.views.properties.tabbed.TabbedPropertySheetWidgetFactory;
 
 public class PropertyBpmnSection extends ActivitiPropertySection implements ITabbedPropertyConstants {
 
-	private Composite composite;
+  private Composite composite;
   private Text idText;
+  private CLabel nameLabel;
   private Text nameText;
   private CCombo asyncCombo;
   private CCombo defaultCombo;
   private CLabel defaultLabel;
   private CLabel asyncLabel;
+  private CCombo exclusiveCombo;
+  private CLabel exclusiveLabel;
 
   @Override
   public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
@@ -84,14 +96,14 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
     nameText.setLayoutData(data);
     nameText.addFocusListener(listener);
 
-    CLabel valueLabel = factory.createCLabel(composite, "Name:", SWT.WRAP); //$NON-NLS-1$
+    nameLabel = factory.createCLabel(composite, "Name:", SWT.WRAP); //$NON-NLS-1$
     data = new FormData();
     data.left = new FormAttachment(0, 0);
     data.right = new FormAttachment(nameText, -HSPACE);
     data.top = new FormAttachment(nameText, 0, SWT.CENTER);
-    valueLabel.setLayoutData(data);
+    nameLabel.setLayoutData(data);
   }
-
+  
   @Override
   public void refresh() {
     nameText.removeFocusListener(listener);
@@ -106,12 +118,24 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
     PictogramElement pe = getSelectedPictogramElement();
 
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       // the filter assured, that it is a EClass
       if (bo == null)
         return;
-      String name = ((FlowElement) bo).getName();
-      String id = ((FlowElement) bo).getId();
+      
+      String name = null;
+      if (bo instanceof FlowElement) {
+        name = ((FlowElement) bo).getName();
+      } else if (bo instanceof Pool) {
+        name = ((Pool) bo).getName();
+      } else if (bo instanceof Lane) {
+        name = ((Lane) bo).getName();
+      } else if (bo instanceof TextAnnotation) {
+    	// text annotations do not have a name
+    	nameText.setVisible(false);
+    	nameLabel.setVisible(false);
+      }
+      String id = ((BaseElement) bo).getId();
       nameText.setText(name == null ? "" : name);
       idText.setText(id == null ? "" : id);
       
@@ -155,16 +179,15 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
             defaultCombo.add(flow.getId());
           }
           
-          SequenceFlow defaultFlow;
+          String defaultFlow = null;
           if(bo instanceof Activity) {
-            defaultFlow = ((Activity) bo).getDefault();
-          } else if(bo instanceof ExclusiveGateway) {
-            defaultFlow = ((ExclusiveGateway) bo).getDefault();
-          } else {
-            defaultFlow = ((InclusiveGateway) bo).getDefault();
+            defaultFlow = ((Activity) bo).getDefaultFlow();
+          } else if(bo instanceof Gateway) {
+            defaultFlow = ((Gateway) bo).getDefaultFlow();
           }
+          
           if(defaultFlow != null) {
-            defaultCombo.select(defaultCombo.indexOf(defaultFlow.getId()));
+            defaultCombo.select(defaultCombo.indexOf(defaultFlow));
           }
           disableDefault = false;
         }
@@ -217,11 +240,49 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
       	
       	asyncCombo.setVisible(true);
       	asyncLabel.setVisible(true);
+      	
+      	if(exclusiveCombo == null) {
+      	  exclusiveCombo = getWidgetFactory().createCCombo(composite, SWT.DROP_DOWN | SWT.BORDER);
+      	  exclusiveCombo.add("");
+      	  exclusiveCombo.add("False");
+          FormData data = new FormData();
+          data.left = new FormAttachment(0, 120);
+          data.right = new FormAttachment(50, 0);
+          data.top = new FormAttachment(asyncCombo, VSPACE);
+          exclusiveCombo.setLayoutData(data);
+          exclusiveCombo.setVisible(false);
+          exclusiveCombo.addFocusListener(listener);
+          
+          exclusiveLabel = getWidgetFactory().createCLabel(composite, "Exclusive:"); //$NON-NLS-1$
+          data = new FormData();
+          data.left = new FormAttachment(0, 0);
+          data.right = new FormAttachment(exclusiveCombo, -HSPACE);
+          data.top = new FormAttachment(exclusiveCombo, 0, SWT.CENTER);
+          exclusiveLabel.setLayoutData(data);
+          exclusiveLabel.setVisible(false);
+        }
+        
+        if(activity.isNotExclusive()) {
+          exclusiveCombo.select(1);
+        } else {
+          exclusiveCombo.select(0);
+        }
+        
+        exclusiveCombo.setVisible(true);
+        exclusiveLabel.setVisible(true);
       
-      } else if(asyncCombo != null) {
-      	asyncCombo.setVisible(false);
-      	asyncLabel.setVisible(false);
+      } else {
+        if(asyncCombo != null) {
+          asyncCombo.setVisible(false);
+          asyncLabel.setVisible(false);
+        }
+        
+        if(exclusiveCombo != null) {
+          exclusiveCombo.setVisible(false);
+          exclusiveLabel.setVisible(false);
+        }
       }
+      
       
       idText.addFocusListener(listener);
       nameText.addFocusListener(listener);
@@ -240,56 +301,66 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
     }
 
     public void focusLost(final FocusEvent e) {
-      PictogramElement pe = getSelectedPictogramElement();
+      final PictogramElement pe = getSelectedPictogramElement();
       if (pe == null)
         return;
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      final Object bo = getBusinessObject(pe);
 
-      if (!(bo instanceof FlowElement))
-        return;
+      if (!(bo instanceof BaseElement) || (bo instanceof TextAnnotation)) {
+    	  // we need to exclude the text annotation here, although it is a base element
+    	  // because it's text is handled differently and by the corresponding property
+    	  // PropertyTextAnnotationSection
+    	  
+    	  // if we do not ignore this here, the text will get lost during activation
+    	  // of the base property sheet.
+    	  return;
+      }
 
       DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
       TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
       ActivitiUiUtil.runModelChange(new Runnable() {
 
         public void run() {
-          Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-          if (bo == null)
-            return;
-          
           String id = idText.getText();
-          ((FlowElement) bo).setId(id);
+          ((BaseElement) bo).setId(id);
           
           String name = nameText.getText();
-          ((FlowElement) bo).setName(name);
+          if (bo instanceof FlowElement) {
+            ((FlowElement) bo).setName(name);
+          } else if (bo instanceof Pool) {
+            ((Pool) bo).setName(name);
+          } else if (bo instanceof Lane) {
+            ((Lane) bo).setName(name);
+          }
           
-          if((bo instanceof Activity || bo instanceof ExclusiveGateway || 
-                  bo instanceof InclusiveGateway)
+          UpdateContext updateContext = new UpdateContext(pe);
+          IUpdateFeature updateFeature = getFeatureProvider(pe).getUpdateFeature(updateContext);
+          if(updateFeature != null) {
+            updateFeature.update(updateContext);
+          }
+          
+          if (pe instanceof ContainerShape) {
+            ContainerShape cs = (ContainerShape) pe;
+            for (Shape shape : cs.getChildren()) {
+              if (shape.getGraphicsAlgorithm() instanceof Text) {
+                org.eclipse.graphiti.mm.algorithms.Text text = (org.eclipse.graphiti.mm.algorithms.Text) shape.getGraphicsAlgorithm();
+                text.setValue(name);
+              }
+              if (shape.getGraphicsAlgorithm() instanceof MultiText) {
+                MultiText text = (MultiText) shape.getGraphicsAlgorithm();
+                text.setValue(name);
+              }
+            }
+          }
+          
+          if((bo instanceof Activity || bo instanceof ExclusiveGateway || bo instanceof InclusiveGateway)
                   && defaultCombo != null && defaultCombo.isVisible() == true) {
             
             String defaultValue = defaultCombo.getText();
-            SequenceFlow defaultFlow = null;
-            if(defaultValue != null && defaultValue.length() > 0) {
-              List<SequenceFlow> flowList = null;
-              if(bo instanceof Activity) {
-                flowList = ((Activity) bo).getOutgoing();
-              } else if(bo instanceof ExclusiveGateway) {
-                flowList = ((ExclusiveGateway) bo).getOutgoing();
-              } else {
-                flowList = ((InclusiveGateway) bo).getOutgoing();
-              }
-              for (SequenceFlow flow : flowList) {
-                if(flow.getId().equals(defaultValue)) {
-                  defaultFlow = flow;
-                }
-              }
-            }
             if(bo instanceof Activity) {
-              ((Activity) bo).setDefault(defaultFlow);
-            } else if(bo instanceof ExclusiveGateway) {
-              ((ExclusiveGateway) bo).setDefault(defaultFlow);
-            } else {
-              ((InclusiveGateway) bo).setDefault(defaultFlow);
+              ((Activity) bo).setDefaultFlow(defaultValue);
+            } else if(bo instanceof Gateway) {
+              ((Gateway) bo).setDefaultFlow(defaultValue);
             }
           }
           
@@ -300,6 +371,15 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
           	} else {
           		activity.setAsynchronous(false);
           	}
+          }
+          
+          if(bo instanceof Activity && exclusiveCombo != null) {
+            Activity activity = (Activity) bo;
+            if("false".equalsIgnoreCase(exclusiveCombo.getText())) {
+              activity.setNotExclusive(true);
+            } else {
+              activity.setNotExclusive(false);
+            }
           }
           
           if (!(getSelectedPictogramElement() instanceof FreeFormConnection))

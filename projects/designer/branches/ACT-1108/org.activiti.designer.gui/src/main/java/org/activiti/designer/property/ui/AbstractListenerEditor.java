@@ -1,14 +1,12 @@
 package org.activiti.designer.property.ui;
 
-import java.util.Iterator;
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.ActivitiListener;
+import org.activiti.designer.bpmn2.model.FieldExtension;
 import org.activiti.designer.model.FieldExtensionModel;
 import org.activiti.designer.util.BpmnBOUtil;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
-import org.eclipse.bpmn2.ActivitiListener;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.FieldExtension;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
@@ -71,7 +69,7 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
           if(fieldString.length() > 0) {
             fieldString += "± ";
           }
-          fieldString += fieldExtension.getFieldname() + ":" + fieldExtension.getExpression();
+          fieldString += fieldExtension.getFieldName() + ":" + fieldExtension.getExpression();
         }
       }
       tableItem.setText(3, fieldString);
@@ -145,7 +143,7 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
 			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 			ActivitiUiUtil.runModelChange(new Runnable() {
 				public void run() {
-				  ActivitiListener newListener = Bpmn2Factory.eINSTANCE.createActivitiListener();
+				  ActivitiListener newListener = new ActivitiListener();
 				  newListener.setEvent(dialog.eventName);
 				  newListener.setImplementationType(dialog.implementationType);
 				  newListener.setImplementation(dialog.implementation);
@@ -154,7 +152,7 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
 				  	newListener.setScriptProcessor(dialog.scriptProcessor);
 				  }
 				  setFieldsInListener(newListener, dialog.fieldExtensionList);
-				  BpmnBOUtil.addListener(bo, newListener);
+				  BpmnBOUtil.addListener(bo, newListener, diagram);
 				}
 			}, editingDomain, "Model Update");
 		}
@@ -179,7 +177,7 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
 					  	listener.setScriptProcessor(dialog.scriptProcessor);
 					  }
 					  setFieldsInListener(listener, dialog.fieldExtensionList);
-					  BpmnBOUtil.setListener(bo, listener, index);
+					  BpmnBOUtil.setListener(bo, listener, index, diagram);
 					}
 					
 				}
@@ -196,60 +194,21 @@ public abstract class AbstractListenerEditor extends TableFieldEditor {
 			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 			ActivitiUiUtil.runModelChange(new Runnable() {
 				public void run() {
-					BpmnBOUtil.removeListener(bo, listener);
+					BpmnBOUtil.removeListener(bo, listener, diagram);
 				}
 			}, editingDomain, "Model Update");
 		}
 	}
 	
 	private void setFieldsInListener(ActivitiListener listener, List<FieldExtensionModel> fieldList) {
-	  if(fieldList == null || fieldList.size() == 0) {
-	    if(listener != null && listener.getFieldExtensions() != null && 
-	            listener.getFieldExtensions().size() > 0) {
-	      
-  	    removeFieldExtensionsNotInList(listener.getFieldExtensions(), null);
+	  if(listener != null) {
+  		listener.getFieldExtensions().clear();
+		  for (FieldExtensionModel fieldModel : fieldList) {
+		    FieldExtension fieldExtension = new FieldExtension();
+		    listener.getFieldExtensions().add(fieldExtension);
+		    fieldExtension.setFieldName(fieldModel.fieldName);
+		    fieldExtension.setExpression(fieldModel.expression);
 	    }
-	    return;
 	  }
-	  for (FieldExtensionModel fieldModel : fieldList) {
-	    FieldExtension fieldExtension = fieldExtensionExists(listener.getFieldExtensions(), fieldModel.fieldName);
-	    if(fieldExtension == null) {
-	      fieldExtension = Bpmn2Factory.eINSTANCE.createFieldExtension();
-	      listener.getFieldExtensions().add(fieldExtension);
-	    }
-	    fieldExtension.setFieldname(fieldModel.fieldName);
-	    fieldExtension.setExpression(fieldModel.expression);
-    }
-	  removeFieldExtensionsNotInList(listener.getFieldExtensions(), fieldList);
-	}
-	
-	private FieldExtension fieldExtensionExists(List<FieldExtension> fieldList, String fieldname) {
-	  if(fieldList == null) return null;
-	  for(FieldExtension fieldExtension : fieldList) {
-      if(fieldname.equalsIgnoreCase(fieldExtension.getFieldname())) {
-        return fieldExtension;
-      }
-    }
-    return null;
-	}
-	
-	private void removeFieldExtensionsNotInList(List<FieldExtension> fieldList, List<FieldExtensionModel> newfieldList) {
-	  Iterator<FieldExtension> entryIterator = fieldList.iterator();
-    while(entryIterator.hasNext()) {
-      FieldExtension fieldExtension = entryIterator.next();
-      boolean found = false;
-      if(newfieldList != null && newfieldList.size() > 0) {
-        for (FieldExtensionModel field : newfieldList) {
-          if(field.fieldName.equals(fieldExtension.getFieldname())) {
-            found = true;
-            break;
-          }
-        }
-      }
-      if(found == false) {
-        diagram.eResource().getContents().remove(fieldExtension);
-        entryIterator.remove();
-      }
-    }
 	}
 }

@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.ComplexDataType;
+import org.activiti.designer.bpmn2.model.CustomProperty;
+import org.activiti.designer.bpmn2.model.ServiceTask;
 import org.activiti.designer.integration.servicetask.CustomServiceTask;
 import org.activiti.designer.integration.servicetask.annotation.Help;
 import org.activiti.designer.integration.servicetask.annotation.Property;
-import org.activiti.designer.property.extension.FormToolTip;
 import org.activiti.designer.property.extension.field.CustomPropertyBooleanChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyComboboxChoiceField;
-import org.activiti.designer.property.extension.field.CustomPropertyDataGridField;
 import org.activiti.designer.property.extension.field.CustomPropertyDatePickerField;
 import org.activiti.designer.property.extension.field.CustomPropertyField;
 import org.activiti.designer.property.extension.field.CustomPropertyMultilineTextField;
@@ -19,17 +20,13 @@ import org.activiti.designer.property.extension.field.CustomPropertyPeriodField;
 import org.activiti.designer.property.extension.field.CustomPropertyRadioChoiceField;
 import org.activiti.designer.property.extension.field.CustomPropertyTextField;
 import org.activiti.designer.property.extension.field.FieldInfo;
-import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
+import org.activiti.designer.util.extension.ExtensionUtil;
+import org.activiti.designer.util.extension.FormToolTip;
 import org.activiti.designer.util.property.ActivitiPropertySection;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.ComplexDataType;
-import org.eclipse.bpmn2.CustomProperty;
-import org.eclipse.bpmn2.ServiceTask;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.window.ToolTip;
@@ -262,16 +259,6 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
             createdControl.setLayoutData(data);
             break;
 
-          case DATA_GRID:
-            createdCustomPropertyField = new CustomPropertyDataGridField(this, serviceTask, fieldInfo.getField());
-            createdControl = createdCustomPropertyField.render(workParent, factory, listener);
-            data = new FormData();
-            data.top = new FormAttachment(previousAnchor, VSPACE);
-            data.left = new FormAttachment(0, LABEL_COLUMN_WIDTH);
-            data.right = new FormAttachment(100, -HELP_COLUMN_WIDTH);
-            createdControl.setLayoutData(data);
-            break;
-
           }
 
           customPropertyFields.add(createdCustomPropertyField);
@@ -338,7 +325,7 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
   public void refresh() {
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       if (bo == null)
         return;
     }
@@ -393,8 +380,7 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
         CustomProperty property = ExtensionUtil.getCustomProperty(task, key);
 
         if (property == null) {
-          property = Bpmn2Factory.eINSTANCE.createCustomProperty();
-          getDiagram().eResource().getContents().add(property);
+          property = new CustomProperty();
           task.getCustomProperties().add(property);
         }
 
@@ -409,7 +395,7 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
 
       public void run() {
 
-        Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
+        Object bo = getBusinessObject(getSelectedPictogramElement());
         if (bo == null) {
           return;
         }
@@ -431,7 +417,7 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
   public void runModelChange(final Runnable runnable) {
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       if (bo instanceof ServiceTask) {
         DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
         TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
@@ -443,7 +429,7 @@ public class PropertyCustomServiceTaskSection extends ActivitiPropertySection im
   private ServiceTask getServiceTask() {
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       if (bo != null && bo instanceof ServiceTask) {
         return (ServiceTask) bo;
       }

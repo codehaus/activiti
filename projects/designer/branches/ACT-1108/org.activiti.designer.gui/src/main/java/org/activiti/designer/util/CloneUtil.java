@@ -3,6 +3,30 @@
  */
 package org.activiti.designer.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.activiti.designer.bpmn2.model.ActivitiListener;
+import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.ComplexDataType;
+import org.activiti.designer.bpmn2.model.CustomProperty;
+import org.activiti.designer.bpmn2.model.DataGrid;
+import org.activiti.designer.bpmn2.model.DataGridField;
+import org.activiti.designer.bpmn2.model.DataGridRow;
+import org.activiti.designer.bpmn2.model.EndEvent;
+import org.activiti.designer.bpmn2.model.ExclusiveGateway;
+import org.activiti.designer.bpmn2.model.FieldExtension;
+import org.activiti.designer.bpmn2.model.FlowElement;
+import org.activiti.designer.bpmn2.model.FormProperty;
+import org.activiti.designer.bpmn2.model.FormValue;
+import org.activiti.designer.bpmn2.model.InclusiveGateway;
+import org.activiti.designer.bpmn2.model.MailTask;
+import org.activiti.designer.bpmn2.model.ManualTask;
+import org.activiti.designer.bpmn2.model.ParallelGateway;
+import org.activiti.designer.bpmn2.model.ScriptTask;
+import org.activiti.designer.bpmn2.model.ServiceTask;
+import org.activiti.designer.bpmn2.model.StartEvent;
+import org.activiti.designer.bpmn2.model.UserTask;
 import org.activiti.designer.features.CreateEndEventFeature;
 import org.activiti.designer.features.CreateExclusiveGatewayFeature;
 import org.activiti.designer.features.CreateInclusiveGatewayFeature;
@@ -12,25 +36,10 @@ import org.activiti.designer.features.CreateScriptTaskFeature;
 import org.activiti.designer.features.CreateServiceTaskFeature;
 import org.activiti.designer.features.CreateStartEventFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
-import org.activiti.designer.property.extension.util.ExtensionUtil;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.ComplexDataType;
-import org.eclipse.bpmn2.CustomProperty;
-import org.eclipse.bpmn2.DataGrid;
-import org.eclipse.bpmn2.DataGridField;
-import org.eclipse.bpmn2.DataGridRow;
-import org.eclipse.bpmn2.EndEvent;
-import org.eclipse.bpmn2.ExclusiveGateway;
-import org.eclipse.bpmn2.FlowElement;
-import org.eclipse.bpmn2.InclusiveGateway;
-import org.eclipse.bpmn2.MailTask;
-import org.eclipse.bpmn2.ManualTask;
-import org.eclipse.bpmn2.ParallelGateway;
-import org.eclipse.bpmn2.ScriptTask;
-import org.eclipse.bpmn2.ServiceTask;
-import org.eclipse.bpmn2.StartEvent;
-import org.eclipse.bpmn2.UserTask;
+import org.activiti.designer.util.editor.ModelHandler;
+import org.activiti.designer.util.extension.ExtensionUtil;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 /**
@@ -51,31 +60,120 @@ public final class CloneUtil {
 
   public static FlowElement clone(final FlowElement element, final Diagram diagram) {
 
+  	FlowElement cloneElement = null;
+  	List<FormProperty> formProperties = null;
+  	
     if (element instanceof StartEvent) {
-      return clone((StartEvent) element, diagram);
+    	cloneElement = clone((StartEvent) element, diagram);
+    	formProperties = ((StartEvent) element).getFormProperties();
     } else if (element instanceof ServiceTask) {
-      return clone((ServiceTask) element, diagram);
+    	cloneElement = clone((ServiceTask) element, diagram);
     } else if (element instanceof EndEvent) {
-      return clone((EndEvent) element, diagram);
+    	cloneElement = clone((EndEvent) element, diagram);
     } else if (element instanceof ExclusiveGateway) {
-      return clone((ExclusiveGateway) element, diagram);
+    	cloneElement = clone((ExclusiveGateway) element, diagram);
     } else if (element instanceof InclusiveGateway) {
-      return clone((InclusiveGateway) element, diagram);
+    	cloneElement = clone((InclusiveGateway) element, diagram);
     } else if (element instanceof MailTask) {
-      return clone((MailTask) element, diagram);
+    	cloneElement = clone((MailTask) element, diagram);
     } else if (element instanceof ManualTask) {
-      return clone((ManualTask) element, diagram);
+    	cloneElement = clone((ManualTask) element, diagram);
     } else if (element instanceof ParallelGateway) {
-      return clone((ParallelGateway) element, diagram);
+    	cloneElement = clone((ParallelGateway) element, diagram);
     } else if (element instanceof ScriptTask) {
-      return clone((ScriptTask) element, diagram);
+    	cloneElement = clone((ScriptTask) element, diagram);
     } else if (element instanceof UserTask) {
-      return clone((UserTask) element, diagram);
+    	cloneElement = clone((UserTask) element, diagram);
+    	formProperties = ((UserTask) element).getFormProperties();
+    	
+    	List<ActivitiListener> resultListenerList = new ArrayList<ActivitiListener>();
+    	for (ActivitiListener listener : ((UserTask) element).getTaskListeners()) {
+    		resultListenerList.add(clone(listener));
+    	}
+    	((UserTask) cloneElement).setTaskListeners(resultListenerList);
+    }
+    
+    if (element instanceof Activity && element instanceof UserTask == false) {
+    	List<ActivitiListener> resultListenerList = new ArrayList<ActivitiListener>();
+    	for (ActivitiListener listener : ((Activity) element).getExecutionListeners()) {
+    		resultListenerList.add(clone(listener));
+    	}
+    	((Activity) cloneElement).setExecutionListeners(resultListenerList);
+    }
+    
+    if (element instanceof Activity) {
+    	((Activity) cloneElement).setAsynchronous(((Activity) element).isAsynchronous());
+    	((Activity) cloneElement).setDefaultFlow(((Activity) element).getDefaultFlow());
+    }
+    
+    if(formProperties != null) {
+    	List<FormProperty> resultPropertyList = new ArrayList<FormProperty>();
+  		for (FormProperty formProperty : formProperties) {
+	      resultPropertyList.add(clone(formProperty));
+      }
+  		if(cloneElement instanceof UserTask) {
+  			((UserTask) cloneElement).setFormProperties(resultPropertyList);
+  		} else {
+  			((StartEvent) cloneElement).setFormProperties(resultPropertyList);
+  		}
+  	}
+    
+    if(cloneElement != null) {
+    	cloneElement.setName(element.getName());
+    	ModelHandler.getModel(EcoreUtil.getURI(diagram)).getMainProcess().getFlowElements().add(cloneElement);
     }
 
-    return null;
+    return cloneElement;
 
   }
+  
+  private static ActivitiListener clone(final ActivitiListener listener) {
+  	ActivitiListener result = new ActivitiListener();
+  	result.setId(listener.getId());
+  	result.setEvent(listener.getEvent());
+  	result.setImplementation(listener.getImplementation());
+  	result.setImplementationType(listener.getImplementationType());
+  	result.setRunAs(listener.getRunAs());
+  	result.setScriptProcessor(listener.getScriptProcessor());
+  	
+  	List<FieldExtension> fieldList = new ArrayList<FieldExtension>();
+  	for (FieldExtension fieldExtension : listener.getFieldExtensions()) {
+  		FieldExtension resultField = new FieldExtension();
+  		resultField.setExpression(fieldExtension.getExpression());
+  		resultField.setFieldName(fieldExtension.getFieldName());
+  		fieldList.add(resultField);
+  	}
+  	result.setFieldExtensions(fieldList);
+  	
+  	return result;
+  }
+  
+  private static FormProperty clone(final FormProperty formProperty) {
+  	FormProperty result = new FormProperty();
+  	result.setId(formProperty.getId());
+  	result.setName(formProperty.getName());
+  	result.setType(formProperty.getType());
+  	result.setValue(formProperty.getValue());
+  	result.setExpression(formProperty.getExpression());
+  	result.setVariable(formProperty.getVariable());
+  	result.setDefaultExpression(formProperty.getDefaultExpression());
+  	result.setDatePattern(formProperty.getDatePattern());
+  	result.setReadable(formProperty.getReadable());
+  	result.setRequired(formProperty.getRequired());
+  	result.setWriteable(formProperty.getWriteable());
+  	
+  	List<FormValue> resultValueList = new ArrayList<FormValue>();
+  	for (FormValue formValue : formProperty.getFormValues()) {
+	    FormValue resultValue = new FormValue();
+	    resultValue.setId(formValue.getId());
+	    resultValue.setName(formValue.getName());
+	    resultValueList.add(resultValue);
+    }
+  	result.setFormValues(resultValueList);
+  	
+  	return result;
+  }
+  
 
   /**
    * Clones a {@link StartEvent}.
@@ -85,16 +183,9 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final StartEvent clone(final StartEvent original, final Diagram diagram) {
-
-    StartEvent result = Bpmn2Factory.eINSTANCE.createStartEvent();
-
+    StartEvent result = new StartEvent();
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateStartEventFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-
-    diagram.eResource().getContents().add(result);
-
     return result;
-
   }
 
   /**
@@ -105,14 +196,8 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final EndEvent clone(final EndEvent original, final Diagram diagram) {
-
-    EndEvent result = Bpmn2Factory.eINSTANCE.createEndEvent();
-
+    EndEvent result = new EndEvent();
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateEndEventFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-
-    diagram.eResource().getContents().add(result);
-
     return result;
 
   }
@@ -125,15 +210,8 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final ExclusiveGateway clone(final ExclusiveGateway original, final Diagram diagram) {
-
-    ExclusiveGateway result = Bpmn2Factory.eINSTANCE.createExclusiveGateway();
-
+    ExclusiveGateway result = new ExclusiveGateway();
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateExclusiveGatewayFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-    result.setGatewayDirection(original.getGatewayDirection());
-
-    diagram.eResource().getContents().add(result);
-
     return result;
 
   }
@@ -146,17 +224,9 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final InclusiveGateway clone(final InclusiveGateway original, final Diagram diagram) {
-
-    InclusiveGateway result = Bpmn2Factory.eINSTANCE.createInclusiveGateway();
-
+    InclusiveGateway result = new InclusiveGateway();
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateInclusiveGatewayFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-    result.setGatewayDirection(original.getGatewayDirection());
-
-    diagram.eResource().getContents().add(result);
-
     return result;
-
   }
 
   /**
@@ -167,11 +237,9 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final MailTask clone(final MailTask original, final Diagram diagram) {
-
-    MailTask result = Bpmn2Factory.eINSTANCE.createMailTask();
+    MailTask result = new MailTask();
 
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateMailTaskFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
     result.setBcc(original.getBcc());
     result.setCc(original.getCc());
     result.setFrom(original.getFrom());
@@ -180,10 +248,7 @@ public final class CloneUtil {
     result.setText(original.getText());
     result.setTo(original.getTo());
 
-    diagram.eResource().getContents().add(result);
-
     return result;
-
   }
 
   /**
@@ -194,16 +259,9 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final ManualTask clone(final ManualTask original, final Diagram diagram) {
-
-    ManualTask result = Bpmn2Factory.eINSTANCE.createManualTask();
-
+    ManualTask result = new ManualTask();
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateMailTaskFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-
-    diagram.eResource().getContents().add(result);
-
     return result;
-
   }
 
   /**
@@ -214,17 +272,9 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final ParallelGateway clone(final ParallelGateway original, final Diagram diagram) {
-
-    ParallelGateway result = Bpmn2Factory.eINSTANCE.createParallelGateway();
-
+    ParallelGateway result = new ParallelGateway();
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateParallelGatewayFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-    result.setGatewayDirection(original.getGatewayDirection());
-
-    diagram.eResource().getContents().add(result);
-
     return result;
-
   }
 
   /**
@@ -235,15 +285,11 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final ScriptTask clone(final ScriptTask original, final Diagram diagram) {
-
-    ScriptTask result = Bpmn2Factory.eINSTANCE.createScriptTask();
+    ScriptTask result = new ScriptTask();
 
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateScriptTaskFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
     result.setScript(original.getScript());
     result.setScriptFormat(original.getScriptFormat());
-
-    diagram.eResource().getContents().add(result);
 
     return result;
 
@@ -257,19 +303,15 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final UserTask clone(final UserTask original, final Diagram diagram) {
-
-    UserTask result = Bpmn2Factory.eINSTANCE.createUserTask();
+    UserTask result = new UserTask();
 
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateUserTaskFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
     result.setAssignee(original.getAssignee());
     result.setFormKey(original.getFormKey());
-    result.setImplementation(original.getImplementation());
-
-    diagram.eResource().getContents().add(result);
-
+    result.setDueDate(original.getDueDate());
+    result.setPriority(original.getPriority());
+    
     return result;
-
   }
 
   /**
@@ -281,25 +323,19 @@ public final class CloneUtil {
    */
   private static final ServiceTask clone(final ServiceTask original, final Diagram diagram) {
 
-    ServiceTask result = Bpmn2Factory.eINSTANCE.createServiceTask();
+    ServiceTask result = new ServiceTask();
 
     result.setId(ActivitiUiUtil.getNextId(result.getClass(), CreateServiceTaskFeature.FEATURE_ID_KEY, diagram));
-    result.setName(original.getName());
-
     result.setImplementation(original.getImplementation());
 
     for (CustomProperty property : original.getCustomProperties()) {
       final CustomProperty clone = clone(property, diagram);
       // Reset the id
       clone.setId(ExtensionUtil.wrapCustomPropertyId(result, ExtensionUtil.upWrapCustomPropertyId(clone.getId())));
-      diagram.eResource().getContents().add(clone);
       result.getCustomProperties().add(clone);
     }
 
-    diagram.eResource().getContents().add(result);
-
     return result;
-
   }
 
   /**
@@ -310,34 +346,30 @@ public final class CloneUtil {
    * @return a clone of the original object
    */
   private static final CustomProperty clone(final CustomProperty original, final Diagram diagram) {
-
-    CustomProperty result = Bpmn2Factory.eINSTANCE.createCustomProperty();
-
+    CustomProperty result = new CustomProperty();
     result.setId(original.getId());
     if (original.getComplexValue() != null) {
       result.setComplexValue(clone(original.getComplexValue()));
     }
     result.setName(original.getName());
     result.setSimpleValue(original.getSimpleValue());
-
     return result;
-
   }
 
   private static ComplexDataType clone(ComplexDataType complexValue) {
     if (complexValue instanceof DataGrid) {
       final DataGrid dataGrid = (DataGrid) complexValue;
-      DataGrid result = Bpmn2Factory.eINSTANCE.createDataGrid();
-      for (final DataGridRow dataGridRow : dataGrid.getRow()) {
-        final DataGridRow rowClone = Bpmn2Factory.eINSTANCE.createDataGridRow();
+      DataGrid result = new DataGrid();
+      for (final DataGridRow dataGridRow : dataGrid.getRows()) {
+        final DataGridRow rowClone = new DataGridRow();
         rowClone.setIndex(dataGridRow.getIndex());
-        for (final DataGridField dataGridField : dataGridRow.getField()) {
-          final DataGridField fieldClone = Bpmn2Factory.eINSTANCE.createDataGridField();
+        for (final DataGridField dataGridField : dataGridRow.getFields()) {
+          final DataGridField fieldClone = new DataGridField();
           fieldClone.setName(dataGridField.getName());
-          fieldClone.setSimpleValue(dataGridField.getSimpleValue());
-          rowClone.getField().add(fieldClone);
+          fieldClone.setValue(dataGridField.getValue());
+          rowClone.getFields().add(fieldClone);
         }
-        result.getRow().add(rowClone);
+        result.getRows().add(rowClone);
       }
       return result;
     }

@@ -1,17 +1,18 @@
 package org.activiti.designer.features;
 
-import org.activiti.designer.ActivitiImageProvider;
+import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.BoundaryEvent;
+import org.activiti.designer.bpmn2.model.CallActivity;
+import org.activiti.designer.bpmn2.model.ServiceTask;
+import org.activiti.designer.bpmn2.model.SubProcess;
 import org.activiti.designer.util.style.StyleUtil;
-import org.eclipse.bpmn2.BoundaryEvent;
-import org.eclipse.bpmn2.CallActivity;
-import org.eclipse.bpmn2.SubProcess;
+import org.eclipse.graphiti.datatypes.ILocation;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
 import org.eclipse.graphiti.mm.algorithms.Ellipse;
 import org.eclipse.graphiti.mm.algorithms.Image;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
-import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.services.Graphiti;
@@ -19,57 +20,25 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddBoundaryErrorFeature extends AbstractAddShapeFeature {
-  
-  private static final int IMAGE_SIZE = 30;
-	
-	public AddBoundaryErrorFeature(IFeatureProvider fp) {
-		super(fp);
-	}
 
-	@Override
+  private static final int IMAGE_SIZE = 30;
+
+  public AddBoundaryErrorFeature(IFeatureProvider fp) {
+    super(fp);
+  }
+
+  @Override
   public PictogramElement add(IAddContext context) {
     final BoundaryEvent addedEvent = (BoundaryEvent) context.getNewObject();
     ContainerShape parent = context.getTargetContainer();
     int x = context.getX();
     int y = context.getY();
-    
-    Object parentObject = getBusinessObjectForPictogramElement(parent);
-    if (parentObject instanceof SubProcess) {
-      if (addedEvent.eResource() == null) {
-        getDiagram().eResource().getContents().add(addedEvent);
-      }
-      
-      x += parent.getGraphicsAlgorithm().getX();
-      y += parent.getGraphicsAlgorithm().getY();
-      
-      parent = getDiagram();
-      
-    } else if(parent.getContainer() != null && 
-            parent.getContainer() instanceof Diagram == false) {
-      
-      x += parent.getGraphicsAlgorithm().getX();
-      y += parent.getGraphicsAlgorithm().getY();
-      
-      Object containerObject = getBusinessObjectForPictogramElement(parent.getContainer());
-      if (containerObject instanceof SubProcess) {
-        parent = parent.getContainer();
-      }
-      
-      if (addedEvent.eResource() == null) {
-        ((SubProcess) parentObject).getFlowElements().add(addedEvent);
-      }
-      
-    } else {
-      
-      x += parent.getGraphicsAlgorithm().getX();
-      y += parent.getGraphicsAlgorithm().getY();
-      
-      parent = getDiagram();
-      
-      if (addedEvent.eResource() == null) {
-        getDiagram().eResource().getContents().add(addedEvent);
-      }
-    } 
+
+    ILocation shapeLocation = Graphiti.getLayoutService().getLocationRelativeToDiagram(parent);
+    x += shapeLocation.getX();
+    y += shapeLocation.getY();
+
+    parent = getDiagram();
 
     // CONTAINER SHAPE WITH CIRCLE
     final IPeCreateService peCreateService = Graphiti.getPeCreateService();
@@ -98,7 +67,7 @@ public class AddBoundaryErrorFeature extends AbstractAddShapeFeature {
       // create link and wire it
       link(containerShape, addedEvent);
     }
-    
+
     {
       Ellipse secondCircle = gaService.createEllipse(circle);
       secondCircle.setParentGraphicsAlgorithm(circle);
@@ -108,11 +77,11 @@ public class AddBoundaryErrorFeature extends AbstractAddShapeFeature {
 
     {
       final Shape shape = peCreateService.createShape(containerShape, false);
-      final Image image = gaService.createImage(shape, ActivitiImageProvider.IMG_ENDEVENT_ERROR);
-      
+      final Image image = gaService.createImage(shape, PluginImage.IMG_ENDEVENT_ERROR.getImageKey());
+
       gaService.setLocationAndSize(image, (width - IMAGE_SIZE) / 2, (height - IMAGE_SIZE) / 2, IMAGE_SIZE, IMAGE_SIZE);
     }
-    
+
     // add a chopbox anchor to the shape
     peCreateService.createChopboxAnchor(containerShape);
     layoutPictogramElement(containerShape);
@@ -123,7 +92,8 @@ public class AddBoundaryErrorFeature extends AbstractAddShapeFeature {
   @Override
   public boolean canAdd(IAddContext context) {
     Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-    if (parentObject instanceof SubProcess == false && parentObject instanceof CallActivity == false) {
+    if (parentObject instanceof SubProcess == false && parentObject instanceof CallActivity == false && parentObject instanceof ServiceTask == false) {
+
       return false;
     }
     if (context.getNewObject() instanceof BoundaryEvent == false) {

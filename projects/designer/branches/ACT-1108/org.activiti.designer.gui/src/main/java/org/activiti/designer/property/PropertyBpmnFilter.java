@@ -15,21 +15,21 @@
  *******************************************************************************/
 package org.activiti.designer.property;
 
-import org.eclipse.bpmn2.FlowElement;
-import org.eclipse.emf.ecore.EObject;
+import org.activiti.designer.bpmn2.model.BaseElement;
+import org.activiti.designer.util.extension.ExtensionUtil;
+import org.activiti.designer.util.property.ActivitiPropertyFilter;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
-import org.eclipse.graphiti.ui.platform.AbstractPropertySectionFilter;
 
-public class PropertyBpmnFilter extends AbstractPropertySectionFilter {
+public class PropertyBpmnFilter extends ActivitiPropertyFilter {
 
   @Override
   protected boolean accept(PictogramElement pe) {
-    EObject bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
-    if (bo instanceof FlowElement) {
-      // && !ExtensionUtil.isCustomServiceTask(bo)
+  	Object bo = getBusinessObject(pe);
+  	if(bo != null && bo instanceof BaseElement && 
+  	        ExtensionUtil.isCustomServiceTask(bo) == false) {
+  	  
       return true;
-    }
+  	}
     return false;
   }
 }

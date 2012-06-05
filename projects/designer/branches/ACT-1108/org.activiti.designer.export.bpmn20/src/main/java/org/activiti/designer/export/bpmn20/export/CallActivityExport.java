@@ -15,10 +15,9 @@ package org.activiti.designer.export.bpmn20.export;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.eclipse.bpmn2.BoundaryEvent;
-import org.eclipse.bpmn2.CallActivity;
-import org.eclipse.bpmn2.IOParameter;
-import org.eclipse.emf.ecore.EObject;
+import org.activiti.designer.bpmn2.model.CallActivity;
+import org.activiti.designer.bpmn2.model.IOParameter;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -26,7 +25,7 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class CallActivityExport implements ActivitiNamespaceConstants {
 
-  public static void createCallActivity(EObject object, XMLStreamWriter xtw) throws Exception {
+  public static void createCallActivity(Object object, XMLStreamWriter xtw) throws Exception {
     CallActivity callActivity = (CallActivity) object;
     
     // start CallActivity element
@@ -36,21 +35,21 @@ public class CallActivityExport implements ActivitiNamespaceConstants {
       xtw.writeAttribute("name", callActivity.getName());
     }
     
-    DefaultFlowExport.createDefaultFlow(object, xtw);
-    AsyncActivityExport.createDefaultFlow(object, xtw);
+    DefaultFlowExport.createDefaultFlow(callActivity, xtw);
+    AsyncActivityExport.createAsyncAttribute(callActivity, xtw);
 
     if(callActivity.getCalledElement() != null && callActivity.getCalledElement().length() > 0) {
       xtw.writeAttribute("calledElement", callActivity.getCalledElement());
     }
     
-    if(callActivity.getActivitiListeners().size() > 0 || 
+    if(callActivity.getExecutionListeners().size() > 0 || 
     		callActivity.getInParameters().size() > 0 || 
     		callActivity.getOutParameters().size() > 0) {
     	
       xtw.writeStartElement("extensionElements");
     }
     
-    ExtensionListenerExport.createExtensionListenerXML(callActivity.getActivitiListeners(), false, EXECUTION_LISTENER, xtw);
+    ExecutionListenerExport.createExecutionListenerXML(callActivity.getExecutionListeners(), false, xtw);
     
     if(callActivity.getInParameters().size() > 0 || callActivity.getOutParameters().size() > 0) {
       
@@ -63,7 +62,7 @@ public class CallActivityExport implements ActivitiNamespaceConstants {
       }
     }
     
-    if(callActivity.getActivitiListeners().size() > 0 || 
+    if(callActivity.getExecutionListeners().size() > 0 || 
     		callActivity.getInParameters().size() > 0 || 
     		callActivity.getOutParameters().size() > 0) {
     	
@@ -74,24 +73,18 @@ public class CallActivityExport implements ActivitiNamespaceConstants {
 
     // end CallActivity element
     xtw.writeEndElement();
-    
-    if(callActivity.getBoundaryEventRefs().size() > 0) {
-    	for(BoundaryEvent event : callActivity.getBoundaryEventRefs()) {
-    		BoundaryEventExport.createBoundaryEvent(event, xtw);
-    	}
-    }
   }
   
   private static void writeParameter(IOParameter parameter, String name, XMLStreamWriter xtw) throws Exception {
     xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, name, ACTIVITI_EXTENSIONS_NAMESPACE);
-    if(parameter.getSource().contains("${") == true) {
-      xtw.writeAttribute("sourceExpression", parameter.getSource());
-    } else {
+    if(StringUtils.isNotEmpty(parameter.getSourceExpression())) {
+      xtw.writeAttribute("sourceExpression", parameter.getSourceExpression());
+    } else if(StringUtils.isNotEmpty(parameter.getSource())){
       xtw.writeAttribute("source", parameter.getSource());
     }
-    if(parameter.getTarget().contains("${") == true) {
-      xtw.writeAttribute("targetExpression", parameter.getTarget());
-    } else {
+    if(StringUtils.isNotEmpty(parameter.getTargetExpression())) {
+      xtw.writeAttribute("targetExpression", parameter.getTargetExpression());
+    } else if(StringUtils.isNotEmpty(parameter.getTarget())){
       xtw.writeAttribute("target", parameter.getTarget());
     }
     xtw.writeEndElement();

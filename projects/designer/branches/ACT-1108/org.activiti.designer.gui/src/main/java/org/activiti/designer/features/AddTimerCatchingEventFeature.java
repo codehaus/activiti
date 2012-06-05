@@ -1,11 +1,12 @@
 package org.activiti.designer.features;
 
-import org.activiti.designer.ActivitiImageProvider;
+import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.EndEvent;
+import org.activiti.designer.bpmn2.model.Event;
+import org.activiti.designer.bpmn2.model.Lane;
+import org.activiti.designer.bpmn2.model.SubProcess;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.style.StyleUtil;
-import org.eclipse.bpmn2.EndEvent;
-import org.eclipse.bpmn2.Event;
-import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.mm.algorithms.Ellipse;
@@ -20,7 +21,7 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddTimerCatchingEventFeature extends AddEventFeature {
-	
+
   public AddTimerCatchingEventFeature(IFeatureProvider fp) {
     super(fp);
   }
@@ -54,29 +55,16 @@ public class AddTimerCatchingEventFeature extends AddEventFeature {
       circle.setStyle(StyleUtil.getStyleForEvent(getDiagram()));
       gaService.setLocationAndSize(circle, 0, 0, width, height);
 
-      if (addedEvent.eResource() == null) {
-				Object parentObject = getBusinessObjectForPictogramElement(parent);
-	      if (parentObject instanceof SubProcess) {
-	        ((SubProcess) parentObject).getFlowElements().add(addedEvent);
-	      } else {
-	        getDiagram().eResource().getContents().add(addedEvent);
-	      }
-			}
-
       // create link and wire it
       link(containerShape, addedEvent);
     }
-    
+
     {
       final Shape shape = peCreateService.createShape(containerShape, false);
-      final Image image = gaService.createImage(shape, ActivitiImageProvider.IMG_BOUNDARY_TIMER);
-      
-      image.setStretchH(true);
-      image.setStretchV(true);
-      image.setWidth(33);
-      image.setHeight(33);
-      
-      gaService.setLocationAndSize(image, 1, 1, 33, 33);
+      final Image image = gaService.createImage(shape, PluginImage.IMG_BOUNDARY_TIMER.getImageKey());
+      image.setWidth(20);
+      image.setHeight(20);
+      gaService.setLocationAndSize(image, (width - 20) / 2, (height - 20) / 2, 20, 20);
     }
 
     // add a chopbox anchor to the shape
@@ -99,10 +87,11 @@ public class AddTimerCatchingEventFeature extends AddEventFeature {
   @Override
   public boolean canAdd(IAddContext context) {
     if (context.getNewObject() instanceof Event) {
-      
-    	Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-      
-      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess) {
+
+      Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+
+      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess || parentObject instanceof Lane) {
+
         return true;
       }
     }

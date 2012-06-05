@@ -15,12 +15,16 @@
  *******************************************************************************/
 package org.activiti.designer.property;
 
+import org.activiti.designer.bpmn2.model.Pool;
+import org.activiti.designer.bpmn2.model.Process;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
+import org.activiti.designer.util.editor.Bpmn2MemoryModel;
+import org.activiti.designer.util.editor.ModelHandler;
 import org.activiti.designer.util.property.ActivitiPropertySection;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.Documentation;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -76,38 +80,34 @@ public class PropertyDiagramSection extends ActivitiPropertySection implements I
 		nameText.removeFocusListener(listener);
 		namespaceText.removeFocusListener(listener);
 		documentationText.removeFocusListener(listener);
-		org.eclipse.bpmn2.Process process = ActivitiUiUtil.getProcessObject(getDiagram());
-		if(process == null) {
-			DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
-			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
-			ActivitiUiUtil.runModelChange(new Runnable() {
-				public void run() {
-					org.eclipse.bpmn2.Process process = Bpmn2Factory.eINSTANCE.createProcess();
-					process.setId("helloworld");
-					process.setName("helloworld");
-					process.setNamespace("http://www.activiti.org/test");
-					Documentation documentation = Bpmn2Factory.eINSTANCE.createDocumentation();
-					documentation.setId("documentation_process");
-					documentation.setText("");
-					process.getDocumentation().add(documentation);
-					
-					getDiagram().eResource().getContents().add(process);
-					idText.setText(process.getId());
-					nameText.setText(process.getName());
-					namespaceText.setText(process.getNamespace());
-					documentationText.setText(documentation.getText());
-				}
-			}, editingDomain, "Model Update");
+		
+		Bpmn2MemoryModel model = ModelHandler.getModel(EcoreUtil.getURI(getDiagram()));
+		Process process = null;
+		if(getSelectedPictogramElement() instanceof Diagram) {
+		  process = model.getMainProcess();
+		
 		} else {
-			idText.setText(process.getId());
-			nameText.setText(process.getName());
-			if(StringUtils.isNotEmpty(process.getNamespace())) {
-				namespaceText.setText(process.getNamespace());
-			} else {
-				namespaceText.setText("http://www.activiti.org/test");
-			}
-			documentationText.setText(process.getDocumentation().get(0).getText());
+		  Pool pool = ((Pool) getBusinessObject(getSelectedPictogramElement()));
+		  process = model.getProcess(pool.getId());
 		}
+		
+		idText.setText(process.getId());
+		if(StringUtils.isNotEmpty(process.getName())) {
+		  nameText.setText(process.getName());
+		} else {
+		  nameText.setText("");
+		}
+		if(StringUtils.isNotEmpty(model.getTargetNamespace())) {
+			namespaceText.setText(model.getTargetNamespace());
+		} else {
+			namespaceText.setText("http://www.activiti.org/test");
+		}
+		if(StringUtils.isNotEmpty(process.getDocumentation())) {
+			documentationText.setText(process.getDocumentation());
+		} else {
+			documentationText.setText("");
+		}
+		
 		idText.addFocusListener(listener);
 		nameText.addFocusListener(listener);
 		namespaceText.addFocusListener(listener);
@@ -124,37 +124,46 @@ public class PropertyDiagramSection extends ActivitiPropertySection implements I
 			TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 			ActivitiUiUtil.runModelChange(new Runnable() {
 				public void run() {
-					org.eclipse.bpmn2.Process process = ActivitiUiUtil.getProcessObject(getDiagram());
-					if (process == null) {
+				  Bpmn2MemoryModel model = ModelHandler.getModel(EcoreUtil.getURI(getDiagram()));
+					if (model == null) {
 						return;
 					}
+					
+			    Process process = null;
+			    if(getSelectedPictogramElement() instanceof Diagram) {
+			      process = model.getMainProcess();
+			    
+			    } else {
+			      Pool pool = ((Pool) getBusinessObject(getSelectedPictogramElement()));
+			      process = model.getProcess(pool.getId());
+			    }
 					
 					String id = idText.getText();
 					if (id != null) {
 					  process.setId(id);
 					} else {
-						process.setId("");
+					  process.setId("");
 					}
 					
 					String name = nameText.getText();
 					if (name != null) {
-						process.setName(name);
+					  process.setName(name);
 					} else {
-						process.setName("");
+					  process.setName("");
 					}
 					
 					String namespace = namespaceText.getText();
 					if (namespace != null) {
-						process.setNamespace(namespace);
+						model.setTargetNamespace(namespace);
 					} else {
-						process.setNamespace("");
+					  model.setTargetNamespace("");
 					}
 					
 					String documentation = documentationText.getText();
 					if (documentation != null) {
-						process.getDocumentation().get(0).setText(documentation);
+					  process.setDocumentation(documentation);
 					} else {
-						process.getDocumentation().get(0).setText("");
+					  process.setDocumentation("");
 					}
 				}
 			}, editingDomain, "Model Update");

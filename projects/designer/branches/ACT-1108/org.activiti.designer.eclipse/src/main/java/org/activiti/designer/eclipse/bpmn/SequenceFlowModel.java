@@ -16,8 +16,9 @@ package org.activiti.designer.eclipse.bpmn;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.bpmn2.ActivitiListener;
-import org.eclipse.bpmn2.FormalExpression;
+import org.activiti.designer.bpmn2.model.ActivitiListener;
+import org.activiti.designer.bpmn2.model.Process;
+
 
 
 /**
@@ -26,8 +27,10 @@ import org.eclipse.bpmn2.FormalExpression;
 public class SequenceFlowModel {
   
   public String id;
+  public String name;
   public String sourceRef;
   public String targetRef;
-  public FormalExpression conditionExpression;
+  public String conditionExpression;
   public List<ActivitiListener> listenerList = new ArrayList<ActivitiListener>();
+  public Process parentProcess;
 }

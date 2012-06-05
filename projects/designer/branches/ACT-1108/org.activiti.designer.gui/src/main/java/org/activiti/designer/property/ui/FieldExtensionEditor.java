@@ -3,15 +3,15 @@ package org.activiti.designer.property.ui;
 import java.util.Iterator;
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.FieldExtension;
+import org.activiti.designer.bpmn2.model.ServiceTask;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.FieldExtension;
-import org.eclipse.bpmn2.ServiceTask;
+import org.activiti.designer.util.editor.ModelHandler;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.platform.IDiagramEditor;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
@@ -35,7 +35,7 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	  removeTableItems();
 		if(fieldList == null || fieldList.size() == 0) return;
 		for (FieldExtension fieldExtension : fieldList) {
-			addTableItem(fieldExtension.getFieldname(), fieldExtension.getExpression());
+			addTableItem(fieldExtension.getFieldName(), fieldExtension.getExpression());
 		}
 	}
 	
@@ -43,7 +43,7 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	  removeTableItems();
     if(fieldList == null || fieldList.size() == 0) return;
     for (FieldExtension fieldExtension : fieldList) {
-      addTableItem(fieldExtension.getFieldname(), fieldExtension.getExpression());
+      addTableItem(fieldExtension.getFieldName(), fieldExtension.getExpression());
     }
 	}
 
@@ -113,15 +113,11 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	
 	private void saveFieldExtensions() {
 		if (pictogramElement != null) {
-			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pictogramElement);
+			final Object bo = ModelHandler.getModel(EcoreUtil.getURI(diagram)).getFeatureProvider().getBusinessObjectForPictogramElement(pictogramElement);
 			if (bo instanceof ServiceTask) {
 				TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 				ActivitiUiUtil.runModelChange(new Runnable() {
 					public void run() {
-						Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pictogramElement);
-						if (bo == null) {
-							return;
-						}
 						ServiceTask serviceTask = (ServiceTask)  bo;
 						for (TableItem item : getItems()) {
 							String fieldName = item.getText(0);
@@ -133,10 +129,9 @@ public class FieldExtensionEditor extends TableFieldEditor {
 								if(fieldExtension != null) {
 									fieldExtension.setExpression(fieldExpression);
 								} else {
-									FieldExtension newFieldExtension = Bpmn2Factory.eINSTANCE.createFieldExtension();
-									newFieldExtension.setFieldname(fieldName);
+									FieldExtension newFieldExtension = new FieldExtension();
+									newFieldExtension.setFieldName(fieldName);
 									newFieldExtension.setExpression(fieldExpression);
-									diagram.eResource().getContents().add(newFieldExtension);
 									serviceTask.getFieldExtensions().add(newFieldExtension);
 								}
 							}
@@ -151,7 +146,7 @@ public class FieldExtensionEditor extends TableFieldEditor {
 	private FieldExtension fieldExtensionExists(ServiceTask serviceTask, String fieldName) {
 		if(serviceTask.getFieldExtensions() == null) return null;
 		for(FieldExtension fieldExtension : serviceTask.getFieldExtensions()) {
-			if(fieldName.equalsIgnoreCase(fieldExtension.getFieldname())) {
+			if(fieldName.equalsIgnoreCase(fieldExtension.getFieldName())) {
 				return fieldExtension;
 			}
 		}
@@ -164,13 +159,12 @@ public class FieldExtensionEditor extends TableFieldEditor {
 			FieldExtension fieldExtension = entryIterator.next();
 			boolean found = false;
 			for (TableItem item : items) {
-				if(item.getText(0).equals(fieldExtension.getFieldname())) {
+				if(item.getText(0).equals(fieldExtension.getFieldName())) {
 					found = true;
 					break;
 				}
 			}
 			if(found == false) {
-				diagram.eResource().getContents().remove(fieldExtension);
 				entryIterator.remove();
 			}
 		}

@@ -13,7 +13,8 @@
 
 package org.activiti.designer.eclipse.bpmn;
 
-import org.eclipse.bpmn2.BoundaryEvent;
+import org.activiti.designer.bpmn2.model.BoundaryEvent;
+import org.activiti.designer.bpmn2.model.Process;
 
 
 /**
@@ -23,8 +24,10 @@ public class BoundaryEventModel {
   
   public static final String TIMEEVENT = "timeevent";
   public static final String ERROREVENT = "errorevent";
+  public static final String SIGNALEVENT = "signalevent";
   
   public BoundaryEvent boundaryEvent;
   public String attachedRef;
   public String type;
+  public Process parentProcess;
 }

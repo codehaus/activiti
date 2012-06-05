@@ -15,11 +15,9 @@ package org.activiti.designer.export.bpmn20.export;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.activiti.designer.bpmn2.model.MailTask;
+import org.activiti.designer.bpmn2.model.alfresco.AlfrescoMailTask;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.bpmn2.AlfrescoMailTask;
-import org.eclipse.bpmn2.BoundaryEvent;
-import org.eclipse.bpmn2.MailTask;
-import org.eclipse.emf.ecore.EObject;
 
 
 /**
@@ -27,7 +25,7 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class MailTaskExport implements ActivitiNamespaceConstants {
 
-  public static void createMailTask(EObject object, XMLStreamWriter xtw) throws Exception {
+  public static void createMailTask(Object object, XMLStreamWriter xtw) throws Exception {
   	if(object instanceof AlfrescoMailTask) {
   		writeAlfrescoScriptMailTask((AlfrescoMailTask) object, xtw);
   	} else {
@@ -46,11 +44,11 @@ public class MailTaskExport implements ActivitiNamespaceConstants {
     xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE,
             "class", "org.alfresco.repo.workflow.activiti.script.AlfrescoScriptDelegate");
     DefaultFlowExport.createDefaultFlow(mailTask, xtw);
-    AsyncActivityExport.createDefaultFlow(mailTask, xtw);
+    AsyncActivityExport.createAsyncAttribute(mailTask, xtw);
     
     xtw.writeStartElement("extensionElements");
     
-    ExtensionListenerExport.createExtensionListenerXML(mailTask.getActivitiListeners(), false, EXECUTION_LISTENER, xtw);
+    ExecutionListenerExport.createExecutionListenerXML(mailTask.getExecutionListeners(), false, xtw);
     
     xtw.writeStartElement(ACTIVITI_EXTENSIONS_PREFIX, "field", ACTIVITI_EXTENSIONS_NAMESPACE);
     xtw.writeAttribute("name", "script");
@@ -65,12 +63,6 @@ public class MailTaskExport implements ActivitiNamespaceConstants {
 
     // end AlfrescoMailTask element
     xtw.writeEndElement();
-    
-    if(mailTask.getBoundaryEventRefs().size() > 0) {
-    	for(BoundaryEvent event : mailTask.getBoundaryEventRefs()) {
-    		BoundaryEventExport.createBoundaryEvent(event, xtw);
-    	}
-    }
   }
   
   private static String createMailScript(AlfrescoMailTask mailTask) {
@@ -129,31 +121,34 @@ public class MailTaskExport implements ActivitiNamespaceConstants {
       xtw.writeAttribute("name", mailTask.getName());
     }
     DefaultFlowExport.createDefaultFlow(mailTask, xtw);
-    AsyncActivityExport.createDefaultFlow(mailTask, xtw);
+    AsyncActivityExport.createAsyncAttribute(mailTask, xtw);
     xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "type", "mail");
 
     xtw.writeStartElement("extensionElements");
-    ExtensionListenerExport.createExtensionListenerXML(mailTask.getActivitiListeners(), false, EXECUTION_LISTENER, xtw);
+    ExecutionListenerExport.createExecutionListenerXML(mailTask.getExecutionListeners(), false, xtw);
 
-    if (mailTask.getTo() != null && mailTask.getTo().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getTo())) {
     	writeField("to", mailTask.getTo(), xtw);
     }
-    if (mailTask.getFrom() != null && mailTask.getFrom().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getFrom())) {
     	writeField("from", mailTask.getFrom(), xtw);
     }
-    if (mailTask.getSubject() != null && mailTask.getSubject().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getSubject())) {
     	writeField("subject", mailTask.getSubject(), xtw);
     }
-    if (mailTask.getCc() != null && mailTask.getCc().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getCc())) {
     	writeField("cc", mailTask.getCc(), xtw);
     }
-    if (mailTask.getBcc() != null && mailTask.getBcc().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getBcc())) {
     	writeField("bcc", mailTask.getBcc(), xtw);
     }
-    if (mailTask.getHtml() != null && mailTask.getHtml().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getCharset())) {
+    	writeField("charset", mailTask.getCharset(), xtw);
+    }
+    if (StringUtils.isNotEmpty(mailTask.getHtml())) {
     	writeCDataField("html", mailTask.getHtml(), xtw);
     }
-    if (mailTask.getText() != null && mailTask.getText().length() > 0) {
+    if (StringUtils.isNotEmpty(mailTask.getText())) {
     	writeCDataField("text", mailTask.getText(), xtw);
     }
     xtw.writeEndElement();
@@ -162,12 +157,6 @@ public class MailTaskExport implements ActivitiNamespaceConstants {
 
     // end MailTask element
     xtw.writeEndElement();
-    
-    if(mailTask.getBoundaryEventRefs().size() > 0) {
-    	for(BoundaryEvent event : mailTask.getBoundaryEventRefs()) {
-    		BoundaryEventExport.createBoundaryEvent(event, xtw);
-    	}
-    }
   }
   
   private static void writeField(String name, String expression, XMLStreamWriter xtw) throws Exception {

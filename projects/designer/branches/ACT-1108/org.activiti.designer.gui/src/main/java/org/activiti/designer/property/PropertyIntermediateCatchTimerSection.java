@@ -1,14 +1,12 @@
 package org.activiti.designer.property;
 
+import org.activiti.designer.bpmn2.model.IntermediateCatchEvent;
+import org.activiti.designer.bpmn2.model.TimerEventDefinition;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.property.ActivitiPropertySection;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.FormalExpression;
-import org.eclipse.bpmn2.IntermediateCatchEvent;
-import org.eclipse.bpmn2.TimerEventDefinition;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -54,7 +52,7 @@ public class PropertyIntermediateCatchTimerSection extends ActivitiPropertySecti
 	  
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
-			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+			Object bo = getBusinessObject(pe);
 			// the filter assured, that it is a EClass
 			if (bo == null)
 				return;
@@ -63,19 +61,16 @@ public class PropertyIntermediateCatchTimerSection extends ActivitiPropertySecti
 			
 			if(catchEvent.getEventDefinitions().get(0) != null) {
 			  TimerEventDefinition timerDefinition = (TimerEventDefinition) catchEvent.getEventDefinitions().get(0);
-        if(timerDefinition.getTimeDuration() != null && ((FormalExpression) timerDefinition.getTimeDuration()).getBody() != null &&
-                ((FormalExpression) timerDefinition.getTimeDuration()).getBody().length() > 0) {
-          String timeDuration = ((FormalExpression) timerDefinition.getTimeDuration()).getBody();
+        if(StringUtils.isNotEmpty(timerDefinition.getTimeDuration())) {
+          String timeDuration = timerDefinition.getTimeDuration();
           timeDurationText.setText(timeDuration == null ? "" : timeDuration);
           
-        } else if(timerDefinition.getTimeDate() != null && ((FormalExpression) timerDefinition.getTimeDate()).getBody() != null &&
-                ((FormalExpression) timerDefinition.getTimeDate()).getBody().length() > 0) {
-          String timeDate = ((FormalExpression) timerDefinition.getTimeDate()).getBody();
+        } else if(StringUtils.isNotEmpty(timerDefinition.getTimeDate())) {
+          String timeDate = timerDefinition.getTimeDate();
           timeDateText.setText(timeDate == null ? "" : timeDate);
           
-        } else if(timerDefinition.getTimeCycle() != null && ((FormalExpression) timerDefinition.getTimeCycle()).getBody() != null &&
-                ((FormalExpression) timerDefinition.getTimeCycle()).getBody().length() > 0) {
-          String timeCycle = ((FormalExpression) timerDefinition.getTimeCycle()).getBody();
+        } else if(StringUtils.isNotEmpty(timerDefinition.getTimeCycle())) {
+          String timeCycle = timerDefinition.getTimeCycle();
           timeCycleText.setText(timeCycle == null ? "" : timeCycle);
         }
 			}
@@ -93,16 +88,12 @@ public class PropertyIntermediateCatchTimerSection extends ActivitiPropertySecti
 		public void focusLost(final FocusEvent e) {
 			PictogramElement pe = getSelectedPictogramElement();
 			if (pe != null) {
-				Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+				final Object bo = getBusinessObject(pe);
 				if (bo instanceof IntermediateCatchEvent) {
 					DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
 					TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 					ActivitiUiUtil.runModelChange(new Runnable() {
 						public void run() {
-							Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-							if (bo == null) {
-								return;
-							}
 							
 							IntermediateCatchEvent catchEvent = (IntermediateCatchEvent) bo;
 							
@@ -110,32 +101,17 @@ public class PropertyIntermediateCatchTimerSection extends ActivitiPropertySecti
               
 							String timeDuration = timeDurationText.getText();
 							if (timeDuration != null) {
-							  if(timerDefinition.getTimeDuration() == null) {
-							    FormalExpression expression = Bpmn2Factory.eINSTANCE.createFormalExpression();
-							    timerDefinition.setTimeDuration(expression);
-							  }
-							  FormalExpression formalExpression = (FormalExpression) timerDefinition.getTimeDuration();
-							  formalExpression.setBody(timeDuration);
+							  timerDefinition.setTimeDuration(timeDuration);
 							}
 							
 							String timeDate = timeDateText.getText();
               if (timeDate != null) {
-                if(timerDefinition.getTimeDate() == null) {
-                  FormalExpression expression = Bpmn2Factory.eINSTANCE.createFormalExpression();
-                  timerDefinition.setTimeDate(expression);
-                }
-                FormalExpression formalExpression = (FormalExpression) timerDefinition.getTimeDate();
-                formalExpression.setBody(timeDate);
+                timerDefinition.setTimeDate(timeDate);
               }
               
               String timeCycle = timeCycleText.getText();
               if (timeCycle != null) {
-                if(timerDefinition.getTimeCycle() == null) {
-                  FormalExpression expression = Bpmn2Factory.eINSTANCE.createFormalExpression();
-                  timerDefinition.setTimeCycle(expression);
-                }
-                FormalExpression formalExpression = (FormalExpression) timerDefinition.getTimeCycle();
-                formalExpression.setBody(timeCycle);
+                timerDefinition.setTimeCycle(timeCycle);
               }
 						}
 					}, editingDomain, "Model Update");

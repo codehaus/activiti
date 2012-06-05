@@ -1,12 +1,11 @@
 package com.alfresco.designer.gui.features;
 
+import org.activiti.designer.bpmn2.model.SubProcess;
+import org.activiti.designer.bpmn2.model.Task;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.platform.OSEnum;
 import org.activiti.designer.util.platform.OSUtil;
 import org.activiti.designer.util.style.StyleUtil;
-import org.eclipse.bpmn2.SubProcess;
-import org.eclipse.bpmn2.Task;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
@@ -68,20 +67,6 @@ public abstract class AddAlfrescoTaskFeature extends AbstractAddShapeFeature {
       roundedRectangle.setStyle(StyleUtil.getStyleForTask(getDiagram()));
       gaService.setLocationAndSize(roundedRectangle, 0, 0, width, height);
 
-      // if addedClass has no resource we add it to the resource of
-      // the
-      // diagram
-      // in a real scenario the business model would have its own
-      // resource
-      if (addedTask.eResource() == null) {
-        Object parentObject = getBusinessObjectForPictogramElement(parent);
-        if (parentObject instanceof SubProcess) {
-          ((SubProcess) parentObject).getFlowElements().add(addedTask);
-        } else {
-          getDiagram().eResource().getContents().add(addedTask);
-        }
-      }
-
       // create link and wire it
       link(containerShape, addedTask);
     }
@@ -97,7 +82,7 @@ public abstract class AddAlfrescoTaskFeature extends AbstractAddShapeFeature {
       text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
       text.setVerticalAlignment(Orientation.ALIGNMENT_CENTER);
       if (OSUtil.getOperatingSystem() == OSEnum.Mac) {
-        text.getFont().setSize(11);
+        text.setFont(gaService.manageFont(getDiagram(), text.getFont().getName(), 11));
       }
 
       gaService.setLocationAndSize(text, 0, 20, width, 30);
@@ -158,6 +143,6 @@ public abstract class AddAlfrescoTaskFeature extends AbstractAddShapeFeature {
     return false;
   }
 
-  protected abstract String getIcon(EObject bo);
+  protected abstract String getIcon(Object bo);
 
 }

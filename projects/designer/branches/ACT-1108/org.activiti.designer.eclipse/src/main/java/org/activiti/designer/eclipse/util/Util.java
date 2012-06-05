@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.bpmn2.BaseElement;
+import org.activiti.designer.bpmn2.model.BaseElement;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -135,7 +135,7 @@ public class Util {
               // use their own logic to browse through their files
               // (e.g. known by a special extension or residing in
               // a special folder) instead of this generic logic.
-              URI uri = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getFileURI(file, rSet);
+              URI uri = org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal.getEmfService().getFileURI(file);
               Resource fileResource = rSet.getResource(uri, true);
               if (fileResource != null) {
                 EList<EObject> contents = fileResource.getContents();

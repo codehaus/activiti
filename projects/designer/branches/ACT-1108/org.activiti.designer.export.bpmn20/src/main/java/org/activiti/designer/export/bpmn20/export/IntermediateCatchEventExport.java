@@ -17,11 +17,11 @@ import java.util.List;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.eclipse.bpmn2.EventDefinition;
-import org.eclipse.bpmn2.FormalExpression;
-import org.eclipse.bpmn2.IntermediateCatchEvent;
-import org.eclipse.bpmn2.TimerEventDefinition;
-import org.eclipse.emf.ecore.EObject;
+import org.activiti.designer.bpmn2.model.EventDefinition;
+import org.activiti.designer.bpmn2.model.IntermediateCatchEvent;
+import org.activiti.designer.bpmn2.model.SignalEventDefinition;
+import org.activiti.designer.bpmn2.model.TimerEventDefinition;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -29,58 +29,66 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class IntermediateCatchEventExport implements ActivitiNamespaceConstants {
 
-  public static void createIntermediateEvent(EObject object, XMLStreamWriter xtw) throws Exception {
+  public static void createIntermediateEvent(Object object, XMLStreamWriter xtw) throws Exception {
   	IntermediateCatchEvent catchEvent = (IntermediateCatchEvent) object;
     List<EventDefinition> eventDefinitionList = catchEvent.getEventDefinitions();
     if(eventDefinitionList.size() == 1) {
       if(eventDefinitionList.get(0) instanceof TimerEventDefinition) {
         TimerEventDefinition timerDef = (TimerEventDefinition) eventDefinitionList.get(0);
-        if(timerDef.getTimeDuration() != null && 
-                ((((FormalExpression) timerDef.getTimeDuration()).getBody() != null && 
-                        ((FormalExpression) timerDef.getTimeDuration()).getBody().length() > 0) ||
-                        
-                        (((FormalExpression) timerDef.getTimeDate()).getBody() != null && 
-                                ((FormalExpression) timerDef.getTimeDate()).getBody().length() > 0) ||
-                                
-                                (((FormalExpression) timerDef.getTimeCycle()).getBody() != null && 
-                                        ((FormalExpression) timerDef.getTimeCycle()).getBody().length() > 0))) {
+        // start TimerIntermediateCatchEvent element
+        xtw.writeStartElement("intermediateCatchEvent");
+        xtw.writeAttribute("id", catchEvent.getId());
+        if (catchEvent.getName() != null) {
+          xtw.writeAttribute("name", catchEvent.getName());
+        }
+        
+        xtw.writeStartElement("timerEventDefinition");
+        
+        if(StringUtils.isNotEmpty(timerDef.getTimeDuration())) {
           
-          // start TimerBoundaryEvent element
-          xtw.writeStartElement("intermediateCatchEvent");
-          xtw.writeAttribute("id", catchEvent.getId());
-          if (catchEvent.getName() != null) {
-            xtw.writeAttribute("name", catchEvent.getName());
-          }
-          
-          xtw.writeStartElement("timerEventDefinition");
-          
-          if(((FormalExpression) timerDef.getTimeDuration()).getBody() != null && 
-                        ((FormalExpression) timerDef.getTimeDuration()).getBody().length() > 0) {
-            
-            xtw.writeStartElement("timeDuration");
-            xtw.writeCharacters(((FormalExpression) timerDef.getTimeDuration()).getBody());
-            xtw.writeEndElement();
-          
-          } else if(((FormalExpression) timerDef.getTimeDate()).getBody() != null && 
-                        ((FormalExpression) timerDef.getTimeDate()).getBody().length() > 0) {
-            
-            xtw.writeStartElement("timeDate");
-            xtw.writeCharacters(((FormalExpression) timerDef.getTimeDate()).getBody());
-            xtw.writeEndElement();
-          
-          } else {
-            
-            xtw.writeStartElement("timeCycle");
-            xtw.writeCharacters(((FormalExpression) timerDef.getTimeCycle()).getBody());
-            xtw.writeEndElement();
-          }
-          
+          xtw.writeStartElement("timeDuration");
+          xtw.writeCharacters(timerDef.getTimeDuration());
           xtw.writeEndElement();
-
-          // end TimerIntermediateCatchEvent element
+        
+        } else if(StringUtils.isNotEmpty(timerDef.getTimeDate())) {
+          
+          xtw.writeStartElement("timeDate");
+          xtw.writeCharacters(timerDef.getTimeDate());
+          xtw.writeEndElement();
+        
+        } else if(StringUtils.isNotEmpty(timerDef.getTimeCycle())) {
+          
+          xtw.writeStartElement("timeCycle");
+          xtw.writeCharacters(timerDef.getTimeCycle());
           xtw.writeEndElement();
         }
-      }
+        
+        xtw.writeEndElement();
+
+        // end TimerIntermediateCatchEvent element
+        xtw.writeEndElement();
+      
+      } else if(eventDefinitionList.get(0) instanceof SignalEventDefinition) {
+      	SignalEventDefinition signalDef = (SignalEventDefinition) eventDefinitionList.get(0);
+          
+        // start SignalIntermediateCatchEvent element
+        xtw.writeStartElement("intermediateCatchEvent");
+        xtw.writeAttribute("id", catchEvent.getId());
+        if (catchEvent.getName() != null) {
+          xtw.writeAttribute("name", catchEvent.getName());
+        }
+        
+        xtw.writeStartElement("signalEventDefinition");
+        
+        if(StringUtils.isNotEmpty(signalDef.getSignalRef())) {
+          xtw.writeAttribute("signalRef", signalDef.getSignalRef());
+        }
+        
+        xtw.writeEndElement();
+
+        // end SignalIntermediateCatchEvent element
+        xtw.writeEndElement();
+      } 
     }
   }
 }

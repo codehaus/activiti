@@ -1,13 +1,10 @@
 package org.activiti.designer.property;
 
+import org.activiti.designer.bpmn2.model.SequenceFlow;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.property.ActivitiPropertySection;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.FormalExpression;
-import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -54,7 +51,7 @@ public class PropertySequenceFlowSection extends ActivitiPropertySection impleme
 	public void refresh() {
 		PictogramElement pe = getSelectedPictogramElement();
 		if (pe != null) {
-			Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+			Object bo = getBusinessObject(pe);
 			// the filter assured, that it is a EClass
 			if (bo == null)
 				return;
@@ -63,7 +60,7 @@ public class PropertySequenceFlowSection extends ActivitiPropertySection impleme
 			if(sequenceFlow.getConditionExpression() != null) {
 				
 				conditionExpressionText.removeFocusListener(listener);
-				String condition = sequenceFlow.getConditionExpression().getBody();
+				String condition = sequenceFlow.getConditionExpression();
 				conditionExpressionText.setText(condition);
 				conditionExpressionText.addFocusListener(listener);
 			} else {
@@ -80,35 +77,22 @@ public class PropertySequenceFlowSection extends ActivitiPropertySection impleme
 		public void focusLost(final FocusEvent e) {
 			PictogramElement pe = getSelectedPictogramElement();
 			if (pe != null) {
-				Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+				final Object bo = getBusinessObject(pe);
 				if (bo instanceof SequenceFlow) {
 					DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
 					TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
 					ActivitiUiUtil.runModelChange(new Runnable() {
 						public void run() {
-							Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-							if (bo == null) {
-								return;
-							}
 							if (bo instanceof SequenceFlow == false) {
 								return;
 							}
 							SequenceFlow sequenceFlow = (SequenceFlow) bo;
 							String condition = conditionExpressionText.getText();
 							if (condition != null && condition.length() > 0) {
-								FormalExpression expression = sequenceFlow.getConditionExpression();
-								if(expression == null) {
-									expression = Bpmn2Factory.eINSTANCE.createFormalExpression();
-									expression.setId(sequenceFlow.getId() + "_condition");
-									sequenceFlow.setConditionExpression(expression);
-								}
-								expression.setBody(condition);
+								sequenceFlow.setConditionExpression(condition);
 								
 							} else {
-								FormalExpression expression = sequenceFlow.getConditionExpression();
-								if(expression != null) {
-									sequenceFlow.setConditionExpression(null);
-								}
+								sequenceFlow.setConditionExpression(null);
 							}
 						}
 					}, editingDomain, "Model Update");

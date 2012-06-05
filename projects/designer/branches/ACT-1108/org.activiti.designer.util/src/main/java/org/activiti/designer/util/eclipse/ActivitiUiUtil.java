@@ -2,13 +2,17 @@ package org.activiti.designer.util.eclipse;
 
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.BaseElement;
+import org.activiti.designer.bpmn2.model.BoundaryEvent;
+import org.activiti.designer.bpmn2.model.FlowElement;
+import org.activiti.designer.bpmn2.model.Lane;
+import org.activiti.designer.bpmn2.model.Pool;
+import org.activiti.designer.bpmn2.model.Process;
+import org.activiti.designer.bpmn2.model.SubProcess;
+import org.activiti.designer.util.editor.Bpmn2MemoryModel;
+import org.activiti.designer.util.editor.ModelHandler;
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.bpmn2.Activity;
-import org.eclipse.bpmn2.BaseElement;
-import org.eclipse.bpmn2.BoundaryEvent;
-import org.eclipse.bpmn2.EventDefinition;
-import org.eclipse.bpmn2.FlowElement;
-import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -20,6 +24,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.gef.ui.actions.ActionRegistry;
@@ -97,15 +102,6 @@ public class ActivitiUiUtil {
     return ret;
   }
 
-  public static org.eclipse.bpmn2.Process getProcessObject(Diagram diagram) {
-    for (EObject eObject : diagram.eResource().getContents()) {
-      if (eObject instanceof org.eclipse.bpmn2.Process) {
-        return (org.eclipse.bpmn2.Process) eObject;
-      }
-    }
-    return null;
-  }
-
   public static void doProjectReferenceChange(IProject currentProject, IJavaProject containerProject, String className) throws CoreException {
 
     if (currentProject.equals(containerProject.getProject())) {
@@ -176,7 +172,7 @@ public class ActivitiUiUtil {
     IWorkbenchPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
     if (part instanceof DiagramEditor) {
       DiagramEditor editor = (DiagramEditor) part;
-      return editor.getActionRegistryInternal();
+      return (ActionRegistry) editor.getAdapter(ActionRegistry.class);
     }
     return null;
   }
@@ -198,56 +194,70 @@ public class ActivitiUiUtil {
     }
   }
 
-  public static final String getNextId(final Class featureClass, final String featureIdKey, final Diagram diagram) {
-
+  public static final String getNextId(final Class<? extends BaseElement> featureClass, final String featureIdKey, final Diagram diagram) {
+    Bpmn2MemoryModel model =  ModelHandler.getModel(EcoreUtil.getURI(diagram));
     int determinedId = 0;
-
-    for (EObject contentObject : diagram.eResource().getContents()) {
-      
-      if(contentObject instanceof SubProcess) {
-        
-        for (FlowElement flowElement : ((SubProcess) contentObject).getFlowElements()) {
+    
+    if (featureClass.equals(Pool.class)) {
+      determinedId = loopThroughPools(featureClass, determinedId, model.getPools(), featureIdKey);
+    } else {
+    
+      for (Process process : model.getProcesses()) {
           
-          if (flowElement.getClass() == featureClass) {
-            String contentObjectId = flowElement.getId().replace(featureIdKey, "");
-            determinedId = getId(contentObjectId, determinedId);
-          }
-          if (flowElement instanceof Activity) {
-          	List<BoundaryEvent> eventList = ((Activity) flowElement).getBoundaryEventRefs();
-          	for (BoundaryEvent boundaryEvent : eventList) {
-	            List<EventDefinition> definitionList = boundaryEvent.getEventDefinitions();
-	            for (EventDefinition eventDefinition : definitionList) {
-	              if(eventDefinition.getClass() == featureClass) {
-	              	String contentObjectId = boundaryEvent.getId().replace(featureIdKey, "");
-	                determinedId = getId(contentObjectId, determinedId);
-	              }
-              }
-            }
-          }
-        }
-      }
-      
-      if (contentObject.getClass() == featureClass) {
-        BaseElement tempElement = (BaseElement) contentObject;
-        String contentObjectId = tempElement.getId().replace(featureIdKey, "");
-        determinedId = getId(contentObjectId, determinedId);
-      }
-      if (contentObject instanceof Activity) {
-      	List<BoundaryEvent> eventList = ((Activity) contentObject).getBoundaryEventRefs();
-      	for (BoundaryEvent boundaryEvent : eventList) {
-          List<EventDefinition> definitionList = boundaryEvent.getEventDefinitions();
-          for (EventDefinition eventDefinition : definitionList) {
-            if(eventDefinition.getClass() == featureClass) {
-            	String contentObjectId = boundaryEvent.getId().replace(featureIdKey, "");
-              determinedId = getId(contentObjectId, determinedId);
-            }
-          }
+        if (featureClass.equals(Lane.class)) {
+          determinedId = loopThroughLanes(featureClass, determinedId, process.getLanes(), featureIdKey);
+        } else {
+          determinedId = loopThroughElements(featureClass, determinedId, process.getFlowElements(), featureIdKey);
         }
       }
     }
     determinedId++;
     return String.format(ID_PATTERN, featureIdKey, determinedId);
-
+  }
+  
+  public static int loopThroughPools(final Class<? extends BaseElement> featureClass, int determinedId, 
+      List<Pool> poolList, final String featureIdKey) {
+    
+    for (Pool pool : poolList) {
+      String contentObjectId = pool.getId().replace(featureIdKey, "");
+      determinedId = getId(contentObjectId, determinedId);
+    }
+    return determinedId;
+  }
+  
+  public static int loopThroughLanes(final Class<? extends BaseElement> featureClass, int determinedId, 
+      List<Lane> laneList, final String featureIdKey) {
+    
+    for (Lane lane : laneList) {
+      String contentObjectId = lane.getId().replace(featureIdKey, "");
+      determinedId = getId(contentObjectId, determinedId);
+    }
+    return determinedId;
+  }
+  
+  public static int loopThroughElements(final Class<? extends BaseElement> featureClass, int determinedId, 
+  		List<FlowElement> elementList, final String featureIdKey) {
+  	
+  	for (FlowElement element : elementList) {
+      
+      if(element instanceof SubProcess) {
+      	determinedId = loopThroughElements(featureClass, determinedId, ((SubProcess) element).getFlowElements(), featureIdKey);
+      }
+      
+      if(featureClass == BoundaryEvent.class && element instanceof Activity) {
+      	Activity activity = (Activity) element;
+      	for (BoundaryEvent boundaryEvent : activity.getBoundaryEvents()) {
+      		String contentObjectId = boundaryEvent.getId().replace(featureIdKey, "");
+          determinedId = getId(contentObjectId, determinedId);
+        }
+      }
+      
+      if (element.getClass() == featureClass) {
+        String contentObjectId = element.getId().replace(featureIdKey, "");
+        determinedId = getId(contentObjectId, determinedId);
+      }
+  	}
+  	return determinedId;
   }
   
   private static int getId(String contentObjectId, int determinedId) {

@@ -1,11 +1,10 @@
 package org.activiti.designer.property;
 
+import org.activiti.designer.bpmn2.model.BusinessRuleTask;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.property.ActivitiPropertySection;
-import org.eclipse.bpmn2.BusinessRuleTask;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -28,9 +27,7 @@ public class PropertyBusinessRuleTaskSection extends ActivitiPropertySection imp
   private Button excludedButton;
   private Button nonExcludedButton;
   private Text resultVariableNameText;
-
-  private Text documentationText;
-
+  
   @Override
   public void createControls(Composite parent, TabbedPropertySheetPage tabbedPropertySheetPage) {
     super.createControls(parent, tabbedPropertySheetPage);
@@ -112,7 +109,7 @@ public class PropertyBusinessRuleTaskSection extends ActivitiPropertySection imp
     resultVariableNameText.removeFocusListener(listener);
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       if (bo == null)
         return;
 
@@ -166,17 +163,13 @@ public class PropertyBusinessRuleTaskSection extends ActivitiPropertySection imp
     public void focusLost(final FocusEvent e) {
       PictogramElement pe = getSelectedPictogramElement();
       if (pe != null) {
-        Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+        final Object bo = getBusinessObject(pe);
         if (bo instanceof BusinessRuleTask) {
           DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
           TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
           ActivitiUiUtil.runModelChange(new Runnable() {
 
             public void run() {
-              Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-              if (bo == null) {
-                return;
-              }
               BusinessRuleTask businessRuleTask = (BusinessRuleTask) bo;
               String ruleNames = ruleNamesText.getText();
               if (ruleNames != null && ruleNames.length() > 0) {

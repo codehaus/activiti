@@ -1,17 +1,16 @@
 package org.activiti.designer.features;
 
-import org.activiti.designer.ActivitiImageProvider;
-import org.eclipse.emf.ecore.EObject;
+import org.activiti.designer.PluginImage;
 import org.eclipse.graphiti.features.IFeatureProvider;
 
 public class AddScriptTaskFeature extends AddTaskFeature {
 
-	public AddScriptTaskFeature(IFeatureProvider fp) {
-		super(fp);
-	}
+  public AddScriptTaskFeature(IFeatureProvider fp) {
+    super(fp);
+  }
 
-	protected String getIcon(EObject bo) {
-		return ActivitiImageProvider.IMG_SCRIPTTASK;
-	}
+  protected String getIcon(Object bo) {
+    return PluginImage.IMG_SCRIPTTASK.getImageKey();
+  }
 
 }

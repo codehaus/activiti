@@ -1,11 +1,12 @@
 package org.activiti.designer.features;
 
-import org.activiti.designer.ActivitiImageProvider;
+import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.EndEvent;
+import org.activiti.designer.bpmn2.model.Event;
+import org.activiti.designer.bpmn2.model.Lane;
+import org.activiti.designer.bpmn2.model.SubProcess;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.style.StyleUtil;
-import org.eclipse.bpmn2.EndEvent;
-import org.eclipse.bpmn2.Event;
-import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.mm.algorithms.Ellipse;
@@ -20,7 +21,7 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 
 public class AddErrorEndEventFeature extends AddEventFeature {
-	
+
   public AddErrorEndEventFeature(IFeatureProvider fp) {
     super(fp);
   }
@@ -55,23 +56,14 @@ public class AddErrorEndEventFeature extends AddEventFeature {
       circle.setLineWidth(3);
       gaService.setLocationAndSize(circle, 0, 0, width, height);
 
-      if (addedEvent.eResource() == null) {
-				Object parentObject = getBusinessObjectForPictogramElement(parent);
-	      if (parentObject instanceof SubProcess) {
-	        ((SubProcess) parentObject).getFlowElements().add(addedEvent);
-	      } else {
-	        getDiagram().eResource().getContents().add(addedEvent);
-	      }
-			}
-
       // create link and wire it
       link(containerShape, addedEvent);
     }
-    
+
     {
       final Shape shape = peCreateService.createShape(containerShape, false);
-      final Image image = gaService.createImage(shape, ActivitiImageProvider.IMG_ENDEVENT_ERROR);
-      
+      final Image image = gaService.createImage(shape, PluginImage.IMG_ENDEVENT_ERROR.getImageKey());
+
       gaService.setLocationAndSize(image, 5, 5, 25, 25);
     }
 
@@ -95,10 +87,11 @@ public class AddErrorEndEventFeature extends AddEventFeature {
   @Override
   public boolean canAdd(IAddContext context) {
     if (context.getNewObject() instanceof Event) {
-      
-    	Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-      
-      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess) {
+
+      Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+
+      if (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess || parentObject instanceof Lane) {
+
         return true;
       }
     }

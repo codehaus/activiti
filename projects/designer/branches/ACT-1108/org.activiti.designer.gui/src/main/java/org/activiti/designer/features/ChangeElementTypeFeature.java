@@ -1,26 +1,20 @@
 package org.activiti.designer.features;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.bpmn2.BaseElement;
-import org.eclipse.bpmn2.FlowElement;
-import org.eclipse.bpmn2.FlowNode;
-import org.eclipse.bpmn2.SequenceFlow;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
+import org.activiti.designer.bpmn2.model.FlowElement;
+import org.activiti.designer.bpmn2.model.FlowNode;
+import org.activiti.designer.bpmn2.model.Process;
+import org.activiti.designer.bpmn2.model.SequenceFlow;
+import org.activiti.designer.bpmn2.model.SubProcess;
+import org.activiti.designer.util.editor.ModelHandler;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.impl.CreateContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
-import org.eclipse.graphiti.mm.pictograms.Anchor;
-import org.eclipse.graphiti.mm.pictograms.ChopboxAnchor;
-import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
-import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.mm.pictograms.PictogramLink;
 import org.eclipse.graphiti.mm.pictograms.Shape;
 
 public class ChangeElementTypeFeature extends AbstractCustomFeature {
@@ -43,88 +37,33 @@ public class ChangeElementTypeFeature extends AbstractCustomFeature {
 
 	@Override
   public void execute(ICustomContext context) {
-	  PictogramElement element = (PictogramElement) context.getProperty("org.activiti.designer.changetype.pictogram");
+	  Shape element = (Shape) context.getProperty("org.activiti.designer.changetype.pictogram");
 	  GraphicsAlgorithm elementGraphics = element.getGraphicsAlgorithm();
 	  int x = elementGraphics.getX();
 	  int y = elementGraphics.getY();
 	  
 	  CreateContext taskContext = new CreateContext();
-	  ContainerShape targetContainer = (ContainerShape) element.eContainer();
+	  ContainerShape targetContainer = (ContainerShape) element.getContainer();
   	taskContext.setTargetContainer(targetContainer);
   	taskContext.setLocation(x, y);
   	taskContext.setHeight(elementGraphics.getHeight());
   	taskContext.setWidth(elementGraphics.getWidth());
   	
-  	FlowElement oldObject = (FlowElement) element.getLink().getBusinessObjects().get(0);
-	  String objectId = oldObject.getId();
+  	FlowNode oldObject = (FlowNode) getFeatureProvider().getBusinessObjectForPictogramElement(element);
 	  
-	  List<SequenceFlow> sourceList = new ArrayList<SequenceFlow>();
-	  List<SequenceFlow> targetList = new ArrayList<SequenceFlow>();
-	  for(EObject eObject : targetContainer.eResource().getContents()) {
-	  	if(eObject instanceof SequenceFlow) {
-	  		SequenceFlow sequenceFlow = (SequenceFlow) eObject;
-	  		if(sequenceFlow.getSourceRef().getId().equals(objectId)) {
-	  			sourceList.add(sequenceFlow);
-	  		}
-	  		if(sequenceFlow.getTargetRef().getId().equals(objectId)) {
-	  			targetList.add(sequenceFlow);
-	  		}
-	  	}
-	  }
+	  List<SequenceFlow> sourceList = oldObject.getOutgoing();
+	  List<SequenceFlow> targetList = oldObject.getIncoming();
+	  
 	  taskContext.putProperty("org.activiti.designer.changetype.sourceflows", sourceList);
 	  taskContext.putProperty("org.activiti.designer.changetype.targetflows", targetList);
 	  taskContext.putProperty("org.activiti.designer.changetype.name", oldObject.getName());
 	  
-	  Anchor elementAnchor = null;
-	  for (Shape shape : targetContainer.getChildren()) {
-      FlowNode flowNode = (FlowNode) getBusinessObjectForPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
-      if(flowNode == null || flowNode.getId() == null) continue;
-      if(flowNode.getId().equals(objectId)) {
-        EList<Anchor> anchorList = ((ContainerShape) shape).getAnchors();
-        for (Anchor anchor : anchorList) {
-          if(anchor instanceof ChopboxAnchor) {
-          	elementAnchor = anchor;
-            break;
-          }
-        }
-      }
+	  targetContainer.getChildren().remove(element);
+	  List<Process> processes = ModelHandler.getModel(EcoreUtil.getURI(getDiagram())).getProcesses();
+    for (Process process : processes) {
+      process.getFlowElements().remove(oldObject);
+      removeElement(oldObject, process.getFlowElements());
     }
-	  
-	  List<Connection> sourceConnections = new ArrayList<Connection>();
-	  List<Connection> targetConnections = new ArrayList<Connection>();
-	  for(Connection connection : getDiagram().getConnections()) {
-	  	if(connection.getStart().equals(elementAnchor)) {
-	  		sourceConnections.add(connection);
-	  	}
-	  	if(connection.getEnd().equals(elementAnchor)) {
-	  		targetConnections.add(connection);
-	  	}
-	  }
-	  taskContext.putProperty("org.activiti.designer.changetype.sourceconnections", sourceConnections);
-	  taskContext.putProperty("org.activiti.designer.changetype.targetconnections", targetConnections);
-	  
-	  List<PictogramLink> toDeleteLinks = new ArrayList<PictogramLink>();
-	  for (PictogramLink link : getDiagram().getPictogramLinks()) {
-	  	BaseElement flowNode = (BaseElement) getBusinessObjectForPictogramElement(link.getPictogramElement());
-	  	if(flowNode.getId().equals(objectId)) {
-	  		toDeleteLinks.add(link);
-	  	}
-    }
-	  
-	  List<Shape> toDeleteShapes = new ArrayList<Shape>();
-	  for(Shape shape : targetContainer.getChildren()) {
-	  	BaseElement flowNode = (BaseElement) getBusinessObjectForPictogramElement(shape.getGraphicsAlgorithm().getPictogramElement());
-	  	if(flowNode.getId().equals(objectId)) {
-	  		toDeleteShapes.add(shape);
-	  	}
-	  }
-	  for (PictogramLink link : toDeleteLinks) {
-	  	getDiagram().getPictogramLinks().remove(link);
-    }
-	  for (Shape shape : toDeleteShapes) {
-	  	targetContainer.getChildren().remove(shape);
-	  }
-	  EcoreUtil.delete(oldObject, true);
 	  
 	  if("servicetask".equals(newType)) {
 	  	new CreateServiceTaskFeature(getFeatureProvider()).create(taskContext);
@@ -151,10 +90,20 @@ public class ChangeElementTypeFeature extends AbstractCustomFeature {
 	  	new CreateExclusiveGatewayFeature(getFeatureProvider()).create(taskContext);
 	 
 	  } else if("inclusivegateway".equals(newType)) {
-        new CreateInclusiveGatewayFeature(getFeatureProvider()).create(taskContext);
+      new CreateInclusiveGatewayFeature(getFeatureProvider()).create(taskContext);
      
-      } else if("parallelgateway".equals(newType)) {
+    } else if("parallelgateway".equals(newType)) {
 	  	new CreateParallelGatewayFeature(getFeatureProvider()).create(taskContext);
 	  }
+  }
+	
+	private void removeElement(FlowElement element, List<FlowElement> elementList) {
+    for (FlowElement flowElement : elementList) {
+      if(flowElement instanceof SubProcess) {
+        SubProcess subProcess = (SubProcess) flowElement;
+        subProcess.getFlowElements().remove(element);
+        removeElement(element, subProcess.getFlowElements());
+      }
+    }
   }
 }

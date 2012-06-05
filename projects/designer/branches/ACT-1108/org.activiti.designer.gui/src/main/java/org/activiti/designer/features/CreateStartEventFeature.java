@@ -1,61 +1,42 @@
 package org.activiti.designer.features;
 
-import org.activiti.designer.ActivitiImageProvider;
-import org.activiti.designer.util.features.AbstractCreateBPMNFeature;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.StartEvent;
-import org.eclipse.bpmn2.SubProcess;
+import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.EventSubProcess;
+import org.activiti.designer.bpmn2.model.StartEvent;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
-import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 public class CreateStartEventFeature extends AbstractCreateBPMNFeature {
-	
-	public static final String FEATURE_ID_KEY = "startevent";
 
-	public CreateStartEventFeature(IFeatureProvider fp) {
-		// set name and description of the creation feature
-		super(fp, "StartEvent", "Add start event");
-	}
+  public static final String FEATURE_ID_KEY = "startevent";
 
-	public boolean canCreate(ICreateContext context) {
-	  Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-    return (context.getTargetContainer() instanceof Diagram || parentObject instanceof SubProcess);
-	}
+  public CreateStartEventFeature(IFeatureProvider fp) {
+    // set name and description of the creation feature
+    super(fp, "StartEvent", "Add start event");
+  }
 
-	public Object[] create(ICreateContext context) {
-		StartEvent startEvent = Bpmn2Factory.eINSTANCE.createStartEvent();
-		
-		startEvent.setId(getNextId());
-		startEvent.setName("Start");
-		
-		Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
-    if (parentObject instanceof SubProcess) {
-      ((SubProcess) parentObject).getFlowElements().add(startEvent);
-    } else {
-      getDiagram().eResource().getContents().add(startEvent);
-    }
-    
-		addGraphicalRepresentation(context, startEvent);
-		
-		// return newly created business object(s)
-		return new Object[] { startEvent };
-	}
-	
-	@Override
-	public String getCreateImageId() {
-		return ActivitiImageProvider.IMG_STARTEVENT_NONE;
-	}
-	
-	@Override
-	protected String getFeatureIdKey() {
-		return FEATURE_ID_KEY;
-	}
+  public boolean canCreate(ICreateContext context) {
+    Object parentObject = getBusinessObjectForPictogramElement(context.getTargetContainer());
+    if (parentObject instanceof EventSubProcess)
+      return false;
+    return super.canCreate(context);
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	protected Class getFeatureClass() {
-		return Bpmn2Factory.eINSTANCE.createStartEvent().getClass();
-	}
+  public Object[] create(ICreateContext context) {
+    StartEvent startEvent = new StartEvent();
+    addObjectToContainer(context, startEvent, "Start");
 
+    // return newly created business object(s)
+    return new Object[] { startEvent };
+  }
+
+  @Override
+  public String getCreateImageId() {
+    return PluginImage.IMG_STARTEVENT_NONE.getImageKey();
+  }
+
+  @Override
+  protected String getFeatureIdKey() {
+    return FEATURE_ID_KEY;
+  }
 }

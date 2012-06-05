@@ -15,14 +15,12 @@
  *******************************************************************************/
 package org.activiti.designer.property;
 
+import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.MultiInstanceLoopCharacteristics;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.property.ActivitiPropertySection;
-import org.eclipse.bpmn2.Activity;
-import org.eclipse.bpmn2.Bpmn2Factory;
-import org.eclipse.bpmn2.MultiInstanceLoopCharacteristics;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -117,7 +115,7 @@ public class PropertyMultiInstanceSection extends ActivitiPropertySection implem
 	  PictogramElement pe = getSelectedPictogramElement();
     if (pe == null) return;
     
-    Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+    Object bo = getBusinessObject(pe);
     if (bo == null || bo instanceof Activity == false)
       return;
     
@@ -131,30 +129,38 @@ public class PropertyMultiInstanceSection extends ActivitiPropertySection implem
 	  completionConditionText.removeFocusListener(listener);
 	  
     
-	  if(multiInstanceDef.isIsSequential() == true && yesButton.getSelection() == false) {
+	  if(multiInstanceDef.isSequential() == true && yesButton.getSelection() == false) {
 	    yesButton.setSelection(true);
 	    noButton.setSelection(false);
     }
 	  
-	  if(multiInstanceDef.isIsSequential() == false && yesButton.getSelection() == true) {
+	  if(multiInstanceDef.isSequential() == false && yesButton.getSelection() == true) {
       yesButton.setSelection(false);
       noButton.setSelection(true);
     }
 	  
     if(multiInstanceDef.getLoopCardinality() != null) {
       loopCardinaltyText.setText(multiInstanceDef.getLoopCardinality());
+    } else {
+    	loopCardinaltyText.setText("");
     }
 		
     if(multiInstanceDef.getInputDataItem() != null) {
       collectionText.setText(multiInstanceDef.getInputDataItem());
+    } else {
+    	collectionText.setText("");
     }
     
     if(multiInstanceDef.getElementVariable() != null) {
       elementVariableText.setText(multiInstanceDef.getElementVariable());
+    } else {
+    	elementVariableText.setText("");
     }
     
     if(multiInstanceDef.getCompletionCondition() != null) {
       completionConditionText.setText(multiInstanceDef.getCompletionCondition());
+    } else {
+    	completionConditionText.setText("");
     }
     
 		loopCardinaltyText.addFocusListener(listener);
@@ -167,7 +173,7 @@ public class PropertyMultiInstanceSection extends ActivitiPropertySection implem
 	  PictogramElement pe = getSelectedPictogramElement();
     if (pe == null) return;
     
-    Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+    final Object bo = getBusinessObject(pe);
     if (bo instanceof Activity == false) return;
     final Activity activity = (Activity) bo;
     
@@ -176,11 +182,7 @@ public class PropertyMultiInstanceSection extends ActivitiPropertySection implem
     TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
     ActivitiUiUtil.runModelChange(new Runnable() {
       public void run() {
-        Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-        if (bo == null) {
-          return;
-        }
-        getMultiInstanceDef(activity).setIsSequential(sequential);
+        getMultiInstanceDef(activity).setSequential(sequential);
       }
     }, editingDomain, "Model Update");
 	}
@@ -194,7 +196,7 @@ public class PropertyMultiInstanceSection extends ActivitiPropertySection implem
 		  PictogramElement pe = getSelectedPictogramElement();
       if (pe == null) return;
       
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       if (bo instanceof Activity == false) return;
       final Activity activity = (Activity) bo;
       
@@ -225,7 +227,7 @@ public class PropertyMultiInstanceSection extends ActivitiPropertySection implem
 	
 	private MultiInstanceLoopCharacteristics getMultiInstanceDef(Activity activity) {
 	  if(activity.getLoopCharacteristics() == null) {
-	    activity.setLoopCharacteristics(Bpmn2Factory.eINSTANCE.createMultiInstanceLoopCharacteristics());
+	    activity.setLoopCharacteristics(new MultiInstanceLoopCharacteristics());
 	  }
 	  return (MultiInstanceLoopCharacteristics) activity.getLoopCharacteristics();
 	}

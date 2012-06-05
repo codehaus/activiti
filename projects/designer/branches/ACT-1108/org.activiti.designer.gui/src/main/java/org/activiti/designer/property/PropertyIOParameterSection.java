@@ -2,12 +2,11 @@ package org.activiti.designer.property;
 
 import java.util.List;
 
+import org.activiti.designer.bpmn2.model.CallActivity;
+import org.activiti.designer.bpmn2.model.IOParameter;
 import org.activiti.designer.property.ui.IOParameterEditor;
 import org.activiti.designer.util.property.ActivitiPropertySection;
-import org.eclipse.bpmn2.CallActivity;
-import org.eclipse.bpmn2.IOParameter;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.layout.FormAttachment;
@@ -78,7 +77,7 @@ public class PropertyIOParameterSection extends ActivitiPropertySection implemen
     
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       if (bo == null)
         return;
       

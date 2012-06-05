@@ -15,10 +15,9 @@ package org.activiti.designer.export.bpmn20.export;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.MultiInstanceLoopCharacteristics;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.bpmn2.Activity;
-import org.eclipse.bpmn2.MultiInstanceLoopCharacteristics;
-import org.eclipse.emf.ecore.EObject;
 
 
 /**
@@ -26,7 +25,7 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class MultiInstanceExport implements ActivitiNamespaceConstants {
 
-  public static void createMultiInstance(EObject object, XMLStreamWriter xtw) throws Exception {
+  public static void createMultiInstance(Object object, XMLStreamWriter xtw) throws Exception {
     Activity activity = (Activity) object;
     if(activity.getLoopCharacteristics() == null) return;
     
@@ -39,31 +38,18 @@ public class MultiInstanceExport implements ActivitiNamespaceConstants {
     
 	    // start multiInstance element
 	    xtw.writeStartElement("multiInstanceLoopCharacteristics");
-	    xtw.writeAttribute("isSequential", "" + multiInstanceDef.isIsSequential());
-	    if(multiInstanceDef.getInputDataItem() != null && multiInstanceDef.getInputDataItem().contains("${")) {
+	    xtw.writeAttribute("isSequential", "" + multiInstanceDef.isSequential());
+	    if(StringUtils.isNotEmpty(multiInstanceDef.getInputDataItem())) {
 	      xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "collection", multiInstanceDef.getInputDataItem());
-	      if(multiInstanceDef.getElementVariable() != null && multiInstanceDef.getElementVariable().length() > 0) {
-	        xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "elementVariable", multiInstanceDef.getElementVariable());
-	      }
 	    }
+	    if(StringUtils.isNotEmpty(multiInstanceDef.getElementVariable())) {
+	    	xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "elementVariable", multiInstanceDef.getElementVariable());
+	    }
+	    
 	    if (StringUtils.isNotEmpty(multiInstanceDef.getLoopCardinality())) {
 	      xtw.writeStartElement("loopCardinality");
 	      xtw.writeCharacters(multiInstanceDef.getLoopCardinality());
 	      xtw.writeEndElement();
-	    }
-	    
-	    if (StringUtils.isNotEmpty(multiInstanceDef.getInputDataItem()) &&
-	            multiInstanceDef.getInputDataItem().contains("${") == false) {
-	      
-	      xtw.writeStartElement("loopDataInputRef");
-	      xtw.writeCharacters(multiInstanceDef.getInputDataItem());
-	      xtw.writeEndElement();
-	      
-	      if(StringUtils.isNotEmpty(multiInstanceDef.getElementVariable())) {
-	        xtw.writeStartElement("inputDataItem");
-	        xtw.writeAttribute("name", multiInstanceDef.getElementVariable());
-	        xtw.writeEndElement();
-	      }
 	    }
 	    
 	    if(StringUtils.isNotEmpty(multiInstanceDef.getCompletionCondition())) {

@@ -4,13 +4,13 @@ import java.util.Set;
 
 import org.activiti.designer.Activator;
 import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.CallActivity;
 import org.activiti.designer.eclipse.common.ActivitiBPMNDiagramConstants;
 import org.activiti.designer.eclipse.common.ActivitiPlugin;
 import org.activiti.designer.util.eclipse.ActivitiUiUtil;
 import org.activiti.designer.util.property.ActivitiPropertySection;
 import org.activiti.designer.util.workspace.ActivitiWorkspaceUtil;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.bpmn2.CallActivity;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -96,7 +95,7 @@ public class PropertyCallActivitySection extends ActivitiPropertySection impleme
 
     PictogramElement pe = getSelectedPictogramElement();
     if (pe != null) {
-      Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+      Object bo = getBusinessObject(pe);
       // the filter assured, that it is a EClass
       if (bo == null)
         return;
@@ -174,18 +173,6 @@ public class PropertyCallActivitySection extends ActivitiPropertySection impleme
         if (!openBpmnFile) {
           IFileEditorInput input = new FileEditorInput(activitiFile);
           PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(input, ActivitiBPMNDiagramConstants.DIAGRAM_EDITOR_ID);
-        } else {
-          boolean userChoice = MessageDialog
-                  .openConfirm(
-                          Display.getCurrent().getActiveShell(),
-                          "No diagram file found",
-                          String.format(
-                                  "The process with id '%s' was found in the workspace, but its matching diagram file with name '%s' appears to be missing. Would you like to open the BPMN 2.0 XML Editor instead?",
-                                  callElementText.getText(), activitiFilePath.lastSegment()));
-          if (userChoice) {
-            IFileEditorInput input = new FileEditorInput(resource);
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(input, ActivitiBPMNDiagramConstants.BPMN_EDITOR_ID);
-          }
         }
       } catch (PartInitException e) {
         String error = "Error while opening editor";
@@ -210,17 +197,13 @@ public class PropertyCallActivitySection extends ActivitiPropertySection impleme
     public void focusLost(final FocusEvent e) {
       PictogramElement pe = getSelectedPictogramElement();
       if (pe != null) {
-        Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(pe);
+        final Object bo = getBusinessObject(pe);
         if (bo instanceof CallActivity) {
           DiagramEditor diagramEditor = (DiagramEditor) getDiagramEditor();
           TransactionalEditingDomain editingDomain = diagramEditor.getEditingDomain();
           ActivitiUiUtil.runModelChange(new Runnable() {
 
             public void run() {
-              Object bo = Graphiti.getLinkService().getBusinessObjectForLinkedPictogramElement(getSelectedPictogramElement());
-              if (bo == null) {
-                return;
-              }
               String calledElement = callElementText.getText();
               CallActivity callActivity = (CallActivity) bo;
               callActivity.setCalledElement(calledElement);

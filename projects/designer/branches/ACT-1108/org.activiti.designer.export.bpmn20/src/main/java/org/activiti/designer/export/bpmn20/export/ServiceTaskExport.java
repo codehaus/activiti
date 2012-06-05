@@ -15,37 +15,35 @@ package org.activiti.designer.export.bpmn20.export;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.activiti.designer.eclipse.extension.ExtensionConstants;
-import org.eclipse.bpmn2.BoundaryEvent;
-import org.eclipse.bpmn2.CustomProperty;
-import org.eclipse.bpmn2.FieldExtension;
-import org.eclipse.bpmn2.ServiceTask;
-import org.eclipse.emf.ecore.EObject;
-
+import org.activiti.designer.bpmn2.model.CustomProperty;
+import org.activiti.designer.bpmn2.model.FieldExtension;
+import org.activiti.designer.bpmn2.model.ServiceTask;
+import org.activiti.designer.util.eclipse.ExtensionConstants;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Tijs Rademakers
  */
 public class ServiceTaskExport implements ActivitiNamespaceConstants {
 
-  public static void createServiceTask(EObject object, XMLStreamWriter xtw) throws Exception {
+  public static void createServiceTask(Object object, XMLStreamWriter xtw) throws Exception {
     ServiceTask serviceTask = (ServiceTask) object;
     // start ServiceTask element
     xtw.writeStartElement("serviceTask");
     xtw.writeAttribute("id", serviceTask.getId());
-    if (serviceTask.getName() != null) {
+    if (StringUtils.isNotEmpty(serviceTask.getName())) {
       xtw.writeAttribute("name", serviceTask.getName());
     }
-    DefaultFlowExport.createDefaultFlow(object, xtw);
-    AsyncActivityExport.createDefaultFlow(object, xtw);
+    DefaultFlowExport.createDefaultFlow(serviceTask, xtw);
+    AsyncActivityExport.createAsyncAttribute(serviceTask, xtw);
     ImplementationValueExport.writeImplementationValue(xtw, EXECUTION_LISTENER, serviceTask.getImplementationType(), serviceTask.getImplementation(), true);
 
-    if (serviceTask.getResultVariableName() != null && serviceTask.getResultVariableName().length() > 0) {
+    if (StringUtils.isNotEmpty(serviceTask.getResultVariableName())) {
       xtw.writeAttribute(ACTIVITI_EXTENSIONS_PREFIX, ACTIVITI_EXTENSIONS_NAMESPACE, "resultVariableName", serviceTask.getResultVariableName());
     }
 
     boolean executionListenersAvailable = false;
-    if (serviceTask.getActivitiListeners() != null && serviceTask.getActivitiListeners().size() > 0) {
+    if (serviceTask.getExecutionListeners() != null && serviceTask.getExecutionListeners().size() > 0) {
     	executionListenersAvailable = true;
     }
     
@@ -53,7 +51,7 @@ public class ServiceTaskExport implements ActivitiNamespaceConstants {
     if(serviceTask.getFieldExtensions() != null && serviceTask.getFieldExtensions().size() > 0) {
     	
     	for (FieldExtension fieldExtension : serviceTask.getFieldExtensions()) {
-        if(fieldExtension.getFieldname() != null && fieldExtension.getFieldname().length() > 0 &&
+        if(fieldExtension.getFieldName() != null && fieldExtension.getFieldName().length() > 0 &&
                 fieldExtension.getExpression() != null && fieldExtension.getExpression().length() > 0) {
         	
         	fieldExtensionsAvailable = true;
@@ -66,7 +64,7 @@ public class ServiceTaskExport implements ActivitiNamespaceConstants {
     	xtw.writeStartElement("extensionElements");
     }
     
-    ExtensionListenerExport.createExtensionListenerXML(serviceTask.getActivitiListeners(), false, EXECUTION_LISTENER, xtw);
+    ExecutionListenerExport.createExecutionListenerXML(serviceTask.getExecutionListeners(), false, xtw);
     
     FieldExtensionsExport.writeFieldExtensions(xtw, serviceTask.getFieldExtensions(), false);
     
@@ -103,11 +101,5 @@ public class ServiceTaskExport implements ActivitiNamespaceConstants {
     
     // end ServiceTask element
     xtw.writeEndElement();
-    
-    if(serviceTask.getBoundaryEventRefs().size() > 0) {
-    	for(BoundaryEvent event : serviceTask.getBoundaryEventRefs()) {
-    		BoundaryEventExport.createBoundaryEvent(event, xtw);
-    	}
-    }
   }
 }
