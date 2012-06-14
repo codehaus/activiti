@@ -80,7 +80,7 @@ public class AddTextAnnotationFeature extends AbstractAddShapeFeature {
 		link(textShape, annotation);
 		
 		peCreateService.createChopboxAnchor(containerShape);
-		
+			
 		layoutPictogramElement(containerShape);
 		
 		return containerShape;

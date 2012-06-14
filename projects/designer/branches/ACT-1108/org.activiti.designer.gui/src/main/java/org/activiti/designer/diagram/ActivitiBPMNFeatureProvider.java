@@ -1,6 +1,7 @@
 package org.activiti.designer.diagram;
 
 import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.Association;
 import org.activiti.designer.bpmn2.model.BoundaryEvent;
 import org.activiti.designer.bpmn2.model.BusinessRuleTask;
 import org.activiti.designer.bpmn2.model.CallActivity;
@@ -35,6 +36,7 @@ import org.activiti.designer.bpmn2.model.UserTask;
 import org.activiti.designer.bpmn2.model.alfresco.AlfrescoScriptTask;
 import org.activiti.designer.bpmn2.model.alfresco.AlfrescoStartEvent;
 import org.activiti.designer.bpmn2.model.alfresco.AlfrescoUserTask;
+import org.activiti.designer.features.AddAssociationFeature;
 import org.activiti.designer.features.AddBoundaryErrorFeature;
 import org.activiti.designer.features.AddBoundarySignalFeature;
 import org.activiti.designer.features.AddBoundaryTimerFeature;
@@ -68,6 +70,7 @@ import org.activiti.designer.features.AddUserTaskFeature;
 import org.activiti.designer.features.ChangeElementTypeFeature;
 import org.activiti.designer.features.ContainerResizeFeature;
 import org.activiti.designer.features.CopyFlowElementFeature;
+import org.activiti.designer.features.CreateAssociationFeature;
 import org.activiti.designer.features.CreateBoundaryErrorFeature;
 import org.activiti.designer.features.CreateBoundarySignalFeature;
 import org.activiti.designer.features.CreateBoundaryTimerFeature;
@@ -98,6 +101,7 @@ import org.activiti.designer.features.CreateTextAnnotationFeature;
 import org.activiti.designer.features.CreateTimerCatchingEventFeature;
 import org.activiti.designer.features.CreateTimerStartEventFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
+import org.activiti.designer.features.DeleteAssociationFeature;
 import org.activiti.designer.features.DeleteFlowElementFeature;
 import org.activiti.designer.features.DeleteLaneFeature;
 import org.activiti.designer.features.DeletePoolFeature;
@@ -193,6 +197,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 		  }
 		} else if (context.getNewObject() instanceof SequenceFlow) {
 		  return new AddSequenceFlowFeature(this);
+		} else if (context.getNewObject() instanceof Association) {
+		  return new AddAssociationFeature(this);
 		} else if (context.getNewObject() instanceof UserTask) {
 		  if(context.getNewObject() instanceof AlfrescoUserTask) {
 		    return new AddAlfrescoUserTaskFeature(this);
@@ -325,7 +331,9 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 	
 	@Override
 	public ICreateConnectionFeature[] getCreateConnectionFeatures() {
-		return new ICreateConnectionFeature[] { new CreateSequenceFlowFeature(this) };
+	  
+		return new ICreateConnectionFeature[] { new CreateSequenceFlowFeature(this)
+		                                      , new CreateAssociationFeature(this) };
 	}
 	
 	@Override
@@ -419,7 +427,8 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
   @Override
 	public ICustomFeature[] getCustomFeatures(ICustomContext context) {
 		return new ICustomFeature[] { new SaveBpmnModelFeature(this), 
-				new DeleteSequenceFlowFeature(this), new DeletePoolFeature(this), new ChangeElementTypeFeature(this) };
+				new DeleteSequenceFlowFeature(this), new DeletePoolFeature(this), new ChangeElementTypeFeature(this)
+		  , new DeleteAssociationFeature(this) };
 	}
 
 }

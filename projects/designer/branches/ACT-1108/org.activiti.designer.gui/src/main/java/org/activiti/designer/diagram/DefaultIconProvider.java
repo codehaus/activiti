@@ -14,6 +14,7 @@ package org.activiti.designer.diagram;
 
 import org.activiti.designer.Activator;
 import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.Association;
 import org.activiti.designer.bpmn2.model.BoundaryEvent;
 import org.activiti.designer.bpmn2.model.BusinessRuleTask;
 import org.activiti.designer.bpmn2.model.CallActivity;
@@ -166,6 +167,8 @@ public class DefaultIconProvider implements IconProvider {
       }
     } else if (context instanceof TextAnnotation) {
     	result = Activator.getImage(PluginImage.IMG_TEXT_ANNOTATION);
+    } else if (context instanceof Association) {
+      result = Activator.getImage(PluginImage.IMG_ASSOCIATION);
     } else {
       throw new IllegalArgumentException("This provider has no Icon for the provided context");
     }

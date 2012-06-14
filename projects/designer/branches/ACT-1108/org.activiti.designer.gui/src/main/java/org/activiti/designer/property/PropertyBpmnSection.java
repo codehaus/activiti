@@ -18,6 +18,7 @@ package org.activiti.designer.property;
 import java.util.List;
 
 import org.activiti.designer.bpmn2.model.Activity;
+import org.activiti.designer.bpmn2.model.Artifact;
 import org.activiti.designer.bpmn2.model.BaseElement;
 import org.activiti.designer.bpmn2.model.ExclusiveGateway;
 import org.activiti.designer.bpmn2.model.FlowElement;
@@ -130,10 +131,10 @@ public class PropertyBpmnSection extends ActivitiPropertySection implements ITab
         name = ((Pool) bo).getName();
       } else if (bo instanceof Lane) {
         name = ((Lane) bo).getName();
-      } else if (bo instanceof TextAnnotation) {
-    	// text annotations do not have a name
-    	nameText.setVisible(false);
-    	nameLabel.setVisible(false);
+      } else if (bo instanceof Artifact) {
+        // text annotations do not have a name
+        nameText.setVisible(false);
+        nameLabel.setVisible(false);
       }
       String id = ((BaseElement) bo).getId();
       nameText.setText(name == null ? "" : name);

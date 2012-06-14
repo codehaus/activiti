@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.activiti.designer.PluginImage;
+import org.activiti.designer.bpmn2.model.Association;
 import org.activiti.designer.bpmn2.model.BusinessRuleTask;
 import org.activiti.designer.bpmn2.model.CallActivity;
 import org.activiti.designer.bpmn2.model.EventGateway;
@@ -62,6 +63,7 @@ import org.activiti.designer.features.CreateTextAnnotationFeature;
 import org.activiti.designer.features.CreateTimerCatchingEventFeature;
 import org.activiti.designer.features.CreateTimerStartEventFeature;
 import org.activiti.designer.features.CreateUserTaskFeature;
+import org.activiti.designer.features.DeleteAssociationFeature;
 import org.activiti.designer.features.DeletePoolFeature;
 import org.activiti.designer.features.DeleteSequenceFlowFeature;
 import org.activiti.designer.integration.palette.PaletteEntry;
@@ -385,6 +387,11 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
           subMenuDelete.setText("Delete sequence flow"); //$NON-NLS-1$
           subMenuDelete.setSubmenu(false);
           menuList.add(subMenuDelete);
+        } else if (object instanceof Association) {
+          final ContextMenuEntry subMenuDelete = new ContextMenuEntry(new DeleteAssociationFeature(getFeatureProvider()), context);
+          subMenuDelete.setText(subMenuDelete.getFeature().getDescription());
+          subMenuDelete.setSubmenu(false);
+          menuList.add(subMenuDelete);
         } else if (object instanceof Pool) {
           ContextMenuEntry subMenuDelete = new ContextMenuEntry(new DeletePoolFeature(getFeatureProvider()), context);
           subMenuDelete.setText("Delete pool"); //$NON-NLS-1$
@@ -432,6 +439,8 @@ public class ActivitiToolBehaviorProvider extends DefaultToolBehaviorProvider {
     	
       for (IToolEntry toolEntry : toolEntries) {
         if ("sequenceflow".equalsIgnoreCase(toolEntry.getLabel())) {
+          connectionCompartmentEntry.getToolEntries().add(toolEntry);
+        } else if ("association".equalsIgnoreCase(toolEntry.getLabel())) {
           connectionCompartmentEntry.getToolEntries().add(toolEntry);
         } else if ("startevent".equalsIgnoreCase(toolEntry.getLabel())) {
           eventCompartmentEntry.getToolEntries().add(toolEntry);

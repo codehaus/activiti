@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.activiti.designer.bpmn2.model.Activity;
 import org.activiti.designer.bpmn2.model.Artifact;
+import org.activiti.designer.bpmn2.model.Association;
 import org.activiti.designer.bpmn2.model.BaseElement;
 import org.activiti.designer.bpmn2.model.BoundaryEvent;
 import org.activiti.designer.bpmn2.model.BusinessRuleTask;
@@ -309,6 +310,9 @@ public class BPMN20ExportMarshaller implements ActivitiNamespaceConstants {
     } else if (object instanceof SequenceFlow) {
       SequenceFlowExport.createSequenceFlow(object, xtw);
 
+    } else if (object instanceof Association) { 
+      AssociationExport.createAssociation(object, xtw);
+      
     } else if (object instanceof UserTask) {
       UserTaskExport.createUserTask(object, xtw);
 

@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.activiti.designer.bpmn2.model.ActivitiListener;
 import org.activiti.designer.bpmn2.model.Activity;
 import org.activiti.designer.bpmn2.model.Artifact;
+import org.activiti.designer.bpmn2.model.AssociationDirection;
 import org.activiti.designer.bpmn2.model.BoundaryEvent;
 import org.activiti.designer.bpmn2.model.BusinessRuleTask;
 import org.activiti.designer.bpmn2.model.CallActivity;
@@ -84,6 +85,7 @@ public class BpmnParser {
 
 	public boolean bpmdiInfoFound;
 	public List<SequenceFlowModel> sequenceFlowList = new ArrayList<SequenceFlowModel>();
+	public List<AssociationModel> associationModels = new ArrayList<AssociationModel>();
 	private List<BoundaryEventModel> boundaryList = new ArrayList<BoundaryEventModel>();
 	public Map<String, List<GraphicInfo>> flowLocationMap = new HashMap<String, List<GraphicInfo>>();
 
@@ -345,7 +347,15 @@ public class BpmnParser {
 							&& "textAnnotation".equalsIgnoreCase(xtr.getLocalName())) {
 						currentArtifact = parseTextAnnotation(xtr);
 					} else if (xtr.isStartElement()
-							&& "BPMNShape".equalsIgnoreCase(xtr.getLocalName())) {
+					        && "association".equalsIgnoreCase(xtr.getLocalName())) {
+					  
+					  final AssociationModel associationModel = parseAssociation(xtr);
+					  associationModel.parentProcess = activeProcess;
+					  
+					  associationModels.add(associationModel);
+					  
+				  } else if (xtr.isStartElement()
+					        && "BPMNShape".equalsIgnoreCase(xtr.getLocalName())) {
 						bpmdiInfoFound = true;
 						String id = xtr.getAttributeValue(null, "bpmnElement");
 						while (xtr.hasNext()) {
@@ -472,7 +482,7 @@ public class BpmnParser {
 		}
 	}
 
-	private boolean isInSubProcess(List<SubProcess> subProcessList) {
+  private boolean isInSubProcess(List<SubProcess> subProcessList) {
 		if (subProcessList.size() > 1) {
 			return true;
 		} else {
@@ -729,6 +739,23 @@ public class BpmnParser {
 		EventGateway eventGateway = new EventGateway();
 		return eventGateway;
 	}
+	
+  private AssociationModel parseAssociation(XMLStreamReader xtr) {
+    final AssociationModel association = new AssociationModel();
+    
+    association.id = xtr.getAttributeValue(null, "id");
+    association.sourceRef = xtr.getAttributeValue(null, "sourceRef");
+    association.targetRef = xtr.getAttributeValue(null, "targetRef");
+    
+    final String direction = xtr.getAttributeValue(null, "associationDirection");
+    for (final AssociationDirection oneDir : AssociationDirection.values()) {
+      if (oneDir.getValue().equalsIgnoreCase(direction)) {
+        association.associationDirection = oneDir;
+      }
+    }
+    
+    return association;
+  }
 	
 	private TextAnnotation parseTextAnnotation(XMLStreamReader xtr) throws XMLStreamException {
 		final TextAnnotation ta = new TextAnnotation();
