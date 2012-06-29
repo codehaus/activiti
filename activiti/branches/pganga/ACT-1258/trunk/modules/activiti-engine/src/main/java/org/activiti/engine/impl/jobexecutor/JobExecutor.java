@@ -24,162 +24,153 @@ import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.runtime.Job;
 
 /**
- * <p>
- * Interface to the work management component of activiti.
- * </p>
+ * <p>Interface to the work management component of activiti.</p>
  * 
- * <p>
- * This component is responsible for performing all background work ({@link Job
- * Jobs}) scheduled by activiti.
- * </p>
+ * <p>This component is responsible for performing all background work 
+ * ({@link Job Jobs}) scheduled by activiti.</p>
  * 
- * <p>
- * You should generally only have one of these per Activiti instance (process
- * engine) in a JVM. In clustered situations, you can have multiple of these
- * running against the same queue + pending job list.
- * </p>
+ * <p>You should generally only have one of these per Activiti instance (process 
+ * engine) in a JVM.
+ * In clustered situations, you can have multiple of these running against the
+ * same queue + pending job list.</p>
  * 
  * @author Daniel Meyer
  */
 public abstract class JobExecutor {
+  
+  private static Logger log = Logger.getLogger(JobExecutor.class.getName());
 
-	private static Logger log = Logger.getLogger(JobExecutor.class.getName());
+  protected String name = "JobExecutor["+getClass().getName()+"]";
+  protected CommandExecutor commandExecutor;
+  protected Command<AcquiredJobs> acquireJobsCmd;
+  protected AcquireJobsRunnable acquireJobsRunnable;
+  protected RejectedJobsHandler rejectedJobsHandler;
+  protected Thread jobAcquisitionThread;
+  
+  protected boolean isAutoActivate = false;
+  protected boolean isActive = false;
+  
+  protected int maxJobsPerAcquisition = 3;
+  protected int waitTimeInMillis = 5 * 1000;
+  protected String lockOwner = UUID.randomUUID().toString();
+  protected int lockTimeInMillis = 5 * 60 * 1000;
+      
+  public void start() {
+    if (isActive) {
+      return;
+    }
+    log.info("Starting up the JobExecutor["+getClass().getName()+"].");
+    ensureInitialization();    
+    startExecutingJobs();
+    isActive = true;
+  }
+  
+  public synchronized void shutdown() {
+    if (!isActive) {
+      return;
+    }
+    log.info("Shutting down the JobExecutor["+getClass().getName()+"].");
+    acquireJobsRunnable.stop();
+    stopExecutingJobs();
+    ensureCleanup();   
+    isActive = false;
+  }
+  
+  protected void ensureInitialization() { 
+    acquireJobsCmd = new AcquireJobsCmd(this);
+    acquireJobsRunnable = new AcquireJobsRunnable(this);  
+  }
+  
+  protected void ensureCleanup() {  
+    acquireJobsCmd = null;
+    acquireJobsRunnable = null;  
+  }
+  
+  public void jobWasAdded() {
+    if(isActive) {
+      acquireJobsRunnable.jobWasAdded();
+    }
+  }
+  
+  protected abstract void startExecutingJobs();
+  protected abstract void stopExecutingJobs(); 
+  protected abstract void executeJobs(List<String> jobIds);
+  
+  // getters and setters //////////////////////////////////////////////////////
 
-	protected String name = "JobExecutor[" + getClass().getName() + "]";
-	protected CommandExecutor commandExecutor;
-	protected Command<AcquiredJobs> acquireJobsCmd;
-	protected AcquireJobsRunnable acquireJobsRunnable;
-	protected RejectedJobsHandler rejectedJobsHandler;
+  public CommandExecutor getCommandExecutor() {
+    return commandExecutor;
+  }
 
-	protected boolean isAutoActivate = false;
-	protected boolean isActive = false;
+  public int getWaitTimeInMillis() {
+    return waitTimeInMillis;
+  }
 
-	protected int maxJobsPerAcquisition = 3;
-	protected int waitTimeInMillis = 5 * 1000;
-	protected String lockOwner = UUID.randomUUID().toString();
-	protected int lockTimeInMillis = 5 * 60 * 1000;
+  public void setWaitTimeInMillis(int waitTimeInMillis) {
+    this.waitTimeInMillis = waitTimeInMillis;
+  }
 
-	protected Thread jobAcquisitionThread;
+  public int getLockTimeInMillis() {
+    return lockTimeInMillis;
+  }
 
-	public void start() {
-		if (isActive) {
-			return;
-		}
-		log.info("Starting up the JobExecutor[" + getClass().getName() + "].");
-		ensureInitialization();
-		startExecutingJobs();
-		isActive = true;
-	}
+  public void setLockTimeInMillis(int lockTimeInMillis) {
+    this.lockTimeInMillis = lockTimeInMillis;
+  }
 
-	public synchronized void shutdown() {
-		if (!isActive) {
-			return;
-		}
-		log.info("Shutting down the JobExecutor[" + getClass().getName() + "].");
-		acquireJobsRunnable.stop();
-		stopExecutingJobs();
-		ensureCleanup();
-		isActive = false;
-	}
+  public String getLockOwner() {
+    return lockOwner;
+  }
 
-	protected void ensureInitialization() {
-		acquireJobsCmd = new AcquireJobsCmd(this);
-		acquireJobsRunnable = new AcquireJobsRunnable(this);
-	}
+  public void setLockOwner(String lockOwner) {
+    this.lockOwner = lockOwner;
+  }
 
-	protected void ensureCleanup() {
-		acquireJobsCmd = null;
-		acquireJobsRunnable = null;
-	}
+  public boolean isAutoActivate() {
+    return isAutoActivate;
+  }
 
-	public void jobWasAdded() {
-		if (isActive) {
-			acquireJobsRunnable.jobWasAdded();
-		}
-	}
+  public void setCommandExecutor(CommandExecutor commandExecutor) {
+    this.commandExecutor = commandExecutor;
+  }
 
-	protected abstract void startExecutingJobs();
+  public void setAutoActivate(boolean isAutoActivate) {
+    this.isAutoActivate = isAutoActivate;
+  }
 
-	protected abstract void stopExecutingJobs();
+  public int getMaxJobsPerAcquisition() {
+    return maxJobsPerAcquisition;
+  }
+  
+  public void setMaxJobsPerAcquisition(int maxJobsPerAcquisition) {
+    this.maxJobsPerAcquisition = maxJobsPerAcquisition;
+  }
 
-	protected abstract void executeJobs(List<String> jobIds);
-
-	// getters and setters
-	// //////////////////////////////////////////////////////
-
-	public CommandExecutor getCommandExecutor() {
-		return commandExecutor;
-	}
-
-	public int getWaitTimeInMillis() {
-		return waitTimeInMillis;
-	}
-
-	public void setWaitTimeInMillis(int waitTimeInMillis) {
-		this.waitTimeInMillis = waitTimeInMillis;
-	}
-
-	public int getLockTimeInMillis() {
-		return lockTimeInMillis;
-	}
-
-	public void setLockTimeInMillis(int lockTimeInMillis) {
-		this.lockTimeInMillis = lockTimeInMillis;
-	}
-
-	public String getLockOwner() {
-		return lockOwner;
-	}
-
-	public void setLockOwner(String lockOwner) {
-		this.lockOwner = lockOwner;
-	}
-
-	public boolean isAutoActivate() {
-		return isAutoActivate;
-	}
-
-	public void setCommandExecutor(CommandExecutor commandExecutor) {
-		this.commandExecutor = commandExecutor;
-	}
-
-	public void setAutoActivate(boolean isAutoActivate) {
-		this.isAutoActivate = isAutoActivate;
-	}
-
-	public int getMaxJobsPerAcquisition() {
-		return maxJobsPerAcquisition;
-	}
-
-	public void setMaxJobsPerAcquisition(int maxJobsPerAcquisition) {
-		this.maxJobsPerAcquisition = maxJobsPerAcquisition;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Command<AcquiredJobs> getAcquireJobsCmd() {
-		return acquireJobsCmd;
-	}
-
-	public void setAcquireJobsCmd(Command<AcquiredJobs> acquireJobsCmd) {
-		this.acquireJobsCmd = acquireJobsCmd;
-	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public RejectedJobsHandler getRejectedJobsHandler() {
-		return rejectedJobsHandler;
-	}
-
-	public void setRejectedJobsHandler(RejectedJobsHandler rejectedJobsHandler) {
-		this.rejectedJobsHandler = rejectedJobsHandler;
-	}
-
-	protected void startJobAcquisitionThread() {
+  public String getName() {
+    return name;
+  }
+  
+  public Command<AcquiredJobs> getAcquireJobsCmd() {
+    return acquireJobsCmd;
+  }
+  
+  public void setAcquireJobsCmd(Command<AcquiredJobs> acquireJobsCmd) {
+    this.acquireJobsCmd = acquireJobsCmd;
+  }
+    
+  public boolean isActive() {
+    return isActive;
+  }
+  
+  public RejectedJobsHandler getRejectedJobsHandler() {
+    return rejectedJobsHandler;
+  }
+    
+  public void setRejectedJobsHandler(RejectedJobsHandler rejectedJobsHandler) {
+    this.rejectedJobsHandler = rejectedJobsHandler;
+  }
+  
+  protected void startJobAcquisitionThread() {
 		if (jobAcquisitionThread == null) {
 			jobAcquisitionThread = new Thread(acquireJobsRunnable);
 			jobAcquisitionThread.start();
@@ -194,9 +185,7 @@ public abstract class JobExecutor {
 					Level.WARNING,
 					"Interrupted while waiting for the job Acquisition thread to terminate",
 					e);
-		}
-		
+		}	
 		jobAcquisitionThread = null;
 	}
-
 }
