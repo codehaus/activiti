@@ -246,6 +246,28 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
     assertNull(query.singleResult());
   }
   
+  public void testQueryByAssigneeIn() {		
+	TaskQuery query = taskService.createTaskQuery().taskAssigneeIn(Arrays.asList("gonzo"));
+	assertEquals(1, query.count());
+	assertEquals(1, query.list().size());
+	assertNotNull(query.singleResult());
+
+	// assign 6 tasks to kermit
+	List<Task> tasks = taskService.createTaskQuery().taskUnassigned().list();
+	assertEquals(11, tasks.size());// from test data
+	for (int i = 0; i < 6; ++i) {
+		taskService.setAssignee(tasks.get(i).getId(), "kermit");
+	}
+
+	query = taskService.createTaskQuery().taskAssigneeIn(Arrays.asList("kermit"));
+	assertEquals(6, query.count());
+	assertEquals(6, query.list().size());
+
+	query = taskService.createTaskQuery().taskAssigneeIn(Arrays.asList("kermit", "gonzo"));
+	assertEquals(7, query.count());
+	assertEquals(7, query.list().size());
+  }
+  
   public void testQueryByNullAssignee() {
     try {
       taskService.createTaskQuery().taskAssignee(null).list();

@@ -59,6 +59,11 @@ public interface TaskQuery extends Query<TaskQuery, Task>{
   /** Only select tasks which are assigned to the given user. */
   TaskQuery taskAssignee(String assignee);
   
+  /**
+   * Only select tasks for which the assignees are one of the users passed in.
+   */
+  TaskQuery taskAssigneeIn(List<String> assignees);
+  
   /** Only select tasks for which the given user is the owner. */
   TaskQuery taskOwner(String owner);
   

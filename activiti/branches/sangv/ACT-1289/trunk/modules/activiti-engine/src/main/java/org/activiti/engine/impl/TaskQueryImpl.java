@@ -44,6 +44,7 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
   protected Integer minPriority;
   protected Integer maxPriority;
   protected String assignee;
+  protected List<String> assignees;
   protected String involvedUser;
   protected String owner;
   protected boolean unassigned = false;
@@ -145,6 +146,18 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
       throw new ActivitiException("Assignee is null");
     }
     this.assignee = assignee;
+    return this;
+  }
+  
+  public TaskQuery taskAssigneeIn(List<String> assignees) {
+    if(assignees == null) {
+      throw new ActivitiException("Assignee list is null");
+    }
+    if(assignees.size()== 0) {
+      throw new ActivitiException("Assignee list is empty");
+    }
+    
+    this.assignees = assignees;
     return this;
   }
   
@@ -488,4 +501,12 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
   public String getProcessInstanceBusinessKey() {
     return processInstanceBusinessKey;
   }
+
+public List<String> getAssignees() {
+	return assignees;
+}
+
+public void setAssignees(List<String> assignees) {
+	this.assignees = assignees;
+}
 }

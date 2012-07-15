@@ -153,6 +153,13 @@
       <if test="assignee != null">
         and T.ASSIGNEE_ = #{assignee}
       </if>
+      <if test="assignees != null &amp;&amp; assignees.size() &gt; 0">
+        and T.ASSIGNEE_ IN
+        <foreach item="assignee" index="index" collection="assignees" 
+                 open="(" separator="," close=")">
+          #{assignee}
+        </foreach>
+      </if>
       <if test="owner != null">
         and T.OWNER_ = #{owner}
       </if>
