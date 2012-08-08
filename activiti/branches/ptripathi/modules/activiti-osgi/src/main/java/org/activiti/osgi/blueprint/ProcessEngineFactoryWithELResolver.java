@@ -22,6 +22,7 @@ import org.activiti.osgi.OsgiScriptingEngines;
 public class ProcessEngineFactoryWithELResolver extends ProcessEngineFactory {
 
     private BlueprintELResolver blueprintELResolver;
+    private BlueprintContextELResolver blueprintContextELResolver;
 
     @Override
     public void init() throws Exception {
@@ -44,6 +45,9 @@ public class ProcessEngineFactoryWithELResolver extends ProcessEngineFactory {
       protected ELResolver createElResolver(VariableScope variableScope) {
         CompositeELResolver compositeElResolver = new CompositeELResolver();
         compositeElResolver.add(new VariableScopeElResolver(variableScope));
+        if (blueprintContextELResolver != null) {
+        	compositeElResolver.add(blueprintContextELResolver);
+        }
         compositeElResolver.add(blueprintELResolver);
         compositeElResolver.add(new ArrayELResolver());
         compositeElResolver.add(new ListELResolver());
@@ -54,5 +58,10 @@ public class ProcessEngineFactoryWithELResolver extends ProcessEngineFactory {
     
     public void setBlueprintELResolver(BlueprintELResolver blueprintELResolver) {
       this.blueprintELResolver = blueprintELResolver;
+    }
+    
+    public void setBlueprintContextELResolver(
+        BlueprintContextELResolver blueprintContextELResolver) {
+        this.blueprintContextELResolver = blueprintContextELResolver;
     }
 }
