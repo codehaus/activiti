@@ -179,6 +179,25 @@ public interface RuntimeService {
    * <p>Signals the process engine that a message is received and starts a new 
    * {@link ProcessInstance}.</p>
    * 
+   * See {@link #startProcessInstanceByMessage(String, Map)}. This method allows 
+   * specifying a business key.
+   *  
+   * @param messageName
+   *          the 'name' of the message as specified as an attribute on the
+   *          bpmn20 {@code <message name="messageName" />} element.
+   * @param businessKey
+   *          the business key which is added to the started process instance 
+   * 
+   * @throws ActivitiExeception if no subscription to a message with the given name exists
+   * 
+   * @since 5.10
+   */
+  ProcessInstance startProcessInstanceByMessage(String messageName, String businessKey);
+  
+  /**
+   * <p>Signals the process engine that a message is received and starts a new 
+   * {@link ProcessInstance}.</p>
+   * 
    * See {@link #startProcessInstanceByMessage(String)}. In addition, this method allows 
    * specifying a the payload of the message as a map of process variables.
    *  
@@ -418,5 +437,37 @@ public interface RuntimeService {
    *          has not subscribed to the signal
    */
   void signalEventReceived(String signalName, String executionId, Map<String, Object> processVariables);
+
+  /**
+   * Notifies the process engine that a message event with name 'messageName' has
+   * been received and has been correlated to an execution with id 'executionId'. 
+   * 
+   * The waiting execution is notified synchronously.
+   * 
+   * @param messageName
+   *          the name of the message event
+   * @param executionId
+   *          the id of the execution to deliver the message to
+   * @throws ActivitiException if no such execution exists or if the execution 
+   *          has not subscribed to the signal
+   */
+  void messageEventReceived(String messageName, String executionId);
+  
+  /**
+   * Notifies the process engine that a message event with the name 'messageName' has
+   * been received and has been correlated to an execution with id 'executionId'. 
+   * 
+   * The waiting execution is notified synchronously.
+   * 
+   * @param messageName
+   *          the name of the message event
+   * @param executionId
+   *          the id of the execution to deliver the message to
+   * @param processVariables
+   *          a map of variables added to the execution
+   * @throws ActivitiException if no such execution exists or if the execution 
+   *          has not subscribed to the signal
+   */
+  void messageEventReceived(String messageName, String executionId, Map<String, Object> processVariables);
    
 }

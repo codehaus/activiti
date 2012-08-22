@@ -12,8 +12,11 @@
  */
 package org.activiti.engine.impl.bpmn.behavior;
 
-import org.activiti.engine.impl.bpmn.helper.ScopeUtil;
+import java.util.Collections;
+
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
 
 /**
@@ -27,16 +30,24 @@ import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
  */
 public class EventSubProcessStartEventActivityBehavior extends NoneStartEventActivityBehavior {
   
-  // TODO: non-interrupting not yet supported
+  // default = true
   protected boolean isInterrupting = true;
+  protected String activityId;
+  
+  public EventSubProcessStartEventActivityBehavior(String activityId) {
+    this.activityId = activityId;
+  }
   
   @Override
   public void execute(ActivityExecution execution) throws Exception {
+
+    InterpretableExecution interpretableExecution = (InterpretableExecution) execution;
+    ActivityImpl activity = interpretableExecution.getProcessDefinition().findActivity(activityId);
     
     ActivityExecution outgoingExecution = execution;
     
     if(isInterrupting) {
-      ScopeUtil.destroyScope(execution, "interrupting event subprocess started");
+      execution.destroyScope("Event subprocess triggered using activity "+ activityId);
     } else{ 
       outgoingExecution = execution.createExecution();
       outgoingExecution.setActive(true);
@@ -44,7 +55,19 @@ public class EventSubProcessStartEventActivityBehavior extends NoneStartEventAct
       outgoingExecution.setConcurrent(true);
     }
     
-    super.execute(outgoingExecution);
+    // set the outgoing execution to this activity
+    ((InterpretableExecution)outgoingExecution).setActivity(activity);
+    
+    // continue execution
+    outgoingExecution.takeAll(activity.getOutgoingTransitions(), Collections.EMPTY_LIST);
+  }
+
+  public void setInterrupting(boolean b) {
+    isInterrupting = b;
+  }
+  
+  public boolean isInterrupting() {
+    return isInterrupting;
   }
   
 }

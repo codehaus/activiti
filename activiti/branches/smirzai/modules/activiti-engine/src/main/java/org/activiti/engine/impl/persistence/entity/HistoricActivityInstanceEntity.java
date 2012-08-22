@@ -24,11 +24,15 @@ import org.activiti.engine.history.HistoricActivityInstance;
  */
 public class HistoricActivityInstanceEntity extends HistoricScopeInstanceEntity implements HistoricActivityInstance {
 
+  private static final long serialVersionUID = 1L;
+  
   protected String activityId;
   protected String activityName;
   protected String activityType;
   protected String executionId;
   protected String assignee;
+  protected String taskId;
+  protected String calledProcessInstanceId;
   
   public Object getPersistentState() {
     Map<String, Object> persistentState = (Map<String, Object>) new HashMap<String, Object>();
@@ -80,4 +84,21 @@ public class HistoricActivityInstanceEntity extends HistoricScopeInstanceEntity 
   public void setAssignee(String assignee) {
     this.assignee = assignee;
   }
+
+  public String getTaskId() {
+    return taskId;
+  }
+  
+  public void setTaskId(String taskId) {
+    this.taskId = taskId;
+  }
+
+  public String getCalledProcessInstanceId() {
+    return calledProcessInstanceId;
+  }
+  
+  public void setCalledProcessInstanceId(String calledProcessInstanceId) {
+    this.calledProcessInstanceId = calledProcessInstanceId;
+  }
+
 }

@@ -18,6 +18,11 @@ import java.util.List;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.interceptor.CommandExecutor;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.ReadOnlyProcessDefinition;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.impl.util.IoUtil;
@@ -77,6 +82,126 @@ public class BpmnDeploymentTest extends PluggableActivitiTestCase {
     
     // Verify that nothing is deployed
     assertEquals(0, repositoryService.createDeploymentQuery().count());
+  }
+  
+  public void testDeploySameFileTwice() {
+    String bpmnResourceName = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testGetBpmnXmlFileThroughService.bpmn20.xml";
+    repositoryService.createDeployment().enableDuplicateFiltering().addClasspathResource(bpmnResourceName).name("twice").deploy();
+    
+    String deploymentId = repositoryService.createDeploymentQuery().singleResult().getId();
+    List<String> deploymentResources = repositoryService.getDeploymentResourceNames(deploymentId);
+    
+    // verify bpmn file name
+    assertEquals(1, deploymentResources.size());
+    assertEquals(bpmnResourceName, deploymentResources.get(0));
+    
+    repositoryService.createDeployment().enableDuplicateFiltering().addClasspathResource(bpmnResourceName).name("twice").deploy();
+    List<org.activiti.engine.repository.Deployment> deploymentList = repositoryService.createDeploymentQuery().list();
+    assertEquals(1, deploymentList.size());
+    
+    repositoryService.deleteDeployment(deploymentId);
+  }
+  
+  public void FAILING_testDeployTwoProcessesWithDuplicateIdAtTheSameTime() {
+    String bpmnResourceName = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testGetBpmnXmlFileThroughService.bpmn20.xml";
+    String bpmnResourceName2 = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testGetBpmnXmlFileThroughService2.bpmn20.xml";
+    repositoryService.createDeployment().enableDuplicateFiltering()
+            .addClasspathResource(bpmnResourceName)
+            .addClasspathResource(bpmnResourceName2)
+            .name("duplicateAtTheSameTime").deploy();
+    
+    String deploymentId = repositoryService.createDeploymentQuery().singleResult().getId();
+    List<String> deploymentResources = repositoryService.getDeploymentResourceNames(deploymentId);
+    
+    // verify bpmn file names
+    assertEquals(2, deploymentResources.size());
+    assertEquals(bpmnResourceName, deploymentResources.get(0));
+    assertEquals(bpmnResourceName2, deploymentResources.get(1));
+    
+    // FAILS WITHOUT CONSTRAINT!
+    try {
+      ProcessDefinition pd = repositoryService.createProcessDefinitionQuery().processDefinitionKey("emptyProcess").latestVersion().singleResult();
+      runtimeService.startProcessInstanceById(pd.getId());
+      fail();
+    } catch (Exception e) {
+      assertTextPresent(e.getMessage(), "Query return 2 results instead of max 1");
+    }
+
+    // FAILS WITHOUT CONSTRAINT TOO!
+    try {
+      runtimeService.startProcessInstanceByKey("emptyProcess");
+      fail();
+    } catch (Exception e) {
+      assertTextPresent(e.getMessage(), "Expected one result (or null) to be returned by selectOne(), but found: 2");
+    }
+    
+    repositoryService.deleteDeployment(deploymentId);
+  }
+  
+  public void testDeployTwoProcessesWithDuplicateIdAtTheSameTime() {
+    try {
+      String bpmnResourceName = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testGetBpmnXmlFileThroughService.bpmn20.xml";
+      String bpmnResourceName2 = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testGetBpmnXmlFileThroughService2.bpmn20.xml";
+      repositoryService.createDeployment().enableDuplicateFiltering()
+              .addClasspathResource(bpmnResourceName)
+              .addClasspathResource(bpmnResourceName2)
+              .name("duplicateAtTheSameTime").deploy();
+      fail();
+    } catch (Exception e) {
+      // Verify that nothing is deployed
+      assertEquals(0, repositoryService.createDeploymentQuery().count());
+    }
+  }
+  
+  public void testDeployDifferentFiles() {
+    String bpmnResourceName = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testGetBpmnXmlFileThroughService.bpmn20.xml";
+    repositoryService.createDeployment().enableDuplicateFiltering().addClasspathResource(bpmnResourceName).name("twice").deploy();
+    
+    String deploymentId = repositoryService.createDeploymentQuery().singleResult().getId();
+    List<String> deploymentResources = repositoryService.getDeploymentResourceNames(deploymentId);
+    
+    // verify bpmn file name
+    assertEquals(1, deploymentResources.size());
+    assertEquals(bpmnResourceName, deploymentResources.get(0));
+    
+    bpmnResourceName = "org/activiti/engine/test/bpmn/deployment/BpmnDeploymentTest.testProcessDiagramResource.bpmn20.xml";
+    repositoryService.createDeployment().enableDuplicateFiltering().addClasspathResource(bpmnResourceName).name("twice").deploy();
+    List<org.activiti.engine.repository.Deployment> deploymentList = repositoryService.createDeploymentQuery().list();
+    assertEquals(2, deploymentList.size());
+    
+    for (org.activiti.engine.repository.Deployment deployment : deploymentList) {
+      repositoryService.deleteDeployment(deployment.getId());
+    }
+  }
+  
+  public void testDiagramCreationDisabled() {
+    // disable diagram generation
+    processEngineConfiguration.setCreateDiagramOnDeploy(false);
+
+    try {
+      repositoryService.createDeployment().addClasspathResource("org/activiti/engine/test/bpmn/parse/BpmnParseTest.testParseDiagramInterchangeElements.bpmn20.xml").deploy();
+
+      // Graphical information is not yet exposed publicly, so we need to do some plumbing
+      CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutorTxRequired();
+      ProcessDefinitionEntity processDefinitionEntity = commandExecutor.execute(new Command<ProcessDefinitionEntity>() {
+        public ProcessDefinitionEntity execute(CommandContext commandContext) {
+          return Context.getProcessEngineConfiguration()
+                        .getDeploymentCache()
+                        .findDeployedLatestProcessDefinitionByKey("myProcess");
+        }
+      });
+
+      assertNotNull(processDefinitionEntity);
+      assertEquals(7, processDefinitionEntity.getActivities().size());
+
+      // Check that no diagram has been created
+      List<String> resourceNames = repositoryService.getDeploymentResourceNames(processDefinitionEntity.getDeploymentId());
+      assertEquals(1, resourceNames.size());
+
+      repositoryService.deleteDeployment(repositoryService.createDeploymentQuery().singleResult().getId(), true);
+    } finally {
+      processEngineConfiguration.setCreateDiagramOnDeploy(true);
+    }
   }
 
   @Deployment(resources={

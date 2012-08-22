@@ -13,11 +13,15 @@
 
 package org.activiti.engine.test.history;
 
+import java.util.List;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
 import org.activiti.engine.test.Deployment;
 
 
@@ -98,40 +102,32 @@ public class HistoricActivityInstanceTest extends PluggableActivitiTestCase {
     
     assertEquals(0, historyService.createHistoricActivityInstanceQuery().executionId("nonExistingExecutionId").list().size());
     
-    if (processEngineConfiguration.getHistoryLevel()==ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
-      assertEquals(2, historyService.createHistoricActivityInstanceQuery().executionId(processInstance.getId()).list().size());
-    } else if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
-      assertEquals(1, historyService.createHistoricActivityInstanceQuery().executionId(processInstance.getId()).list().size());
+    if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
+      assertEquals(3, historyService.createHistoricActivityInstanceQuery().executionId(processInstance.getId()).list().size());
     } else {
       assertEquals(0, historyService.createHistoricActivityInstanceQuery().executionId(processInstance.getId()).list().size());
     }
 
     assertEquals(0, historyService.createHistoricActivityInstanceQuery().processInstanceId("nonExistingProcessInstanceId").list().size());
 
-    if (processEngineConfiguration.getHistoryLevel()==ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
-      assertEquals(2, historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstance.getId()).list().size());
-    } else if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
-      assertEquals(1, historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstance.getId()).list().size());
+    if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
+      assertEquals(3, historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstance.getId()).list().size());
     } else {
       assertEquals(0, historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstance.getId()).list().size());
     }
 
     assertEquals(0, historyService.createHistoricActivityInstanceQuery().processDefinitionId("nonExistingProcessDefinitionId").list().size());
 
-    if (processEngineConfiguration.getHistoryLevel()==ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
-      assertEquals(2, historyService.createHistoricActivityInstanceQuery().processDefinitionId(processInstance.getProcessDefinitionId()).list().size());
-    } else if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
-      assertEquals(1, historyService.createHistoricActivityInstanceQuery().processDefinitionId(processInstance.getProcessDefinitionId()).list().size());
+    if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
+      assertEquals(3, historyService.createHistoricActivityInstanceQuery().processDefinitionId(processInstance.getProcessDefinitionId()).list().size());
     } else {
       assertEquals(0, historyService.createHistoricActivityInstanceQuery().processDefinitionId(processInstance.getProcessDefinitionId()).list().size());
     }
     
     assertEquals(0, historyService.createHistoricActivityInstanceQuery().unfinished().list().size());
 
-    if (processEngineConfiguration.getHistoryLevel()==ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
-      assertEquals(2, historyService.createHistoricActivityInstanceQuery().finished().list().size());
-    } else if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
-      assertEquals(1, historyService.createHistoricActivityInstanceQuery().finished().list().size());
+    if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
+      assertEquals(3, historyService.createHistoricActivityInstanceQuery().finished().list().size());
     } else {
       assertEquals(0, historyService.createHistoricActivityInstanceQuery().finished().list().size());
     }
@@ -143,7 +139,36 @@ public class HistoricActivityInstanceTest extends PluggableActivitiTestCase {
   }
   
   @Deployment
-  public void testHistoricActivityInstanceAssignee() {    
+  public void testHistoricActivityInstanceForEventsQuery() {
+    ProcessInstance pi = runtimeService.startProcessInstanceByKey("eventProcess");
+    assertEquals(1, taskService.createTaskQuery().count()); 
+    runtimeService.signalEventReceived("signal");
+    assertProcessEnded(pi.getId());
+    
+    assertEquals(1, historyService.createHistoricActivityInstanceQuery().activityId("noop").list().size());
+    assertEquals(1, historyService.createHistoricActivityInstanceQuery().activityId("userTask").list().size());
+    assertEquals(1, historyService.createHistoricActivityInstanceQuery().activityId("intermediate-event").list().size());
+    assertEquals(1, historyService.createHistoricActivityInstanceQuery().activityId("start").list().size());
+    assertEquals(1, historyService.createHistoricActivityInstanceQuery().activityId("end").list().size());
+    
+    // TODO: Discuss if boundary events will occur in the log!
+//    assertEquals(1, historyService.createHistoricActivityInstanceQuery().activityId("boundaryEvent").list().size());
+
+    HistoricActivityInstance intermediateEvent = historyService.createHistoricActivityInstanceQuery().activityId("intermediate-event").singleResult();
+    assertNotNull(intermediateEvent.getStartTime());
+    assertNotNull(intermediateEvent.getEndTime());
+    
+    HistoricActivityInstance startEvent = historyService.createHistoricActivityInstanceQuery().activityId("start").singleResult();
+    assertNotNull(startEvent.getStartTime());
+    assertNotNull(startEvent.getEndTime());
+    
+    HistoricActivityInstance endEvent = historyService.createHistoricActivityInstanceQuery().activityId("end").singleResult();
+    assertNotNull(endEvent.getStartTime());
+    assertNotNull(endEvent.getEndTime());
+  }
+  
+  @Deployment
+  public void testHistoricActivityInstanceProperties() {    
     // Start process instance
     runtimeService.startProcessInstanceByKey("taskAssigneeProcess");
 
@@ -153,7 +178,26 @@ public class HistoricActivityInstanceTest extends PluggableActivitiTestCase {
       .activityId("theTask")
       .singleResult();
     
+    Task task = taskService.createTaskQuery().singleResult();
+    assertEquals(task.getId(), historicActivityInstance.getTaskId());
     assertEquals("kermit", historicActivityInstance.getAssignee());
+  }
+  
+  @Deployment(resources = {
+          "org/activiti/engine/test/history/calledProcess.bpmn20.xml",
+          "org/activiti/engine/test/history/HistoricActivityInstanceTest.testCallSimpleSubProcess.bpmn20.xml"
+        })
+  public void testHistoricActivityInstanceCalledProcessId() {    
+    runtimeService.startProcessInstanceByKey("callSimpleSubProcess");
+
+    HistoricActivityInstance historicActivityInstance = historyService
+      .createHistoricActivityInstanceQuery()
+      .activityId("callSubProcess")
+      .singleResult();
+    
+    HistoricProcessInstance oldInstance = historyService.createHistoricProcessInstanceQuery().processDefinitionKey("calledProcess").singleResult();
+    
+    assertEquals(oldInstance.getId(), historicActivityInstance.getCalledProcessInstanceId());
   }
   
   @Deployment
@@ -161,10 +205,8 @@ public class HistoricActivityInstanceTest extends PluggableActivitiTestCase {
     runtimeService.startProcessInstanceByKey("process");
 
     int expectedActivityInstances = -1;
-    if (processEngineConfiguration.getHistoryLevel()==ProcessEngineConfigurationImpl.HISTORYLEVEL_FULL) {
+    if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
       expectedActivityInstances = 2;
-    } else if (processEngineConfiguration.getHistoryLevel()>=ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY) {
-      expectedActivityInstances = 1;
     } else {
       expectedActivityInstances = 0;
     }

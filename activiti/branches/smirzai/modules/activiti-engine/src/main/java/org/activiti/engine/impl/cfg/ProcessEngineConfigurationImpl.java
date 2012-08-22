@@ -67,6 +67,7 @@ import org.activiti.engine.impl.delegate.DefaultDelegateInterceptor;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.event.CompensationEventHandler;
 import org.activiti.engine.impl.event.EventHandler;
+import org.activiti.engine.impl.event.MessageEventHandler;
 import org.activiti.engine.impl.event.SignalEventHandler;
 import org.activiti.engine.impl.form.AbstractFormType;
 import org.activiti.engine.impl.form.BooleanFormType;
@@ -108,6 +109,7 @@ import org.activiti.engine.impl.persistence.entity.GroupManager;
 import org.activiti.engine.impl.persistence.entity.HistoricActivityInstanceManager;
 import org.activiti.engine.impl.persistence.entity.HistoricDetailManager;
 import org.activiti.engine.impl.persistence.entity.HistoricProcessInstanceManager;
+import org.activiti.engine.impl.persistence.entity.HistoricProcessVariableManager;
 import org.activiti.engine.impl.persistence.entity.HistoricTaskInstanceManager;
 import org.activiti.engine.impl.persistence.entity.IdentityInfoManager;
 import org.activiti.engine.impl.persistence.entity.IdentityLinkManager;
@@ -159,8 +161,8 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * @author Tom Baeyens
  */
-public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfiguration {
-  
+public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfiguration {  
+
   private static Logger log = Logger.getLogger(ProcessEngineConfigurationImpl.class.getName());
   
   public static final String DB_SCHEMA_UPDATE_CREATE = "create";
@@ -168,10 +170,13 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
 
   public static final int HISTORYLEVEL_NONE = 0;
   public static final int HISTORYLEVEL_ACTIVITY = 1;
-  public static final int HISTORYLEVEL_AUDIT = 2;
-  public static final int HISTORYLEVEL_FULL = 3;
+  public static final int HISTORYLEVEL_VARIABLE = 2;
+  public static final int HISTORYLEVEL_AUDIT = 3;
+  public static final int HISTORYLEVEL_FULL = 4;
 
   public static final String DEFAULT_WS_SYNC_FACTORY = "org.activiti.engine.impl.webservice.CxfWebServiceClientFactory";
+  
+  public static final String DEFAULT_MYBATIS_MAPPING_FILE = "org/activiti/db/mapping/mappings.xml";
 
   // SERVICES /////////////////////////////////////////////////////////////////
 
@@ -281,6 +286,15 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
   protected FailedJobCommandFactory failedJobCommandFactory;
   
   protected String databaseTablePrefix = "";
+  
+  /**
+   * In some situations you want to set the schema to use for table checks / generation if the database metadata
+   * doesn't return that correctly, see https://jira.codehaus.org/browse/ACT-1220,
+   * https://jira.codehaus.org/browse/ACT-1062
+   */
+  protected String databaseSchema = null;
+  
+  protected boolean isCreateDiagramOnDeploy = true;
   
   // buildProcessEngine ///////////////////////////////////////////////////////
   
@@ -540,13 +554,17 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     if (sqlSessionFactory==null) {
       InputStream inputStream = null;
       try {
-        inputStream = ReflectUtil.getResourceAsStream("org/activiti/db/mapping/mappings.xml");
+        inputStream = getMyBatisXmlConfigurationSteam();
 
         // update the jdbc parameters to the configured ones...
         Environment environment = new Environment("default", transactionFactory, dataSource);
         Reader reader = new InputStreamReader(inputStream);
         Properties properties = new Properties();
         properties.put("prefix", databaseTablePrefix);
+        if(databaseType != null) {
+          properties.put("limitBefore" , DbSqlSessionFactory.databaseSpecificLimitBeforeStatements.get(databaseType));
+          properties.put("limitAfter" , DbSqlSessionFactory.databaseSpecificLimitAfterStatements.get(databaseType));
+        }
         XMLConfigBuilder parser = new XMLConfigBuilder(reader,"", properties);
         Configuration configuration = parser.getConfiguration();
         configuration.setEnvironment(environment);
@@ -563,6 +581,10 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     }
   }
   
+  protected InputStream getMyBatisXmlConfigurationSteam() {
+    return ReflectUtil.getResourceAsStream(DEFAULT_MYBATIS_MAPPING_FILE);
+  }
+
   // session factories ////////////////////////////////////////////////////////
   
   protected void initSessionFactories() {
@@ -576,6 +598,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       dbSqlSessionFactory.setDbIdentityUsed(isDbIdentityUsed);
       dbSqlSessionFactory.setDbHistoryUsed(isDbHistoryUsed);
       dbSqlSessionFactory.setDatabaseTablePrefix(databaseTablePrefix);
+      dbSqlSessionFactory.setDatabaseSchema(databaseSchema);
       addSessionFactory(dbSqlSessionFactory);
       
       addSessionFactory(new GenericManagerFactory(AttachmentManager.class));
@@ -585,6 +608,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       addSessionFactory(new GenericManagerFactory(HistoricActivityInstanceManager.class));
       addSessionFactory(new GenericManagerFactory(HistoricDetailManager.class));
       addSessionFactory(new GenericManagerFactory(HistoricProcessInstanceManager.class));
+      addSessionFactory(new GenericManagerFactory(HistoricProcessVariableManager.class));
       addSessionFactory(new GenericManagerFactory(HistoricTaskInstanceManager.class));
       addSessionFactory(new GenericManagerFactory(IdentityInfoManager.class));
       addSessionFactory(new GenericManagerFactory(IdentityLinkManager.class));
@@ -726,10 +750,12 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       historyLevel = 0;
     } else if (HISTORY_ACTIVITY.equalsIgnoreCase(history)) {
       historyLevel = 1;
-    } else if (HISTORY_AUDIT.equalsIgnoreCase(history)) {
+    } else if (HISTORY_VARIABLE.equalsIgnoreCase(history)) {
       historyLevel = 2;
-    } else if (HISTORY_FULL.equalsIgnoreCase(history)) {
+    } else if (HISTORY_AUDIT.equalsIgnoreCase(history)) {
       historyLevel = 3;
+    } else if (HISTORY_FULL.equalsIgnoreCase(history)) {
+      historyLevel = 4;
     } else {
       throw new ActivitiException("invalid history level: "+history);
     }
@@ -861,6 +887,9 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       
       CompensationEventHandler compensationEventHandler = new CompensationEventHandler();
       eventHandlers.put(compensationEventHandler.getEventHandlerType(), compensationEventHandler);
+      
+      MessageEventHandler messageEventHandler = new MessageEventHandler();
+      eventHandlers.put(messageEventHandler.getEventHandlerType(), messageEventHandler);
       
     }
     if(customEventHandlers != null) {
@@ -1618,6 +1647,23 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
     
   public String getDatabaseTablePrefix() {
     return databaseTablePrefix;
+  }
+
+  public boolean isCreateDiagramOnDeploy() {
+    return isCreateDiagramOnDeploy;
+  }
+
+  public ProcessEngineConfiguration setCreateDiagramOnDeploy(boolean createDiagramOnDeploy) {
+    this.isCreateDiagramOnDeploy = createDiagramOnDeploy;
+    return this;
+  }
+  
+  public String getDatabaseSchema() {
+    return databaseSchema;
+  }
+  
+  public void setDatabaseSchema(String databaseSchema) {
+    this.databaseSchema = databaseSchema;
   }
 
 }

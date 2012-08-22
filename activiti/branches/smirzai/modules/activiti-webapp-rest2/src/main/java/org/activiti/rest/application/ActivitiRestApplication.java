@@ -16,10 +16,13 @@ package org.activiti.rest.application;
 import org.activiti.rest.api.ActivitiUtil;
 import org.activiti.rest.api.DefaultResource;
 import org.activiti.rest.api.engine.ProcessEngineResource;
+import org.activiti.rest.api.identity.GroupCreateResource;
 import org.activiti.rest.api.identity.GroupResource;
+import org.activiti.rest.api.identity.GroupSearchResource;
 import org.activiti.rest.api.identity.GroupUsersResource;
 import org.activiti.rest.api.identity.LoginResource;
 import org.activiti.rest.api.identity.UserCreateResource;
+import org.activiti.rest.api.identity.UserGroupsDeleteResource;
 import org.activiti.rest.api.identity.UserGroupsResource;
 import org.activiti.rest.api.identity.UserPictureResource;
 import org.activiti.rest.api.identity.UserResource;
@@ -31,11 +34,13 @@ import org.activiti.rest.api.management.JobsResource;
 import org.activiti.rest.api.management.TableDataResource;
 import org.activiti.rest.api.management.TableResource;
 import org.activiti.rest.api.management.TablesResource;
+import org.activiti.rest.api.process.ProcessDefinitionDiagramResource;
 import org.activiti.rest.api.process.ProcessDefinitionFormResource;
 import org.activiti.rest.api.process.ProcessDefinitionPropertiesResource;
 import org.activiti.rest.api.process.ProcessDefinitionsResource;
 import org.activiti.rest.api.process.ProcessInstanceDiagramResource;
 import org.activiti.rest.api.process.ProcessInstanceResource;
+import org.activiti.rest.api.process.ProcessInstanceSignalExecutionResource;
 import org.activiti.rest.api.process.ProcessInstancesResource;
 import org.activiti.rest.api.process.StartProcessInstanceResource;
 import org.activiti.rest.api.repository.DeploymentArtifactResource;
@@ -63,7 +68,7 @@ import org.restlet.routing.Router;
 import org.restlet.security.ChallengeAuthenticator;
 import org.restlet.security.SecretVerifier;
 import org.restlet.security.Verifier;
-
+import org.activiti.rest.api.process.ProcessInstanceTaskResource;
 /**
  * @author Tijs Rademakers
  */
@@ -109,18 +114,25 @@ public class ActivitiRestApplication extends Application {
     router.attach("/user", UserCreateResource.class);
     router.attach("/user/{userId}", UserResource.class);
     router.attach("/user/{userId}/groups", UserGroupsResource.class);
+    router.attach("/user/{userId}/groups/{groupId}", UserGroupsDeleteResource.class);
     router.attach("/user/{userId}/picture", UserPictureResource.class);
     router.attach("/users/{searchText}", UserSearchResource.class);
-    
+
+    router.attach("/group", GroupCreateResource.class);
     router.attach("/group/{groupId}", GroupResource.class);
+    router.attach("/group/{groupId}/users/{userId}", UserGroupsDeleteResource.class);
     router.attach("/groups/{groupId}/users", GroupUsersResource.class);
+    router.attach("/groups/{searchText}", GroupSearchResource.class);
     
     router.attach("/process-definitions", ProcessDefinitionsResource.class);
     router.attach("/process-instances", ProcessInstancesResource.class);
     router.attach("/process-instance", StartProcessInstanceResource.class);
-    router.attach("/processInstance/{processInstanceId}", ProcessInstanceResource.class);
-    router.attach("/processInstance/{processInstanceId}/diagram", ProcessInstanceDiagramResource.class);
+    router.attach("/process-instance/{processInstanceId}", ProcessInstanceResource.class);
+    router.attach("/process-instance/{processInstanceId}/diagram", ProcessInstanceDiagramResource.class);
+    router.attach("/process-instance/{processInstanceId}/tasks", ProcessInstanceTaskResource.class);
+    router.attach("/process-instance/{processInstanceId}/signal", ProcessInstanceSignalExecutionResource.class);
     router.attach("/process-definition/{processDefinitionId}/form", ProcessDefinitionFormResource.class);
+    router.attach("/process-definition/{processDefinitionId}/diagram", ProcessDefinitionDiagramResource.class);
     router.attach("/process-definition/{processDefinitionId}/properties", ProcessDefinitionPropertiesResource.class);
     
     router.attach("/tasks", TasksResource.class);

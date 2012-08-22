@@ -12,6 +12,7 @@
  */
 package org.activiti.engine.task;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import org.activiti.engine.query.Query;
  * Allows programmatic querying of {@link Task}s;
  * 
  * @author Joram Barrez
+ * @author Falko Menge
  */
 public interface TaskQuery extends Query<TaskQuery, Task>{
 
@@ -61,7 +63,14 @@ public interface TaskQuery extends Query<TaskQuery, Task>{
   TaskQuery taskOwner(String owner);
   
   /** Only select tasks which don't have an assignee. */
+  TaskQuery taskUnassigned();
+
+  /** @see {@link #taskUnassigned} */
+  @Deprecated
   TaskQuery taskUnnassigned();
+
+  /** Only select tasks with the given {@link DelegationState}. */
+  TaskQuery taskDelegationState(DelegationState delegationState);
 
   /** Only select tasks for which the given user is a candidate. */
   TaskQuery taskCandidateUser(String candidateUser);
@@ -121,11 +130,27 @@ public interface TaskQuery extends Query<TaskQuery, Task>{
    */
   TaskQuery taskVariableValueEquals(String variableName, Object variableValue);
   
+  /** 
+   * Only select tasks which have a local task variable with the given name, but
+   * with a different value than the passed value.
+   * Byte-arrays and {@link Serializable} objects (which are not primitive type wrappers)
+   * are not supported.
+   */
+  TaskQuery taskVariableValueNotEquals(String variableName, Object variableValue);    
+  
   /**
    * Only select tasks which have are part of a process that have a variable
    * with the given name set to the given value.
    */
   TaskQuery processVariableValueEquals(String variableName, Object variableValue);
+  
+  /** 
+   * Only select tasks which have a variable with the given name, but
+   * with a different value than the passed value.
+   * Byte-arrays and {@link Serializable} objects (which are not primitive type wrappers)
+   * are not supported.
+   */
+  TaskQuery processVariableValueNotEquals(String variableName, Object variableValue);  
   
   /**
    * Only select tasks which are part of a process instance which has the given

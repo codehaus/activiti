@@ -21,6 +21,8 @@ create table ACT_HI_ACTINST (
     PROC_INST_ID_ nvarchar(64) not null,
     EXECUTION_ID_ nvarchar(64) not null,
     ACT_ID_ nvarchar(255) not null,
+    TASK_ID_ nvarchar(64),
+    CALL_PROC_INST_ID_ nvarchar(64),
     ACT_NAME_ nvarchar(255),
     ACT_TYPE_ nvarchar(255) not null,
     ASSIGNEE_ nvarchar(64),
@@ -50,11 +52,25 @@ create table ACT_HI_TASKINST (
     primary key (ID_)
 );
 
+create table ACT_HI_PROCVARIABLE (
+    ID_ nvarchar(64) not null,
+    PROC_INST_ID_ nvarchar(64) not null,
+    NAME_ nvarchar(255) not null,
+    VAR_TYPE_ nvarchar(255),
+    REV_ int,
+    BYTEARRAY_ID_ nvarchar(64),
+    DOUBLE_ double precision,
+    LONG_ numeric(19,0),
+    TEXT_ nvarchar(4000),
+    TEXT2_ nvarchar(4000),
+    primary key (ID_)
+);
+
 create table ACT_HI_DETAIL (
     ID_ nvarchar(64) not null,
     TYPE_ nvarchar(255) not null,
-    PROC_INST_ID_ nvarchar(64) not null,
-    EXECUTION_ID_ nvarchar(64) not null,
+    PROC_INST_ID_ nvarchar(64),
+    EXECUTION_ID_ nvarchar(64),
     TASK_ID_ nvarchar(64),
     ACT_INST_ID_ nvarchar(64),
     NAME_ nvarchar(255) not null,
@@ -105,4 +121,6 @@ create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_);
 create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_);
 create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_);
 create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_);
+create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_PROCVARIABLE(PROC_INST_ID_);
+create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_PROCVARIABLE(NAME_, VAR_TYPE_);
 create unique index ACT_UNIQ_HI_BUS_KEY on ACT_HI_PROCINST (PROC_DEF_ID_, BUSINESS_KEY_) where BUSINESS_KEY_ is not null;

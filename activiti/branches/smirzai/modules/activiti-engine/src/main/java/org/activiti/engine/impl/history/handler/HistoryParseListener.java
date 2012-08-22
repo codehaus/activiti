@@ -27,11 +27,17 @@ import org.activiti.engine.impl.util.xml.Element;
 import org.activiti.engine.impl.variable.VariableDeclaration;
 
 /**
+ * Implements writing the history, but not all logic is contained here, see {@link ProcessDefinitionEntity} as well!
+ * 
  * @author Tom Baeyens
  * @author Joram Barrez
  * @author Falko Menge
+ * @author Bernd Ruecker (camunda)
+ * @author Christian Lipphardt (camunda)
  */
 public class HistoryParseListener implements BpmnParseListener {
+
+  protected static final HistoricProcessVariableHandler HISTORIC_PROCESS_VARIABLE_HANDLER = new HistoricProcessVariableHandler();
 
   protected static final StartEventEndHandler START_EVENT_END_HANDLER = new StartEventEndHandler();
 
@@ -40,6 +46,8 @@ public class HistoryParseListener implements BpmnParseListener {
   protected static final ActivityInstanceStartHandler ACTIVITY_INSTANCE_START_LISTENER = new ActivityInstanceStartHandler();
 
   protected static final UserTaskAssignmentHandler USER_TASK_ASSIGNMENT_HANDLER = new UserTaskAssignmentHandler();
+
+  protected static final UserTaskIdHandler USER_TASK_ID_HANDLER = new UserTaskIdHandler();
 
   // The history level set in the Activiti configuration
   protected int historyLevel;
@@ -51,6 +59,9 @@ public class HistoryParseListener implements BpmnParseListener {
   public void parseProcess(Element processElement, ProcessDefinitionEntity processDefinition) {
     if (activityHistoryEnabled(processDefinition, historyLevel)) {
       processDefinition.addExecutionListener(org.activiti.engine.impl.pvm.PvmEvent.EVENTNAME_END, new ProcessInstanceEndHandler());
+    }
+    if (variableHistoryEnabled(processDefinition, historyLevel)) {
+      processDefinition.addExecutionListener(org.activiti.engine.impl.pvm.PvmEvent.EVENTNAME_END, HISTORIC_PROCESS_VARIABLE_HANDLER);
     }
   }
 
@@ -88,6 +99,7 @@ public class HistoryParseListener implements BpmnParseListener {
     if (activityHistoryEnabled(scope, historyLevel)) {
       TaskDefinition taskDefinition = ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition();
       taskDefinition.addTaskListener(TaskListener.EVENTNAME_ASSIGNMENT, USER_TASK_ASSIGNMENT_HANDLER);
+      taskDefinition.addTaskListener(TaskListener.EVENTNAME_CREATE, USER_TASK_ID_HANDLER);
     }
   }
 
@@ -104,7 +116,7 @@ public class HistoryParseListener implements BpmnParseListener {
   }
 
   public void parseStartEvent(Element startEventElement, ScopeImpl scope, ActivityImpl activity) {
-    if (fullHistoryEnabled(historyLevel)) {
+    if (activityHistoryEnabled(activity, historyLevel)) {
       activity.addExecutionListener(org.activiti.engine.impl.pvm.PvmEvent.EVENTNAME_END, START_EVENT_END_HANDLER);
     }
   }
@@ -114,9 +126,11 @@ public class HistoryParseListener implements BpmnParseListener {
   }
 
   public void parseEndEvent(Element endEventElement, ScopeImpl scope, ActivityImpl activity) {
+    addActivityHandlers(activity);
   }
 
   public void parseParallelGateway(Element parallelGwElement, ScopeImpl scope, ActivityImpl activity) {
+    addActivityHandlers(activity);    
   }
 
   public void parseBoundaryTimerEventDefinition(Element timerEventDefinition, boolean interrupting, ActivityImpl timerActivity) {
@@ -139,7 +153,9 @@ public class HistoryParseListener implements BpmnParseListener {
   
   public void parseBoundarySignalEventDefinition(Element signalEventDefinition, boolean interrupting, ActivityImpl signalActivity) {
   }
+  
   public void parseEventBasedGateway(Element eventBasedGwElement, ScopeImpl scope, ActivityImpl activity) {
+    // TODO: Shall we add audit logging here as well? 
   }
   
   public void parseMultiInstanceLoopCharacteristics(Element activityElement, 
@@ -165,6 +181,10 @@ public class HistoryParseListener implements BpmnParseListener {
     return historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT;
   }
 
+  public static boolean variableHistoryEnabled(ScopeImpl scopeElement, int historyLevel) {
+    return historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_VARIABLE;
+  }
+  
   public static boolean activityHistoryEnabled(ScopeImpl scopeElement, int historyLevel) {
     return historyLevel >= ProcessEngineConfigurationImpl.HISTORYLEVEL_ACTIVITY;
   }
@@ -179,12 +199,18 @@ public class HistoryParseListener implements BpmnParseListener {
   }
 
   public void parseIntermediateThrowEvent(Element intermediateEventElement, ScopeImpl scope, ActivityImpl activity) {
+    addActivityHandlers(activity);
   }
 
   public void parseIntermediateCatchEvent(Element intermediateEventElement, ScopeImpl scope, ActivityImpl activity) {
+    addActivityHandlers(activity);
   }
 
-  public void parseBoundaryEvent(Element boundaryEventElement, ScopeImpl scopeElement, ActivityImpl nestedActivity) {
+  public void parseBoundaryEvent(Element boundaryEventElement, ScopeImpl scopeElement, ActivityImpl activity) {
+    // TODO: Add to audit logging? Discuss
+  }
+  
+  public void parseIntermediateMessageCatchEventDefinition(Element messageEventDefinition, ActivityImpl nestedActivity) {
   }
 
 }

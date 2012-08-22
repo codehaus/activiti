@@ -22,6 +22,8 @@ import org.activiti.engine.impl.event.CompensationEventHandler;
  */
 public class CompensateEventSubscriptionEntity extends EventSubscriptionEntity {
   
+  private static final long serialVersionUID = 1L;
+  
   @SuppressWarnings("unused") // used by mybatis
   private CompensateEventSubscriptionEntity() {
   }
@@ -43,38 +45,6 @@ public class CompensateEventSubscriptionEntity extends EventSubscriptionEntity {
   protected void processEventSync(Object payload) {
     delete();  
     super.processEventSync(payload);
-  }
-  
-  // custom persistence behavior /////////////////////////////////////////////////////////////////////////////
-  
-  @Override
-  public void insert() {
-    addToExecution();
-    super.insert();
-  }
-  
-  @Override
-  public void delete() {
-    removeFromExecution();
-    super.delete();
-  }
-  
-  // referential integrity CompensateEventSubscription -> ExecutionEntity ////////////////////////////////////
-  
-  protected void addToExecution() {
-    // add reference in execution
-    ExecutionEntity execution = getExecution();
-    if(execution != null) {
-      execution.addCompensateEventSubscription(this);
-    }
-  }
-  
-  protected void removeFromExecution() {
-    // remove reference in execution
-    ExecutionEntity execution = getExecution();
-    if(execution != null) {
-      execution.removeCompensateEventSubscription(this);
-    }
   }
 
   public CompensateEventSubscriptionEntity moveUnder(ExecutionEntity newExecution) {    

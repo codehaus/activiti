@@ -60,11 +60,13 @@
   </select>
 
   <select id="selectProcessDefinitionsByQueryCriteria" parameterType="org.activiti.engine.impl.ProcessDefinitionQueryImpl" resultMap="processDefinitionResultMap">
+  	${limitBefore}
     select PD.*
     <include refid="selectProcessDefinitionsByQueryCriteriaSql"/>
     <if test="orderBy != null">
       order by ${orderBy}
     </if>
+    ${limitAfter}
   </select>
 
   <select id="selectProcessDefinitionCountByQueryCriteria" parameterType="org.activiti.engine.impl.ProcessDefinitionQueryImpl" resultType="long">
@@ -82,13 +84,16 @@
         PD.ID_ = #{id}
       </if>
       <if test="category != null">
-        PD.CATEGORY_ = #{category}
+        and PD.CATEGORY_ = #{category}
+      </if>
+      <if test="categoryLike != null">
+        and PD.CATEGORY_ like #{categoryLike}
       </if>
       <if test="name != null">
-        PD.NAME_ = #{name}
+        and PD.NAME_ = #{name}
       </if>
       <if test="nameLike != null">
-        PD.NAME_ like #{nameLike}
+        and PD.NAME_ like #{nameLike}
       </if>
       <if test="key != null">
         and PD.KEY_ = #{key}
@@ -117,37 +122,21 @@
       <if test="eventSubscriptionType != null">
       	and (EVT.EVENT_TYPE_ = #{eventSubscriptionType} and EVT.EVENT_NAME_ = #{eventSubscriptionName}) 
       </if>
-       
       <if test="authorizationUserId != null">
         AND (exists (select ID_  from ${prefix} ACT_RU_IDENTITYLINK  IDN where IDN.PROC_DEF_ID_ = PD.ID_ and IDN.USER_ID_ = #{authorizationUserId})
              OR exists (select IDN.ID_  from ${prefix} ACT_RU_IDENTITYLINK  IDN,  ${prefix} ACT_ID_MEMBERSHIP MBMR where IDN.PROC_DEF_ID_ = PD.ID_ and MBMR.USER_ID_ =  #{authorizationUserId} and IDN.GROUP_ID_ = MBMR.GROUP_ID_)
              )
       </if>
-      
-       
     </where>
   </sql>
-  
-  <select id="selectProcessDefinitions" resultMap="processDefinitionResultMap">
-    select * from ${prefix}ACT_RE_PROCDEF
-    order by KEY_ ASC, VERSION_ DESC
-  </select>
-  
-  <select id="selectProcessDefinitionByDeployment" parameterType="string" resultMap="processDefinitionResultMap">
-    select * from ${prefix}ACT_RE_PROCDEF where DEPLOYMENT_ID_ = #{deploymentId}
-  </select>
-  
+    
   <select id="selectProcessDefinitionByDeploymentAndKey" parameterType="map" resultMap="processDefinitionResultMap">
     select * 
     from ${prefix}ACT_RE_PROCDEF 
     where DEPLOYMENT_ID_ = #{deploymentId}
       and KEY_ = #{processDefinitionKey}
   </select>
-  
-  <select id="selectProcessDefinitionsByDeploymentId" parameterType="string" resultMap="processDefinitionResultMap">
-    select * from ${prefix}ACT_RE_PROCDEF where DEPLOYMENT_ID_ = #{deploymentId}
-  </select>
-  
+    
   <select id="selectLatestProcessDefinitionByKey" parameterType="string" resultMap="processDefinitionResultMap">
     select *
     from ${prefix}ACT_RE_PROCDEF 
@@ -157,11 +146,13 @@
 
   <!-- mysql specific sql -->
   <select id="selectProcessDefinitionsByQueryCriteria_mysql" parameterType="org.activiti.engine.impl.ProcessDefinitionQueryImpl" resultMap="processDefinitionResultMap">
+  	${limitBefore}
     select distinct PD.*
     <include refid="selectProcessDefinitionsByQueryCriteriaSql"/>
     <if test="orderBy != null">
       order by ${orderBy}
     </if>
+    ${limitAfter}
   </select>
 
   <!-- mysql specific sql -->

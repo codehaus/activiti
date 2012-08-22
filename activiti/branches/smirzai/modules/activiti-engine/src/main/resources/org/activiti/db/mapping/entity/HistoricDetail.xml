@@ -129,19 +129,23 @@
   <!-- HISTORIC VARIABLE UPDATE SELECT -->
 
   <select id="selectHistoricDetailsByQueryCriteria" parameterType="org.activiti.engine.impl.HistoricDetailQueryImpl" resultMap="historicDetailResultMap">
+  	${limitBefore}
     select *
     <include refid="selectHistoricDetailsByQueryCriteriaSql"/>
     <if test="orderBy != null">
       order by ${orderBy}
     </if>
+    ${limitAfter}
   </select>
   
   <select id="selectHistoricDetailsByQueryCriteria_postgres" parameterType="org.activiti.engine.impl.HistoricDetailQueryImpl" resultMap="historicDetailResultMap_postgres">
+  	${limitBefore}
     select *
     <include refid="selectHistoricDetailsByQueryCriteriaSql"/>
     <if test="orderBy != null">
       order by ${orderBy}
     </if>
+    ${limitAfter}
   </select>
   
   <select id="selectHistoricDetailCountByQueryCriteria" parameterType="org.activiti.engine.impl.HistoricDetailQueryImpl" resultType="long">
@@ -161,9 +165,17 @@
       <if test="activityInstanceId != null">
         and HD.ACT_INST_ID_ = #{activityInstanceId}
       </if>
-      <if test="taskId != null">
-        and HD.TASK_ID_ = #{taskId}
-      </if>
+      <choose>
+        <when test="taskId != null">
+          and HD.TASK_ID_ = #{taskId}
+        </when>
+        <otherwise>
+          <if test="excludeTaskRelated">
+           and HD.TASK_ID_ is null
+         </if>
+        </otherwise>
+      </choose>
+      
       <if test="type != null">
         and HD.TYPE_ = #{type}
       </if>

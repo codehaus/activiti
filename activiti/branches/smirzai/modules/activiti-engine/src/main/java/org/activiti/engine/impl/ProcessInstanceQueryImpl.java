@@ -32,7 +32,7 @@ import org.activiti.engine.runtime.ProcessInstanceQuery;
  * @author Falko Menge
  * @author Daniel Meyer
  */
-public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<ProcessInstanceQuery, ProcessInstance> implements ProcessInstanceQuery, Serializable {
+public class ProcessInstanceQueryImpl extends AbstractVariableQueryImpl<ProcessInstanceQuery, ProcessInstance> implements ProcessInstanceQuery, Serializable {
 
   private static final long serialVersionUID = 1L;
   protected String executionId;
@@ -46,8 +46,7 @@ public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<Process
   
   // Unused, see dynamic query
   protected String activityId;
-  protected String eventSubscriptionName;
-  protected String eventSubscriptionType;
+  protected List<EventSubscriptionQueryValue> eventSubscriptions;
   
   public ProcessInstanceQueryImpl() {
   }
@@ -201,16 +200,12 @@ public class ProcessInstanceQueryImpl extends ExecutionVariableQueryImpl<Process
   public void setSuspensionState(SuspensionState suspensionState) {
     this.suspensionState = suspensionState;
   }  
-  public String getEventSubscriptionName() {
-    return eventSubscriptionName;
-  }  
-  public void setEventSubscriptionName(String eventSubscriptionName) {
-    this.eventSubscriptionName = eventSubscriptionName;
-  }  
-  public String getEventSubscriptionType() {
-    return eventSubscriptionType;
-  }  
-  public void setEventSubscriptionType(String eventSubscriptionType) {
-    this.eventSubscriptionType = eventSubscriptionType;
-  }  
+
+  public List<EventSubscriptionQueryValue> getEventSubscriptions() {
+    return eventSubscriptions;
+  }
+
+  public void setEventSubscriptions(List<EventSubscriptionQueryValue> eventSubscriptions) {
+    this.eventSubscriptions = eventSubscriptions;
+  }
 }

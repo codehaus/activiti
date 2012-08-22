@@ -67,7 +67,6 @@ public class DeploymentManager extends AbstractManager {
       String processDefinitionId = processDefinition.getId();
       // remove related authorization parameters in IdentityLink table
       getIdentityLinkManager().deleteIdentityLinksByProcDef(processDefinitionId);
-      
     }
 
     // delete process definitions from db
@@ -95,7 +94,7 @@ public class DeploymentManager extends AbstractManager {
       List<EventSubscriptionEntity> findEventSubscriptionsByConfiguration = Context
         .getCommandContext()
         .getEventSubscriptionManager()
-        .findEventSubscriptionsByConfiguration(MessageEventHandler.TYPE, processDefinition.getId());
+        .findEventSubscriptionsByConfiguration(MessageEventHandler.EVENT_HANDLER_TYPE, processDefinition.getId());
       for (EventSubscriptionEntity eventSubscriptionEntity : findEventSubscriptionsByConfiguration) {
         eventSubscriptionEntity.delete();        
       }
@@ -109,7 +108,7 @@ public class DeploymentManager extends AbstractManager {
 
 
   public DeploymentEntity findLatestDeploymentByName(String deploymentName) {
-    List<?> list = getDbSqlSession().selectList("selectDeploymentsByName", deploymentName, new Page(0, 1));
+    List<?> list = getDbSqlSession().selectList("selectDeploymentsByName", deploymentName, 0, 1);
     if (list!=null && !list.isEmpty()) {
       return (DeploymentEntity) list.get(0);
     }

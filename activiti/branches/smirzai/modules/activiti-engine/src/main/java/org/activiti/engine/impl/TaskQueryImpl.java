@@ -23,12 +23,14 @@ import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.variable.VariableTypes;
+import org.activiti.engine.task.DelegationState;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 
 /**
  * @author Joram Barrez
  * @author Tom Baeyens
+ * @author Falko Menge
  */
 public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements TaskQuery {
   
@@ -45,6 +47,8 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
   protected String involvedUser;
   protected String owner;
   protected boolean unassigned = false;
+  protected boolean noDelegationState = false;
+  protected DelegationState delegationState;
   protected String candidateUser;
   protected String candidateGroup;
   private List<String> candidateGroups;
@@ -152,8 +156,23 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
     return this;
   }
   
+  /** @see {@link #taskUnassigned} */
+  @Deprecated
   public TaskQuery taskUnnassigned() {
+    return taskUnassigned();
+  }
+
+  public TaskQuery taskUnassigned() {
     this.unassigned = true;
+    return this;
+  }
+
+  public TaskQuery taskDelegationState(DelegationState delegationState) {
+    if (delegationState == null) {
+      this.noDelegationState = true;
+    } else {
+      this.delegationState = delegationState;
+    }
     return this;
   }
 
@@ -256,12 +275,22 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
     variables.add(new TaskQueryVariableValue(variableName, variableValue, QueryOperator.EQUALS, true));
     return this;
   }
-  
+
+  public TaskQuery taskVariableValueNotEquals(String variableName, Object variableValue) {
+    variables.add(new TaskQueryVariableValue(variableName, variableValue, QueryOperator.NOT_EQUALS, true));
+    return this;
+  }
+
   public TaskQuery processVariableValueEquals(String variableName, Object variableValue) {
     variables.add(new TaskQueryVariableValue(variableName, variableValue, QueryOperator.EQUALS, false));
     return this;
   }
-  
+
+  public TaskQuery processVariableValueNotEquals(String variableName, Object variableValue) {
+    variables.add(new TaskQueryVariableValue(variableName, variableValue, QueryOperator.NOT_EQUALS, false));
+    return this;
+  }
+
   public TaskQuery processDefinitionKey(String processDefinitionKey) {
     this.processDefinitionKey = processDefinitionKey;
     return this;
@@ -304,6 +333,8 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
   }
   
   protected List<String> getGroupsForCandidateUser(String candidateUser) {
+    // TODO: Discuss about removing this feature? Or document it properly and maybe recommend to not use it
+    // and explain alternatives
     List<Group> groups = Context
       .getCommandContext()
       .getGroupManager()
@@ -367,7 +398,7 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
     checkQueryOk();
     return commandContext
       .getTaskManager()
-      .findTasksByQueryCriteria(this, page);
+      .findTasksByQueryCriteria(this);
   }
   
   public long executeCount(CommandContext commandContext) {
@@ -391,6 +422,15 @@ public class TaskQueryImpl extends AbstractQuery<TaskQuery, Task> implements Tas
   }
   public boolean getUnassigned() {
     return unassigned;
+  }
+  public DelegationState getDelegationState() {
+    return delegationState;
+  }
+  public boolean getNoDelegationState() {
+    return noDelegationState;
+  }
+  public String getDelegationStateString() {
+    return (delegationState!=null ? delegationState.toString() : null);
   }
   public String getCandidateUser() {
     return candidateUser;

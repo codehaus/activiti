@@ -21,6 +21,8 @@ create table ACT_HI_ACTINST (
     PROC_INST_ID_ NVARCHAR2(64) not null,
     EXECUTION_ID_ NVARCHAR2(64) not null,
     ACT_ID_ NVARCHAR2(255) not null,
+    TASK_ID_ NVARCHAR2(64),
+    CALL_PROC_INST_ID_ NVARCHAR2(64),
     ACT_NAME_ NVARCHAR2(255),
     ACT_TYPE_ NVARCHAR2(255) not null,
     ASSIGNEE_ NVARCHAR2(64),
@@ -50,11 +52,25 @@ create table ACT_HI_TASKINST (
     primary key (ID_)
 );
 
-create table ACT_HI_DETAIL (
-    ID_ varchar(64) not null,
-    TYPE_ NVARCHAR2(255) not null,
+create table ACT_HI_PROCVARIABLE (
+    ID_ NVARCHAR2(64) not null,
     PROC_INST_ID_ NVARCHAR2(64) not null,
-    EXECUTION_ID_ NVARCHAR2(64) not null,
+    NAME_ NVARCHAR2(255) not null,
+    VAR_TYPE_ NVARCHAR2(255),
+    REV_ INTEGER,
+    BYTEARRAY_ID_ NVARCHAR2(64),
+    DOUBLE_ NUMBER(*,10),
+    LONG_ NUMBER(19,0),
+    TEXT_ NVARCHAR2(2000),
+    TEXT2_ NVARCHAR2(2000),
+    primary key (ID_)
+);
+
+create table ACT_HI_DETAIL (
+    ID_ NVARCHAR2(64) not null,
+    TYPE_ NVARCHAR2(255) not null,
+    PROC_INST_ID_ NVARCHAR2(64),
+    EXECUTION_ID_ NVARCHAR2(64),
     TASK_ID_ NVARCHAR2(64),
     ACT_INST_ID_ NVARCHAR2(64),
     NAME_ NVARCHAR2(255) not null,
@@ -105,6 +121,8 @@ create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_);
 create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_);
 create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_);
 create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_);
+create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_PROCVARIABLE(PROC_INST_ID_);
+create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_PROCVARIABLE(NAME_, VAR_TYPE_);
 
 -- see http://stackoverflow.com/questions/675398/how-can-i-constrain-multiple-columns-to-prevent-duplicates-but-ignore-null-value
 create unique index ACT_UNIQ_HI_BUS_KEY on ACT_HI_PROCINST

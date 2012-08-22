@@ -9,7 +9,7 @@
   <property file="build.db.properties" />
 
   <property name="activiti.home" value=".." /> 
-  <property name="activiti.version" value="5.9-SNAPSHOT" />   
+  <property name="activiti.version" value="5.11-SNAPSHOT" />   
   <property name="tomcat.url" value="http://activiti.org/downloads/" />
   
   <!-- ### OS PROPERTIES #################################################################### -->
@@ -205,7 +205,7 @@
   	<echo message="starting H2 database..." />
     <launch dir="${activiti.home}/apps/h2"
             script="h2.start"
-            msg="TCP server running on"/>
+            msg="TCP server running"/>
   	<echo message="H2 database started" />
   </target>
   

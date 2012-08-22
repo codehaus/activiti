@@ -74,7 +74,7 @@ public class MessageStartEventTest extends PluggableActivitiTestCase {
         .deploy();
       fail("exception expected");
     }catch (ActivitiException e) {
-      assertTrue(e.getMessage().contains("there already is a message event subscription for the message with name"));
+      assertTrue(e.getMessage().contains("Cannot have more than one message event subscription with name 'newInvoiceMessage' for scope"));
     }        
   }
   
@@ -216,7 +216,7 @@ public class MessageStartEventTest extends PluggableActivitiTestCase {
       runtimeService.startProcessInstanceByKey("testProcess");
       fail("exception expected");
     }catch (ActivitiException e) {
-      assertTrue("different exception expected", e.getMessage().contains("Cannot start process instance, initial is null"));
+      assertTrue("different exception expected, not " + e.getMessage(), e.getMessage().contains("has no default start activity"));
     }
     
   }

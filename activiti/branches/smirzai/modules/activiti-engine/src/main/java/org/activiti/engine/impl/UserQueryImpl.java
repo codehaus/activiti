@@ -107,7 +107,7 @@ public class UserQueryImpl extends AbstractQuery<UserQuery, User> implements Use
   
   public UserQuery potentialStarter(String procDefId) {
     if (procDefId == null) {
-      throw new ActivitiException("Provided ProcessDefinitionid is null or empty");
+      throw new ActivitiException("Provided processDefinitionId is null or empty");
     }
     this.procDefId = procDefId;
     return this;

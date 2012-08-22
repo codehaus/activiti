@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.BpmnError;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -44,7 +45,39 @@ public class BoundaryErrorEventTest extends PluggableActivitiTestCase {
     task = taskService.createTaskQuery().singleResult();
     assertEquals("task after catching the error", task.getName());
   }
-  
+
+  public void testThrowErrorWithoutErrorCode() {
+    try {
+      repositoryService.createDeployment()
+        .addClasspathResource("org/activiti/engine/test/bpmn/event/error/BoundaryErrorEventTest.testThrowErrorWithoutErrorCode.bpmn20.xml")
+        .deploy();
+      fail("ActivitiException expected");
+    } catch (ActivitiException re) {
+      assertTextPresent("'errorCode' is mandatory on errors referenced by throwing error event definitions", re.getMessage());
+    }
+  }
+
+  public void testThrowErrorWithEmptyErrorCode() {
+    try {
+      repositoryService.createDeployment()
+        .addClasspathResource("org/activiti/engine/test/bpmn/event/error/BoundaryErrorEventTest.testThrowErrorWithEmptyErrorCode.bpmn20.xml")
+        .deploy();
+      fail("ActivitiException expected");
+    } catch (ActivitiException re) {
+      assertTextPresent("'errorCode' is mandatory on errors referenced by throwing error event definitions", re.getMessage());
+    }
+  }
+
+  @Deployment
+  public void testCatchErrorOnEmbeddedSubprocessWithEmptyErrorCode() {
+    testCatchErrorOnEmbeddedSubprocess();
+  }
+
+  @Deployment
+  public void testCatchErrorOnEmbeddedSubprocessWithoutErrorCode() {
+    testCatchErrorOnEmbeddedSubprocess();
+  }
+
   @Deployment
   public void testCatchErrorOfInnerSubprocessOnOuterSubprocess() {
     runtimeService.startProcessInstanceByKey("boundaryErrorTest");
@@ -226,6 +259,27 @@ public class BoundaryErrorEventTest extends PluggableActivitiTestCase {
     assertProcessEnded(procId);
   }
   
+  @Deployment(resources = {
+          "org/activiti/engine/test/bpmn/event/error/BoundaryErrorEventTest.testCatchErrorThrownByCallActivityOnCallActivity.bpmn20.xml",
+          "org/activiti/engine/test/bpmn/event/error/BoundaryErrorEventTest.subprocess2ndLevel.bpmn20.xml",
+          "org/activiti/engine/test/bpmn/event/error/BoundaryErrorEventTest.subprocess.bpmn20.xml"
+  })
+  public void testCatchErrorThrownByCallActivityOnCallActivity() throws InterruptedException {
+      String procId = runtimeService.startProcessInstanceByKey("catchErrorOnCallActivity2ndLevel").getId();
+      
+      Task task = taskService.createTaskQuery().singleResult();
+      assertEquals("Task in subprocess", task.getName());
+      
+      taskService.complete(task.getId());
+
+      task = taskService.createTaskQuery().singleResult();
+      assertEquals("Escalated Task", task.getName());
+      
+      // Completing the task will end the process instance
+      taskService.complete(task.getId());
+      assertProcessEnded(procId);
+  }  
+  
   @Deployment
   public void testCatchErrorOnParallelMultiInstance() {
     String procId = runtimeService.startProcessInstanceByKey("catchErrorOnParallelMi").getId();
@@ -366,5 +420,28 @@ public class BoundaryErrorEventTest extends PluggableActivitiTestCase {
     runtimeService.startProcessInstanceByKey("process");    
   }
   
+  @Deployment
+  public void testCatchErrorThrownByExpressionOnServiceTask() {
+    HashMap<String, Object> variables = new HashMap<String, Object>();
+    variables.put("bpmnErrorBean", new BpmnErrorBean());
+    String procId = runtimeService.startProcessInstanceByKey("testCatchErrorThrownByExpressionOnServiceTask", variables).getId();
+    assertThatErrorHasBeenCaught(procId);
+  }
+
+  @Deployment
+  public void testCatchErrorThrownByDelegateExpressionOnServiceTask() {
+    HashMap<String, Object> variables = new HashMap<String, Object>();
+    variables.put("bpmnErrorBean", new BpmnErrorBean());
+    String procId = runtimeService.startProcessInstanceByKey("testCatchErrorThrownByDelegateExpressionOnServiceTask", variables).getId();
+    assertThatErrorHasBeenCaught(procId);
+  }
+
+  @Deployment
+  public void testCatchErrorThrownByJavaDelegateProvidedByDelegateExpressionOnServiceTask() {
+    HashMap<String, Object> variables = new HashMap<String, Object>();
+    variables.put("bpmnErrorBean", new BpmnErrorBean());
+    String procId = runtimeService.startProcessInstanceByKey("testCatchErrorThrownByJavaDelegateProvidedByDelegateExpressionOnServiceTask", variables).getId();
+    assertThatErrorHasBeenCaught(procId);
+  }
 
 }

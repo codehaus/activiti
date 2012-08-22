@@ -15,6 +15,9 @@ alter table ACT_RU_EXECUTION
 alter table ACT_RU_EXECUTION 
     drop foreign key ACT_FK_EXE_SUPER;
     
+alter table ACT_RU_EXECUTION 
+    drop foreign key ACT_FK_EXE_PROCDEF;
+
 alter table ACT_RU_IDENTITYLINK
     drop foreign key ACT_FK_TSKASS_TASK;
 
@@ -43,7 +46,10 @@ alter table ACT_RU_JOB
     drop foreign key ACT_FK_JOB_EXCEPTION;
     
 alter table ACT_RU_EVENT_SUBSCR
-    drop foreign key ACT_FK_EVENT_EXEC; 
+    drop foreign key ACT_FK_EVENT_EXEC;
+
+drop index ACT_IDX_EVENT_SUBSCR_CONFIG_;
+drop index ACT_IDX_ATHRZ_PROCEDEF;
     
 drop table ACT_GE_PROPERTY;
 drop table ACT_GE_BYTEARRAY;

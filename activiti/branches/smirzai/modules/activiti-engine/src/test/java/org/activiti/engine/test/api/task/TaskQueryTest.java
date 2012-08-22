@@ -25,6 +25,7 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.impl.util.ClockUtil;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.DelegationState;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.activiti.engine.test.Deployment;
@@ -32,6 +33,7 @@ import org.activiti.engine.test.Deployment;
 /**
  * @author Joram Barrez
  * @author Frederik Heremans
+ * @author Falko Menge
  */
 public class TaskQueryTest extends PluggableActivitiTestCase {
 
@@ -254,6 +256,13 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
   }
 
   public void testQueryByUnassigned() {
+    TaskQuery query = taskService.createTaskQuery().taskUnassigned();
+    assertEquals(11, query.count());
+    assertEquals(11, query.list().size());
+  }
+
+  public void testQueryByUnnassigned() {
+    @SuppressWarnings("deprecation")
     TaskQuery query = taskService.createTaskQuery().taskUnnassigned();
     assertEquals(11, query.count());
     assertEquals(11, query.list().size());
@@ -346,7 +355,44 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
       // OK
     }
   }
-  
+
+  public void testQueryByDelegationState() {
+    TaskQuery query = taskService.createTaskQuery().taskDelegationState(null);
+    assertEquals(12, query.count());
+    assertEquals(12, query.list().size());
+    query = taskService.createTaskQuery().taskDelegationState(DelegationState.PENDING);
+    assertEquals(0, query.count());
+    assertEquals(0, query.list().size());
+    query = taskService.createTaskQuery().taskDelegationState(DelegationState.RESOLVED);
+    assertEquals(0, query.count());
+    assertEquals(0, query.list().size());
+
+    String taskId= taskService.createTaskQuery().taskAssignee("gonzo").singleResult().getId();
+    taskService.delegateTask(taskId, "kermit");
+
+    query = taskService.createTaskQuery().taskDelegationState(null);
+    assertEquals(11, query.count());
+    assertEquals(11, query.list().size());
+    query = taskService.createTaskQuery().taskDelegationState(DelegationState.PENDING);
+    assertEquals(1, query.count());
+    assertEquals(1, query.list().size());
+    query = taskService.createTaskQuery().taskDelegationState(DelegationState.RESOLVED);
+    assertEquals(0, query.count());
+    assertEquals(0, query.list().size());
+
+    taskService.resolveTask(taskId);
+
+    query = taskService.createTaskQuery().taskDelegationState(null);
+    assertEquals(11, query.count());
+    assertEquals(11, query.list().size());
+    query = taskService.createTaskQuery().taskDelegationState(DelegationState.PENDING);
+    assertEquals(0, query.count());
+    assertEquals(0, query.list().size());
+    query = taskService.createTaskQuery().taskDelegationState(DelegationState.RESOLVED);
+    assertEquals(1, query.count());
+    assertEquals(1, query.list().size());
+  }
+
   public void testQueryCreatedOn() throws Exception {
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
     
@@ -482,6 +528,14 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
     otherDate.add(Calendar.YEAR, 1);
     assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("dateVar", otherDate.getTime()).count());
     assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("nullVar", "999").count());
+    
+    // Test query for not equals
+    assertEquals(1, taskService.createTaskQuery().taskVariableValueNotEquals("longVar", 999L).count());
+    assertEquals(1, taskService.createTaskQuery().taskVariableValueNotEquals("shortVar",  (short) 999).count());
+    assertEquals(1, taskService.createTaskQuery().taskVariableValueNotEquals("integerVar", 999).count());
+    assertEquals(1, taskService.createTaskQuery().taskVariableValueNotEquals("stringVar", "999").count());
+    assertEquals(1, taskService.createTaskQuery().taskVariableValueNotEquals("booleanVar", false).count());
+    
   }
   
   @Deployment
@@ -509,15 +563,15 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
     assertEquals(1, taskService.createTaskQuery().processVariableValueEquals("nullVar", null).count());
     
     // Test query for other values on existing variables
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("longVar", 999L).count());
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("shortVar",  (short) 999).count());
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("integerVar", 999).count());
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("stringVar", "999").count());
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("booleanVar", false).count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("longVar", 999L).count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("shortVar",  (short) 999).count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("integerVar", 999).count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("stringVar", "999").count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("booleanVar", false).count());
     Calendar otherDate = Calendar.getInstance();
     otherDate.add(Calendar.YEAR, 1);
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("dateVar", otherDate.getTime()).count());
-    assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("nullVar", "999").count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("dateVar", otherDate.getTime()).count());
+    assertEquals(0, taskService.createTaskQuery().processVariableValueEquals("nullVar", "999").count());
     
     // Test querying for task variables don't match the process-variables 
     assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("longVar", 928374L).count());
@@ -527,6 +581,16 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
     assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("booleanVar", true).count());
     assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("dateVar", date).count());
     assertEquals(0, taskService.createTaskQuery().taskVariableValueEquals("nullVar", null).count());
+    
+    // Test querying for task variables not equals
+    assertEquals(1, taskService.createTaskQuery().processVariableValueNotEquals("longVar", 999L).count());
+    assertEquals(1, taskService.createTaskQuery().processVariableValueNotEquals("shortVar",  (short) 999).count());
+    assertEquals(1, taskService.createTaskQuery().processVariableValueNotEquals("integerVar", 999).count());
+    assertEquals(1, taskService.createTaskQuery().processVariableValueNotEquals("stringVar", "999").count());
+    assertEquals(1, taskService.createTaskQuery().processVariableValueNotEquals("booleanVar", false).count());
+    
+    // and query for the existing variable with NOT shoudl result in nothing found:
+    assertEquals(0, taskService.createTaskQuery().processVariableValueNotEquals("longVar", 928374L).count());
     
     // Test combination of task-variable and process-variable
     Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
@@ -580,7 +644,7 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
  
   @Deployment(resources={"org/activiti/engine/test/api/task/TaskQueryTest.testProcessDefinition.bpmn20.xml"})
   public void testProcessInstanceBusinessKey() throws Exception {
-    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("oneTaskProcess", "BUSINESS-KEY-1");
+    runtimeService.startProcessInstanceByKey("oneTaskProcess", "BUSINESS-KEY-1");
     
     assertEquals(1, taskService.createTaskQuery().processDefinitionName("The One Task Process").processInstanceBusinessKey("BUSINESS-KEY-1").list().size());
     assertEquals(1, taskService.createTaskQuery().processInstanceBusinessKey("BUSINESS-KEY-1").list().size());    
@@ -675,6 +739,8 @@ public class TaskQueryTest extends PluggableActivitiTestCase {
   
   public void testQueryPaging() {
     TaskQuery query = taskService.createTaskQuery().taskCandidateUser("kermit");
+    
+    assertEquals(11, query.listPage(0, Integer.MAX_VALUE).size());
 
     // Verifying the un-paged results
     assertEquals(11, query.count());

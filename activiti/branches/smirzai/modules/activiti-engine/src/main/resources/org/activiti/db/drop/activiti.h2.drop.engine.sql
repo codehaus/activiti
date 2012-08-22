@@ -16,8 +16,11 @@ alter table ACT_RU_EXECUTION
     drop constraint ACT_FK_EXE_SUPER;
     
 alter table ACT_RU_EXECUTION
-    drop constraint ACT_UNIQ_RU_BUS_KEY;
-    
+    drop constraint ACT_FK_EXE_PROCDEF;
+
+alter table ACT_RU_EXECUTION
+    drop constraint ACT_UNIQ_RU_BUS_KEY;    
+
 alter table ACT_RU_IDENTITYLINK
     drop constraint ACT_FK_TSKASS_TASK;
 
@@ -46,7 +49,13 @@ alter table ACT_RU_JOB
     drop constraint ACT_FK_JOB_EXCEPTION;
     
 alter table ACT_RU_EVENT_SUBSCR
-    drop constraint ACT_FK_EVENT_EXEC;    
+    drop constraint ACT_FK_EVENT_EXEC;
+
+alter table ACT_RE_PROCDEF
+    drop constraint ACT_UNIQ_PROCDEF;
+
+drop index ACT_IDX_EVENT_SUBSCR_CONFIG_;
+drop index ACT_IDX_ATHRZ_PROCEDEF;
     
 drop table ACT_GE_PROPERTY if exists;
 drop table ACT_GE_BYTEARRAY if exists;

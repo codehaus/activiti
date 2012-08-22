@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.cfg.TransactionContext;
 import org.activiti.engine.impl.context.Context;
@@ -33,6 +34,7 @@ import org.activiti.engine.impl.persistence.entity.GroupManager;
 import org.activiti.engine.impl.persistence.entity.HistoricActivityInstanceManager;
 import org.activiti.engine.impl.persistence.entity.HistoricDetailManager;
 import org.activiti.engine.impl.persistence.entity.HistoricProcessInstanceManager;
+import org.activiti.engine.impl.persistence.entity.HistoricProcessVariableManager;
 import org.activiti.engine.impl.persistence.entity.HistoricTaskInstanceManager;
 import org.activiti.engine.impl.persistence.entity.IdentityInfoManager;
 import org.activiti.engine.impl.persistence.entity.IdentityLinkManager;
@@ -121,7 +123,11 @@ public class CommandContext {
           }
 
           if (exception != null) {
-            log.log(Level.SEVERE, "Error while closing command context", exception);
+            Level loggingLevel = Level.SEVERE;
+            if (exception instanceof ActivitiTaskAlreadyClaimedException) {
+              loggingLevel = Level.INFO; // reduce log level, because this is not really a technical exception
+            }
+            log.log(loggingLevel, "Error while closing command context", exception);
             transactionContext.rollback();
           }
         }
@@ -224,6 +230,10 @@ public class CommandContext {
 
   public HistoricDetailManager getHistoricDetailManager() {
     return getSession(HistoricDetailManager.class);
+  }
+  
+  public HistoricProcessVariableManager getHistoricProcessVariableManager() {
+    return getSession(HistoricProcessVariableManager.class);
   }
 
   public HistoricActivityInstanceManager getHistoricActivityInstanceManager() {

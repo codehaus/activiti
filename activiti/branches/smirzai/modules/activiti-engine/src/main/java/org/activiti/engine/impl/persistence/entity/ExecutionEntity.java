@@ -20,17 +20,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.activiti.engine.impl.EventSubscriptionQueryImpl;
 import org.activiti.engine.impl.HistoricActivityInstanceQueryImpl;
-import org.activiti.engine.impl.JobQueryImpl;
-import org.activiti.engine.impl.TaskQueryImpl;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
-import org.activiti.engine.impl.bpmn.parser.SignalEventDefinition;
+import org.activiti.engine.impl.bpmn.parser.EventSubscriptionDeclaration;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.db.PersistentObject;
-import org.activiti.engine.impl.event.CompensationEventHandler;
 import org.activiti.engine.impl.history.handler.ActivityInstanceEndHandler;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.jobexecutor.AsyncContinuationJobHandler;
@@ -53,6 +49,7 @@ import org.activiti.engine.impl.pvm.runtime.AtomicOperation;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 import org.activiti.engine.impl.pvm.runtime.OutgoingExecution;
 import org.activiti.engine.impl.pvm.runtime.StartingExecution;
+import org.activiti.engine.impl.util.BitMaskUtil;
 import org.activiti.engine.impl.variable.VariableDeclaration;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.Job;
@@ -61,6 +58,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 
 /**
  * @author Tom Baeyens
+ * @author Daniel Meyer
+ * @author Falko Menge
  */
 public class ExecutionEntity extends VariableScopeImpl implements ActivityExecution, ExecutionListenerExecution, Execution, PvmExecution, ProcessInstance, InterpretableExecution, PersistentObject {
 
@@ -68,6 +67,10 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   
   private static Logger log = Logger.getLogger(ExecutionEntity.class.getName());
   
+  // Persistent refrenced entities state //////////////////////////////////////
+  protected static final int EVENT_SUBSCRIPTIONS_STATE_BIT = 1;
+  protected static final int TASKS_STATE_BIT = 2;
+  protected static final int JOBS_STATE_BIT = 3;
   
   // current position /////////////////////////////////////////////////////////
   
@@ -122,7 +125,13 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   protected PvmProcessElement eventSource;
   protected int executionListenerIndex = 0;
   
-  protected List<CompensateEventSubscriptionEntity> compensateEventSubscriptions;
+  // associated entities /////////////////////////////////////////////////////
+  
+  // (we cache associated entities here to minimize db queries) 
+  protected List<EventSubscriptionEntity> eventSubscriptions;  
+  protected List<JobEntity> jobs;
+  protected List<TaskEntity> tasks;
+  protected int cachedEntityState;
   
   // cascade deletion ////////////////////////////////////////////////////////
   
@@ -171,6 +180,11 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
    * @see #getActivity()
    */
   protected String activityId;
+  
+  /**
+   * The name of the current activity position
+   */
+  protected String activityName;
   
   /**
    * persisted reference to the process instance.
@@ -248,6 +262,12 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       DbSqlSession dbSqlSession = commandContext.getSession(DbSqlSession.class);
       HistoricProcessInstanceEntity historicProcessInstance = new HistoricProcessInstanceEntity((ExecutionEntity) subProcessInstance);
       dbSqlSession.insert(historicProcessInstance);
+      
+      HistoricActivityInstanceEntity activitiyInstance = ActivityInstanceEndHandler.findActivityInstance(this);
+      if (activitiyInstance != null) {
+        activitiyInstance.setCalledProcessInstanceId(subProcessInstance.getProcessInstanceId());
+      }
+      
     }
 
     return subProcessInstance;
@@ -282,6 +302,15 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       }
     }
     
+    // initialize the lists of referenced objects (prevents db queries)
+    variableInstances = new HashMap<String, VariableInstanceEntity>();
+    eventSubscriptions = new ArrayList<EventSubscriptionEntity>();
+    jobs = new ArrayList<JobEntity>();
+    tasks = new ArrayList<TaskEntity>();
+    
+    // Cached entity-state initialized to null, all bits are zore, indicating NO entities present
+    cachedEntityState = 0;
+    
     List<TimerDeclarationImpl> timerDeclarations = (List<TimerDeclarationImpl>) scope.getProperty(BpmnParse.PROPERTYNAME_TIMER_DECLARATION);
     if (timerDeclarations!=null) {
       for (TimerDeclarationImpl timerDeclaration : timerDeclarations) {
@@ -289,23 +318,18 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
         Context
           .getCommandContext()
           .getJobManager()
-          .schedule(timer);
+          .schedule(timer);        
       }
     }
     
-    List<SignalEventDefinition> signalDefinitions = (List<SignalEventDefinition>) scope.getProperty(BpmnParse.PROPERTYNAME_SIGNAL_DEFINITION_NAME);
-    if(signalDefinitions != null) {
-      for (SignalEventDefinition signalDefinition : signalDefinitions) {
-        SignalEventSubscriptionEntity signalEventSubscriptionEntity = new SignalEventSubscriptionEntity(this);
-        signalEventSubscriptionEntity.setEventName(signalDefinition.getSignalName());    
-        if(signalDefinition.getActivityId() != null) {
-          ActivityImpl activity = getActivity().findActivity(signalDefinition.getActivityId());
-          signalEventSubscriptionEntity.setActivity(activity);
-        }
-        Context 
-          .getCommandContext()
-          .getEventSubscriptionManager()
-          .insert(signalEventSubscriptionEntity);
+    // create event subscriptions for the current scope
+    List<EventSubscriptionDeclaration> eventSubscriptionDeclarations = (List<EventSubscriptionDeclaration>) scope.getProperty(BpmnParse.PROPERTYNAME_EVENT_SUBSCRIPTION_DECLARATION);
+    if(eventSubscriptionDeclarations != null) {
+      for (EventSubscriptionDeclaration eventSubscriptionDeclaration : eventSubscriptionDeclarations) {        
+        if(!eventSubscriptionDeclaration.isStartEvent()) {
+          EventSubscriptionEntity eventSubscriptionEntity = eventSubscriptionDeclaration.prepareEventSubscriptionEntity(this);        
+          eventSubscriptionEntity.insert();
+        }        
       }
     }
   }
@@ -701,8 +725,10 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     this.activity = activity;
     if (activity != null) {
       this.activityId = activity.getId();
+      this.activityName = (String) activity.getProperty("name");
     } else {
       this.activityId = null;
+      this.activityName = null;
     }
   }
   
@@ -806,7 +832,6 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   
   // customized persistence behaviour /////////////////////////////////////////
 
-  @SuppressWarnings("unchecked")
   public void remove() {
     ensureParentInitialized();
     if (parent!=null) {
@@ -819,56 +844,44 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     removeVariablesLocal();
     
     // delete all the tasks
-    CommandContext commandContext = Context.getCommandContext();
-    List<TaskEntity> tasks = commandContext
-      .getTaskManager()
-      .findTasksByExecutionId(id);
+    removeTasks(null);
     
-    for (TaskEntity task : tasks) {
-      if (replacedBy!=null) {
-        task.setExecution(replacedBy);
-      } else {
-        commandContext
-          .getTaskManager()
-          .deleteTask(task, TaskEntity.DELETE_REASON_DELETED, false);
-      }
-    }
+    // remove all jobs
+    removeJobs();
     
-    // Delete all jobs
-    List<Job> jobs = commandContext
-	    .getJobManager()
-	    .findJobsByExecutionId(id);
-    
-    for (Job job: jobs) {
-      if (replacedBy!=null) {
-        ((JobEntity)job).setExecution((ExecutionEntity) replacedBy);
-      } else {
-        ((JobEntity)job).delete();
-      }
-    }
-    
-    // delete event subscriptions for this scope:
-    List<SignalEventSubscriptionEntity> eventSubscriptions = commandContext.getEventSubscriptionManager()
-            .findSignalEventSubscriptionsByExecution(id);
-              
-    for (EventSubscriptionEntity eventSubscription : eventSubscriptions) {
-      if (replacedBy!=null) {
-        eventSubscription.setExecution(replacedBy);
-      } else {
-        eventSubscription.delete();
-      }        
-    }
-
-    for (CompensateEventSubscriptionEntity compensateEventSubscription : getCompensateEventSubscriptions()) {
-      if (replacedBy!=null) {
-        compensateEventSubscription.setExecution(replacedBy);
-      } else {
-        removeCompensateEventSubscription(compensateEventSubscription);
-        compensateEventSubscription.delete();
-      }        
-    }
+    // remove all event subscriptions for this scope, if the scope has event subscriptions:
+    removeEventSubscriptions();
     
     // remove event scopes:            
+    removeEventScopes();
+
+    // finally delete this execution
+    Context.getCommandContext()
+      .getDbSqlSession()
+      .delete(ExecutionEntity.class, id);
+  }
+
+  public void destroyScope(String reason) {
+    
+    if(log.isLoggable(Level.FINE)) {
+      log.fine("performing destroy scope behavior for execution "+this);
+    }
+    
+    // remove all child executions and sub process instances:
+    List<InterpretableExecution> executions = new ArrayList<InterpretableExecution>(getExecutions());
+    for (InterpretableExecution childExecution : executions) {
+      if (childExecution.getSubProcessInstance()!=null) {
+        childExecution.getSubProcessInstance().deleteCascade(reason);
+      }      
+      childExecution.deleteCascade(reason);
+    } 
+    
+    removeTasks(reason);
+    removeJobs();
+    // Daniel thought this would be needed, but it seems not: removeEventSubscriptions();
+  } 
+    
+  private void removeEventScopes() {
     List<InterpretableExecution> childExecutions = new ArrayList<InterpretableExecution>(getExecutions());
     for (InterpretableExecution childExecution : childExecutions) {
       if(childExecution.isEventScope()) {
@@ -876,14 +889,49 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
         childExecution.destroy();
         childExecution.remove();
       }
-    }    
-    
-    // then delete execution
-    commandContext
-      .getDbSqlSession()
-      .delete(ExecutionEntity.class, id);
+    }
   }
-    
+
+  private void removeEventSubscriptions() {
+    for (EventSubscriptionEntity eventSubscription : getEventSubscriptions()) {
+      if (replacedBy != null) {
+        eventSubscription.setExecution((ExecutionEntity) replacedBy);
+      } else {
+        eventSubscription.delete();
+      }
+    }
+  }
+
+  private void removeJobs() {
+    for (Job job: getJobs()) {
+      if (replacedBy!=null) {
+        ((JobEntity)job).setExecution((ExecutionEntity) replacedBy);
+      } else {
+        ((JobEntity)job).delete();
+      }
+    }
+  }
+
+  private void removeTasks(String reason) {
+    if(reason == null) {
+      reason = TaskEntity.DELETE_REASON_DELETED;
+    }
+    for (TaskEntity task : getTasks()) {
+      if (replacedBy!=null) {
+        if(task.getExecution() == null || task.getExecution() != replacedBy) {
+          // All tasks should have been moved when "replacedBy" has been set. Just in case tasks where added,
+          // wo do an additional check here and move it
+          task.setExecution(replacedBy);
+          this.replacedBy.addTask(task);
+        }
+      } else {
+        Context.getCommandContext()
+          .getTaskManager()
+          .deleteTask(task, reason, false);
+      }
+    }
+  }
+  
   public ExecutionEntity getReplacedBy() {
     return replacedBy;
   }
@@ -896,12 +944,15 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     DbSqlSession dbSqlSession = commandContext.getDbSqlSession();
 
     // update the related tasks
-    List<TaskEntity> tasks = (List) new TaskQueryImpl(commandContext)
-      .executionId(id)
-      .list();
-    for (TaskEntity task: tasks) {
+    for (TaskEntity task: getTasks()) {
       task.setExecutionId(replacedBy.getId());
+      task.setExecution(this.replacedBy);
+      this.replacedBy.addTask(task);
     }
+    
+    // All tasks have been moved to 'replacedBy', safe to clear the list 
+    this.tasks.clear();
+    
     tasks = dbSqlSession.findInCache(TaskEntity.class);
     for (TaskEntity task: tasks) {
       if (id.equals(task.getExecutionId())) {
@@ -910,31 +961,15 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     }
     
     // update the related jobs
-    List<JobEntity> jobs = (List) new JobQueryImpl(commandContext)
-      .executionId(id)
-      .list();
+    List<JobEntity> jobs = getJobs();
     for (JobEntity job: jobs) {
-      job.setExecutionId(replacedBy.getId());
-    }
-    jobs = dbSqlSession.findInCache(JobEntity.class);
-    for (JobEntity job: jobs) {
-      if (id.equals(job.getExecutionId())) {
-        job.setExecutionId(replacedBy.getId());
-      }
+      job.setExecution((ExecutionEntity) replacedBy);
     }
     
     // update the related event subscriptions
-    List<EventSubscriptionEntity> eventSubscriptions = (List) new EventSubscriptionQueryImpl(commandContext)
-      .executionId(id)
-      .list();
+    List<EventSubscriptionEntity> eventSubscriptions = getEventSubscriptions();
     for (EventSubscriptionEntity subscriptionEntity: eventSubscriptions) {
-      subscriptionEntity.setExecutionId(replacedBy.getId());
-    }
-    eventSubscriptions = dbSqlSession.findInCache(EventSubscriptionEntity.class);
-    for (EventSubscriptionEntity eventSubscription: eventSubscriptions) {
-      if (id.equals(eventSubscription.getExecutionId())) {
-        eventSubscription.setExecutionId(replacedBy.getId());
-      }
+      subscriptionEntity.setExecution((ExecutionEntity) replacedBy);
     }
     
     // update the related process variables
@@ -1023,6 +1058,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
       persistentState.put("forcedUpdate", Boolean.TRUE);
     }
     persistentState.put("suspensionState", this.suspensionState);
+    persistentState.put("cachedEntityState", this.cachedEntityState);
     return persistentState;
   }
   
@@ -1061,44 +1097,146 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     return id;
   }
   
-  // compensate event subscription support ////////////////////////////////////
+  // event subscription support //////////////////////////////////////////////
   
-  public List<CompensateEventSubscriptionEntity> getCompensateEventSubscriptions(String activityId) {
-    ensureCompensateEventSubscriptionsInitialized();
-    ArrayList<CompensateEventSubscriptionEntity> result = new ArrayList<CompensateEventSubscriptionEntity>();
-    for (CompensateEventSubscriptionEntity eventSubscriptionEntity : compensateEventSubscriptions) {
-      if(eventSubscriptionEntity.getActivityId().equals(activityId)) {
-        result.add(eventSubscriptionEntity);
+  public List<EventSubscriptionEntity> getEventSubscriptionsInternal() {
+    ensureEventSubscriptionsInitialized();   
+    return eventSubscriptions;
+  }
+  
+  public List<EventSubscriptionEntity> getEventSubscriptions() {
+    return new ArrayList<EventSubscriptionEntity>(getEventSubscriptionsInternal());
+  }
+  
+  public List<CompensateEventSubscriptionEntity> getCompensateEventSubscriptions() {
+    List<EventSubscriptionEntity> eventSubscriptions = getEventSubscriptionsInternal();
+    List<CompensateEventSubscriptionEntity> result = new ArrayList<CompensateEventSubscriptionEntity>(eventSubscriptions.size());
+    for (EventSubscriptionEntity eventSubscriptionEntity : eventSubscriptions) {
+      if(eventSubscriptionEntity instanceof CompensateEventSubscriptionEntity) {
+        result.add((CompensateEventSubscriptionEntity) eventSubscriptionEntity);
       }
     }
     return result;
   }
   
-  public List<CompensateEventSubscriptionEntity> getCompensateEventSubscriptions() {
-    ensureCompensateEventSubscriptionsInitialized();   
-    return new ArrayList<CompensateEventSubscriptionEntity>(compensateEventSubscriptions);
+  public List<CompensateEventSubscriptionEntity> getCompensateEventSubscriptions(String activityId) {
+    List<EventSubscriptionEntity> eventSubscriptions = getEventSubscriptionsInternal();
+    List<CompensateEventSubscriptionEntity> result = new ArrayList<CompensateEventSubscriptionEntity>(eventSubscriptions.size());
+    for (EventSubscriptionEntity eventSubscriptionEntity : eventSubscriptions) {
+      if(eventSubscriptionEntity instanceof CompensateEventSubscriptionEntity) {
+        if(activityId.equals(eventSubscriptionEntity.getActivityId())) {
+          result.add((CompensateEventSubscriptionEntity) eventSubscriptionEntity);
+        }
+      }
+    }
+    return result;
   }
 
-  @SuppressWarnings({ "unchecked" })
-  protected void ensureCompensateEventSubscriptionsInitialized() {
-    if(compensateEventSubscriptions == null) {    
-      compensateEventSubscriptions = (List)Context.getCommandContext()
+  protected void ensureEventSubscriptionsInitialized() {
+    if (eventSubscriptions == null) {
+
+      eventSubscriptions = Context.getCommandContext()
         .getEventSubscriptionManager()
-        .findEventSubscriptions(id, CompensationEventHandler.EVENT_HANDLER_TYPE);      
+        .findEventSubscriptionsByExecution(id);
+    }
+  }
+  
+  public void addEventSubscription(EventSubscriptionEntity eventSubscriptionEntity) {
+    getEventSubscriptionsInternal().add(eventSubscriptionEntity);
+    
+  }
+
+  public void removeEventSubscription(EventSubscriptionEntity eventSubscriptionEntity) {
+    getEventSubscriptionsInternal().remove(eventSubscriptionEntity);
+  }
+  
+  // referenced job entities //////////////////////////////////////////////////
+  
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  protected void ensureJobsInitialized() {
+    if(jobs == null) {    
+      jobs = (List)Context.getCommandContext()
+        .getJobManager()
+        .findJobsByExecutionId(id);
+    }    
+  }
+  
+  protected List<JobEntity> getJobsInternal() {
+    ensureJobsInitialized();
+    return jobs;
+  }
+  
+  public List<JobEntity> getJobs() {
+    return new ArrayList<JobEntity>(getJobsInternal());
+  }
+  
+  public void addJob(JobEntity jobEntity) {
+    getJobsInternal().add(jobEntity);
+  }
+  
+  public void removeJob(JobEntity job) {
+    getJobsInternal().remove(job);
+  }
+  
+  // referenced task entities ///////////////////////////////////////////////////
+  
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  protected void ensureTasksInitialized() {
+    if(tasks == null) {    
+      tasks = (List)Context.getCommandContext()
+        .getTaskManager()
+        .findTasksByExecutionId(id);      
     }    
   }
 
-  public void addCompensateEventSubscription(CompensateEventSubscriptionEntity eventSubscriptionEntity) {
-    ensureCompensateEventSubscriptionsInitialized();    
-    compensateEventSubscriptions.add(eventSubscriptionEntity);
+  protected List<TaskEntity> getTasksInternal() {
+    ensureTasksInitialized();
+    return tasks;
   }
   
-  public void removeCompensateEventSubscription(CompensateEventSubscriptionEntity eventSubscriptionEntity) {
-    ensureCompensateEventSubscriptionsInitialized();    
-    compensateEventSubscriptions.remove(eventSubscriptionEntity);
+  public List<TaskEntity> getTasks() {
+    return new ArrayList<TaskEntity>(getTasksInternal());
   }
   
+  public void addTask(TaskEntity taskEntity) {
+    getTasksInternal().add(taskEntity);
+  }
+  
+  public void removeTask(TaskEntity task) {
+    getTasksInternal().remove(task);
+  }
+    
+
   // getters and setters //////////////////////////////////////////////////////
+  
+  
+  public void setCachedEntityState(int cachedEntityState) {
+    this.cachedEntityState = cachedEntityState;
+    
+    // Check for flags that are down. These lists can be safely initialized as empty, preventing
+    // additional queries that end up in an empty list anyway
+    if(jobs == null && !BitMaskUtil.isBitOn(cachedEntityState, JOBS_STATE_BIT)) {
+      jobs = new ArrayList<JobEntity>();
+    }
+    if(tasks == null && !BitMaskUtil.isBitOn(cachedEntityState, TASKS_STATE_BIT)) {
+      tasks = new ArrayList<TaskEntity>();
+    }
+    if(eventSubscriptions == null && !BitMaskUtil.isBitOn(cachedEntityState, EVENT_SUBSCRIPTIONS_STATE_BIT)) {
+      eventSubscriptions = new ArrayList<EventSubscriptionEntity>();
+    }
+  }
+    
+  public int getCachedEntityState() {
+    cachedEntityState = 0;
+    
+    // Only mark a flag as false when the list is not-null and empty. If null, we can't be sure there are no entries in it since
+    // the list hasn't been initialized/queried yet.
+    cachedEntityState = BitMaskUtil.setBit(cachedEntityState, TASKS_STATE_BIT, (tasks == null || tasks.size() > 0));
+    cachedEntityState = BitMaskUtil.setBit(cachedEntityState, EVENT_SUBSCRIPTIONS_STATE_BIT, (eventSubscriptions == null || eventSubscriptions.size() > 0));
+    cachedEntityState = BitMaskUtil.setBit(cachedEntityState, JOBS_STATE_BIT, (jobs == null || jobs.size() > 0));
+    
+    return cachedEntityState;
+  }
   
   public String getProcessInstanceId() {
     return processInstanceId;
@@ -1207,4 +1345,13 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
   public void disposeStartingExecution() {
     startingExecution = null;
   }
+  
+  public String getCurrentActivityId() {
+    return activityId;
+  }
+  
+  public String getCurrentActivityName() {
+    return activityName;
+  }
+  
 }

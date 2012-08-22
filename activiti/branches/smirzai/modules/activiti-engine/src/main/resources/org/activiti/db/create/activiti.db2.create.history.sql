@@ -10,8 +10,8 @@ create table ACT_HI_PROCINST (
     START_ACT_ID_ varchar(255),
     END_ACT_ID_ varchar(255),
     SUPER_PROCESS_INSTANCE_ID_ varchar(64),
-	UNI_BUSINESS_KEY varchar (255)  not null  generated always as (case when "BUSINESS_KEY_" is null then "ID_" else "BUSINESS_KEY_" end),
-	UNI_PROC_DEF_ID varchar (64)  not null  generated always as (case when "PROC_DEF_ID_" is null then "ID_" else "PROC_DEF_ID_" end),
+	  UNI_BUSINESS_KEY varchar (255)  not null  generated always as (case when "BUSINESS_KEY_" is null then "ID_" else "BUSINESS_KEY_" end),
+	  UNI_PROC_DEF_ID varchar (64)  not null  generated always as (case when "PROC_DEF_ID_" is null then "ID_" else "PROC_DEF_ID_" end),
     DELETE_REASON_ varchar(4000),
     primary key (ID_),
     unique (PROC_INST_ID_)
@@ -23,6 +23,8 @@ create table ACT_HI_ACTINST (
     PROC_INST_ID_ varchar(64) not null,
     EXECUTION_ID_ varchar(64) not null,
     ACT_ID_ varchar(255) not null,
+    TASK_ID_ varchar(64),
+    CALL_PROC_INST_ID_ varchar(64),
     ACT_NAME_ varchar(255),
     ACT_TYPE_ varchar(255) not null,
     OWNER_ varchar(64),
@@ -53,11 +55,25 @@ create table ACT_HI_TASKINST (
     primary key (ID_)
 );
 
+create table ACT_HI_PROCVARIABLE (
+    ID_ varchar(64) not null,
+    PROC_INST_ID_ varchar(64) not null,
+    NAME_ varchar(255) not null,
+    VAR_TYPE_ varchar(255),
+    REV_ integer,
+    BYTEARRAY_ID_ varchar(64),
+    DOUBLE_ double precision,
+    LONG_ bigint,
+    TEXT_ varchar(4000),
+    TEXT2_ varchar(4000),
+    primary key (ID_)
+);
+
 create table ACT_HI_DETAIL (
     ID_ varchar(64) not null,
     TYPE_ varchar(255) not null,
-    PROC_INST_ID_ varchar(64) not null,
-    EXECUTION_ID_ varchar(64) not null,
+    PROC_INST_ID_ varchar(64),
+    EXECUTION_ID_ varchar(64),
     TASK_ID_ varchar(64),
     ACT_INST_ID_ varchar(64),
     NAME_ varchar(255) not null,
@@ -109,3 +125,5 @@ create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_);
 create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_);
 create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_);
 create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_);
+create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_PROCVARIABLE(PROC_INST_ID_);
+create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_PROCVARIABLE(NAME_, VAR_TYPE_);

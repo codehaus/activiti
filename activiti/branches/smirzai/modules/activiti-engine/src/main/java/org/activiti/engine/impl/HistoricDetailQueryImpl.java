@@ -32,6 +32,7 @@ public class HistoricDetailQueryImpl extends AbstractQuery<HistoricDetailQuery, 
   protected String activityId;
   protected String activityInstanceId;
   protected String type;
+  protected boolean excludeTaskRelated = false;
 
   public HistoricDetailQueryImpl() {
   }
@@ -71,6 +72,11 @@ public class HistoricDetailQueryImpl extends AbstractQuery<HistoricDetailQuery, 
 
   public HistoricDetailQuery variableUpdates() {
     this.type = "VariableUpdate";
+    return this;
+  }
+  
+  public HistoricDetailQuery excludeTaskDetails() {
+    this.excludeTaskRelated = true;
     return this;
   }
 
@@ -136,5 +142,9 @@ public class HistoricDetailQueryImpl extends AbstractQuery<HistoricDetailQuery, 
   
   public String getType() {
     return type;
+  }
+  
+  public boolean getExcludeTaskRelated() {
+    return excludeTaskRelated;
   }
 }

@@ -6,10 +6,10 @@ create table ACT_GE_PROPERTY (
 );
 
 insert into ACT_GE_PROPERTY
-values ('schema.version', '5.9-SNAPSHOT', 1);
+values ('schema.version', '5.11-SNAPSHOT', 1);
 
 insert into ACT_GE_PROPERTY
-values ('schema.history', 'create(5.9-SNAPSHOT)', 1);
+values ('schema.history', 'create(5.11-SNAPSHOT)', 1);
 
 insert into ACT_GE_PROPERTY
 values ('next.dbid', '1', 1);
@@ -45,6 +45,7 @@ create table ACT_RU_EXECUTION (
     IS_SCOPE_ tinyint,
     IS_EVENT_SCOPE_ tinyint,
     SUSPENSION_STATE_ tinyint,
+    CACHED_ENT_STATE_ int,
     primary key (ID_)
 );
 
@@ -68,12 +69,12 @@ create table ACT_RU_JOB (
 );
 
 create table ACT_RE_PROCDEF (
-    ID_ nvarchar(64),
+    ID_ nvarchar(64) not null,
     REV_ int,
     CATEGORY_ nvarchar(255),
     NAME_ nvarchar(255),
-    KEY_ nvarchar(255),
-    VERSION_ int,
+    KEY_ nvarchar(255) not null,
+    VERSION_ int not null,
     DEPLOYMENT_ID_ nvarchar(64),
     RESOURCE_NAME_ nvarchar(4000),
     DGRM_RESOURCE_NAME_ nvarchar(4000),
@@ -148,12 +149,17 @@ create index ACT_IDX_IDENT_LNK_GROUP on ACT_RU_IDENTITYLINK(GROUP_ID_);
 create index ACT_IDX_EVENT_SUBSCR_CONFIG_ on ACT_RU_EVENT_SUBSCR(CONFIGURATION_);
 create index ACT_IDX_VARIABLE_TASK_ID on ACT_RU_VARIABLE(TASK_ID_);
 create unique index ACT_UNIQ_RU_BUS_KEY on ACT_RU_EXECUTION (PROC_DEF_ID_, BUSINESS_KEY_) where BUSINESS_KEY_ is not null;
+create index ACT_IDX_ATHRZ_PROCEDEF on ACT_RU_IDENTITYLINK(PROC_DEF_ID_);
 
 alter table ACT_GE_BYTEARRAY
     add constraint ACT_FK_BYTEARR_DEPL 
     foreign key (DEPLOYMENT_ID_) 
     references ACT_RE_DEPLOYMENT (ID_);
 
+alter table ACT_RE_PROCDEF
+    add constraint ACT_UNIQ_PROCDEF
+    unique (KEY_,VERSION_);
+    
 alter table ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_PARENT 
     foreign key (PARENT_ID_) 
@@ -163,7 +169,12 @@ alter table ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_SUPER 
     foreign key (SUPER_EXEC_) 
     references ACT_RU_EXECUTION (ID_);
-    
+
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_PROCDEF 
+    foreign key (PROC_DEF_ID_) 
+    references ACT_RE_PROCDEF (ID_);
+
 alter table ACT_RU_IDENTITYLINK
     add constraint ACT_FK_TSKASS_TASK 
     foreign key (TASK_ID_) 

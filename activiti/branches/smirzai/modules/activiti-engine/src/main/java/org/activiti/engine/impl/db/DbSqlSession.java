@@ -40,6 +40,7 @@ import org.activiti.engine.impl.GroupQueryImpl;
 import org.activiti.engine.impl.HistoricActivityInstanceQueryImpl;
 import org.activiti.engine.impl.HistoricDetailQueryImpl;
 import org.activiti.engine.impl.HistoricProcessInstanceQueryImpl;
+import org.activiti.engine.impl.HistoricProcessVariableQueryImpl;
 import org.activiti.engine.impl.HistoricTaskInstanceQueryImpl;
 import org.activiti.engine.impl.JobQueryImpl;
 import org.activiti.engine.impl.Page;
@@ -173,28 +174,51 @@ public class DbSqlSession implements Session {
 
   @SuppressWarnings("unchecked")
   public List selectList(String statement) {
-    return selectList(statement, null);
-  }
-
-  @SuppressWarnings("unchecked")
-  public List selectList(String statement, Object parameter) {
-    statement = dbSqlSessionFactory.mapStatement(statement);
-    List loadedObjects = sqlSession.selectList(statement, parameter);
-    return filterLoadedObjects(loadedObjects);
+    return selectList(statement, null, 0, Integer.MAX_VALUE);
   }
   
   @SuppressWarnings("unchecked")
-  public List selectList(String statement, Object parameter, Page page) {
-    statement = dbSqlSessionFactory.mapStatement(statement);
-    List loadedObjects;
-    if (page!=null) {
-      loadedObjects = sqlSession.selectList(statement, parameter, new RowBounds(page.getFirstResult(), page.getMaxResults()));
+  public List selectList(String statement, Object parameter) {  
+    return selectList(statement, parameter, 0, Integer.MAX_VALUE);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List selectList(String statement, Object parameter, Page page) {   
+    if(page!=null) {
+      return selectList(statement, parameter, page.getFirstResult(), page.getMaxResults());
+    }else {
+      return selectList(statement, parameter, 0, Integer.MAX_VALUE);
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List selectList(String statement, ListQueryParameterObject parameter, Page page) {   
+    return selectList(statement, parameter);
+  }
+
+  @SuppressWarnings("unchecked")
+  public List selectList(String statement, Object parameter, int firstResult, int maxResults) {   
+    return selectList(statement, new ListQueryParameterObject(parameter, firstResult, maxResults));
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List selectList(String statement, ListQueryParameterObject parameter) {
+    statement = dbSqlSessionFactory.mapStatement(statement);    
+    if(parameter.firstResult == -1 ||  parameter.maxResults==-1) {
+      return Collections.EMPTY_LIST;
+    }
+    List loadedObjects = null;
+    String databaseType = dbSqlSessionFactory.databaseType;
+    if(databaseType.equals("mssql")) {
+      // use mybatis paging (native database paging not yet implemented)
+      log.log(Level.FINE, "Using mybatis paging (native database paging not yet implemented for mssql)");
+      loadedObjects = sqlSession.selectList(statement, parameter, new RowBounds(parameter.getFirstResult(), parameter.getMaxResults()));
     } else {
+      // use native database paging
       loadedObjects = sqlSession.selectList(statement, parameter);
     }
     return filterLoadedObjects(loadedObjects);
   }
-
 
   public Object selectOne(String statement, Object parameter) {
     statement = dbSqlSessionFactory.mapStatement(statement);
@@ -691,18 +715,14 @@ public class DbSqlSession implements Session {
       ResultSet tables = null;
       
       String schema = this.connectionMetadataDefaultSchema;
+      if (dbSqlSessionFactory.getDatabaseSchema()!=null) {
+        schema = dbSqlSessionFactory.getDatabaseSchema();
+      }
+      
       String databaseType = dbSqlSessionFactory.getDatabaseType();
       
       if ("postgres".equals(databaseType)) {
         tableName = tableName.toLowerCase();
-      }
-      
-      if ("oracle".equals(databaseType)) {
-        // avoid problems if multiple schemas are visible to the current oracle user (https://jira.codehaus.org/browse/ACT-1062)
-        if (schema == null) {
-          schema = databaseMetaData.getUserName();
-          log.info("oracle database used and schema not set; assuming schema " + schema);
-        }
       }
       
       try {
@@ -792,6 +812,7 @@ public class DbSqlSession implements Session {
             throw new ActivitiException("database update java class '"+upgradestepClassName+"' can't be instantiated: "+e.getMessage(), e);
           }
           try {
+            log.fine("executing upgrade step java class "+upgradestepClassName);
             dbUpgradeStep.execute(this);
           } catch (Exception e) {
             throw new ActivitiException("error while executing database update java class '"+upgradestepClassName+"': "+e.getMessage(), e);
@@ -804,6 +825,7 @@ public class DbSqlSession implements Session {
             Statement jdbcStatement = connection.createStatement();
             try {
               // no logging needed as the connection will log it
+              log.fine("SQL: "+sqlStatement);
               jdbcStatement.execute(sqlStatement);
               jdbcStatement.close();
             } catch (Exception e) {
@@ -931,6 +953,9 @@ public class DbSqlSession implements Session {
   }
   public HistoricDetailQueryImpl createHistoricDetailQuery() {
     return new HistoricDetailQueryImpl();
+  }
+  public HistoricProcessVariableQueryImpl createHistoricProcessVariableQuery() {
+    return new HistoricProcessVariableQueryImpl();
   }
   public UserQueryImpl createUserQuery() {
     return new UserQueryImpl();

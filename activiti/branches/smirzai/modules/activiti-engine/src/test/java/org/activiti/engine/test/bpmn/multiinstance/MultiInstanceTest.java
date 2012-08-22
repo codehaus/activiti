@@ -13,14 +13,13 @@
 
 package org.activiti.engine.test.bpmn.multiinstance;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.print.attribute.standard.JobName;
 
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
@@ -377,6 +376,37 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
       
       taskService.complete(tasks.get(0).getId());
       taskService.complete(tasks.get(1).getId());
+      
+      if(i != 3) {
+        List<String> activities = runtimeService.getActiveActivityIds(procId);
+        assertNotNull(activities);
+        assertEquals(2, activities.size());
+      }
+    }
+    
+    assertProcessEnded(procId);
+  }
+  
+  @Deployment
+  public void testSequentialSubProcessEndEvent() {
+    // ACT-1185: end-event in subprocess causes inactivated execution
+    String procId = runtimeService.startProcessInstanceByKey("miSequentialSubprocess").getId();
+    
+    TaskQuery query = taskService.createTaskQuery().orderByTaskName().asc();
+    for (int i=0; i<4; i++) {
+      List<Task> tasks = query.list();
+      assertEquals(1, tasks.size());
+      
+      assertEquals("task one", tasks.get(0).getName());
+      
+      taskService.complete(tasks.get(0).getId());
+      
+      // Last run, the execution no longer exists
+      if(i != 3) {
+        List<String> activities = runtimeService.getActiveActivityIds(procId);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+      }
     }
     
     assertProcessEnded(procId);
@@ -546,7 +576,7 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
   @Deployment
   public void testParallelSubProcessCompletionCondition() {
     String procId = runtimeService.startProcessInstanceByKey("miParallelSubprocessCompletionCondition").getId();
-    List<Task> tasks = taskService.createTaskQuery().orderByTaskId().asc().list();
+    List<Task> tasks = taskService.createTaskQuery().orderByExecutionId().asc().list();
     assertEquals(4, tasks.size());
     
     for (int i=0; i<2; i++) {
@@ -627,7 +657,41 @@ public class MultiInstanceTest extends PluggableActivitiTestCase {
     
     assertProcessEnded(procId);
   }
-  
+
+  @Deployment(resources = "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testSequentialCallActivityWithList.bpmn20.xml")
+  public void testSequentialCallActivityWithList() {
+    ArrayList<String> list = new ArrayList<String>();
+    list.add("one");
+    list.add("two");
+    
+    HashMap<String, Object> variables = new HashMap<String, Object>();
+    variables.put("list", list);
+    
+    String procId = runtimeService.startProcessInstanceByKey("parentProcess", variables).getId();
+
+    Task task1 = taskService.createTaskQuery().processVariableValueEquals("element", "one").singleResult();      
+    Task task2 = taskService.createTaskQuery().processVariableValueEquals("element", "two").singleResult();
+    
+    assertNotNull(task1);
+    assertNotNull(task2);
+    
+    HashMap<String, Object> subVariables = new HashMap<String, Object>();
+    subVariables.put("x", "y");
+
+    taskService.complete(task1.getId(), subVariables);
+    taskService.complete(task2.getId(), subVariables);
+
+    Task task3 = taskService.createTaskQuery().processDefinitionKey("midProcess").singleResult();
+    assertNotNull(task3);
+    taskService.complete(task3.getId());
+
+    Task task4 = taskService.createTaskQuery().processDefinitionKey("parentProcess").singleResult();
+    assertNotNull(task4);
+    taskService.complete(task4.getId());
+
+    assertProcessEnded(procId);
+  }
+
   @Deployment(resources = { "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.testSequentialCallActivityWithTimer.bpmn20.xml",
       "org/activiti/engine/test/bpmn/multiinstance/MultiInstanceTest.externalSubProcess.bpmn20.xml" })
   public void testSequentialCallActivityWithTimer() {

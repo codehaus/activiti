@@ -46,6 +46,8 @@ public interface TaskService {
 	/**
 	 * Saves the given task to the persistent data store. If the task is already
 	 * present in the persistent store, it is updated.
+	 * After a new task has been saved, the task instance passed into this method
+	 * is updated with the id of the newly created task.
 	 * @param task the task, cannot be null.
 	 */
 	void saveTask(Task task);
@@ -83,11 +85,12 @@ public interface TaskService {
 	 /**
    * Claim responsibility for a task: the given user is made assignee for the task.
    * The difference with {@link #setAssignee(String, String)} is that here 
-   * a check is done if the provided user is known by the identity component.
+   * a check is done if the task already has a user assigned to it.
+   * No check is done whether the user is known by the identity component.
    * @param taskId task to claim, cannot be null.
    * @param userId user that claims the task. When userId is null the task is unclaimed,
    * assigned to no one.
-   * @throws ActivitiException when the user or task doesn't exist or when the task
+   * @throws ActivitiException when the task doesn't exist or when the task
    * is already claimed by another user.
    */
   void claim(String taskId, String userId);
@@ -100,8 +103,10 @@ public interface TaskService {
   void complete(String taskId);
   
   /**
-   * Delegates the task to another user.  This means that the assignee is set 
-   * and the delegation state is set to {@link DelegationState#PENDING} 
+   * Delegates the task to another user. This means that the assignee is set 
+   * and the delegation state is set to {@link DelegationState#PENDING}.
+   * If no owner is set on the task, the owner is set to the current assignee
+   * of the task.
    * @param taskId The id of the task that will be delegated.
    * @param userId The id of the user that will be set as assignee.
    * @throws ActivitiException when no task exists with the given id.

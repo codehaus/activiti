@@ -11,7 +11,7 @@
     <groupId>org.activiti</groupId>
     <artifactId>activiti-root</artifactId>
     <relativePath>../..</relativePath>
-    <version>5.10-SNAPSHOT</version>
+    <version>5.11-SNAPSHOT</version>
   </parent>
 
   <dependencies>
@@ -84,12 +84,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa</artifactId>
-        <scope>test</scope>
-      </dependency>
+	    <groupId>org.apache.openjpa</groupId>
+	    <artifactId>openjpa</artifactId>
+	    <scope>test</scope>
+    </dependency>
     <dependency>
-        <groupId>org.subethamail</groupId>
+      <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp-wiser</artifactId>
       <scope>test</scope>
     </dependency>
@@ -101,7 +101,7 @@
     <dependency>
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
-        <scope>test</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.jtds</groupId>
@@ -120,6 +120,15 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <repositories>
+    <!-- This repo declaration is here for as this will be part of the distro -->
+    <repository>
+      <id>activiti</id>
+      <name>Activiti</name>
+      <url>https://maven.alfresco.com/nexus/content/repositories/activiti/</url>
+    </repository>
+  </repositories>
 
   <properties>
       <activiti.artifact>org.activiti.engine</activiti.artifact>
@@ -137,14 +146,6 @@
           com.fasterxml*;resolution:=optional,
       </activiti.osgi.import.additional>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>activiti</id>
-      <name>Activiti</name>
-      <url>http://maven.alfresco.com/nexus/content/repositories/activiti/</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>      

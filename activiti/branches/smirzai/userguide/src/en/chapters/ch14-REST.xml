@@ -5,41 +5,52 @@
 
   <title>REST API</title>
 
-  <para>
-    Activiti includes a REST API to the engine that will be deployed to your server when you run the setup script.
-    The REST API uses JSON format (http://www.json.org) and is built upon the Restlet (http://www.restlet.org).
-  </para>
+  <section>
 
-  <para>
-    Each REST API call has its individual authorization level and you must be logged in as a user to invoke a REST API
-    call (except for the /login service). Authentication is done using Basic HTTP Authentication, so if you logged in as
-    an admin (i.e. kermit) you should be able to perform all calls as described below.
-  </para>
+    <title>General Usage</title>
 
-  <para>
-    The API follows normal REST API conventions using GET for read operations, POST for creating objects, PUT for updating and
-    performing operations on already created objects and finally DELETE for deleting objects. When performing a call
-    that affects multiple objects POST is used on all such operations for consistency and making sure that an unlimited
-    number of objects may be used. The reason for using POST is that the HTTP DELETE method doesn't implicitly allow
-    request bodies and therefore, a call using DELETE, in theory, could get it's request body stripped out by a proxy.
-    So to be certain this doesn't happen we use POST, even when PUT could have been used to update multiple objects,
-    for consistency.  
-  </para>
+    <para>
+      Activiti includes a REST API to the engine that will be deployed to your server when you run the setup script.
+      The REST API uses JSON format (http://www.json.org) and is built upon the Restlet (http://www.restlet.org).
+    </para>
 
-  <para>
-    All rest calls use a content type of "application/json" (except for upload requests which uses "multipart/form-data").
-  </para>
+    <para>
+      Each REST API call has its individual authorization level and you must be logged in as a user to invoke a REST API
+      call (except for the /login service). Authentication is done using Basic HTTP Authentication, so if you logged in as
+      an admin (i.e. kermit) you should be able to perform all calls as described below.
+    </para>
 
-  <para>
-    The base URL for invoking a REST call is http://localhost:8080/activiti-rest/service/.
-    So for example to list the process definitions in the engine point your browser to:
-    http://localhost:8080/activiti-rest/service/process-definitions
-  </para>
+    <para>
+      The API follows normal REST API conventions using GET for read operations, POST for creating objects, PUT for updating and
+      performing operations on already created objects and finally DELETE for deleting objects. When performing a call
+      that affects multiple objects POST is used on all such operations for consistency and making sure that an unlimited
+      number of objects may be used. The reason for using POST is that the HTTP DELETE method doesn't implicitly allow
+      request bodies and therefore, a call using DELETE, in theory, could get it's request body stripped out by a proxy.
+      So to be certain this doesn't happen we use POST, even when PUT could have been used to update multiple objects,
+      for consistency.
+    </para>
 
-  <para>
-    Please look below to see what REST API calls that currently are available.
-    Please consider the "API" sections as a "one line hint" to what functionality of the core API that is used to implement the REST API call.
-  </para>
+    <para>
+      All rest calls use a content type of "application/json" (except for upload requests which uses "multipart/form-data").
+    </para>
+
+    <para>
+      The base URL for invoking a REST call is http://localhost:8080/activiti-rest/service/.
+      So for example to list the process definitions in the engine point your browser to:
+      http://localhost:8080/activiti-rest/service/process-definitions
+    </para>
+
+    <para>
+      You may also use curl to run queries against the REST API, e.g.:
+      <programlisting>curl --basic --user kermit:kermit http://localhost:8080/activiti-rest/service/tasks?assignee=kermit</programlisting>
+    </para>
+
+    <para>
+      Please look below to see what REST API calls that currently are available.
+      Please consider the "API" sections as a "one line hint" to what functionality of the core API that is used to implement the REST API call.
+    </para>
+
+  </section>
 
   <section>
 
@@ -51,19 +62,13 @@
       <title>Upload Deployment</title>
       <para>
         Uploads and installs a deployment of format .bpmn20.xml, .bar or .zip using normal "html form upload"
-        (enctype=multipart/form-data) in other words not a json-request. To make it possible for the ui to react when
-        the upload is complete it is possible to submit success/failure callbacks as parameters.
-        I.e. Sending "success=alert" will result in that the string "alert" will be placed inside a JS script block with
-        "();" appended to the end, in other words "alert();". Sending "failure=alert" will result in "alert('Some error message if any');"
-        inside a script block. The actual deployment file shall be placed in a parameter named "deployment".
+        (enctype=multipart/form-data) in other words not a json-request. The deployment information is returned as a response if the deploy action succeeds.
       </para>
       <itemizedlist>
         <listitem>
           <para>
             <emphasis role="bold">Request: </emphasis>
             <literal>POST /deployment</literal>
-            <programlisting>
-success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
           </para>
         </listitem>
         <listitem>
@@ -76,11 +81,11 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
           <para>
             <emphasis role="bold">Response:</emphasis>
             <programlisting>
-&lt;html&gt;
-  &lt;script type="text/javascript"&gt;
-      alert();
-  &lt;/script&gt;
-&lt;/html&gt;</programlisting>
+{
+  "id": "10",
+  "name": "activiti-examples.bar",
+  "deploymentTime": "2010-10-13T14:54:26.750+02:00"
+}</programlisting>
           </para>
         </listitem>
       </itemizedlist>
@@ -231,7 +236,7 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
         <listitem>
           <para>
             <emphasis role="bold">Request: </emphasis>
-            <literal>POST /deployments?cascade={cascade?}</literal>
+            <literal>POST /deployments/delete?cascade={cascade?}</literal>
             <programlisting>
 {
 "deploymentIds": [ "10", "11" ]
@@ -291,7 +296,7 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
   "name": "default",
   "resourceUrl": "jar:file:\//&lt;path-to-deployment&gt;\/activiti-cfg.jar!\/activiti.properties",
   "exception": null,
-  "version": "5.9-SNAPSHOT"
+  "version": "5.11-SNAPSHOT"
 }</programlisting>
             </para>
           </listitem>
@@ -421,6 +426,33 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
           </listitem>
         </itemizedlist>
       </section>
+      
+      <section>
+            <title>Get Process Definition Diagram</title>
+            <para>
+            Returns a PNG diagram of the process definition if it's available.
+            </para>
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <emphasis role="bold">Request:</emphasis>
+                  <literal>GET /process-definition/{processDefinitionId}/diagram</literal>
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <emphasis role="bold">API:</emphasis>
+                  <literal>repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), processDefinition.getDiagramResourceName());</literal>
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <emphasis role="bold">Response:</emphasis>
+                  <programlisting>Png diagram of the process definition.</programlisting>
+                </para>
+              </listitem>
+            </itemizedlist>
+        </section>
 
       <section>
         <title>Start Process Instance</title>
@@ -491,9 +523,9 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
   {
     "data": [
       {
-        "id": 2,
+        "id": "2",
         "processDefinitionId": "financialReport:1",
-        "businessKey": 55,
+        "businessKey": "55",
         "startTime": "2010-10-13T14:54:26.750+02:00",
         "startUserId": "kermit"
       }
@@ -518,7 +550,7 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
             <listitem>
               <para>
                 <emphasis role="bold">Request:</emphasis>
-                <literal>GET /processInstance/{processInstanceId}</literal>
+                <literal>GET /process-instance/{processInstanceId}</literal>
               </para>
             </listitem>
             <listitem>
@@ -532,16 +564,16 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
                 <emphasis role="bold">Response:</emphasis>
                 <programlisting>
   {
-    "id": 2,
+    "id": "2",
     "processDefinitionId": "financialReport:1",
-    "businessKey": 55,
+    "businessKey": "55",
     "startTime": "2010-10-13T14:54:26.750+02:00",
     "startActivityId": "startFinancialAnalysis",
     "startUserId": "kermit",
     "completed": false,
     "tasks": [
       {
-        "taskId": 3,
+        "taskId": "3",
         "taskName": "Analyze report",
         "owner": null,
         "assignee": "Kermit",
@@ -551,7 +583,7 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
     ],
     "activities": [
       {
-        "activityId": 4,
+        "activityId": "4",
         "activityName": "Get report",
         "activityType": "ServiceTask",
         "startTime": "2010-10-13T14:53:25.750+02:00",
@@ -561,6 +593,12 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
       }
     ],
     "variables": [
+      {
+        "variableName": "reportName",
+        "variableValue": "classified.pdf",
+      }
+    ]
+    "historyVariables": [
       {
         "variableName": "reportName",
         "variableValue": "classified.pdf",
@@ -585,7 +623,7 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
               <listitem>
                 <para>
                   <emphasis role="bold">Request:</emphasis>
-                  <literal>GET /processInstance/{processInstanceId}/diagram</literal>
+                  <literal>GET /process-instance/{processInstanceId}/diagram</literal>
                 </para>
               </listitem>
               <listitem>
@@ -601,6 +639,93 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
                 </para>
               </listitem>
             </itemizedlist>
+        </section>
+        
+        <section>
+            <title>Get open tasks for a process instance</title>
+            <para>
+            Returns a list of open tasks for a running process instance
+            </para>
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <emphasis role="bold">Request:</emphasis>
+                  <literal>GET /process-instance/{processInstanceId}/tasks</literal>
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <emphasis role="bold">API:</emphasis>
+                  <literal>taskService.createTaskQuery().processInstanceId(processInstanceId);</literal>
+                </para>
+              </listitem>
+              <listitem>
+            <para>
+              <emphasis role="bold">Paginated Response:</emphasis>
+              <programlisting>
+{
+  "data": [
+    {
+      "id": "127",
+      "name": "Handle vacation request",
+      "description": "Vacation request by Kermit",
+      "delegationState": "pending",
+      "dueDate": "2010-10-13T14:54:26.750+02:00",
+      "priority": 50,
+      "assignee": null,
+      "executionId": "118",
+      "formResourceKey": "org/activiti/examples/taskforms/approve.form",
+      "owner": "Kermit",
+      "parentTaskId": "120",
+      "processDefinitionId": "financialReport:1",
+      "processInstanceId": "123",
+      "taskDefinitionKey": "125"
+    }
+  ],
+  "total": 1,
+  "start": 0,
+  "sort": "id",
+  "order": "asc",
+  "size": 1
+}</programlisting>
+            </para>
+          </listitem>
+         </itemizedlist>
+        </section>
+        <section>
+            <title>Signal an activity (receive task) for a specific process instance</title>
+            <para>
+            Signals an activity execution (receive task).
+            </para>
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <emphasis role="bold">Request:</emphasis>
+                  <literal>POST /process-instance/{processInstanceId}/signal</literal>
+                  <programlisting>
+{
+  "activityId":"receiveTask",
+  "variable1":"value",
+  "variable2":"value"
+}</programlisting>
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <emphasis role="bold">API:</emphasis>
+                  <literal>runtimeService.signal(execution.getId(), variables);</literal>
+                </para>
+              </listitem>
+              <listitem>
+            <para>
+              <emphasis role="bold">Response:</emphasis>
+              <programlisting>
+{
+  "success": true
+}</programlisting>
+            </para>
+          </listitem>
+         </itemizedlist>
         </section>
 
 
@@ -675,6 +800,12 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
           </listitem>
           <listitem>
             <para>
+              <emphasis role="bold">Example:</emphasis>
+              <programlisting>curl --basic --user kermit:kermit http://localhost:8080/activiti-rest/service/tasks?assignee=kermit</programlisting>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
               <emphasis role="bold">API:</emphasis>
               <literal>ProcessEngines.getProcessEngine(configuredProcessEngineName).getTaskService().createTaskQuery().xxx().listPage()</literal>
             </para>
@@ -686,17 +817,17 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
 {
   "data": [
     {
-      "id": 127,
+      "id": "127",
       "name": "Handle vacation request",
       "description": "Vacation request by Kermit",
       "delegationState": "pending",
       "dueDate": "2010-10-13T14:54:26.750+02:00",
       "priority": 50,
       "assignee": null,
-      "executionId": 118,
+      "executionId": "118",
       "formResourceKey": "org/activiti/examples/taskforms/approve.form",
       "owner": "Kermit",
-      "parentTaskId": 120,
+      "parentTaskId": "120",
       "processDefinitionId": "financialReport:1",
       "processInstanceId": "123",
       "taskDefinitionKey": "125"
@@ -743,10 +874,10 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
       "dueDate": "2010-10-13T14:54:26.750+02:00",
       "priority": 50,
       "assignee": null,
-      "executionId": 118,
+      "executionId": "118",
       "formResourceKey": "org/activiti/examples/taskforms/approve.form",
       "owner": "Kermit",
-      "parentTaskId": 120,
+      "parentTaskId": "120",
       "processDefinitionId": "financialReport:1",
       "processInstanceId": "123",
       "taskDefinitionKey": "125",
@@ -1386,7 +1517,7 @@ success={success}&amp;failure={success}&amp;deployment={file}</programlisting>
     {
       "NAME_": "schema.version",
       "REV_": "1",
-      "VALUE_": "5.9-SNAPSHOT"
+      "VALUE_": "5.10"
     },
     {
       "NAME_": "next.dbid",

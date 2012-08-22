@@ -10,7 +10,7 @@
 		<groupId>org.activiti</groupId>
 		<artifactId>activiti-root</artifactId>
 		<relativePath>../..</relativePath>
-		<version>5.10-SNAPSHOT</version>
+		<version>5.11-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -85,7 +85,6 @@
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
-      <version>1.4</version>
     </dependency>
 	</dependencies>
 
@@ -216,7 +215,7 @@
     <repository>
       <id>activiti</id>
       <name>Activiti</name>
-      <url>http://maven.alfresco.com/nexus/content/repositories/activiti/</url>
+      <url>https://maven.alfresco.com/nexus/content/repositories/activiti/</url>
     </repository>
   </repositories>
 

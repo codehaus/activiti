@@ -15,19 +15,20 @@ package org.activiti.engine;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 
-import org.activiti.engine.repository.Bounds;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.DeploymentQuery;
+import org.activiti.engine.repository.DiagramLayout;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
+import org.activiti.engine.task.IdentityLink;
 
 
 /** Service providing access to the repository of process definitions and deployments.
  * 
  * @author Tom Baeyens
  * @author Falko Menge
+ * @author Tijs Rademakers
  */
 public interface RepositoryService {
 
@@ -129,6 +130,7 @@ public interface RepositoryService {
    *
    * @param processDefinitionId
    *          id of a {@link ProcessDefinition}, cannot be null.
+   * @return null when the diagram resource name of a {@link ProcessDefinition} is null.
    * @throws ActivitiException
    *           when the process diagram doesn't exist.
    */
@@ -141,8 +143,48 @@ public interface RepositoryService {
    * This method requires a process model and a diagram image to be deployed.
    * @param processDefinitionId id of a {@link ProcessDefinition}, cannot be null.
    * @return Map with process element ids as keys and positions and dimensions as values.
+   * @return null when the input stream of a process diagram is null.
    * @throws ActivitiException when the process model or diagram doesn't exist.
    */
-  Map<String, Bounds> getProcessDiagramLayout(String processDefinitionId);
+  DiagramLayout getProcessDiagramLayout(String processDefinitionId);
+  
+  /**
+   * Authorizes a candidate user for a process definition.
+   * @param processDefinitionId id of the process definition, cannot be null.
+   * @param userId id of the user involve, cannot be null.
+   * @throws ActivitiException when the process definition or user doesn't exist.
+   */
+  void addCandidateStarterUser(String processDefinitionId, String userId);
+  
+  /**
+   * Authorizes a candidate group for a process definition.
+   * @param processDefinitionId id of the process definition, cannot be null.
+   * @param groupId id of the group involve, cannot be null.
+   * @throws ActivitiException when the process definition or group doesn't exist.
+   */
+  void addCandidateStarterGroup(String processDefinitionId, String groupId);
+  
+  /**
+   * Removes the authorization of a candidate user for a process definition.
+   * @param processDefinitionId id of the process definition, cannot be null.
+   * @param userId id of the user involve, cannot be null.
+   * @throws ActivitiException when the process definition or user doesn't exist.
+   */
+  void deleteCandidateStarterUser(String processDefinitionId, String userId);
+  
+  /**
+   * Removes the authorization of a candidate group for a process definition.
+   * @param processDefinitionId id of the process definition, cannot be null.
+   * @param groupId id of the group involve, cannot be null.
+   * @throws ActivitiException when the process definition or group doesn't exist.
+   */
+  void deleteCandidateStarterGroup(String processDefinitionId, String groupId);
+
+  /**
+   * Retrieves the {@link IdentityLink}s associated with the given process definition.
+   * Such an {@link IdentityLink} informs how a certain identity (eg. group or user)
+   * is authorized for a certain process definition
+   */
+  List<IdentityLink> getIdentityLinksForProcessDefinition(String processDefinitionId);
 
 }

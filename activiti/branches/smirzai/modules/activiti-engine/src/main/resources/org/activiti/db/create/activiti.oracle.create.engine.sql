@@ -6,10 +6,10 @@ create table ACT_GE_PROPERTY (
 );
 
 insert into ACT_GE_PROPERTY
-values ('schema.version', '5.9-SNAPSHOT', 1);
+values ('schema.version', '5.11-SNAPSHOT', 1);
 
 insert into ACT_GE_PROPERTY
-values ('schema.history', 'create(5.9-SNAPSHOT)', 1);
+values ('schema.history', 'create(5.11-SNAPSHOT)', 1);
 
 insert into ACT_GE_PROPERTY
 values ('next.dbid', '1', 1);
@@ -45,6 +45,7 @@ create table ACT_RU_EXECUTION (
     IS_SCOPE_ NUMBER(1,0) CHECK (IS_SCOPE_ IN (1,0)),
     IS_EVENT_SCOPE_ NUMBER(1,0) CHECK (IS_EVENT_SCOPE_ IN (1,0)),
     SUSPENSION_STATE_ INTEGER,
+    CACHED_ENT_STATE_ INTEGER,
     primary key (ID_)
 );
 
@@ -68,12 +69,12 @@ create table ACT_RU_JOB (
 );
 
 create table ACT_RE_PROCDEF (
-    ID_ NVARCHAR2(64),
+    ID_ NVARCHAR2(64) NOT NULL,
     REV_ INTEGER,
     CATEGORY_ NVARCHAR2(255),
     NAME_ NVARCHAR2(255),
-    KEY_ NVARCHAR2(255),
-    VERSION_ INTEGER,
+    KEY_ NVARCHAR2(255) NOT NULL,
+    VERSION_ INTEGER NOT NULL,
     DEPLOYMENT_ID_ NVARCHAR2(64),
     RESOURCE_NAME_ NVARCHAR2(2000),
     DGRM_RESOURCE_NAME_ varchar(4000),
@@ -154,6 +155,10 @@ alter table ACT_GE_BYTEARRAY
     foreign key (DEPLOYMENT_ID_) 
     references ACT_RE_DEPLOYMENT (ID_);
 
+alter table ACT_RE_PROCDEF
+    add constraint ACT_UNIQ_PROCDEF
+    unique (KEY_,VERSION_);
+    
 create index ACT_IDX_EXE_PROCINST on ACT_RU_EXECUTION(PROC_INST_ID_);
 alter table ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_PROCINST
@@ -171,6 +176,12 @@ alter table ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_SUPER
     foreign key (SUPER_EXEC_) 
     references ACT_RU_EXECUTION (ID_);
+    
+create index ACT_IDX_EXE_PROCDEF on ACT_RU_EXECUTION(PROC_DEF_ID_);
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_PROCDEF 
+    foreign key (PROC_DEF_ID_) 
+    references ACT_RE_PROCDEF (ID_);    
 
 create index ACT_IDX_TSKASS_TASK on ACT_RU_IDENTITYLINK(TASK_ID_);
 alter table ACT_RU_IDENTITYLINK

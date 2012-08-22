@@ -26,7 +26,7 @@ import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramGenerator;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
-import org.activiti.engine.impl.bpmn.parser.MessageEventDefinition;
+import org.activiti.engine.impl.bpmn.parser.EventSubscriptionDeclaration;
 import org.activiti.engine.impl.cfg.IdGenerator;
 import org.activiti.engine.impl.cmd.DeleteJobsCmd;
 import org.activiti.engine.impl.context.Context;
@@ -48,6 +48,7 @@ import org.activiti.engine.impl.persistence.entity.ResourceEntity;
 import org.activiti.engine.impl.persistence.entity.TimerEntity;
 import org.activiti.engine.impl.util.IoUtil;
 import org.activiti.engine.runtime.Job;
+import org.activiti.engine.task.IdentityLinkType;
 
 /**
  * @author Tom Baeyens
@@ -93,15 +94,22 @@ public class BpmnDeployer implements Deployer {
           processDefinition.setResourceName(resourceName);
           
           String diagramResourceName = getDiagramResourceForProcess(resourceName, processDefinition.getKey(), resources);
-          if (diagramResourceName==null && processDefinition.isGraphicalNotationDefined()) {
-            try {
-              byte[] diagramBytes = IoUtil.readInputStream(ProcessDiagramGenerator.generatePngDiagram(processDefinition), null);
-              diagramResourceName = getProcessImageResourceName(resourceName, processDefinition.getKey(), "png");
-              createResource(diagramResourceName, diagramBytes, deployment);
-            } catch (Throwable t) { // if anything goes wrong, we don't store the image (the process will still be executable).
-              LOG.log(Level.WARNING, "Error while generating process diagram, image will not be stored in repository", t);
-            }
-          } 
+                   
+          // Only generate the resource when deployment is new to prevent modification of deployment resources 
+          // after the process-definition is actually deployed. Also to prevent resource-generation failure every
+          // time the process definition is added to the deployment-cache when diagram-generation has failed the first time.
+          if(deployment.isNew()) {
+            if (Context.getProcessEngineConfiguration().isCreateDiagramOnDeploy() &&
+                  diagramResourceName==null && processDefinition.isGraphicalNotationDefined()) {
+              try {
+                  byte[] diagramBytes = IoUtil.readInputStream(ProcessDiagramGenerator.generatePngDiagram(processDefinition), null);
+                  diagramResourceName = getProcessImageResourceName(resourceName, processDefinition.getKey(), "png");
+                  createResource(diagramResourceName, diagramBytes, deployment);
+              } catch (Throwable t) { // if anything goes wrong, we don't store the image (the process will still be executable).
+                LOG.log(Level.WARNING, "Error while generating process diagram, image will not be stored in repository", t);
+              }
+            } 
+          }
           
           processDefinition.setDiagramResourceName(diagramResourceName);
           processDefinitions.add(processDefinition);
@@ -199,7 +207,7 @@ public class BpmnDeployer implements Deployer {
       
       List<EventSubscriptionEntity> subscriptionsToDelete = commandContext
         .getEventSubscriptionManager()
-        .findEventSubscriptionsByConfiguration(MessageEventHandler.TYPE, latestProcessDefinition.getId());
+        .findEventSubscriptionsByConfiguration(MessageEventHandler.EVENT_HANDLER_TYPE, latestProcessDefinition.getId());
       
       for (EventSubscriptionEntity eventSubscriptionEntity : subscriptionsToDelete) {
         eventSubscriptionEntity.delete();        
@@ -211,20 +219,20 @@ public class BpmnDeployer implements Deployer {
   @SuppressWarnings("unchecked")
   protected void addMessageEventSubscriptions(ProcessDefinitionEntity processDefinition) {
     CommandContext commandContext = Context.getCommandContext();
-    List<MessageEventDefinition> messageEventDefinitions = (List<MessageEventDefinition>) processDefinition.getProperty(BpmnParse.PROPERTYNAME_MESSAGE_EVENT_DEFINITIONS);
+    List<EventSubscriptionDeclaration> messageEventDefinitions = (List<EventSubscriptionDeclaration>) processDefinition.getProperty(BpmnParse.PROPERTYNAME_EVENT_SUBSCRIPTION_DECLARATION);
     if(messageEventDefinitions != null) {     
-      for (MessageEventDefinition messageEventDefinition : messageEventDefinitions) {
+      for (EventSubscriptionDeclaration messageEventDefinition : messageEventDefinitions) {
         if(messageEventDefinition.isStartEvent()) {
           // look for subscriptions for the same name in db:
           List<EventSubscriptionEntity> subscriptionsForSameMessageName = commandContext
             .getEventSubscriptionManager()
-            .findEventSubscriptionByName(MessageEventHandler.TYPE, messageEventDefinition.getName());
+            .findEventSubscriptionsByName(MessageEventHandler.EVENT_HANDLER_TYPE, messageEventDefinition.getEventName());
           // also look for subscriptions created in the session:
           List<MessageEventSubscriptionEntity> cachedSubscriptions = commandContext
             .getDbSqlSession()
             .findInCache(MessageEventSubscriptionEntity.class);
           for (MessageEventSubscriptionEntity cachedSubscription : cachedSubscriptions) {
-            if(messageEventDefinition.getName().equals(cachedSubscription.getEventName())
+            if(messageEventDefinition.getEventName().equals(cachedSubscription.getEventName())
                     && !subscriptionsForSameMessageName.contains(cachedSubscription)) {
               subscriptionsForSameMessageName.add(cachedSubscription);
             }
@@ -236,11 +244,11 @@ public class BpmnDeployer implements Deployer {
                 
           if(!subscriptionsForSameMessageName.isEmpty()) {
             throw new ActivitiException("Cannot deploy process definition '" + processDefinition.getResourceName()
-                    + "': there already is a message event subscription for the message with name '" + messageEventDefinition.getName() + "'.");
+                    + "': there already is a message event subscription for the message with name '" + messageEventDefinition.getEventName() + "'.");
           }
           
           MessageEventSubscriptionEntity newSubscription = new MessageEventSubscriptionEntity();
-          newSubscription.setEventName(messageEventDefinition.getName());
+          newSubscription.setEventName(messageEventDefinition.getEventName());
           newSubscription.setActivityId(messageEventDefinition.getActivityId());
           newSubscription.setConfiguration(processDefinition.getId());
           
@@ -262,17 +270,17 @@ public class BpmnDeployer implements Deployer {
         Expression expr = (Expression) iterator.next();
         IdentityLinkEntity identityLink = new IdentityLinkEntity();
         identityLink.setProcessDef(processDefinition);
-        if (exprType.equals(ExprType.USER))
+        if (exprType.equals(ExprType.USER)) {
            identityLink.setUserId(expr.toString());
-        else if (exprType.equals(ExprType.GROUP))
-          identityLink.setGroupId(expr.toString());          
-        identityLink.setType("candidate");
+        } else if (exprType.equals(ExprType.GROUP)) {
+          identityLink.setGroupId(expr.toString());
+        }
+        identityLink.setType(IdentityLinkType.CANDIDATE);
         commandContext.getDbSqlSession().insert(identityLink);
       }
     }
   }
 
-  @SuppressWarnings("unchecked")
   protected void addAuthorizations(ProcessDefinitionEntity processDefinition) {
     addAuthorizationsFromIterator(processDefinition.getCandidateStarterUserIdExpressions(), processDefinition, ExprType.USER);
     addAuthorizationsFromIterator(processDefinition.getCandidateStarterGroupIdExpressions(), processDefinition, ExprType.GROUP);

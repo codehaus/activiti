@@ -42,11 +42,14 @@ public class ByteArrayType implements VariableType {
     byte[] bytes = (byte[]) value;
     if (byteArray==null) {
       byteArray = new ByteArrayEntity(bytes);
+      
       Context
         .getCommandContext()
         .getDbSqlSession()
         .insert(byteArray);
+      
       valueFields.setByteArrayValue(byteArray);
+   
     } else {
       byteArray.setBytes(bytes);
     }

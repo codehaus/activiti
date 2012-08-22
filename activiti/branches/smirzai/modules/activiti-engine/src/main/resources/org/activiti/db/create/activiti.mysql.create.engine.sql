@@ -6,10 +6,10 @@ create table ACT_GE_PROPERTY (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;
 
 insert into ACT_GE_PROPERTY
-values ('schema.version', '5.9-SNAPSHOT', 1);
+values ('schema.version', '5.11-SNAPSHOT', 1);
 
 insert into ACT_GE_PROPERTY
-values ('schema.history', 'create(5.9-SNAPSHOT)', 1);
+values ('schema.history', 'create(5.11-SNAPSHOT)', 1);
 
 insert into ACT_GE_PROPERTY
 values ('next.dbid', '1', 1);
@@ -45,6 +45,7 @@ create table ACT_RU_EXECUTION (
     IS_SCOPE_ TINYINT,
     IS_EVENT_SCOPE_ TINYINT,
     SUSPENSION_STATE_ integer,
+    CACHED_ENT_STATE_ integer,
     primary key (ID_),
     unique ACT_UNIQ_RU_BUS_KEY (PROC_DEF_ID_, BUSINESS_KEY_)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;
@@ -69,12 +70,12 @@ create table ACT_RU_JOB (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;
 
 create table ACT_RE_PROCDEF (
-    ID_ varchar(64),
+    ID_ varchar(64) not null,
     REV_ integer,
     CATEGORY_ varchar(255),
     NAME_ varchar(255),
-    KEY_ varchar(255),
-    VERSION_ integer,
+    KEY_ varchar(255) not null,
+    VERSION_ integer not null,
     DEPLOYMENT_ID_ varchar(64),
     RESOURCE_NAME_ varchar(4000),
     DGRM_RESOURCE_NAME_ varchar(4000),
@@ -148,12 +149,17 @@ create index ACT_IDX_IDENT_LNK_USER on ACT_RU_IDENTITYLINK(USER_ID_);
 create index ACT_IDX_IDENT_LNK_GROUP on ACT_RU_IDENTITYLINK(GROUP_ID_);
 create index ACT_IDX_EVENT_SUBSCR_CONFIG_ on ACT_RU_EVENT_SUBSCR(CONFIGURATION_);
 create index ACT_IDX_VARIABLE_TASK_ID on ACT_RU_VARIABLE(TASK_ID_);
+create index ACT_IDX_ATHRZ_PROCEDEF on ACT_RU_IDENTITYLINK(PROC_DEF_ID_);
 
 alter table ACT_GE_BYTEARRAY
     add constraint ACT_FK_BYTEARR_DEPL 
     foreign key (DEPLOYMENT_ID_) 
     references ACT_RE_DEPLOYMENT (ID_);
 
+alter table ACT_RE_PROCDEF
+    add constraint ACT_UNIQ_PROCDEF
+    unique (KEY_,VERSION_);
+    
 alter table ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_PROCINST 
     foreign key (PROC_INST_ID_) 
@@ -168,6 +174,11 @@ alter table ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_SUPER 
     foreign key (SUPER_EXEC_) 
     references ACT_RU_EXECUTION (ID_);
+
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_PROCDEF 
+    foreign key (PROC_DEF_ID_) 
+    references ACT_RE_PROCDEF (ID_);
     
 alter table ACT_RU_IDENTITYLINK
     add constraint ACT_FK_TSKASS_TASK 
@@ -178,7 +189,6 @@ alter table ACT_RU_IDENTITYLINK
     add constraint ACT_FK_ATHRZ_PROCEDEF 
     foreign key (PROC_DEF_ID_) 
     references ACT_RE_PROCDEF(ID_);
-    
     
 alter table ACT_RU_TASK
     add constraint ACT_FK_TASK_EXE

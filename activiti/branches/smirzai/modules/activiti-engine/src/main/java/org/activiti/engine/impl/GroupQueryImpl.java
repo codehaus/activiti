@@ -89,7 +89,7 @@ public class GroupQueryImpl extends AbstractQuery<GroupQuery, Group> implements 
 
   public GroupQuery potentialStarter(String procDefId) {
     if (procDefId == null) {
-      throw new ActivitiException("Provided ProcessDefinitionid is null or empty");
+      throw new ActivitiException("Provided processDefinitionId is null or empty");
     }
     this.procDefId = procDefId;
     return this;

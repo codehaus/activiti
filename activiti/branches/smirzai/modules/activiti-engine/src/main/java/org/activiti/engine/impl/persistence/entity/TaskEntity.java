@@ -44,6 +44,7 @@ import org.activiti.engine.task.Task;
 /**
  * @author Tom Baeyens
  * @author Joram Barrez
+ * @author Falko Menge
  */ 
 public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask, Serializable, PersistentObject {
 
@@ -104,6 +105,10 @@ public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask,
     DbSqlSession dbSqlSession = commandContext.getDbSqlSession();
     dbSqlSession.insert(this);
     
+    if(execution != null) {
+      execution.addTask(this);
+    }
+    
     int historyLevel = Context.getProcessEngineConfiguration().getHistoryLevel();
     if (historyLevel>=ProcessEngineConfigurationImpl.HISTORYLEVEL_AUDIT) {
       HistoricTaskInstanceEntity historicTaskInstance = new HistoricTaskInstanceEntity(this, execution);
@@ -146,12 +151,17 @@ public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask,
       .deleteTask(this, TaskEntity.DELETE_REASON_COMPLETED, false);
     
     if (executionId!=null) {
-      getExecution().signal(null, null);
+      ExecutionEntity execution = getExecution();
+      execution.removeTask(this);
+      execution.signal(null, null);
     }
   }
   
   public void delegate(String userId) {
     setDelegationState(DelegationState.PENDING);
+    if (getOwner() == null) {
+      setOwner(getAssignee());
+    }
     setAssignee(userId);
   }
 
@@ -166,10 +176,13 @@ public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask,
     persistentState.put("owner", this.owner);
     persistentState.put("name", this.name);
     persistentState.put("priority", this.priority);
-    if (executionId!=null) {
+    if (executionId != null) {
       persistentState.put("executionId", this.executionId);
     }
-    if (createTime!=null) {
+    if (processDefinitionId != null) {
+      persistentState.put("processDefinitionId", this.processDefinitionId);
+    }
+    if (createTime != null) {
       persistentState.put("createTime", this.createTime);
     }
     if(description != null) {
@@ -178,8 +191,11 @@ public class TaskEntity extends VariableScopeImpl implements Task, DelegateTask,
     if(dueDate != null) {
       persistentState.put("dueDate", this.dueDate);
     }
-    if (parentTaskId!=null) {
+    if (parentTaskId != null) {
       persistentState.put("parentTaskId", this.parentTaskId);
+    }
+    if (delegationState != null) {
+      persistentState.put("delegationState", this.delegationState);
     }
     return persistentState;
   }

@@ -44,4 +44,24 @@ public interface DelegateExecution extends VariableScope {
    * The business key for the process instance this execution is associated with.
    */
   String getProcessBusinessKey();
+  
+  /**
+   * The process definition key for the process instance this execution is associated with.
+   */
+  String getProcessDefinitionId();
+  
+  /**
+   * Gets the id of the parent of this execution. If null, the execution represents a process-instance.
+   */
+  String getParentId();
+  
+  /**
+   * Gets the id of the current activity.
+   */
+  String getCurrentActivityId();
+  
+  /**
+   * Gets the name of the current activity.
+   */
+  String getCurrentActivityName();
 }
