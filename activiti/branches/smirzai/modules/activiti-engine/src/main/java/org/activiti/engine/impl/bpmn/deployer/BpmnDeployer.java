@@ -53,7 +53,6 @@ import org.activiti.engine.task.IdentityLinkType;
 /**
  * @author Tom Baeyens
  * @author Joram Barrez
- * @author Saeid Mirzaei
  */
 public class BpmnDeployer implements Deployer {
 
@@ -115,6 +114,15 @@ public class BpmnDeployer implements Deployer {
           processDefinitions.add(processDefinition);
         }
       }
+    }
+    
+    // check if there are process definitions with the same process key to prevent database unique index violation
+    List<String> keyList = new ArrayList<String>();
+    for (ProcessDefinitionEntity processDefinition : processDefinitions) {
+      if (keyList.contains(processDefinition.getKey())) {
+        throw new ActivitiException("The deployment contains process definitions with the same key (process id atrribute), this is not allowed");
+      }
+      keyList.add(processDefinition.getKey());
     }
     
     CommandContext commandContext = Context.getCommandContext();

@@ -15,13 +15,10 @@ package org.activiti.engine.impl.pvm.process;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.pvm.PvmProcessDefinition;
 import org.activiti.engine.impl.pvm.PvmProcessInstance;
 import org.activiti.engine.impl.pvm.runtime.ExecutionImpl;
@@ -31,7 +28,6 @@ import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
 /**
  * @author Tom Baeyens
- * @author Saeid Mirzaei
  */
 public class ProcessDefinitionImpl extends ScopeImpl implements PvmProcessDefinition {
   
@@ -41,10 +37,8 @@ public class ProcessDefinitionImpl extends ScopeImpl implements PvmProcessDefini
   protected String description;
   protected ActivityImpl initial;
   protected Map<ActivityImpl, List<ActivityImpl>> initialActivityStacks = new HashMap<ActivityImpl, List<ActivityImpl>>();
-  
-  protected Set<Expression> candidateStarterUserIdExpressions = new HashSet<Expression>();
-  protected Set<Expression> candidateStarterGroupIdExpressions = new HashSet<Expression>();
-
+  protected List<LaneSet> laneSets;
+  protected ParticipantProcess participantProcess;
 
   public ProcessDefinitionImpl(String id) {
     super(id, null);
@@ -118,7 +112,24 @@ public class ProcessDefinitionImpl extends ScopeImpl implements PvmProcessDefini
   public String getDeploymentId() {
     return null;
   }
-
+  
+  public void addLaneSet(LaneSet newLaneSet) {
+    getLaneSets().add(newLaneSet);
+  }
+  
+  public Lane getLaneForId(String id) {
+    if(laneSets != null && laneSets.size() > 0) {
+      Lane lane;
+      for(LaneSet set : laneSets) {
+        lane = set.getLaneForId(id);
+        if(lane != null) {
+          return lane;
+        }
+      }
+    }
+    return null;
+  }
+  
   // getters and setters //////////////////////////////////////////////////////
   
   public ActivityImpl getInitial() {
@@ -145,20 +156,22 @@ public class ProcessDefinitionImpl extends ScopeImpl implements PvmProcessDefini
     return (String) getProperty("documentation");
   }
   
-  public Set<Expression> getCandidateStarterUserIdExpressions() {
-    return candidateStarterUserIdExpressions;
+  /**
+   * @return all lane-sets defined on this process-instance. Returns an empty list if none are defined. 
+   */
+  public List<LaneSet> getLaneSets() {
+    if(laneSets == null) {
+      laneSets = new ArrayList<LaneSet>();
+    }
+    return laneSets;
   }
-
-  public void addCandidateStarterUserIdExpression(Expression userId) {
-    candidateStarterUserIdExpressions.add(userId);
+  
+  
+  public void setParticipantProcess(ParticipantProcess participantProcess) {
+    this.participantProcess = participantProcess;
   }
-
-  public Set<Expression> getCandidateStarterGroupIdExpressions() {
-    return candidateStarterGroupIdExpressions;
+  
+  public ParticipantProcess getParticipantProcess() {
+    return participantProcess;
   }
-
-  public void addCandidateStarterGroupIdExpression(Expression groupId) {
-    candidateStarterGroupIdExpressions.add(groupId);
-  }
-
 }
