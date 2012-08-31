@@ -1730,15 +1730,8 @@ public class BpmnParser {
 
 	 private MessageEventDefinition parseMessageEventDefinition(XMLStreamReader xtr) {
 	    MessageEventDefinition messageDefinition = new MessageEventDefinition();
-	    try {
-	      while (xtr.hasNext()) {
-	        xtr.next();
-	        if (xtr.isStartElement() && "messageRef".equalsIgnoreCase(xtr.getLocalName())) {
-	          messageDefinition.setMessageRef(xtr.getElementText());
-	          break;
-	        } 	      }
-	    } catch (Exception e) {
-	      e.printStackTrace();
+	    if (StringUtils.isNotEmpty(xtr.getAttributeValue(null, "messageRef"))) {
+	      messageDefinition.setMessageRef(xtr.getAttributeValue(null, "messageRef"));
 	    }
 	    return messageDefinition;
 	  }
