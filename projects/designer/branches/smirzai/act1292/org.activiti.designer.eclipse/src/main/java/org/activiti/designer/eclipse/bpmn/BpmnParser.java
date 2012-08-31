@@ -46,6 +46,7 @@ import org.activiti.designer.bpmn2.model.IntermediateCatchEvent;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.MailTask;
 import org.activiti.designer.bpmn2.model.ManualTask;
+import org.activiti.designer.bpmn2.model.MessageEventDefinition;
 import org.activiti.designer.bpmn2.model.MultiInstanceLoopCharacteristics;
 import org.activiti.designer.bpmn2.model.ParallelGateway;
 import org.activiti.designer.bpmn2.model.Pool;
@@ -514,6 +515,9 @@ public class BpmnParser {
 				} else if (xtr.isStartElement() && "timerEventDefinition".equalsIgnoreCase(xtr.getLocalName())) {
           startEvent.getEventDefinitions().add(parseTimerEventDefinition(xtr));
 
+        } else if (xtr.isStartElement() && "messageEventDefinition".equalsIgnoreCase(xtr.getLocalName())) {
+          startEvent.getEventDefinitions().add(parseMessageEventDefinition(xtr));
+        
 				} else if (xtr.isEndElement() && "startEvent".equalsIgnoreCase(xtr.getLocalName())) {
 					readyWithStartEvent = true;
 				}
@@ -1723,7 +1727,22 @@ public class BpmnParser {
     }
     return eventDefinition;
   }
-	
+
+	 private MessageEventDefinition parseMessageEventDefinition(XMLStreamReader xtr) {
+	    MessageEventDefinition messageDefinition = new MessageEventDefinition();
+	    try {
+	      while (xtr.hasNext()) {
+	        xtr.next();
+	        if (xtr.isStartElement() && "messageRef".equalsIgnoreCase(xtr.getLocalName())) {
+	          messageDefinition.setMessageRef(xtr.getElementText());
+	          break;
+	        } 	      }
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return messageDefinition;
+	  }
+
 	private ErrorEventDefinition parseErrorEventDefinition(XMLStreamReader xtr) {
 	  ErrorEventDefinition eventDefinition = new ErrorEventDefinition();
     if (StringUtils.isNotEmpty(xtr.getAttributeValue(null, "errorRef"))) {

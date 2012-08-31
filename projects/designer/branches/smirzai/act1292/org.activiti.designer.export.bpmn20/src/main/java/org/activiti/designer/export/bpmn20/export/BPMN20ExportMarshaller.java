@@ -31,6 +31,7 @@ import org.activiti.designer.bpmn2.model.IntermediateCatchEvent;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.MailTask;
 import org.activiti.designer.bpmn2.model.ManualTask;
+import org.activiti.designer.bpmn2.model.MessageEventDefinition;
 import org.activiti.designer.bpmn2.model.ParallelGateway;
 import org.activiti.designer.bpmn2.model.Pool;
 import org.activiti.designer.bpmn2.model.Process;
@@ -281,6 +282,18 @@ public class BPMN20ExportMarshaller implements ActivitiNamespaceConstants {
 
         xtw.writeEndElement();
       }
+
+      if (startEvent.getEventDefinitions().size() > 0 && startEvent.getEventDefinitions().get(0) instanceof MessageEventDefinition) {
+
+        MessageEventDefinition messageDef = (MessageEventDefinition) startEvent.getEventDefinitions().get(0);
+
+        xtw.writeStartElement("messageEventDefinition ");
+
+        if (StringUtils.isNotEmpty(messageDef.getMessageRef())) 
+          xtw.writeAttribute("messageRef", messageDef.getMessageRef());
+        xtw.writeEndElement();
+      }
+
       
       if (startEvent.getEventDefinitions().size() > 0 && startEvent.getEventDefinitions().get(0) instanceof ErrorEventDefinition) {
 
