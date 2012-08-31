@@ -146,7 +146,7 @@
          <propertySection
                class="org.activiti.designer.property.PropertyExecutionListenerSection"
                filter="org.activiti.designer.property.PropertyExecutionListenerFilter"
-               id="org.activiti.	designer.listenerTab.ExecutionTab"
+               id="org.activiti.designer.listenerTab.ExecutionTab"
                tab="org.activiti.designer.listenerTab">
          </propertySection>
          <propertySection
