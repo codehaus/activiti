@@ -90,7 +90,6 @@ import org.activiti.designer.features.CreateInclusiveGatewayFeature;
 import org.activiti.designer.features.CreateLaneFeature;
 import org.activiti.designer.features.CreateMailTaskFeature;
 import org.activiti.designer.features.CreateManualTaskFeature;
-import org.activiti.designer.features.CreateMessageStartEventFeature;
 import org.activiti.designer.features.CreateNoneThrowingEventFeature;
 import org.activiti.designer.features.CreateParallelGatewayFeature;
 import org.activiti.designer.features.CreatePoolFeature;
@@ -184,14 +183,14 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 		  if(context.getNewObject() instanceof AlfrescoStartEvent) {
 		    return new AddAlfrescoStartEventFeature(this);
 		  } else {
-		  	if(((StartEvent) context.getNewObject()).getEventDefinitions().size() > 0) {
-		  		if(((StartEvent) context.getNewObject()).getEventDefinitions().get(0) instanceof TimerEventDefinition) {
-		  			return new AddTimerStartEventFeature(this);
-		  		} if (((StartEvent) context.getNewObject()).getEventDefinitions().get(0) instanceof MessageEventDefinition) {
-		  		  return new AddMessageStartEventFeature(this);
-		  		}  else {
-		  			return new AddErrorStartEventFeature(this);
-		  		}
+        if(((StartEvent) context.getNewObject()).getEventDefinitions().size() > 0) {
+          if(((StartEvent) context.getNewObject()).getEventDefinitions().get(0) instanceof TimerEventDefinition) {
+            return new AddTimerStartEventFeature(this);
+          } if (((StartEvent) context.getNewObject()).getEventDefinitions().get(0) instanceof MessageEventDefinition) {
+            return new AddMessageStartEventFeature(this);
+          }  else {
+            return new AddErrorStartEventFeature(this);
+          }
 		  	} else {
 		  		return new AddStartEventFeature(this);
 		  	}
@@ -294,7 +293,6 @@ public class ActivitiBPMNFeatureProvider extends DefaultFeatureProvider {
 		return new ICreateFeature[] { new CreateAlfrescoStartEventFeature(this),
 						new CreateStartEventFeature(this),
 						new CreateTimerStartEventFeature(this),
-						new CreateMessageStartEventFeature(this), 
 						new CreateErrorStartEventFeature(this),
 		        new CreateEndEventFeature(this),
 		        new CreateErrorEndEventFeature(this),
