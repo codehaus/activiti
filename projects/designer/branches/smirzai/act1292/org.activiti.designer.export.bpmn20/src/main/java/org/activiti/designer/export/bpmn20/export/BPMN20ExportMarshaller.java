@@ -31,6 +31,7 @@ import org.activiti.designer.bpmn2.model.IntermediateCatchEvent;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.MailTask;
 import org.activiti.designer.bpmn2.model.ManualTask;
+import org.activiti.designer.bpmn2.model.Message;
 import org.activiti.designer.bpmn2.model.MessageEventDefinition;
 import org.activiti.designer.bpmn2.model.ParallelGateway;
 import org.activiti.designer.bpmn2.model.Pool;
@@ -119,6 +120,14 @@ public class BPMN20ExportMarshaller implements ActivitiNamespaceConstants {
         xtw.writeAttribute("name", signal.getName());
         xtw.writeEndElement();
       }
+      
+      for (Message message : model.getMessages()) {
+        xtw.writeStartElement("message");
+        xtw.writeAttribute("id", message.getId());
+        xtw.writeAttribute("name", message.getName());
+        xtw.writeEndElement();
+      }
+
       
       if(model.getPools().size() > 0) {
         xtw.writeStartElement("collaboration");

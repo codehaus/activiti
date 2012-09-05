@@ -46,6 +46,7 @@ import org.activiti.designer.bpmn2.model.IntermediateCatchEvent;
 import org.activiti.designer.bpmn2.model.Lane;
 import org.activiti.designer.bpmn2.model.MailTask;
 import org.activiti.designer.bpmn2.model.ManualTask;
+import org.activiti.designer.bpmn2.model.Message;
 import org.activiti.designer.bpmn2.model.MessageEventDefinition;
 import org.activiti.designer.bpmn2.model.MultiInstanceLoopCharacteristics;
 import org.activiti.designer.bpmn2.model.ParallelGateway;
@@ -72,7 +73,6 @@ import org.activiti.designer.util.editor.Bpmn2MemoryModel;
 import org.activiti.designer.util.editor.GraphicInfo;
 import org.activiti.designer.util.preferences.Preferences;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jface.bindings.keys.formatting.FormalKeyFormatter;
 
 /**
  * @author Tijs Rademakers
@@ -152,6 +152,15 @@ public class BpmnParser {
 						model.getSignals().add(signal);
 					}
 					
+        } else if (xtr.isStartElement() && "message".equalsIgnoreCase(xtr.getLocalName())) {
+          
+          if (StringUtils.isNotEmpty(xtr.getAttributeValue(null, "id"))) {
+            Message message = new Message();
+            message.setId(xtr.getAttributeValue(null, "id"));
+            message.setName(xtr.getAttributeValue(null, "name"));
+            model.getMessages().add(message);
+          }          
+          
 				} else if (xtr.isStartElement() && "participant".equalsIgnoreCase(xtr.getLocalName())) {
 				  
 				  if (StringUtils.isNotEmpty(xtr.getAttributeValue(null, "id"))) {

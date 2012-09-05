@@ -84,6 +84,13 @@
                id="org.activiti.designer.signalTab"
                label="Signals">
          </propertyTab>
+         <propertyTab
+               afterTab="org.activiti.designer.signalTab"
+               category="Activiti"
+               id="org.activiti.designer.messageTab" 
+               label="Messages">
+         </propertyTab>
+         
       </propertyTabs>
    </extension>
    <extension
@@ -282,6 +289,13 @@
                id="org.activiti.designer.signalTab.signals"
                tab="org.activiti.designer.signalTab">
          </propertySection>
+         <propertySection
+               class="org.activiti.designer.property.PropertyMessageSection"
+               filter="org.activiti.designer.property.PropertyDiagramFilter"
+               id="org.activiti.designer.messageTab.messages"
+               tab="org.activiti.designer.messageTab">
+         </propertySection>
+         
       </propertySections>
    </extension>
    <extension
